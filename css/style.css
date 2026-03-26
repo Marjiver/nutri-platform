@@ -1180,3 +1180,226 @@ input, select, textarea, button { font-family: var(--font-body); }
   .footer-links { grid-template-columns: 1fr 1fr; }
   .nav-links { display: none; }
 }
+
+/* ===== ÉDITEUR PLAN DIÉT ===== */
+.editeur-repas-block { margin-bottom: 1.5rem; }
+.editeur-repas-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 1rem; background: var(--green-light); border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem; font-size: 0.875rem;
+}
+.editeur-kcal-total { font-size: 0.8rem; font-weight: 500; color: var(--green); }
+.editeur-item {
+  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 4px; background: #fff; flex-wrap: wrap;
+}
+.editeur-aliment-input {
+  flex: 1; min-width: 140px; border: none; outline: none;
+  font-size: 0.875rem; background: transparent; padding: 2px 4px;
+  color: var(--dark);
+}
+.editeur-aliment-input:focus { background: var(--gray-light); border-radius: 4px; }
+.editeur-qte-input {
+  width: 64px; border: 1px solid var(--border); border-radius: 4px;
+  padding: 3px 6px; font-size: 0.875rem; text-align: right;
+}
+.editeur-unite { font-size: 0.75rem; color: var(--gray); min-width: 20px; }
+.editeur-kcal-item { font-size: 0.75rem; color: var(--green); min-width: 60px; text-align: right; }
+.editeur-del {
+  background: none; border: none; color: #ccc; cursor: pointer;
+  font-size: 0.75rem; padding: 2px 4px; transition: color 0.2s; flex-shrink: 0;
+}
+.editeur-del:hover { color: #ef4444; }
+.editeur-add-btn {
+  background: none; border: 1px dashed var(--border); color: var(--gray);
+  border-radius: var(--radius-sm); padding: 6px 14px; font-size: 0.8rem;
+  cursor: pointer; width: 100%; margin-top: 4px; transition: background 0.2s;
+}
+.editeur-add-btn:hover { background: var(--gray-light); }
+
+.groupe-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.7rem; font-weight: 500; padding: 2px 8px;
+  border-radius: 999px; border: 1px solid; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; transition: opacity 0.15s;
+}
+.groupe-badge:hover { opacity: 0.75; }
+.groupe-badge-empty { font-size: 0.7rem; color: var(--gray); flex-shrink: 0; }
+
+/* CIQUAL Modal */
+.ciqual-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.ciqual-row:hover { background: var(--green-light); border-color: var(--green); }
+.ciqual-aliment { font-size: 0.875rem; color: var(--dark); flex: 1; }
+.ciqual-note { font-size: 0.75rem; color: var(--gray); }
+.ciqual-values { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.ciqual-kcal { font-size: 0.75rem; color: var(--gray); }
+.ciqual-equiv { font-size: 0.8rem; font-weight: 500; color: var(--green); white-space: nowrap; }
+
+/* ===== ILLUSTRATIONS ASSIETTES (page accueil) ===== */
+.section-plates { background: #fff; }
+.plates-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.plate-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.plate-illus { height: 180px; display: flex; align-items: center; justify-content: center; position: relative; }
+.plate-card h4 { font-size: 0.9rem; font-weight: 500; padding: 0.75rem 1rem 0.25rem; }
+.plate-card p { font-size: 0.8rem; color: var(--gray); padding: 0 1rem 1rem; line-height: 1.6; }
+
+/* ===== CALCULATRICE G/ML ===== */
+.calculatrice-widget {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.25rem; margin-top: 1rem;
+}
+.calc-titre { font-size: 0.875rem; font-weight: 500; margin-bottom: 1rem; }
+.calc-body { display: flex; flex-direction: column; gap: 0.75rem; }
+.calc-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.calc-select { font-size: 0.875rem; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; }
+.calc-input { width: 90px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; }
+.calc-result {
+  background: var(--green-light); color: var(--green); border-radius: var(--radius-sm);
+  padding: 10px 14px; font-size: 0.875rem; font-weight: 500; min-height: 40px;
+  display: flex; align-items: center;
+}
+.calc-label { font-size: 0.8rem; color: var(--gray); }
+
+@media (max-width: 640px) {
+  .plates-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== TOTAUX PLAN DIÉT ===== */
+.totaux-plan-bar {
+  display:flex;gap:0;background:var(--dark);border-radius:var(--radius-sm);
+  margin-bottom:.75rem;overflow:hidden;
+}
+.totaux-macro {
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:.6rem .5rem;border-right:1px solid rgba(255,255,255,.1);gap:2px;
+}
+.totaux-macro:last-child{border-right:none;}
+.tot-label{font-size:.65rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em;}
+.totaux-macro strong{color:#fff;font-size:.9rem;}
+.micros-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1.25rem;}
+.micro-chip{background:var(--green-light);color:var(--green);font-size:.7rem;font-weight:500;padding:3px 9px;border-radius:999px;}
+
+/* CIQUAL tableau */
+.ciqual-tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:.55rem .75rem;font-size:.78rem;cursor:pointer;white-space:nowrap;
+  transition:color .15s;display:flex;align-items:center;gap:4px;flex-shrink:0;
+}
+.ciqual-tab span{display:none;}
+.ciqual-tab.active span{display:inline;}
+.ciqual-row2{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap:0;padding:8px 12px;border-bottom:1px solid var(--gray-light);
+  cursor:pointer;transition:background .12s;align-items:center;
+}
+.ciqual-row2:hover{background:var(--green-light);}
+.ciqual-cell{font-size:.75rem;color:var(--gray);text-align:right;}
+.kcal-cell{font-weight:500;color:var(--dark);}
+.equiv-cell{color:var(--green);font-weight:500;font-size:.72rem;}
+.ciqual-aliment{font-size:.82rem;color:var(--dark);}
+.ciqual-note{font-size:.7rem;color:var(--gray);}
+.editeur-macros-mini{font-size:.68rem;color:var(--gray);white-space:nowrap;flex-shrink:0;}
+
+/* ===== ANIMATIONS PAGE ACCUEIL ===== */
+
+/* Step cards hover */
+.step-card {
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+  cursor: default;
+}
+.step-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(26,107,74,.12);
+}
+.step-card:hover .step-num { -webkit-text-stroke-color: var(--green); }
+.step-card:hover .illus-form-btn { transform: scaleX(1.08); }
+
+/* Pro cards hover */
+.pro-card {
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+.pro-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
+
+/* Pricing cols hover */
+.pricing-col {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.pricing-col:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.07); }
+.pricing-col.premium:hover { box-shadow: 0 12px 32px rgba(26,107,74,.15); }
+
+/* Plate cards hover */
+.plate-card {
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+.plate-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
+.plate-card:hover .plate-illus svg { transform: scale(1.06); }
+.plate-illus svg { transition: transform .3s ease; }
+
+/* Hero CTA pulse */
+.btn-hero-main {
+  position: relative; overflow: hidden;
+}
+.btn-hero-main::after {
+  content:''; position:absolute; inset:0; background:rgba(255,255,255,0);
+  transition: background .2s;
+}
+.btn-hero-main:hover::after { background:rgba(255,255,255,.12); }
+
+/* Mockup hero float animation */
+@keyframes floatMockup {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-8px); }
+}
+.hero-mockup { animation: floatMockup 4s ease-in-out infinite; }
+
+/* CTA section hover arrow bounce */
+.step-link { display:inline-block; transition: transform .2s ease; }
+.step-card:hover .step-link { transform: translateX(4px); }
+
+/* Nav links underline slide */
+.nav-link { position:relative; }
+.nav-link::after {
+  content:''; position:absolute; bottom:-2px; left:0; width:0; height:1.5px;
+  background:var(--green); transition: width .2s ease;
+}
+.nav-link:hover::after { width:100%; }
+
+/* Conn items slide */
+.conn-item { transition: background .15s, padding-left .15s; }
+.conn-item:hover { padding-left: 1.25rem; }
+
+/* Scroll reveal */
+@keyframes revealUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:none; }
+}
+.reveal { animation: revealUp .5s ease both; }
+.reveal-d1 { animation-delay:.1s; }
+.reveal-d2 { animation-delay:.2s; }
+.reveal-d3 { animation-delay:.3s; }
+.reveal-d4 { animation-delay:.4s; }
+
+/* Reassurance items fade in */
+.reassurance-item {
+  display:inline-flex;align-items:center;gap:4px;
+  transition:color .2s;
+}
+.reassurance-item:hover { color:var(--green); }
+
+/* ===== LOGIN ===== */
+.profile-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: .65rem .5rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: #fff; cursor: pointer; font-size: .78rem; color: var(--gray);
+  transition: border-color .2s, background .2s, color .2s; font-family: var(--font-body);
+}
+.profile-tab:hover { border-color: var(--green); color: var(--dark); }
+.profile-tab.active { border-color: var(--green); background: var(--green-light); color: var(--green); font-weight: 500; }

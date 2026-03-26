@@ -1,273 +1,58 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Espace diététicien — NutriPlan</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
 </head>
 <body class="page-dietitian">
 
   <header class="header">
     <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-    <nav class="nav" style="gap:1rem;">
-      <span class="user-tag pro" id="dietName">Dr. Lemaire — Diététicien</span>
-    </nav>
+    <nav class="nav"><span class="user-tag pro">Dr. Lemaire — Diététicien</span></nav>
   </header>
 
   <main class="dashboard-container">
-
-    <!-- Onglets navigation -->
-    <div class="diet-tabs">
-      <button class="diet-tab active" onclick="showTab('dossiers', this)">Dossiers patients</button>
-      <button class="diet-tab" onclick="showTab('chat', this)">Messagerie <span class="tab-badge" id="chatBadge">2</span></button>
-      <button class="diet-tab" onclick="showTab('facturation', this)">Facturation</button>
+    <div class="dashboard-greeting">
+      <h2>Dossiers à valider</h2>
+      <p>Modifiez et validez les plans alimentaires avec grammages et bilan nutritionnel complet.</p>
     </div>
-
-    <!-- ═══ ONGLET 1 : Dossiers ═══ -->
-    <div class="tab-content active" id="tab-dossiers">
-      <div class="dashboard-greeting">
-        <h2>Dossiers à valider</h2>
-        <p>2 plans en attente de votre validation.</p>
-      </div>
-
-      <div class="patients-list">
-
-        <div class="patient-card" data-patient="marie" data-montant="14.90" data-formule="pro">
-          <div class="patient-info">
-            <div class="avatar">MD</div>
-            <div>
-              <p class="patient-name">Marie D. — 34 ans</p>
-              <p class="patient-meta">Végétarienne · Perte de poids · IMC 23.4</p>
-            </div>
-            <div class="patient-tags">
-              <span class="ptag ptag-chat">Chat activé</span>
-              <span class="ptag ptag-plan">Plan 14,90 €</span>
-            </div>
-          </div>
-          <div class="patient-actions">
-            <button class="btn-view" onclick="togglePlan(this)">Voir le plan</button>
-            <button class="btn-validate" onclick="validerPlan(this)">Valider ✓</button>
-          </div>
-          <div class="plan-detail hidden">
-            <h4>Plan IA généré</h4>
-            <div class="plan-meals-preview">
-              <div class="pmp-block"><strong>Petit-déjeuner</strong><p>Flocons d'avoine 50g · Lait demi-écrémé 150ml · Fruits rouges 100g · Yaourt 0% 125g</p></div>
-              <div class="pmp-block"><strong>Déjeuner (option A)</strong><p>Blanc de poulet 120g · Salade verte 100g · Tomates 100g · Huile d'olive 10ml · Pain seigle 40g</p></div>
-              <div class="pmp-block"><strong>Collation</strong><p>Amandes 20g · Fruit frais 120g</p></div>
-              <div class="pmp-block"><strong>Dîner (option A)</strong><p>Poisson blanc vapeur 130g · Haricots verts 200g · Pomme de terre 150g · Huile d'olive 8ml</p></div>
-            </div>
-            <div class="form-group">
-              <label>Annotations / modifications</label>
-              <textarea placeholder="Ajouter des remarques, modifier des quantités..." rows="3"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="patient-card" data-patient="thomas" data-montant="14.90" data-formule="essentiel">
-          <div class="patient-info">
-            <div class="avatar">TK</div>
-            <div>
-              <p class="patient-name">Thomas K. — 28 ans</p>
-              <p class="patient-meta">Sans restriction · Prise de masse · IMC 21.8</p>
-            </div>
-            <div class="patient-tags">
-              <span class="ptag ptag-plan">Plan 14,90 €</span>
-            </div>
-          </div>
-          <div class="patient-actions">
-            <button class="btn-view" onclick="togglePlan(this)">Voir le plan</button>
-            <button class="btn-validate" onclick="validerPlan(this)">Valider ✓</button>
-          </div>
-          <div class="plan-detail hidden">
-            <h4>Plan IA généré</h4>
-            <div class="plan-meals-preview">
-              <div class="pmp-block"><strong>Petit-déjeuner</strong><p>Pain de mie complet 120g · Lait 200ml · Beurre 20g · Fromage blanc 150g · Compote 100g</p></div>
-              <div class="pmp-block"><strong>Déjeuner (option A)</strong><p>Volaille cuite 150g · Pomme de terre 400g · Légume cuit 100g · Fromage 30g · Huile de colza 15g</p></div>
-              <div class="pmp-block"><strong>Collation</strong><p>Pain mie complet 80g · Lait 200ml · Beurre de cacahuète 20g · Compote 100g</p></div>
-              <div class="pmp-block"><strong>Dîner (option A)</strong><p>Volaille cuite 100g · Pomme de terre 400g · Légume cuit 100g · Huile 15g · Compote 100g</p></div>
-            </div>
-            <div class="form-group">
-              <label>Annotations / modifications</label>
-              <textarea placeholder="Ajouter des remarques, modifier des quantités..." rows="3"></textarea>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ═══ ONGLET 2 : Chat ═══ -->
-    <div class="tab-content hidden" id="tab-chat">
-      <div class="dashboard-greeting">
-        <h2>Messagerie patients</h2>
-        <p>Conversations avec vos patients ayant activé l'option chat.</p>
-      </div>
-
-      <div class="chat-layout">
-
-        <!-- Liste conversations -->
-        <div class="chat-list">
-          <div class="chat-conv active" onclick="openConv('marie', this)">
-            <div class="avatar" style="width:36px;height:36px;font-size:0.75rem;">MD</div>
-            <div class="chat-conv-info">
-              <div class="chat-conv-name">Marie D.</div>
-              <div class="chat-conv-preview">Bonjour, j'ai une question sur les grammages...</div>
-            </div>
-            <div class="chat-conv-meta">
-              <span class="chat-unread">2</span>
-              <span class="chat-time">14:32</span>
-            </div>
-          </div>
-          <div class="chat-conv" onclick="openConv('lucas', this)">
-            <div class="avatar" style="width:36px;height:36px;font-size:0.75rem;">LB</div>
-            <div class="chat-conv-info">
-              <div class="chat-conv-name">Lucas B.</div>
-              <div class="chat-conv-preview">Merci pour le plan, c'est très clair !</div>
-            </div>
-            <div class="chat-conv-meta">
-              <span class="chat-time">Hier</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fenêtre de chat -->
-        <div class="chat-window" id="chatWindow">
-          <div class="chat-window-header" id="chatHeader">
-            <div class="avatar" style="width:32px;height:32px;font-size:0.7rem;" id="chatAvatar">MD</div>
-            <div>
-              <div style="font-weight:500;font-size:0.9rem;" id="chatPatientName">Marie D.</div>
-              <div style="font-size:0.75rem;color:var(--gray);">Perte de poids · Chat premium activé</div>
-            </div>
-          </div>
-          <div class="chat-messages" id="chatMessages">
-            <div class="chat-msg patient">
-              <div class="chat-bubble">Bonjour docteur, j'ai une question sur les grammages du déjeuner. Est-ce que je peux remplacer le poulet par du thon en boîte ?</div>
-              <div class="chat-msg-time">14:30</div>
-            </div>
-            <div class="chat-msg patient">
-              <div class="chat-bubble">Et aussi, la collation du soir est-elle obligatoire ?</div>
-              <div class="chat-msg-time">14:32</div>
-            </div>
-          </div>
-          <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="Votre réponse..." onkeydown="if(event.key==='Enter') sendMsg()" />
-            <button class="btn-send" onclick="sendMsg()">Envoyer</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ═══ ONGLET 3 : Facturation ═══ -->
-    <div class="tab-content hidden" id="tab-facturation">
-      <div class="dashboard-greeting">
-        <h2>Facturation</h2>
-        <p>Gérez vos factures et exportez pour votre comptabilité.</p>
-      </div>
-
-      <!-- Résumé financier -->
-      <div class="fact-stats">
-        <div class="fact-stat-card">
-          <span class="fact-stat-label">Ce mois</span>
-          <span class="fact-stat-value">238,00 €</span>
-        </div>
-        <div class="fact-stat-card">
-          <span class="fact-stat-label">Plans validés</span>
-          <span class="fact-stat-value">16</span>
-        </div>
-        <div class="fact-stat-card">
-          <span class="fact-stat-label">Dont chats</span>
-          <span class="fact-stat-value">4</span>
-        </div>
-        <div class="fact-stat-card">
-          <span class="fact-stat-label">En attente</span>
-          <span class="fact-stat-value">29,80 €</span>
-        </div>
-      </div>
-
-      <!-- Actions export -->
-      <div class="fact-actions">
-        <button class="fact-btn" onclick="exporterCSV()">
-          <span class="fact-btn-icon">↓</span>
-          Export comptable CSV
-          <span class="fact-btn-sub">Compatible Excel / Sage</span>
-        </button>
-        <button class="fact-btn" onclick="exporterPDFMois()">
-          <span class="fact-btn-icon">↓</span>
-          Relevé mensuel PDF
-          <span class="fact-btn-sub">Toutes les factures du mois</span>
-        </button>
-        <button class="fact-btn" onclick="envoyerEmail()">
-          <span class="fact-btn-icon">✉</span>
-          Envoi auto par email
-          <span class="fact-btn-sub">Vers votre email comptable</span>
-        </button>
-      </div>
-
-      <!-- Liste factures -->
-      <div class="fact-table-wrap">
-        <div class="fact-table-header">
-          <span>Factures émises</span>
-          <select id="factFiltreMonth" onchange="filtrerFactures()" style="font-size:0.8rem;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);">
-            <option value="mars">Mars 2025</option>
-            <option value="fevrier">Février 2025</option>
-          </select>
-        </div>
-        <table class="fact-table" id="factTable">
-          <thead>
-            <tr>
-              <th>N° Facture</th>
-              <th>Date</th>
-              <th>Patient</th>
-              <th>Prestation</th>
-              <th>Montant HT</th>
-              <th>TVA</th>
-              <th>TTC</th>
-              <th>Statut</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="factBody">
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-
+    <div id="alertesZone"></div>
+    <div class="patients-list" id="patientsList"></div>
   </main>
 
-  <script src="js/dietitian.js"></script>
+  <!-- MODAL ÉDITEUR -->
+  <div id="modalEditeur" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,0.5);padding:32px 1rem;z-index:200;">
+    <div style="background:#fff;border-radius:var(--radius);max-width:820px;margin:0 auto;overflow:hidden;">
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+        <h3 id="editeurTitre" style="font-family:var(--font-display);font-size:1.15rem;margin:0;"></h3>
+        <button class="btn-back" onclick="fermerEditeur()">✕ Fermer</button>
+      </div>
+      <div style="padding:1.25rem 1.5rem;max-height:78vh;overflow-y:auto;" id="editeurBody"></div>
+      <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:.75rem;justify-content:flex-end;background:#fafafa;">
+        <button class="btn-back" onclick="fermerEditeur()">Annuler</button>
+        <button class="btn-validate" onclick="validerPlan()">✓ Valider et envoyer au patient</button>
+      </div>
+    </div>
+  </div>
 
-  <footer class="footer-main">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
-        <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
+  <!-- MODAL CIQUAL -->
+  <div id="modalCiqual" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,0.65);padding:24px 1rem;z-index:300;">
+    <div style="background:#fff;border-radius:var(--radius);max-width:820px;margin:0 auto;overflow:hidden;">
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div id="ciqualGroupLabel" style="font-size:0.95rem;font-weight:500;"></div>
+        <button class="btn-back" onclick="fermerCiqual()">✕</button>
       </div>
-      <div class="footer-links">
-        <div class="footer-col">
-          <div class="footer-col-title">Patients</div>
-          <a href="bilan.html">Faire mon bilan</a>
-          <a href="dashboard.html">Mon espace</a>
-        </div>
-        <div class="footer-col">
-          <div class="footer-col-title">Professionnels</div>
-          <a href="inscription-dieteticien.html">Inscription diét.</a>
-          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
-        </div>
-      </div>
-      <div class="footer-partner">
-        <div class="footer-col-title">Développée par</div>
-        <a href="https://calidoc.fr" target="_blank">
-          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
-        </a>
-      </div>
+      <div id="ciqualTabs" style="display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--border);padding:0 1rem;background:#fafafa;"></div>
+      <div id="ciqualBody" style="max-height:55vh;overflow-y:auto;"></div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
-    </div>
-  </footer>
+  </div>
+
+  <script src="js/ciqual-data.js"></script>
+  <script src="js/dietitian.js"></script>
 </body>
 </html>

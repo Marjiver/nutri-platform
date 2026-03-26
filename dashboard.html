@@ -6,6 +6,8 @@
   <title>Mon tableau de bord — NutriPlan</title>
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
 </head>
 <body class="page-dashboard">
 
@@ -122,6 +124,80 @@
 
     </section>
 
+
+    <!-- CALCULATRICE G / ML -->
+    <section class="dashboard-section">
+      <div class="section-header-row">
+        <h3>Calculatrice de conversion</h3>
+        <span class="free-badge">Outil</span>
+      </div>
+      <div class="calculatrice-widget">
+        <div class="calc-titre">Convertir grammes ↔ millilitres selon l'aliment</div>
+        <div class="calc-body">
+          <div class="calc-row">
+            <span class="calc-label">Aliment</span>
+            <select class="calc-select" id="calcAliment" onchange="calcConvertir()">
+              <option value="eau" data-densite="1.0">Eau</option>
+              <option value="lait" data-densite="1.03">Lait</option>
+              <option value="huile_olive" data-densite="0.916">Huile d'olive</option>
+              <option value="huile_colza" data-densite="0.915">Huile de colza</option>
+              <option value="creme" data-densite="0.994">Crème liquide</option>
+              <option value="vinaigre" data-densite="1.006">Vinaigre</option>
+              <option value="jus_orange" data-densite="1.04">Jus d'orange</option>
+              <option value="lait_soja" data-densite="1.02">Lait de soja</option>
+              <option value="yaourt" data-densite="1.08">Yaourt</option>
+              <option value="miel" data-densite="1.42">Miel</option>
+              <option value="sirop_agave" data-densite="1.33">Sirop d'agave</option>
+              <option value="sauce_soja" data-densite="1.18">Sauce soja</option>
+            </select>
+          </div>
+          <div class="calc-row">
+            <span class="calc-label">Quantité</span>
+            <input type="number" class="calc-input" id="calcQte" value="100" min="1" step="1" oninput="calcConvertir()" />
+            <select class="calc-select" id="calcUnite" onchange="calcConvertir()">
+              <option value="g">grammes (g)</option>
+              <option value="ml">millilitres (ml)</option>
+              <option value="cs">cuillères à soupe (cs)</option>
+              <option value="cc">cuillères à café (cc)</option>
+            </select>
+          </div>
+          <div class="calc-result" id="calcResult">
+            Entrez une quantité pour voir la conversion
+          </div>
+          <div style="font-size:0.7rem;color:var(--gray);">
+            1 cs = 15 ml · 1 cc = 5 ml · Densités selon table CIQUAL 2020
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+    function calcConvertir() {
+      const sel   = document.getElementById('calcAliment');
+      const densite = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-densite'));
+      const qte   = parseFloat(document.getElementById('calcQte').value) || 0;
+      const unite = document.getElementById('calcUnite').value;
+      const nom   = sel.options[sel.selectedIndex].text;
+      const result = document.getElementById('calcResult');
+      if (!qte) { result.textContent = 'Entrez une quantité'; return; }
+
+      let qteG, qteML;
+      if (unite === 'g')  { qteG = qte; qteML = qte / densite; }
+      if (unite === 'ml') { qteML = qte; qteG = qte * densite; }
+      if (unite === 'cs') { qteML = qte * 15; qteG = qteML * densite; }
+      if (unite === 'cc') { qteML = qte * 5;  qteG = qteML * densite; }
+
+      const nbCS = (qteML / 15).toFixed(1);
+      const nbCC = (qteML / 5).toFixed(1);
+      result.innerHTML =
+        '<strong>' + Math.round(qteG) + ' g</strong> de ' + nom +
+        ' = <strong>' + Math.round(qteML) + ' ml</strong>' +
+        ' = <strong>' + nbCS + ' cs</strong>' +
+        ' = <strong>' + nbCC + ' cc</strong>';
+    }
+    document.addEventListener('DOMContentLoaded', calcConvertir);
+    </script>
+
   </main>
 
   <!-- Modal paiement simulé -->
@@ -189,6 +265,80 @@
         </div>
       </div>
     </section>
+
+
+    <!-- CALCULATRICE G / ML -->
+    <section class="dashboard-section">
+      <div class="section-header-row">
+        <h3>Calculatrice de conversion</h3>
+        <span class="free-badge">Outil</span>
+      </div>
+      <div class="calculatrice-widget">
+        <div class="calc-titre">Convertir grammes ↔ millilitres selon l'aliment</div>
+        <div class="calc-body">
+          <div class="calc-row">
+            <span class="calc-label">Aliment</span>
+            <select class="calc-select" id="calcAliment" onchange="calcConvertir()">
+              <option value="eau" data-densite="1.0">Eau</option>
+              <option value="lait" data-densite="1.03">Lait</option>
+              <option value="huile_olive" data-densite="0.916">Huile d'olive</option>
+              <option value="huile_colza" data-densite="0.915">Huile de colza</option>
+              <option value="creme" data-densite="0.994">Crème liquide</option>
+              <option value="vinaigre" data-densite="1.006">Vinaigre</option>
+              <option value="jus_orange" data-densite="1.04">Jus d'orange</option>
+              <option value="lait_soja" data-densite="1.02">Lait de soja</option>
+              <option value="yaourt" data-densite="1.08">Yaourt</option>
+              <option value="miel" data-densite="1.42">Miel</option>
+              <option value="sirop_agave" data-densite="1.33">Sirop d'agave</option>
+              <option value="sauce_soja" data-densite="1.18">Sauce soja</option>
+            </select>
+          </div>
+          <div class="calc-row">
+            <span class="calc-label">Quantité</span>
+            <input type="number" class="calc-input" id="calcQte" value="100" min="1" step="1" oninput="calcConvertir()" />
+            <select class="calc-select" id="calcUnite" onchange="calcConvertir()">
+              <option value="g">grammes (g)</option>
+              <option value="ml">millilitres (ml)</option>
+              <option value="cs">cuillères à soupe (cs)</option>
+              <option value="cc">cuillères à café (cc)</option>
+            </select>
+          </div>
+          <div class="calc-result" id="calcResult">
+            Entrez une quantité pour voir la conversion
+          </div>
+          <div style="font-size:0.7rem;color:var(--gray);">
+            1 cs = 15 ml · 1 cc = 5 ml · Densités selon table CIQUAL 2020
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+    function calcConvertir() {
+      const sel   = document.getElementById('calcAliment');
+      const densite = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-densite'));
+      const qte   = parseFloat(document.getElementById('calcQte').value) || 0;
+      const unite = document.getElementById('calcUnite').value;
+      const nom   = sel.options[sel.selectedIndex].text;
+      const result = document.getElementById('calcResult');
+      if (!qte) { result.textContent = 'Entrez une quantité'; return; }
+
+      let qteG, qteML;
+      if (unite === 'g')  { qteG = qte; qteML = qte / densite; }
+      if (unite === 'ml') { qteML = qte; qteG = qte * densite; }
+      if (unite === 'cs') { qteML = qte * 15; qteG = qteML * densite; }
+      if (unite === 'cc') { qteML = qte * 5;  qteG = qteML * densite; }
+
+      const nbCS = (qteML / 15).toFixed(1);
+      const nbCC = (qteML / 5).toFixed(1);
+      result.innerHTML =
+        '<strong>' + Math.round(qteG) + ' g</strong> de ' + nom +
+        ' = <strong>' + Math.round(qteML) + ' ml</strong>' +
+        ' = <strong>' + nbCS + ' cs</strong>' +
+        ' = <strong>' + nbCC + ' cc</strong>';
+    }
+    document.addEventListener('DOMContentLoaded', calcConvertir);
+    </script>
 
   </main>
 

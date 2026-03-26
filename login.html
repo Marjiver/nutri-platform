@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-inscription-diet" style="background:var(--cream);">
+
+  <header class="header">
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
+  </header>
+
+  <main style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;">
+    <div style="width:100%;max-width:400px;">
+
+      <div style="text-align:center;margin-bottom:2rem;">
+        <h2 style="font-family:var(--font-display);font-size:1.75rem;margin-bottom:.5rem;">Connexion</h2>
+        <p style="font-size:.9rem;color:var(--gray);">Accédez à votre espace NutriPlan</p>
+      </div>
+
+      <!-- Sélecteur de profil -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.5rem;" id="profileTabs">
+        <button class="profile-tab active" data-role="patient" onclick="selectRole('patient',this)">
+          <span style="font-size:16px;">👤</span>
+          <span>Patient</span>
+        </button>
+        <button class="profile-tab" data-role="dietitian" onclick="selectRole('dietitian',this)">
+          <span style="font-size:16px;">🩺</span>
+          <span>Diététicien</span>
+        </button>
+        <button class="profile-tab" data-role="prescriber" onclick="selectRole('prescriber',this)">
+          <span style="font-size:16px;">💪</span>
+          <span>Coach / Kiné</span>
+        </button>
+      </div>
+
+      <div class="inscription-form-card" style="padding:1.75rem;">
+
+        <div id="loginError" class="insc-error hidden" style="margin-bottom:1rem;"></div>
+
+        <div class="form-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="loginEmail" placeholder="votre@email.fr" required />
+        </div>
+        <div class="form-group">
+          <label>Mot de passe <span class="req">*</span></label>
+          <div class="pwd-wrap">
+            <input type="password" id="loginPassword" placeholder="Votre mot de passe" required
+              onkeydown="if(event.key==='Enter') soumettreConnexion()"/>
+            <button type="button" class="pwd-toggle" onclick="toggleLoginPwd()">Voir</button>
+          </div>
+        </div>
+
+        <button class="btn-submit" style="width:100%;margin-top:1rem;" id="btnLogin" onclick="soumettreConnexion()">
+          Se connecter →
+        </button>
+
+        <div style="text-align:center;margin-top:1.25rem;font-size:.8rem;color:var(--gray);">
+          <a href="#" style="color:var(--green);">Mot de passe oublié ?</a>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-top:1.5rem;padding-top:1.25rem;text-align:center;">
+          <div id="inscriptionLink" style="font-size:.85rem;color:var(--gray);"></div>
+        </div>
+
+      </div>
+
+      <!-- Mode démo -->
+      <div style="background:var(--gray-light);border-radius:var(--radius-sm);padding:1rem;margin-top:1rem;font-size:.8rem;color:var(--gray);text-align:center;">
+        <strong>Mode démo</strong> — Supabase non configuré.<br>
+        Cliquez directement sur votre espace :
+        <div style="display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap;">
+          <a href="dashboard.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace patient</a>
+          <a href="dietitian.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace diét.</a>
+          <a href="prescripteur-dashboard.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace prescripteur</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <script>
+  let roleSelectionne = 'patient';
+
+  const INSCRIPTIONS = {
+    patient:    { url:'bilan.html',                  label:'Pas encore de compte ? <a href="bilan.html" style="color:var(--green);">Commencer le bilan</a>' },
+    dietitian:  { url:'inscription-dieteticien.html', label:'Pas encore inscrit ? <a href="inscription-dieteticien.html" style="color:var(--green);">Créer un compte diét.</a>' },
+    prescriber: { url:'inscription-prescripteur.html',label:'Pas encore inscrit ? <a href="inscription-prescripteur.html" style="color:var(--green);">Créer un compte prescripteur</a>' }
+  };
+
+  function selectRole(role, btn) {
+    roleSelectionne = role;
+    document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('inscriptionLink').innerHTML = INSCRIPTIONS[role].label;
+  }
+
+  function toggleLoginPwd() {
+    const inp = document.getElementById('loginPassword');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  async function soumettreConnexion() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl    = document.getElementById('loginError');
+    const btn      = document.getElementById('btnLogin');
+
+    if (!email || !password) { showLoginError('Veuillez remplir tous les champs.'); return; }
+
+    btn.textContent = 'Connexion…';
+    btn.disabled    = true;
+
+    if (MODE_SUPA) {
+      const { error } = await connecter(email, password);
+      if (error) { showLoginError(error.message || 'Email ou mot de passe incorrect.'); btn.textContent='Se connecter →'; btn.disabled=false; }
+    } else {
+      // Mode démo : redirection directe
+      setTimeout(() => {
+        const REDIRECT = { patient:'dashboard.html', dietitian:'dietitian.html', prescriber:'prescripteur-dashboard.html' };
+        window.location.href = REDIRECT[roleSelectionne];
+      }, 800);
+    }
+  }
+
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    selectRole('patient', document.querySelector('.profile-tab'));
+  });
+  </script>
+
+</body>
+</html>

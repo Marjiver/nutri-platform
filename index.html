@@ -6,6 +6,8 @@
   <title>NutriPlan — Pré-bilan nutritionnel</title>
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
 </head>
 <body>
 
@@ -21,15 +23,15 @@
         <div class="connexion-dropdown" id="connDropdown">
           <button class="btn-outline" onclick="toggleConnDropdown()">Se connecter ▾</button>
           <div class="conn-menu" id="connMenu">
-            <a href="dashboard.html" class="conn-item">
+            <a href="login.html?role=patient" class="conn-item">
               <span class="conn-icon conn-icon-patient"></span>
               <div><div class="conn-item-title">Patient</div><div class="conn-item-sub">Accéder à mon bilan</div></div>
             </a>
-            <a href="dietitian.html" class="conn-item">
+            <a href="login.html?role=dietitian" class="conn-item">
               <span class="conn-icon conn-icon-diet"></span>
               <div><div class="conn-item-title">Diététicien</div><div class="conn-item-sub">Espace de validation</div></div>
             </a>
-            <a href="prescripteur-dashboard.html" class="conn-item">
+            <a href="login.html?role=prescriber" class="conn-item">
               <span class="conn-icon conn-icon-coach"></span>
               <div><div class="conn-item-title">Coach / Kiné</div><div class="conn-item-sub">Espace prescripteur</div></div>
             </a>
@@ -112,7 +114,7 @@
       <div class="section-tag">Simple et rapide</div>
       <h2>Comment ça marche ?</h2>
       <div class="steps-grid">
-        <div class="step-card">
+        <div class="step-card reveal">
           <div class="step-num">01</div>
           <div class="step-illus step-illus-form">
             <div class="illus-form-line"></div>
@@ -124,7 +126,7 @@
           <p>5 minutes pour renseigner vos habitudes, objectifs et informations de santé.</p>
           <a href="bilan.html" class="step-link">Commencer →</a>
         </div>
-        <div class="step-card">
+        <div class="step-card reveal reveal-d1">
           <div class="step-num">02</div>
           <div class="step-illus step-illus-ai">
             <div class="illus-ai-bar"></div>
@@ -135,7 +137,7 @@
           <h3>L'IA génère votre plan</h3>
           <p>Un plan personnalisé avec menus et recommandations gratuits, immédiatement.</p>
         </div>
-        <div class="step-card">
+        <div class="step-card reveal reveal-d2">
           <div class="step-num">03</div>
           <div class="step-illus step-illus-check">
             <div class="illus-check-circle">✓</div>
@@ -147,7 +149,7 @@
           <h3>Le diét valide</h3>
           <p>Un diététicien certifié RPPS analyse et valide votre plan avec grammages précis.</p>
         </div>
-        <div class="step-card">
+        <div class="step-card reveal reveal-d3">
           <div class="step-num">04</div>
           <div class="step-illus step-illus-pdf">
             <div class="illus-pdf-doc">
@@ -196,6 +198,73 @@
           </ul>
           <a href="bilan.html" class="btn-hero">Obtenir mon plan →</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ILLUSTRATIONS ASSIETTES -->
+  <section class="section-plates">
+    <div class="section-inner">
+      <div class="section-tag">Inspiration</div>
+      <h2>Des plans pour chaque objectif</h2>
+      <div class="plates-grid">
+
+        <div class="plate-card">
+          <div class="plate-illus" style="background:#f0faf5;">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="70" fill="#e8f5ef" stroke="#1a6b4a" stroke-width="2"/>
+              <circle cx="80" cy="80" r="52" fill="none" stroke="#1a6b4a" stroke-width="1" stroke-dasharray="4 3" opacity="0.3"/>
+              <ellipse cx="68" cy="75" rx="22" ry="18" fill="#5DCAA5" opacity="0.85"/>
+              <ellipse cx="68" cy="75" rx="14" ry="11" fill="#1D9E75" opacity="0.7"/>
+              <ellipse cx="96" cy="72" rx="18" ry="14" fill="#97C459" opacity="0.85"/>
+              <ellipse cx="96" cy="72" rx="11" ry="8" fill="#639922" opacity="0.7"/>
+              <ellipse cx="80" cy="96" rx="20" ry="12" fill="#EF9F27" opacity="0.8"/>
+              <ellipse cx="80" cy="96" rx="12" ry="7" fill="#BA7517" opacity="0.7"/>
+              <circle cx="60" cy="62" r="5" fill="#fff" opacity="0.6"/>
+              <circle cx="100" cy="65" r="4" fill="#fff" opacity="0.5"/>
+            </svg>
+          </div>
+          <h4>Rééquilibrage alimentaire</h4>
+          <p>Légumes variés, protéines maigres et féculents complets en proportions équilibrées.</p>
+        </div>
+
+        <div class="plate-card">
+          <div class="plate-illus" style="background:#fff7ed;">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="70" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+              <circle cx="80" cy="80" r="52" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="4 3" opacity="0.3"/>
+              <ellipse cx="72" cy="78" rx="26" ry="20" fill="#EF9F27" opacity="0.9"/>
+              <ellipse cx="72" cy="78" rx="16" ry="12" fill="#BA7517" opacity="0.8"/>
+              <rect x="88" y="62" width="24" height="32" rx="4" fill="#D85A30" opacity="0.85"/>
+              <rect x="92" y="66" width="16" height="22" rx="3" fill="#993C1D" opacity="0.7"/>
+              <ellipse cx="78" cy="100" rx="22" ry="10" fill="#5DCAA5" opacity="0.7"/>
+              <circle cx="64" cy="65" r="5" fill="#fff" opacity="0.5"/>
+              <circle cx="104" cy="68" r="4" fill="#fff" opacity="0.4"/>
+            </svg>
+          </div>
+          <h4>Prise de masse</h4>
+          <p>Glucides complexes et protéines en quantité, pour soutenir l'effort et la récupération.</p>
+        </div>
+
+        <div class="plate-card">
+          <div class="plate-illus" style="background:#eff6ff;">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="70" fill="#dbeafe" stroke="#1a3a6b" stroke-width="2"/>
+              <circle cx="80" cy="80" r="52" fill="none" stroke="#1a3a6b" stroke-width="1" stroke-dasharray="4 3" opacity="0.3"/>
+              <ellipse cx="75" cy="76" rx="28" ry="22" fill="#5DCAA5" opacity="0.8"/>
+              <ellipse cx="75" cy="76" rx="18" ry="13" fill="#1D9E75" opacity="0.7"/>
+              <ellipse cx="98" cy="80" rx="16" ry="14" fill="#60a5fa" opacity="0.75"/>
+              <ellipse cx="98" cy="80" rx="9" ry="8" fill="#1a3a6b" opacity="0.5"/>
+              <ellipse cx="78" cy="100" rx="18" ry="9" fill="#f59e0b" opacity="0.7"/>
+              <circle cx="62" cy="63" r="5" fill="#fff" opacity="0.6"/>
+              <circle cx="102" cy="67" r="4" fill="#fff" opacity="0.5"/>
+            </svg>
+          </div>
+          <h4>Perte de gras</h4>
+          <p>Volume végétal élevé, protéines maigres et féculents réduits pour un déficit contrôlé.</p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -282,5 +351,27 @@
   </footer>
 
   <script src="js/main.js"></script>
+
+<script>
+// Intersection Observer pour reveal au scroll
+const revealEls = document.querySelectorAll('.step-card, .plate-card, .pro-card, .pricing-col');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('reveal'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => { el.style.opacity='0'; obs.observe(el); });
+
+// Compteur animé sur les métriques hero si présent
+function animCounter(el, target, suffix) {
+  let cur = 0; const step = Math.ceil(target/40);
+  const t = setInterval(() => {
+    cur = Math.min(cur+step, target);
+    el.textContent = cur + suffix;
+    if (cur >= target) clearInterval(t);
+  }, 30);
+}
+</script>
+
 </body>
 </html>

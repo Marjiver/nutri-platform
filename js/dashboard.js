@@ -288,8 +288,21 @@ function simulerValidation(bilan) {
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+
+// ── Init avec Supabase ou localStorage ───────────────────────
+async function initDashboard() {
+  let bilan;
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
+    bilan = await getBilan();
+    if (!bilan) { window.location.href = 'login.html'; return; }
+  } else {
+    bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+  }
+  initWithBilan(bilan);
+}
+
+function initWithBilan(bilan) {
+  // bilan passé en paramètre
 
   if (bilan.prenom) {
     document.getElementById('greetingName').textContent = 'Bonjour ' + bilan.prenom + ' \uD83D\uDC4B';
@@ -370,10 +383,26 @@ function patientSendMsg() {
 }
 
 // Restaurer état chat si déjà activé
-document.addEventListener('DOMContentLoaded', () => {
-  const bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+
+// ── Init avec Supabase ou localStorage ───────────────────────
+async function initDashboard() {
+  let bilan;
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
+    bilan = await getBilan();
+    if (!bilan) { window.location.href = 'login.html'; return; }
+  } else {
+    bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+  }
+  initWithBilan(bilan);
+}
+
+function initWithBilan(bilan) {
+  // bilan passé en paramètre
   if (bilan.chatActif) {
     document.getElementById('chatLocked')?.classList.add('hidden');
     document.getElementById('chatUnlocked')?.classList.remove('hidden');
   }
 }, true);
+
+
+document.addEventListener('DOMContentLoaded', initDashboard);
