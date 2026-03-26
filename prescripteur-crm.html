@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM Clients — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body class="page-dashboard">
+
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+  <nav class="nav" style="gap:1rem;">
+    <a href="prescripteur-dashboard.html" class="btn-back-link">← Tableau de bord</a>
+    <button class="btn-primary" style="background:#1a3a6b;" onclick="ouvrirNouveauClient()">+ Nouveau client</button>
+  </nav>
+</header>
+
+<main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
+
+  <!-- Barre de recherche + filtres -->
+  <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <input type="text" id="searchClient" placeholder="Rechercher un client..." style="flex:1;min-width:200px;" oninput="filterClients(this.value)" />
+    <select id="filterStatut" onchange="filterClients()" style="width:160px;">
+      <option value="">Tous les statuts</option>
+      <option value="en_cours">En cours</option>
+      <option value="atteint">Objectif atteint</option>
+      <option value="pause">En pause</option>
+    </select>
+    <select id="filterObjectif" onchange="filterClients()" style="width:160px;">
+      <option value="">Tous les objectifs</option>
+      <option value="reequilibrage">Rééquilibrage</option>
+      <option value="prise_masse">Prise de masse</option>
+      <option value="perte_gras">Perte de gras</option>
+    </select>
+  </div>
+
+  <div style="display:grid;grid-template-columns:320px 1fr;gap:1.5rem;align-items:start;">
+
+    <!-- LISTE CLIENTS -->
+    <div>
+      <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray);margin-bottom:0.75rem;">
+        <span id="clientCount">0</span> client(s)
+      </div>
+      <div id="clientsList" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+    </div>
+
+    <!-- FICHE CLIENT DÉTAILLÉE -->
+    <div id="ficheClient" style="display:none;">
+
+      <!-- Header fiche -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;">
+
+        <!-- Photos de progression -->
+        <div style="background:#f8f8f8;padding:1.25rem;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 id="ficheNom" style="margin:0;font-family:var(--font-display);font-size:1.3rem;"></h3>
+            <div style="display:flex;gap:0.5rem;">
+              <select id="ficheStatutSelect" onchange="updateStatut(this.value)" style="font-size:0.8rem;padding:4px 8px;">
+                <option value="en_cours">En cours</option>
+                <option value="atteint">Objectif atteint</option>
+                <option value="pause">En pause</option>
+              </select>
+              <button class="btn-back" style="font-size:0.8rem;padding:4px 12px;" onclick="exportFiche()">↓ PDF</button>
+            </div>
+          </div>
+
+          <!-- Onglets photos -->
+          <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+            <div class="photo-tab-label">Photos de progression</div>
+            <div style="margin-left:auto;">
+              <button class="btn-back" style="font-size:0.75rem;padding:3px 10px;" onclick="ajouterPhotos()">+ Ajouter</button>
+            </div>
+          </div>
+          <div id="photosGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+        </div>
+
+        <!-- Infos client -->
+        <div style="padding:1.25rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+          <div><div style="font-size:0.7rem;color:var(--gray);margin-bottom:2px;">Objectif</div><div id="ficheObjectif" style="font-size:0.9rem;font-weight:500;"></div></div>
+          <div><div style="font-size:0.7rem;color:var(--gray);margin-bottom:2px;">Poids initial</div><div id="fichePoids" style="font-size:0.9rem;font-weight:500;"></div></div>
+          <div><div style="font-size:0.7rem;color:var(--gray);margin-bottom:2px;">Poids actuel</div><div id="fichePoidsActuel" style="font-size:0.9rem;font-weight:500;color:var(--green);"></div></div>
+          <div><div style="font-size:0.7rem;color:var(--gray);margin-bottom:2px;">Prochain rappel</div><div id="ficheRappel" style="font-size:0.9rem;font-weight:500;color:#f59e0b;"></div></div>
+        </div>
+      </div>
+
+      <!-- Onglets fiche -->
+      <div style="display:flex;gap:0;margin-bottom:1rem;border-bottom:1px solid var(--border);">
+        <button class="fiche-tab active" data-tab="courbe" onclick="switchTab(this,'courbe')">Courbe de poids</button>
+        <button class="fiche-tab" data-tab="plans" onclick="switchTab(this,'plans')">Plans nutritionnels</button>
+        <button class="fiche-tab" data-tab="notes" onclick="switchTab(this,'notes')">Notes privées</button>
+      </div>
+
+      <!-- TAB: Courbe poids -->
+      <div class="tab-content" id="tab-courbe">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div style="font-size:0.875rem;font-weight:500;">Évolution du poids</div>
+            <button class="btn-back" style="font-size:0.75rem;padding:3px 10px;" onclick="ajouterPoids()">+ Ajouter mesure</button>
+          </div>
+          <div style="height:220px;position:relative;">
+            <canvas id="chartPoids"></canvas>
+          </div>
+          <div id="poidsStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem;"></div>
+        </div>
+      </div>
+
+      <!-- TAB: Plans -->
+      <div class="tab-content hidden" id="tab-plans">
+        <div id="plansHistorique" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+        <button class="btn-next" style="margin-top:1rem;background:#1a3a6b;" onclick="nouvelleDemande()">Demander un nouveau plan — 1 crédit →</button>
+      </div>
+
+      <!-- TAB: Notes -->
+      <div class="tab-content hidden" id="tab-notes">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
+          <div style="font-size:0.8rem;color:var(--gray);margin-bottom:0.75rem;">Notes privées — visibles uniquement par vous</div>
+          <textarea id="ficheNotes" rows="6" placeholder="Observations, comportement alimentaire, contexte de vie, motivation..." style="width:100%;font-size:0.875rem;" oninput="saveNotes()"></textarea>
+          <div id="notesSaved" style="font-size:0.75rem;color:var(--green);margin-top:4px;opacity:0;transition:opacity 0.3s;">Sauvegardé</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:0.75rem;">
+          <div style="font-size:0.8rem;font-weight:500;margin-bottom:0.75rem;">Rappel automatique</div>
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <label style="font-size:0.875rem;color:var(--gray);">Prochain check-in dans</label>
+            <select id="rappelDelai" onchange="updateRappel(this.value)" style="width:140px;font-size:0.85rem;">
+              <option value="7">7 jours</option>
+              <option value="14">14 jours</option>
+              <option value="30" selected>30 jours</option>
+              <option value="60">60 jours</option>
+            </select>
+            <span id="rappelDate" style="font-size:0.8rem;color:#f59e0b;font-weight:500;"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Placeholder si aucun client sélectionné -->
+    <div id="fichePlaceholder" style="background:#fff;border:1px dashed var(--border);border-radius:var(--radius);padding:3rem;text-align:center;color:var(--gray);">
+      <div style="font-size:2rem;margin-bottom:1rem;">👤</div>
+      <p style="font-size:0.9rem;">Sélectionnez un client pour voir sa fiche</p>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL nouveau client -->
+<div id="modalNouveauClient" style="display:none;min-height:600px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
+  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:520px;margin:0 auto;">
+    <h4 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:1.5rem;">Nouveau client</h4>
+    <div class="form-row">
+      <div class="form-group"><label>Prénom <span class="req">*</span></label><input type="text" id="ncPrenom" placeholder="Ex : Julien" /></div>
+      <div class="form-group"><label>Nom</label><input type="text" id="ncNom" placeholder="Ex : Dupont" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Âge</label><input type="number" id="ncAge" placeholder="28" /></div>
+      <div class="form-group"><label>Poids initial (kg)</label><input type="number" id="ncPoids" placeholder="78" step="0.1" /></div>
+      <div class="form-group"><label>Taille (cm)</label><input type="number" id="ncTaille" placeholder="180" /></div>
+    </div>
+    <div class="form-group">
+      <label>Objectif <span class="req">*</span></label>
+      <select id="ncObjectif">
+        <option value="reequilibrage">Rééquilibrage alimentaire</option>
+        <option value="prise_masse">Prise de masse</option>
+        <option value="perte_gras">Perte de gras / sèche</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Photo de profil (visage)</label>
+      <input type="file" id="ncPhoto" accept="image/*" onchange="previewPhoto(this)" style="font-size:0.85rem;" />
+      <div id="ncPhotoPreview" style="margin-top:8px;"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:1.5rem;">
+      <button class="btn-back" onclick="fermerNouveauClient()">Annuler</button>
+      <button class="btn-submit" style="background:#1a3a6b;" onclick="creerClient()">Créer la fiche →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ajouter poids -->
+<div id="modalAjouterPoids" style="display:none;min-height:300px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
+  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:360px;margin:0 auto;">
+    <h4 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:1.25rem;">Ajouter une mesure</h4>
+    <div class="form-group"><label>Date</label><input type="date" id="mesureDate" /></div>
+    <div class="form-group"><label>Poids (kg)</label><input type="number" id="mesurePoids" placeholder="Ex : 76.5" step="0.1" /></div>
+    <div class="modal-actions" style="margin-top:1rem;">
+      <button class="btn-back" onclick="fermerAjouterPoids()">Annuler</button>
+      <button class="btn-submit" style="background:#1a3a6b;" onclick="confirmerPoids()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ajouter photos -->
+<div id="modalAjouterPhotos" style="display:none;min-height:400px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
+  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:480px;margin:0 auto;">
+    <h4 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:0.5rem;">Photos de progression</h4>
+    <p style="font-size:0.8rem;color:var(--gray);margin-bottom:1.25rem;">Ajoutez jusqu'à 4 photos : face, profil gauche, profil droit, dos.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group"><label>Face</label><input type="file" accept="image/*" id="photoFace" onchange="previewPhotoSlot(this,'prevFace')" /><div id="prevFace" style="margin-top:4px;"></div></div>
+      <div class="form-group"><label>Profil gauche</label><input type="file" accept="image/*" id="photoGauche" onchange="previewPhotoSlot(this,'prevGauche')" /><div id="prevGauche" style="margin-top:4px;"></div></div>
+      <div class="form-group"><label>Profil droit</label><input type="file" accept="image/*" id="photoDroit" onchange="previewPhotoSlot(this,'prevDroit')" /><div id="prevDroit" style="margin-top:4px;"></div></div>
+      <div class="form-group"><label>Dos</label><input type="file" accept="image/*" id="photoDos" onchange="previewPhotoSlot(this,'prevDos')" /><div id="prevDos" style="margin-top:4px;"></div></div>
+    </div>
+    <div class="modal-actions" style="margin-top:1.25rem;">
+      <button class="btn-back" onclick="fermerAjouterPhotos()">Annuler</button>
+      <button class="btn-submit" style="background:#1a3a6b;" onclick="confirmerPhotos()">Sauvegarder les photos</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/prescripteur-crm.js"></script>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
+        <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Patients</div>
+          <a href="bilan.html">Faire mon bilan</a>
+          <a href="dashboard.html">Mon espace</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Professionnels</div>
+          <a href="inscription-dieteticien.html">Inscription diét.</a>
+          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
+        </div>
+      </div>
+      <div class="footer-partner">
+        <div class="footer-col-title">Développée par</div>
+        <a href="https://calidoc.fr" target="_blank">
+          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
+    </div>
+  </footer>
+</body>
+</html>

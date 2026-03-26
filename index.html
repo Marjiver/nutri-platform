@@ -11,52 +11,274 @@
 
   <!-- HEADER -->
   <header class="header">
-    <div class="logo">Nutri<span>Plan</span></div>
-    <nav class="nav">
-      <a href="bilan.html" class="btn-primary">Commencer mon bilan</a>
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <nav class="nav nav-main">
+      <div class="nav-links">
+        <a href="#comment-ca-marche" class="nav-link">Comment ça marche</a>
+        <a href="#professionnels" class="nav-link">Professionnels</a>
+      </div>
+      <div class="nav-actions">
+        <div class="connexion-dropdown" id="connDropdown">
+          <button class="btn-outline" onclick="toggleConnDropdown()">Se connecter ▾</button>
+          <div class="conn-menu" id="connMenu">
+            <a href="dashboard.html" class="conn-item">
+              <span class="conn-icon conn-icon-patient"></span>
+              <div><div class="conn-item-title">Patient</div><div class="conn-item-sub">Accéder à mon bilan</div></div>
+            </a>
+            <a href="dietitian.html" class="conn-item">
+              <span class="conn-icon conn-icon-diet"></span>
+              <div><div class="conn-item-title">Diététicien</div><div class="conn-item-sub">Espace de validation</div></div>
+            </a>
+            <a href="prescripteur-dashboard.html" class="conn-item">
+              <span class="conn-icon conn-icon-coach"></span>
+              <div><div class="conn-item-title">Coach / Kiné</div><div class="conn-item-sub">Espace prescripteur</div></div>
+            </a>
+          </div>
+        </div>
+        <a href="bilan.html" class="btn-primary">Commencer mon bilan</a>
+      </div>
     </nav>
   </header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <p class="hero-tag">Plateforme sécurisée</p>
-      <h1>Votre pré-bilan nutritionnel <em>personnalisé</em></h1>
-      <p class="hero-sub">Répondez à quelques questions, obtenez un plan alimentaire généré par IA, validé par un diététicien certifié.</p>
-      <a href="bilan.html" class="btn-hero">Démarrer mon bilan gratuit →</a>
+  <!-- HERO BANNIÈRE -->
+  <section class="hero-banner">
+    <div class="hero-bg-shapes">
+      <div class="hero-shape s1"></div>
+      <div class="hero-shape s2"></div>
+      <div class="hero-shape s3"></div>
     </div>
-    <div class="hero-visual">
-      <div class="card-preview">
-        <div class="card-line"></div>
-        <div class="card-line short"></div>
-        <div class="card-line"></div>
-        <div class="card-badge">Plan validé</div>
+    <div class="hero-content">
+      <div class="hero-tag-pill">Plateforme sécurisée · Validé par des diététiciens RPPS</div>
+      <h1>Votre nutrition,<br><em>vraiment personnalisée</em></h1>
+      <p class="hero-sub">Remplissez votre bilan en 5 minutes. Obtenez des recommandations gratuites et un plan alimentaire avec grammages précis, validé par un diététicien certifié.</p>
+      <div class="hero-ctas">
+        <a href="bilan.html" class="btn-hero-main">
+          <span class="btn-icon-circle">→</span>
+          Démarrer mon bilan gratuit
+        </a>
+        <a href="#comment-ca-marche" class="btn-hero-ghost">Voir comment ça marche</a>
+      </div>
+      <div class="hero-reassurance">
+        <span class="reassurance-item">✓ Gratuit sans CB</span>
+        <span class="reassurance-item">✓ Données sécurisées</span>
+        <span class="reassurance-item">✓ Diététicien certifié</span>
+      </div>
+    </div>
+    <div class="hero-visual-col">
+      <div class="hero-mockup">
+        <div class="mockup-header">
+          <div class="mockup-dot red"></div>
+          <div class="mockup-dot amber"></div>
+          <div class="mockup-dot green"></div>
+          <span class="mockup-title">Mon plan nutritionnel</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-meal">
+            <div class="mockup-meal-icon">🍳</div>
+            <div>
+              <div class="mockup-meal-name">Petit déjeuner</div>
+              <div class="mockup-meal-items">
+                <span>Flocons d'avoine <b>60g</b></span>
+                <span>Lait demi-écrémé <b>200ml</b></span>
+                <span>Banane <b>120g</b></span>
+              </div>
+            </div>
+            <div class="mockup-kcal">380 kcal</div>
+          </div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-icon">🥗</div>
+            <div>
+              <div class="mockup-meal-name">Déjeuner</div>
+              <div class="mockup-meal-items">
+                <span>Poulet grillé <b>150g</b></span>
+                <span>Riz complet <b>80g</b></span>
+                <span>Haricots verts <b>200g</b></span>
+              </div>
+            </div>
+            <div class="mockup-kcal">520 kcal</div>
+          </div>
+          <div class="mockup-validated">
+            <div class="mockup-val-dot"></div>
+            <span>Validé par Dr. Lemaire — Diét. certifié RPPS</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <section class="features">
-    <div class="feature">
-      <div class="feature-icon">01</div>
-      <h3>Formulaire de bilan</h3>
-      <p>Renseignez vos habitudes, objectifs et contraintes alimentaires en quelques minutes.</p>
+  <!-- COMMENT ÇA MARCHE -->
+  <section class="section-how" id="comment-ca-marche">
+    <div class="section-inner">
+      <div class="section-tag">Simple et rapide</div>
+      <h2>Comment ça marche ?</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-illus step-illus-form">
+            <div class="illus-form-line"></div>
+            <div class="illus-form-line short"></div>
+            <div class="illus-form-line"></div>
+            <div class="illus-form-btn"></div>
+          </div>
+          <h3>Remplissez le bilan</h3>
+          <p>5 minutes pour renseigner vos habitudes, objectifs et informations de santé.</p>
+          <a href="bilan.html" class="step-link">Commencer →</a>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-illus step-illus-ai">
+            <div class="illus-ai-bar"></div>
+            <div class="illus-ai-bar mid"></div>
+            <div class="illus-ai-bar short"></div>
+            <div class="illus-ai-spark"></div>
+          </div>
+          <h3>L'IA génère votre plan</h3>
+          <p>Un plan personnalisé avec menus et recommandations gratuits, immédiatement.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-illus step-illus-check">
+            <div class="illus-check-circle">✓</div>
+            <div class="illus-check-lines">
+              <div class="illus-check-line"></div>
+              <div class="illus-check-line short"></div>
+            </div>
+          </div>
+          <h3>Le diét valide</h3>
+          <p>Un diététicien certifié RPPS analyse et valide votre plan avec grammages précis.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-illus step-illus-pdf">
+            <div class="illus-pdf-doc">
+              <div class="illus-pdf-line"></div>
+              <div class="illus-pdf-line short"></div>
+              <div class="illus-pdf-line"></div>
+              <div class="illus-pdf-badge">PDF</div>
+            </div>
+          </div>
+          <h3>Vous recevez le plan</h3>
+          <p>Plan PDF téléchargeable avec les coordonnées de votre diététicien pour le suivi.</p>
+        </div>
+      </div>
     </div>
-    <div class="feature">
-      <div class="feature-icon">02</div>
-      <h3>Plan généré par IA</h3>
-      <p>Un plan nutritionnel personnalisé est créé instantanément selon votre profil.</p>
+  </section>
+
+  <!-- FREEMIUM -->
+  <section class="section-pricing">
+    <div class="section-inner">
+      <div class="section-tag">Tarifs</div>
+      <h2>Gratuit pour commencer</h2>
+      <div class="pricing-2col">
+        <div class="pricing-col free">
+          <div class="pricing-col-tag">Gratuit — toujours</div>
+          <h3>Recommandations & menus</h3>
+          <p>Accédez à des conseils personnalisés et des propositions de menus selon votre profil, sans créer de compte.</p>
+          <ul class="pricing-list">
+            <li>✓ Formulaire de bilan complet</li>
+            <li>✓ Recommandations personnalisées</li>
+            <li>✓ Menus hebdomadaires</li>
+            <li>✓ Détection red flags santé</li>
+          </ul>
+          <a href="bilan.html" class="btn-hero">Démarrer gratuitement →</a>
+        </div>
+        <div class="pricing-col premium">
+          <div class="pricing-col-tag premium-tag">Premium</div>
+          <h3>Plan avec grammages précis</h3>
+          <div class="pricing-amount">14,90 €<span> paiement unique</span></div>
+          <p>Plan sur mesure avec les grammages exacts par aliment, validé et signé par un diététicien certifié.</p>
+          <ul class="pricing-list">
+            <li>✓ Grammages précis par repas</li>
+            <li>✓ Répartition macro & micronutriments</li>
+            <li>✓ Validé par diététicien RPPS</li>
+            <li>✓ PDF téléchargeable</li>
+            <li>✓ Coordonnées du diét incluses</li>
+          </ul>
+          <a href="bilan.html" class="btn-hero">Obtenir mon plan →</a>
+        </div>
+      </div>
     </div>
-    <div class="feature">
-      <div class="feature-icon">03</div>
-      <h3>Validation diététicien</h3>
-      <p>Un professionnel de santé inscrit révise et valide votre plan avant envoi.</p>
+  </section>
+
+  <!-- PROS -->
+  <section class="section-pros" id="professionnels">
+    <div class="section-inner">
+      <div class="section-tag">Espace professionnel</div>
+      <h2>Vous êtes professionnel ?</h2>
+      <div class="pros-grid">
+
+        <div class="pro-card diet-card">
+          <div class="pro-card-illus">
+            <div class="pro-illus-badge">RPPS</div>
+            <div class="pro-illus-lines">
+              <div class="pro-illus-line"></div>
+              <div class="pro-illus-line short"></div>
+            </div>
+          </div>
+          <h3>Diététicien</h3>
+          <p>Validez des plans depuis votre espace. Vos coordonnées figurent sur chaque plan. Abonnement mensuel ou à l'acte.</p>
+          <div class="pro-card-actions">
+            <a href="inscription-dieteticien.html" class="btn-pro">S'inscrire</a>
+            <a href="dietitian.html" class="btn-pro-ghost">Se connecter</a>
+          </div>
+        </div>
+
+        <div class="pro-card coach-card">
+          <div class="pro-card-illus">
+            <div class="pro-illus-credits">
+              <span>20</span>
+              <div class="pro-illus-credit-label">crédits</div>
+            </div>
+          </div>
+          <h3>Coach · Kiné · Préparateur</h3>
+          <p>Prescrivez des plans pour vos clients. Suivez leur progression avec un CRM intégré. Packs de crédits sans engagement.</p>
+          <div class="pro-card-actions">
+            <a href="inscription-prescripteur.html" class="btn-pro coach">S'inscrire</a>
+            <a href="prescripteur-dashboard.html" class="btn-pro-ghost">Se connecter</a>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
   <!-- FOOTER -->
-  <footer class="footer">
-    <p>© 2025 NutriPlan — Données sécurisées &amp; conformes RGPD</p>
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo footer-logo">Nutri<span>Plan</span></div>
+        <p>Plateforme sécurisée de pré-bilan nutritionnel et de génération assistée de plans, avec validation par des diététiciens certifiés.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Patients</div>
+          <a href="bilan.html">Faire mon bilan</a>
+          <a href="dashboard.html">Mon espace</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Professionnels</div>
+          <a href="inscription-dieteticien.html">Inscription diététicien</a>
+          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
+          <a href="dietitian.html">Connexion diét.</a>
+          <a href="prescripteur-dashboard.html">Connexion prescripteur</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Légal</div>
+          <a href="#">Mentions légales</a>
+          <a href="#">CGU</a>
+          <a href="#">Politique RGPD</a>
+        </div>
+      </div>
+      <div class="footer-partner">
+        <div class="footer-col-title">Plateforme développée par</div>
+        <a href="https://calidoc.fr" target="_blank" class="footer-logo-link">
+          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NutriPlan by CaliDoc Santé — Données sécurisées · Conformes RGPD</p>
+    </div>
   </footer>
 
   <script src="js/main.js"></script>

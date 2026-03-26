@@ -12,62 +12,216 @@
   <header class="header">
     <a href="index.html" class="logo">Nutri<span>Plan</span></a>
     <nav class="nav">
-      <span class="user-tag">Marie D.</span>
+      <span class="user-tag" id="userTag">Mon compte</span>
     </nav>
   </header>
 
   <main class="dashboard-container">
 
     <div class="dashboard-greeting">
-      <h2>Bonjour Marie 👋</h2>
+      <h2 id="greetingName">Bonjour 👋</h2>
       <p>Voici votre espace personnel NutriPlan.</p>
     </div>
 
-    <!-- Statut du plan -->
-    <div class="status-card">
-      <div class="status-dot pending"></div>
+    <!-- Statut -->
+    <div class="status-card" id="statusCard">
+      <div class="status-dot pending" id="statusDot"></div>
       <div>
-        <p class="status-label">Statut de votre plan</p>
-        <p class="status-value">En attente de validation diététicien</p>
+        <p class="status-label">Statut de votre espace</p>
+        <p class="status-value" id="statusValue">Chargement…</p>
       </div>
-      <div class="status-eta">~48h</div>
+      <div class="status-eta" id="statusEta"></div>
     </div>
 
     <!-- Résumé bilan -->
     <section class="dashboard-section">
       <h3>Votre bilan</h3>
-      <div class="info-grid">
-        <div class="info-card">
-          <span class="info-label">Objectif</span>
-          <span class="info-value">Perte de poids</span>
-        </div>
-        <div class="info-card">
-          <span class="info-label">Activité</span>
-          <span class="info-value">Modérément actif</span>
-        </div>
-        <div class="info-card">
-          <span class="info-label">Régime</span>
-          <span class="info-value">Végétarien</span>
-        </div>
-        <div class="info-card">
-          <span class="info-label">IMC estimé</span>
-          <span class="info-value">23.4</span>
-        </div>
+      <div class="info-grid" id="infoGrid">
+        <div class="info-card"><span class="info-label">Objectif</span><span class="info-value" id="infoObjectif">—</span></div>
+        <div class="info-card"><span class="info-label">Activité</span><span class="info-value" id="infoActivite">—</span></div>
+        <div class="info-card"><span class="info-label">Régime</span><span class="info-value" id="infoRegime">—</span></div>
+        <div class="info-card"><span class="info-label">IMC estimé</span><span class="info-value" id="infoImc">—</span></div>
       </div>
     </section>
 
-    <!-- Plan (verrouillé) -->
-    <section class="dashboard-section">
-      <h3>Votre plan nutritionnel</h3>
-      <div class="plan-locked">
-        <div class="lock-icon">🔒</div>
-        <p>Votre plan sera disponible dès validation par votre diététicien.</p>
-        <p class="plan-eta">Vous recevrez une notification par email.</p>
+    <!-- GRATUIT : Recommandations & menus -->
+    <section class="dashboard-section" id="sectionGratuit">
+      <div class="section-header-row">
+        <h3>Recommandations & menus</h3>
+        <span class="free-badge">Gratuit</span>
+      </div>
+      <div class="reco-grid" id="recoGrid">
+        <!-- Généré par JS -->
+      </div>
+    </section>
+
+    <!-- PAYANT : Plan avec grammages -->
+    <section class="dashboard-section" id="sectionPlan">
+      <div class="section-header-row">
+        <h3>Plan alimentaire personnalisé</h3>
+        <span class="paid-badge">Premium</span>
+      </div>
+
+      <!-- État A : non payé -->
+      <div id="planLocked" class="plan-paywall">
+        <div class="paywall-content">
+          <div class="paywall-icon">📋</div>
+          <h4>Plan avec grammages précis</h4>
+          <p>Recevez un plan sur 4 semaines avec les grammages exacts par repas, la répartition de vos macronutriments, et la signature d'un diététicien certifié.</p>
+          <ul class="paywall-features">
+            <li><span class="ok">✓</span> Grammages précis par repas</li>
+            <li><span class="ok">✓</span> Répartition protéines / glucides / lipides</li>
+            <li><span class="ok">✓</span> Plan 4 semaines personnalisé</li>
+            <li><span class="ok">✓</span> Validé et signé par un diététicien</li>
+            <li><span class="ok">✓</span> PDF téléchargeable</li>
+          </ul>
+          <div class="paywall-price">
+            <span class="price-amount">14,90 €</span>
+            <span class="price-label">paiement unique</span>
+          </div>
+          <button class="btn-pay" id="btnPay" onclick="simulerPaiement()">
+            Obtenir mon plan complet →
+          </button>
+          <p class="paywall-reassurance">Paiement sécurisé · Remboursé si non livré sous 5 jours</p>
+        </div>
+      </div>
+
+      <!-- État B : payé, en attente validation -->
+      <div id="planPending" class="hidden">
+        <div class="status-card">
+          <div class="status-dot pending"></div>
+          <div>
+            <p class="status-label">Paiement reçu</p>
+            <p class="status-value">En cours de rédaction par votre diététicien</p>
+          </div>
+          <div class="status-eta">~48h</div>
+        </div>
+        <div class="plan-placeholder">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line short"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line short"></div>
+          <p class="placeholder-label">Votre plan est en cours de rédaction…</p>
+        </div>
+      </div>
+
+      <!-- État C : plan validé et disponible -->
+      <div id="planUnlocked" class="hidden">
+        <div class="status-card" style="margin-bottom:1.25rem;">
+          <div class="status-dot validated"></div>
+          <div>
+            <p class="status-label">Plan validé par</p>
+            <p class="status-value" id="dietName">Dr. Lemaire — Diététicien</p>
+          </div>
+          <button class="btn-pdf" onclick="alert('Téléchargement PDF simulé')">↓ PDF</button>
+        </div>
+        <div class="plan-content" id="planContent">
+          <!-- Généré par JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal paiement simulé -->
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h4>Paiement sécurisé</h4>
+      <p class="modal-sub">Simulation Stripe — aucun vrai paiement effectué</p>
+      <div class="mock-card">
+        <div class="mock-field">
+          <label>Numéro de carte</label>
+          <div class="mock-input">4242 4242 4242 4242</div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-field">
+            <label>Expiration</label>
+            <div class="mock-input">12/27</div>
+          </div>
+          <div class="mock-field">
+            <label>CVC</label>
+            <div class="mock-input">123</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-total">Total : <strong>14,90 €</strong></div>
+      <div class="modal-actions">
+        <button class="btn-back" onclick="fermerModal()">Annuler</button>
+        <button class="btn-pay" id="btnConfirm" onclick="confirmerPaiement()">Confirmer le paiement</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- CHAT avec le diét -->
+    <section class="dashboard-section" id="sectionChat">
+      <div class="section-header-row">
+        <h3>Messagerie avec votre diététicien</h3>
+        <span class="paid-badge">Option</span>
+      </div>
+      <div id="chatLocked">
+        <div class="chat-unlock-banner">
+          <div class="chat-unlock-icon">💬</div>
+          <div class="chat-unlock-text">
+            <h4>Posez vos questions directement à votre diététicien</h4>
+            <p>Accès illimité à la messagerie pendant 30 jours après validation de votre plan.</p>
+          </div>
+          <button class="btn-chat-unlock" onclick="activerChat()">Ajouter — 4,90 €</button>
+        </div>
+      </div>
+      <div id="chatUnlocked" class="hidden">
+        <div class="chat-patient-window">
+          <div class="chat-patient-header">
+            <div class="chat-online-dot"></div>
+            <span id="chatDietName">Votre diététicien</span>
+            <span style="margin-left:auto;font-size:0.75rem;opacity:0.8;">En ligne</span>
+          </div>
+          <div class="chat-messages" id="patientChatMessages" style="background:var(--cream);flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+            <div class="chat-msg diet">
+              <div class="chat-bubble">Bonjour ! Je suis disponible pour répondre à vos questions sur votre plan nutritionnel. N'hésitez pas !</div>
+              <div class="chat-msg-time">Aujourd'hui</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="patientChatInput" placeholder="Votre question..." onkeydown="if(event.key==='Enter') patientSendMsg()" />
+            <button class="btn-send" onclick="patientSendMsg()">Envoyer</button>
+          </div>
+        </div>
       </div>
     </section>
 
   </main>
 
   <script src="js/dashboard.js"></script>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
+        <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Patients</div>
+          <a href="bilan.html">Faire mon bilan</a>
+          <a href="dashboard.html">Mon espace</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Professionnels</div>
+          <a href="inscription-dieteticien.html">Inscription diét.</a>
+          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
+        </div>
+      </div>
+      <div class="footer-partner">
+        <div class="footer-col-title">Développée par</div>
+        <a href="https://calidoc.fr" target="_blank">
+          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
+    </div>
+  </footer>
 </body>
 </html>

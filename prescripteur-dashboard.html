@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace prescripteur — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="page-dashboard">
+
+  <header class="header">
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <nav class="nav">
+      <span class="user-tag" style="background:#eff6ff;color:#1a3a6b;" id="prescTag">Mon espace</span>
+    </nav>
+  </header>
+
+  <main class="dashboard-container">
+
+    <div class="dashboard-greeting">
+      <h2 id="prescGreeting">Bonjour 👋</h2>
+      <p id="prescSousTitre">Espace prescripteur NutriPlan</p>
+    </div>
+
+    <!-- Métriques crédits -->
+    <div class="presc-metrics" id="prescMetrics">
+      <div class="metric-card">
+        <div class="metric-label">Crédits restants</div>
+        <div class="metric-value" id="metricCredits">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Plans envoyés</div>
+        <div class="metric-value" id="metricEnvoyes">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Plans validés</div>
+        <div class="metric-value" id="metricValides">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Red flags</div>
+        <div class="metric-value" id="metricFlags" style="color:#f97316;">0</div>
+      </div>
+    </div>
+
+    <!-- Nouvelle demande -->
+    <section class="dashboard-section">
+      <div class="section-header-row">
+        <h3>Nouvelle demande de plan</h3>
+        <span class="free-badge" id="creditsBadge" style="background:#eff6ff;color:#1a3a6b;">— crédits</span>
+      </div>
+
+      <form id="prescDemandeForm" class="presc-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom du client</label>
+            <input type="text" id="clientPrenom" placeholder="Ex : Julien" required />
+          </div>
+          <div class="form-group">
+            <label>Objectif</label>
+            <select id="clientObjectif" required>
+              <option value="">— Choisir —</option>
+              <option value="reequilibrage">Rééquilibrage alimentaire</option>
+              <option value="prise_masse">Prise de masse</option>
+              <option value="perte_gras">Perte de gras / sèche</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Âge</label>
+            <input type="number" id="clientAge" placeholder="Ex : 28" min="16" max="80" />
+          </div>
+          <div class="form-group">
+            <label>Poids (kg)</label>
+            <input type="number" id="clientPoids" placeholder="Ex : 78" />
+          </div>
+          <div class="form-group">
+            <label>Taille (cm)</label>
+            <input type="number" id="clientTaille" placeholder="Ex : 180" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Niveau d'activité</label>
+          <select id="clientActivite">
+            <option value="modere">Modérément actif (3-4x/sem)</option>
+            <option value="actif">Très actif (5+/sem)</option>
+            <option value="leger">Légèrement actif (1-2x/sem)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes pour le diététicien</label>
+          <textarea id="clientNotes" rows="2" placeholder="Contexte sportif, contraintes alimentaires non médicales..."></textarea>
+        </div>
+
+        <!-- Confirmation périmètre -->
+        <label class="checkbox-option" style="margin-bottom:1rem;background:#eff6ff;border-color:#bfdbfe;">
+          <input type="checkbox" id="perimCheck" required />
+          <span style="color:#1e40af;font-size:0.85rem;">Je confirme que ce client ne présente aucun problème médical nécessitant un suivi clinique (pas de TCA, pathologie, traitement impactant le métabolisme).</span>
+        </label>
+
+        <button type="submit" class="btn-submit" style="background:#1a3a6b;">Envoyer la demande — 1 crédit →</button>
+      </form>
+
+      <!-- Résultat demande -->
+      <div id="demandeResultat" class="hidden" style="margin-top:1rem;"></div>
+    </section>
+
+    <!-- Historique -->
+    <section class="dashboard-section">
+      <h3>Historique des demandes</h3>
+      <div id="historiqueList" class="patients-list">
+        <p style="font-size:0.875rem;color:var(--gray);">Aucune demande pour le moment.</p>
+      </div>
+    </section>
+
+    <!-- Recharger crédits -->
+    <section class="dashboard-section">
+      <h3>Recharger des crédits</h3>
+      <div class="presc-recharge-grid">
+        <div class="recharge-card" onclick="recharger(10, 39)">
+          <div class="recharge-nb">10 crédits</div>
+          <div class="recharge-prix">39 € HT</div>
+          <div class="recharge-unitaire">3,90 € / plan</div>
+        </div>
+        <div class="recharge-card featured" onclick="recharger(20, 69)">
+          <div class="recharge-badge">Populaire</div>
+          <div class="recharge-nb">20 crédits</div>
+          <div class="recharge-prix">69 € HT</div>
+          <div class="recharge-unitaire">3,45 € / plan</div>
+        </div>
+        <div class="recharge-card" onclick="recharger(50, 149)">
+          <div class="recharge-nb">50 crédits</div>
+          <div class="recharge-prix">149 € HT</div>
+          <div class="recharge-unitaire">2,98 € / plan</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/prescripteur-dashboard.js"></script>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
+        <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Patients</div>
+          <a href="bilan.html">Faire mon bilan</a>
+          <a href="dashboard.html">Mon espace</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Professionnels</div>
+          <a href="inscription-dieteticien.html">Inscription diét.</a>
+          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
+        </div>
+      </div>
+      <div class="footer-partner">
+        <div class="footer-col-title">Développée par</div>
+        <a href="https://calidoc.fr" target="_blank">
+          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
+    </div>
+  </footer>
+</body>
+</html>
