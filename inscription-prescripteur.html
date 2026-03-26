@@ -1,60 +1,182 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inscription prescripteur — NutriPlan</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
 </head>
-<body class="page-inscription-diet">
+<body>
 
-  <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-    <nav class="nav"><a href="index.html" class="btn-back-link">← Retour accueil</a></nav>
-  </header>
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+  <nav class="nav">
+    <a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a>
+  </nav>
+</header>
 
-  <main class="inscription-layout">
+<main>
 
-    <aside class="inscription-pitch" style="background:#1a3a6b;">
-      <div class="pitch-inner">
-        <p class="pitch-tag">Espace professionnel</p>
-        <h1>Proposez des plans nutritionnels à vos clients</h1>
-        <p class="pitch-sub">En tant que coach, préparateur physique ou kiné, prescrivez des plans validés par un diététicien certifié — directement depuis votre espace.</p>
-        <div class="pitch-avantages">
-          <div class="pitch-item"><span class="pitch-icon-dot"></span><span>Vos coordonnées figurent sur chaque plan prescrit</span></div>
-          <div class="pitch-item"><span class="pitch-icon-dot"></span><span>Le diététicien reste toujours responsable de la validation</span></div>
-          <div class="pitch-item"><span class="pitch-icon-dot"></span><span>Red flags automatiques — renvoi vers visio si besoin</span></div>
-          <div class="pitch-item"><span class="pitch-icon-dot"></span><span>Crédits plans achetés en lot, utilisables à la demande</span></div>
-          <div class="pitch-item"><span class="pitch-icon-dot"></span><span>Uniquement rééquilibrage, prise de masse, perte de gras</span></div>
+  <!-- ══ HERO ══ -->
+  <section class="insc-hero" style="background:#1a3a6b;">
+    <div class="insc-hero-inner">
+      <div class="insc-hero-text">
+        <span class="hero-tag-pill" style="background:rgba(255,255,255,0.15);color:#fff;">Espace prescripteur</span>
+        <h1>Proposez des plans<br><em>à vos clients</em></h1>
+        <p class="hero-sub">Coach, préparateur physique ou kiné — prescrivez des plans nutritionnels validés par un diététicien certifié RPPS, directement depuis votre espace.</p>
+        <div class="insc-hero-avantages">
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Vos coordonnées sur chaque plan prescrit</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Diététicien toujours responsable de la validation</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>CRM intégré — suivi des clients et courbes de progression</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Red flags automatiques — renvoi visio si besoin</div>
         </div>
-        <div class="pitch-quote">"Offrez à vos clients un suivi nutritionnel professionnel sans sortir de votre scope de compétences."</div>
+        <!-- Délai 48h -->
+        <div class="delai-banner" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);">
+          <div class="delai-icon" style="background:rgba(255,255,255,0.2);color:#fff;">⏱</div>
+          <div>
+            <div style="font-weight:500;color:#fff;font-size:.875rem;">Plans livrés sous 48h max</div>
+            <div style="font-size:.775rem;color:rgba(255,255,255,0.7);">jours ouvrés · après validation par le diététicien</div>
+          </div>
+        </div>
       </div>
-    </aside>
+      <div class="insc-hero-stats">
+        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
+          <div class="insc-stat-val">2,98 €</div>
+          <div class="insc-stat-label">/ plan dès 50 crédits</div>
+        </div>
+        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
+          <div class="insc-stat-val">48h</div>
+          <div class="insc-stat-label">délai max jours ouvrés</div>
+        </div>
+        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
+          <div class="insc-stat-val">∞</div>
+          <div class="insc-stat-label">crédits sans expiration</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section class="inscription-form-col">
-      <div class="inscription-form-card">
-        <div class="form-card-header">
-          <h2>Créer mon compte prescripteur</h2>
-          <p>Coaches sportifs · Préparateurs physiques · Kinésithérapeutes</p>
+  <!-- ══ TARIFS CRÉDITS ══ -->
+  <section style="background:var(--cream);">
+    <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
+      <div class="section-tag">Tarifs</div>
+      <h2>Packs de crédits plans</h2>
+      <p style="color:var(--gray);font-size:.95rem;margin-bottom:.75rem;max-width:540px;">Chaque crédit = 1 plan alimentaire complet avec grammages, validé par un diététicien. Les crédits n'expirent jamais.</p>
+
+      <!-- Rappel délai -->
+      <div class="delai-banner" style="margin-bottom:2rem;max-width:480px;">
+        <div class="delai-icon">⏱</div>
+        <div>
+          <div class="delai-title">Plan livré sous 48h max jours ouvrés</div>
+          <div class="delai-sub">Dès validation du bilan par le diététicien assigné</div>
+        </div>
+      </div>
+
+      <div class="pricing-diet-grid">
+
+        <!-- Découverte -->
+        <div class="pricing-diet-card pack-decouverte" id="packCard10" onclick="selectPack('10',this)">
+          <div class="pdc-header">
+            <div class="pdc-name">Découverte</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price">49 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">HT · 10 crédits</div>
+            </div>
+            <div class="pdc-engage">4,90 € / plan</div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">10 plans validés par un diét.</li>
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">CRM clients inclus</li>
+            <li class="yes">Red flags automatiques</li>
+            <li class="yes">Plans livrés sous 48h ouvrés</li>
+            <li class="no">Remise volume</li>
+          </ul>
+          <div class="pdc-cta pack-cta-decouverte">Choisir Découverte</div>
+        </div>
+
+        <!-- Pro — RECOMMANDÉ -->
+        <div class="pricing-diet-card pack-pro" id="packCard20" onclick="selectPack('20',this)">
+          <div class="pdc-badge pack-badge-pro">⭐ Recommandé</div>
+          <div class="pdc-header">
+            <div class="pdc-name" style="color:#1a3a6b;">Pro</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price" style="color:#1a3a6b;">89 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">HT · 20 crédits</div>
+            </div>
+            <div class="pdc-engage"><span class="pdc-saving pdc-saving-pro">4,45 € / plan · −9%</span></div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">20 plans validés par un diét.</li>
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">CRM clients inclus</li>
+            <li class="yes">Red flags automatiques</li>
+            <li class="yes">Plans livrés sous 48h ouvrés</li>
+            <li class="yes">Remise 9% vs Découverte</li>
+          </ul>
+          <div class="pdc-cta pack-cta-pro">Choisir Pro</div>
+        </div>
+
+        <!-- Volume -->
+        <div class="pricing-diet-card pack-volume" id="packCard50" onclick="selectPack('50',this)">
+          <div class="pdc-header">
+            <div class="pdc-name" style="color:#0F6E56;">Volume</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price" style="color:#0F6E56;">219 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">HT · 50 crédits</div>
+            </div>
+            <div class="pdc-engage"><span class="pdc-saving pdc-saving-volume">4,38 € / plan · −11%</span></div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">50 plans validés par un diét.</li>
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">CRM clients inclus</li>
+            <li class="yes">Red flags automatiques</li>
+            <li class="yes">Plans livrés sous 48h ouvrés</li>
+            <li class="yes">Meilleur tarif — remise 11%</li>
+          </ul>
+          <div class="pdc-cta pack-cta-volume">Choisir Volume</div>
+        </div>
+
+      </div>
+
+      <div class="insc-pricing-reassurance">
+        <span>✓ Crédits sans expiration</span>
+        <span>✓ Rechargement possible à tout moment</span>
+        <span>✓ Facturation électronique automatique</span>
+        <span>✓ 1 crédit = 1 plan, même en red flag</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FORMULAIRE ══ -->
+  <section style="background:#fff;" id="formulaireSection">
+    <div class="section-inner" style="padding-top:2rem;padding-bottom:4rem;">
+      <div class="section-tag">Inscription</div>
+      <h2>Créer mon compte</h2>
+      <div class="insc-form-layout">
+
+        <div class="insc-progress-bar">
+          <div class="insc-progress-step active" id="pProgStep1"><div class="insc-prog-dot">1</div><span>Identité</span></div>
+          <div class="insc-progress-line"></div>
+          <div class="insc-progress-step" id="pProgStep2"><div class="insc-prog-dot">2</div><span>Périmètre</span></div>
+          <div class="insc-progress-line"></div>
+          <div class="insc-progress-step" id="pProgStep3"><div class="insc-prog-dot">3</div><span>Pack & MDP</span></div>
         </div>
 
         <form id="inscriptionPrescForm" novalidate>
 
-          <!-- Étape 1 : Identité -->
+          <!-- Étape 1 -->
           <div class="insc-step active" data-step="1">
-            <div class="step-label">1 / 3 — Identité professionnelle</div>
             <div class="form-row">
-              <div class="form-group">
-                <label>Prénom <span class="req">*</span></label>
-                <input type="text" id="pPrenom" placeholder="Ex : Lucas" required />
-              </div>
-              <div class="form-group">
-                <label>Nom <span class="req">*</span></label>
-                <input type="text" id="pNom" placeholder="Ex : Martin" required />
-              </div>
+              <div class="form-group"><label>Prénom <span class="req">*</span></label><input type="text" id="pPrenom" placeholder="Ex : Lucas" required/></div>
+              <div class="form-group"><label>Nom <span class="req">*</span></label><input type="text" id="pNom" placeholder="Ex : Martin" required/></div>
             </div>
             <div class="form-group">
               <label>Profession <span class="req">*</span></label>
@@ -66,25 +188,12 @@
                 <option value="autre">Autre professionnel</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Email professionnel <span class="req">*</span></label>
-              <input type="email" id="pEmail" placeholder="lucas.martin@cabinet.fr" required />
-            </div>
+            <div class="form-group"><label>Email professionnel <span class="req">*</span></label><input type="email" id="pEmail" placeholder="lucas.martin@cabinet.fr" required/></div>
             <div class="form-row">
-              <div class="form-group">
-                <label>Téléphone</label>
-                <input type="tel" id="pTel" placeholder="06 xx xx xx xx" />
-              </div>
-              <div class="form-group">
-                <label>Site / Instagram</label>
-                <input type="text" id="pSite" placeholder="@moncoach ou https://..." />
-              </div>
+              <div class="form-group"><label>Téléphone</label><input type="tel" id="pTel" placeholder="06 xx xx xx xx"/></div>
+              <div class="form-group"><label>Site / Instagram</label><input type="text" id="pSite" placeholder="@moncoach ou https://..."/></div>
             </div>
-            <div class="form-group">
-              <label>Structure / cabinet</label>
-              <input type="text" id="pCabinet" placeholder="Ex : Salle Fit Paris 15" />
-            </div>
-
+            <div class="form-group"><label>Structure / cabinet</label><input type="text" id="pCabinet" placeholder="Ex : Salle Fit Paris 15"/></div>
             <div class="coordonnees-preview" id="pCoordPreview">
               <div class="coordonnees-label">Aperçu — vos coordonnées sur le plan du client</div>
               <div class="coordonnees-card" style="border-left-color:#1a3a6b;">
@@ -94,130 +203,73 @@
                 <div class="coord-detail" id="pPrevContact"></div>
               </div>
             </div>
-
             <button type="button" class="btn-next" style="background:#1a3a6b;" onclick="nextPrescStep()">Continuer →</button>
           </div>
 
-          <!-- Étape 2 : Certification -->
+          <!-- Étape 2 : Périmètre -->
           <div class="insc-step" data-step="2">
-            <div class="step-label">2 / 3 — Certification &amp; périmètre</div>
-
-            <div class="redflag-notice" style="background:#eff6ff;border-color:#bfdbfe;">
+            <div class="redflag-notice" style="background:#eff6ff;border-color:#bfdbfe;margin-bottom:1.25rem;">
               <span class="redflag-icon" style="background:#1a3a6b;">!</span>
-              <span style="color:#1e40af;">En tant que prescripteur, vous ne pouvez initier des demandes que pour des objectifs non médicaux : rééquilibrage alimentaire, prise de masse, perte de gras. Tout autre besoin sera automatiquement redirigé vers une consultation.</span>
+              <span style="color:#1e40af;font-size:.85rem;">Vous ne pouvez prescrire que pour des objectifs non médicaux : rééquilibrage alimentaire, prise de masse, perte de gras. Tout cas médical sera automatiquement redirigé.</span>
             </div>
-
             <div class="form-group">
-              <label>Numéro de certification / diplôme</label>
-              <input type="text" id="pCertif" placeholder="Ex : BPJEPS, DE Kiné, certif CrossFit L2..." />
-              <span class="field-hint">Non obligatoire mais renforce votre crédibilité sur la plateforme</span>
+              <label>Certification / diplôme</label>
+              <input type="text" id="pCertif" placeholder="Ex : BPJEPS, DE Kiné, CrossFit L2..."/>
+              <span class="field-hint">Renforce votre crédibilité auprès des patients</span>
             </div>
-
             <div class="form-group">
               <label>Objectifs que vous prescrivez <span class="req">*</span></label>
               <div class="checkbox-list">
-                <label class="checkbox-option">
-                  <input type="checkbox" name="pObjectif" value="reequilibrage" checked />
-                  <span>Rééquilibrage alimentaire</span>
-                </label>
-                <label class="checkbox-option">
-                  <input type="checkbox" name="pObjectif" value="prise_masse" />
-                  <span>Prise de masse</span>
-                </label>
-                <label class="checkbox-option">
-                  <input type="checkbox" name="pObjectif" value="perte_gras" />
-                  <span>Perte de gras / sèche</span>
-                </label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="reequilibrage" checked/><span>Rééquilibrage alimentaire</span></label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="prise_masse"/><span>Prise de masse</span></label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="perte_gras"/><span>Perte de gras / sèche</span></label>
               </div>
             </div>
-
             <div class="redflag-notice" style="margin-top:1rem;">
               <span class="redflag-icon">!</span>
-              <span>Les cas impliquant grossesse, pathologie, TCA ou traitement médical seront <strong>automatiquement bloqués</strong> et redirigés vers un diététicien ou médecin.</span>
+              <span style="font-size:.82rem;">Les cas TCA, pathologie, traitement médical seront <strong>automatiquement bloqués</strong> et redirigés vers un professionnel de santé.</span>
             </div>
-
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevPrescStep()">← Retour</button>
               <button type="button" class="btn-next" style="background:#1a3a6b;" onclick="nextPrescStep()">Continuer →</button>
             </div>
           </div>
 
-          <!-- Étape 3 : Pack crédits -->
+          <!-- Étape 3 : Pack + MDP -->
           <div class="insc-step" data-step="3">
-            <div class="step-label">3 / 3 — Pack de crédits &amp; mot de passe</div>
-
             <div class="form-group">
-              <label>Choisir votre pack de départ <span class="req">*</span></label>
-              <div class="plan-choices-grid">
-
-                <label class="plan-choice-card" id="pack10">
-                  <input type="radio" name="pPack" value="10" />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Découverte</div>
-                    <div class="pcc-price">39 € <span>HT</span></div>
-                    <div class="pcc-engage">10 crédits plans</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>3,90 € / plan</li>
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Red flags automatiques</li>
-                    <li><span class="feat-no">–</span>Remise volume</li>
-                  </ul>
-                </label>
-
-                <label class="plan-choice-card featured" id="pack20">
-                  <div class="pcc-badge-top">Populaire</div>
-                  <input type="radio" name="pPack" value="20" checked />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Pro</div>
-                    <div class="pcc-price">69 € <span>HT</span></div>
-                    <div class="pcc-engage">20 crédits plans</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>3,45 € / plan</li>
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Red flags automatiques</li>
-                    <li><span class="ok">✓</span>11% de remise</li>
-                  </ul>
-                </label>
-
-                <label class="plan-choice-card" id="pack50">
-                  <input type="radio" name="pPack" value="50" />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Volume</div>
-                    <div class="pcc-price">149 € <span>HT</span></div>
-                    <div class="pcc-engage">50 crédits plans</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>2,98 € / plan</li>
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Red flags automatiques</li>
-                    <li><span class="ok">✓</span>24% de remise</li>
-                  </ul>
-                </label>
-
+              <label>Pack choisi <span class="req">*</span></label>
+              <div class="formule-recap" style="border-color:#1a3a6b;background:#eff6ff;">
+                <div class="formule-recap-name" id="pPackRecapName" style="color:#1a3a6b;">Pro — 20 crédits · 89 € HT</div>
+                <button type="button" class="formule-change" style="color:#1a3a6b;" onclick="scrollToPacks()">Modifier ↑</button>
               </div>
-              <div class="visio-note">
-                <span class="visio-tag">Info</span>
-                Les crédits n'expirent pas. Rechargez à tout moment depuis votre espace. Chaque plan consomme 1 crédit, qu'il soit validé par le diététicien ou redirigé (red flag).
+              <input type="hidden" id="pPackHidden" value="20"/>
+            </div>
+
+            <!-- Rappel délai -->
+            <div class="delai-banner" style="margin-bottom:1.25rem;">
+              <div class="delai-icon">⏱</div>
+              <div>
+                <div class="delai-title">Plans livrés sous 48h max jours ouvrés</div>
+                <div class="delai-sub">Après soumission du bilan client · Validation par diététicien certifié</div>
               </div>
             </div>
 
             <div class="form-group">
               <label>Mot de passe <span class="req">*</span></label>
               <div class="pwd-wrap">
-                <input type="password" id="pPassword" placeholder="Minimum 8 caractères" required oninput="checkPwdP(this.value)" />
+                <input type="password" id="pPassword" placeholder="Minimum 8 caractères" required oninput="checkPwdP(this.value)"/>
                 <button type="button" class="pwd-toggle" onclick="togglePwdP()">Voir</button>
               </div>
               <div class="pwd-strength" id="pPwdStrength"></div>
             </div>
             <div class="form-group">
               <label>Confirmer le mot de passe <span class="req">*</span></label>
-              <input type="password" id="pPasswordConfirm" placeholder="Répétez le mot de passe" required />
+              <input type="password" id="pPasswordConfirm" placeholder="Répétez le mot de passe" required/>
             </div>
             <label class="checkbox-option" style="margin-bottom:1rem;">
-              <input type="checkbox" id="pCgu" required />
-              <span>J'accepte les <a href="#" style="color:#1a3a6b;">CGU</a>, la charte prescripteur et confirme que mes prescriptions restent dans le cadre non médical <span class="req">*</span></span>
+              <input type="checkbox" id="pCgu" required/>
+              <span style="font-size:.85rem;">J'accepte les <a href="#" style="color:#1a3a6b;">CGU</a>, la charte prescripteur et confirme que mes prescriptions restent dans le cadre non médical <span class="req">*</span></span>
             </label>
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevPrescStep()">← Retour</button>
@@ -230,7 +282,11 @@
         <div id="prescConfirmation" class="inscription-confirmation hidden">
           <div class="confirm-icon" style="background:#eff6ff;color:#1a3a6b;">✓</div>
           <h3>Compte prescripteur créé !</h3>
-          <p>Vos crédits seront activés dès confirmation du paiement. Vous pouvez dès maintenant explorer votre espace.</p>
+          <p>Vos crédits seront activés dès confirmation du paiement.</p>
+          <div class="delai-banner" style="margin:1.25rem 0;max-width:380px;margin-left:auto;margin-right:auto;">
+            <div class="delai-icon">⏱</div>
+            <div><div class="delai-title">Rappel : plans livrés sous 48h max jours ouvrés</div></div>
+          </div>
           <div class="confirm-steps">
             <div class="confirm-step"><span class="conf-dot done"></span><span>Profil enregistré</span></div>
             <div class="confirm-step"><span class="conf-dot pending"></span><span>Paiement en attente de confirmation</span></div>
@@ -240,9 +296,11 @@
         </div>
 
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
-  <script src="js/inscription-prescripteur.js"></script>
+</main>
+
+<script src="js/inscription-prescripteur.js"></script>
 </body>
 </html>

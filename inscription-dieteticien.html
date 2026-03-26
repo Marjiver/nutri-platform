@@ -1,131 +1,231 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inscription diététicien — NutriPlan</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
 </head>
 <body class="page-inscription-diet">
 
-  <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-    <nav class="nav">
-      <a href="index.html" class="btn-back-link">← Retour accueil</a>
-    </nav>
-  </header>
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+  <nav class="nav">
+    <a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a>
+  </nav>
+</header>
 
-  <main class="inscription-layout">
+<main>
 
-    <!-- Colonne gauche : pitch -->
-    <aside class="inscription-pitch">
-      <div class="pitch-inner">
-        <p class="pitch-tag">Espace professionnel</p>
-        <h1>Développez votre activité avec NutriPlan</h1>
-        <p class="pitch-sub">Vos coordonnées professionnelles figurent sur chaque plan que vous validez. Une vitrine gratuite auprès de vos patients.</p>
-        <div class="pitch-avantages">
-          <div class="pitch-item">
-            <span class="pitch-icon-dot"></span>
-            <span>Vos nom, titre et contact imprimés sur chaque plan</span>
-          </div>
-          <div class="pitch-item">
-            <span class="pitch-icon-dot"></span>
-            <span>Badge "Diététicien vérifié RPPS" visible sur votre profil</span>
-          </div>
-          <div class="pitch-item">
-            <span class="pitch-icon-dot"></span>
-            <span>Dossiers patients pré-remplis — vous analysez, vous validez</span>
-          </div>
-          <div class="pitch-item">
-            <span class="pitch-icon-dot"></span>
-            <span>Alertes red flag automatiques pour les cas à risque</span>
-          </div>
-          <div class="pitch-item">
-            <span class="pitch-icon-dot"></span>
-            <span>Proposez vos visios directement depuis la plateforme</span>
-          </div>
-        </div>
-        <div class="pitch-quote">
-          "Chaque plan validé est une opportunité de fidéliser un patient sur le long terme."
+  <!-- ══ HERO INSCRIPTION ══ -->
+  <section class="insc-hero">
+    <div class="insc-hero-inner">
+      <div class="insc-hero-text">
+        <span class="hero-tag-pill">Espace professionnel</span>
+        <h1>Rejoignez le réseau<br><em>NutriPlan</em></h1>
+        <p class="hero-sub">Validez des plans alimentaires depuis chez vous. Vos coordonnées figureront sur chaque plan que vous signez — votre vitrine professionnelle auprès de chaque patient.</p>
+        <div class="insc-hero-avantages">
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Nom, titre et RPPS imprimés sur chaque plan</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Dossiers patients pré-remplis et structurés</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes red flag automatiques</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Visio intégrée selon votre formule</div>
         </div>
       </div>
-    </aside>
+      <div class="insc-hero-stats">
+        <div class="insc-stat"><div class="insc-stat-val">16 à 20 €</div><div class="insc-stat-label">reversés par plan validé</div></div>
+        <div class="insc-stat"><div class="insc-stat-val">48h</div><div class="insc-stat-label">délai moyen de validation</div></div>
+        <div class="insc-stat"><div class="insc-stat-val">100%</div><div class="insc-stat-label">données sécurisées RGPD</div></div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Colonne droite : formulaire -->
-    <section class="inscription-form-col">
-      <div class="inscription-form-card">
+  <!-- ══ TARIFS ══ -->
+  <section class="insc-pricing-section">
+    <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
+      <div class="section-tag">Tarifs transparents</div>
+      <h2>Choisissez votre formule</h2>
+      <p style="color:var(--gray);font-size:.95rem;margin-bottom:2.5rem;max-width:540px;">Démarrez sans engagement. Vous pouvez changer de formule à tout moment depuis votre espace.</p>
 
-        <div class="form-card-header">
-          <h2>Créer mon compte diététicien</h2>
-          <p>Vérification RPPS obligatoire · Activation sous 24h</p>
+      <div class="pricing-diet-grid">
+
+        <!-- Essentiel -->
+        <div class="pricing-diet-card" id="pricingEssentiel" onclick="selectFormule('essentiel')">
+          <div class="pdc-header">
+            <div class="pdc-name">Essentiel</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price">5 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">par plan validé</div>
+            </div>
+            <div class="pdc-engage">Sans engagement · Idéal pour démarrer</div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Badge "Diét. vérifié RPPS"</li>
+            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Accès à l'espace de validation</li>
+            <li class="no">Visio intégrée</li>
+            <li class="no">Tableau de bord & statistiques</li>
+            <li class="no">Support prioritaire</li>
+          </ul>
+          <div class="pdc-cta">Choisir Essentiel</div>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-diet-card featured" id="pricingPro" onclick="selectFormule('pro')">
+          <div class="pdc-badge">Recommandé</div>
+          <div class="pdc-header">
+            <div class="pdc-name">Pro</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price">49 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">par mois · dossiers illimités</div>
+            </div>
+            <div class="pdc-engage">Sans engagement · Résiliable à tout moment</div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Badge "Diét. vérifié RPPS"</li>
+            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Accès à l'espace de validation</li>
+            <li class="yes">Visio intégrée (lien personnalisé)</li>
+            <li class="yes">Tableau de bord & statistiques</li>
+            <li class="no">Support prioritaire</li>
+          </ul>
+          <div class="pdc-cta featured-cta">Choisir Pro</div>
+        </div>
+
+        <!-- Expert -->
+        <div class="pricing-diet-card" id="pricingExpert" onclick="selectFormule('expert')">
+          <div class="pdc-header">
+            <div class="pdc-name">Expert</div>
+            <div class="pdc-price-wrap">
+              <div class="pdc-price">39 <span class="pdc-currency">€</span></div>
+              <div class="pdc-period">par mois · engagement annuel</div>
+            </div>
+            <div class="pdc-engage">
+              <span class="pdc-saving">Économisez 120 € / an</span>
+            </div>
+          </div>
+          <div class="pdc-divider"></div>
+          <ul class="pdc-features">
+            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Badge "Diét. vérifié RPPS"</li>
+            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Accès à l'espace de validation</li>
+            <li class="yes">Visio intégrée (lien personnalisé)</li>
+            <li class="yes">Tableau de bord & statistiques</li>
+            <li class="yes">Support prioritaire sous 4h</li>
+          </ul>
+          <div class="pdc-cta">Choisir Expert</div>
+        </div>
+
+      </div>
+
+      <div class="insc-pricing-reassurance">
+        <span>✓ Aucune CB requise pour s'inscrire</span>
+        <span>✓ Paiement sécurisé via Stripe</span>
+        <span>✓ Facturation électronique automatique</span>
+        <span>✓ Résiliation en 1 clic</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FORMULAIRE ══ -->
+  <section class="insc-form-section" id="formulaireSection">
+    <div class="section-inner" style="padding-top:2rem;padding-bottom:4rem;">
+      <div class="section-tag">Inscription</div>
+      <h2>Créer mon compte</h2>
+
+      <div class="insc-form-layout">
+
+        <!-- Barre de progression -->
+        <div class="insc-progress-bar">
+          <div class="insc-progress-step active" id="progStep1">
+            <div class="insc-prog-dot">1</div>
+            <span>Identité</span>
+          </div>
+          <div class="insc-progress-line"></div>
+          <div class="insc-progress-step" id="progStep2">
+            <div class="insc-prog-dot">2</div>
+            <span>RPPS</span>
+          </div>
+          <div class="insc-progress-line"></div>
+          <div class="insc-progress-step" id="progStep3">
+            <div class="insc-prog-dot">3</div>
+            <span>Formule</span>
+          </div>
         </div>
 
         <form id="inscriptionForm" novalidate>
 
-          <!-- Étape 1 : Identité -->
+          <!-- Étape 1 -->
           <div class="insc-step active" data-step="1">
-            <div class="step-label">1 / 3 — Identité professionnelle</div>
             <div class="form-row">
               <div class="form-group">
                 <label>Prénom <span class="req">*</span></label>
-                <input type="text" id="prenom" placeholder="Ex : Sophie" required />
+                <input type="text" id="prenom" placeholder="Ex : Sophie" required/>
               </div>
               <div class="form-group">
                 <label>Nom <span class="req">*</span></label>
-                <input type="text" id="nom" placeholder="Ex : Lemaire" required />
+                <input type="text" id="nom" placeholder="Ex : Lemaire" required/>
               </div>
             </div>
             <div class="form-group">
               <label>Email professionnel <span class="req">*</span></label>
-              <input type="email" id="email" placeholder="s.lemaire@cabinet.fr" required />
+              <input type="email" id="email" placeholder="s.lemaire@cabinet.fr" required/>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Téléphone</label>
-                <input type="tel" id="tel" placeholder="06 xx xx xx xx" />
+                <input type="tel" id="tel" placeholder="06 xx xx xx xx"/>
               </div>
               <div class="form-group">
                 <label>Site web / Doctolib</label>
-                <input type="url" id="siteWeb" placeholder="https://..." />
+                <input type="url" id="siteWeb" placeholder="https://..."/>
               </div>
             </div>
             <div class="form-group">
-              <label>Cabinet / ville d'exercice</label>
-              <input type="text" id="cabinet" placeholder="Ex : Cabinet Nutrition Paris 11" />
+              <label>Cabinet / ville</label>
+              <input type="text" id="cabinet" placeholder="Ex : Cabinet Nutrition Paris 11"/>
             </div>
+
+            <!-- Aperçu coordonnées -->
             <div class="coordonnees-preview" id="coordPreview">
-              <div class="coordonnees-label">Aperçu — vos coordonnées sur le plan patient</div>
-              <div class="coordonnees-card" id="coordCard">
-                <div class="coord-name" id="prevNom">Dr. Prénom Nom</div>
+              <div class="coordonnees-label">Aperçu — vos coordonnées sur le plan du patient</div>
+              <div class="coordonnees-card">
+                <div class="coord-name" id="prevNom">Prénom NOM</div>
                 <div class="coord-detail" id="prevTitre">Diététicien(ne) certifié(e) · RPPS vérifié</div>
                 <div class="coord-detail" id="prevCabinet"></div>
                 <div class="coord-detail" id="prevContact"></div>
               </div>
             </div>
+
             <button type="button" class="btn-next" onclick="nextInscStep()">Continuer →</button>
           </div>
 
           <!-- Étape 2 : RPPS -->
           <div class="insc-step" data-step="2">
-            <div class="step-label">2 / 3 — Numéro RPPS</div>
             <div class="rpps-explainer">
               <div class="rpps-explainer-icon">?</div>
               <div>
-                <strong>Qu'est-ce que le numéro RPPS ?</strong>
-                <p>Le Répertoire Partagé des Professionnels de Santé (RPPS) est votre identifiant national unique à 11 chiffres. Il figure sur votre carte CPS.</p>
+                <strong>Numéro RPPS</strong>
+                <p>Identifiant national unique à <strong>11 chiffres</strong> attribué par l'Ordre ou l'ARS. Il figure sur votre carte CPS.</p>
               </div>
             </div>
             <div class="form-group">
               <label>Numéro RPPS <span class="req">*</span></label>
               <div class="rpps-input-wrap">
-                <input type="text" id="rppsInput" placeholder="Ex : 10 003 456 789"
-                  maxlength="13" inputmode="numeric"
-                  oninput="formatRpps(this)" required />
+                <input type="text" id="rppsInput"
+                  placeholder="Ex : 10 003 456 789"
+                  maxlength="14"
+                  inputmode="numeric"
+                  oninput="formatRpps(this)" required/>
                 <div class="rpps-status" id="rppsStatus">
-                  <span class="rpps-hint">11 chiffres</span>
+                  <span class="rpps-hint">0 / 11 chiffres</span>
                 </div>
               </div>
               <div class="rpps-feedback" id="rppsFeedback"></div>
@@ -139,9 +239,9 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Numéro ADELI (optionnel)</label>
-              <input type="text" id="adeli" placeholder="9 chiffres" maxlength="9" inputmode="numeric" />
-              <span class="field-hint">Complément d'identification pour les paramédicaux</span>
+              <label>Numéro ADELI <span style="font-weight:400;color:var(--gray);">(optionnel)</span></label>
+              <input type="text" id="adeli" placeholder="9 chiffres" maxlength="9" inputmode="numeric"/>
+              <span class="field-hint">Complément pour les paramédicaux</span>
             </div>
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
@@ -149,87 +249,30 @@
             </div>
           </div>
 
-          <!-- Étape 3 : Formule -->
+          <!-- Étape 3 : Formule + MDP -->
           <div class="insc-step" data-step="3">
-            <div class="step-label">3 / 3 — Votre formule &amp; mot de passe</div>
-
             <div class="form-group">
-              <label>Choisir votre formule <span class="req">*</span></label>
-              <div class="plan-choices-grid">
-
-                <label class="plan-choice-card" id="cardEssentiel">
-                  <input type="radio" name="formule" value="essentiel" />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Essentiel</div>
-                    <div class="pcc-price">5 € <span>/ plan validé</span></div>
-                    <div class="pcc-engage">Sans engagement</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Badge RPPS vérifié</li>
-                    <li><span class="ok">✓</span>Alertes red flag</li>
-                    <li><span class="feat-no">–</span>Visio intégrée</li>
-                    <li><span class="feat-no">–</span>Stats & tableau de bord</li>
-                    <li><span class="feat-no">–</span>Support prioritaire</li>
-                  </ul>
-                </label>
-
-                <label class="plan-choice-card featured" id="cardPro">
-                  <div class="pcc-badge-top">Recommandé</div>
-                  <input type="radio" name="formule" value="pro" checked />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Pro</div>
-                    <div class="pcc-price">49 € <span>/ mois</span></div>
-                    <div class="pcc-engage">Dossiers illimités</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Badge RPPS vérifié</li>
-                    <li><span class="ok">✓</span>Alertes red flag</li>
-                    <li><span class="ok">✓</span>Visio intégrée (Lien perso)</li>
-                    <li><span class="ok">✓</span>Stats & tableau de bord</li>
-                    <li><span class="feat-no">–</span>Support prioritaire</li>
-                  </ul>
-                </label>
-
-                <label class="plan-choice-card" id="cardExpert">
-                  <input type="radio" name="formule" value="expert" />
-                  <div class="pcc-header">
-                    <div class="pcc-name">Expert</div>
-                    <div class="pcc-price">39 € <span>/ mois</span></div>
-                    <div class="pcc-engage">Annuel — économisez 20%</div>
-                  </div>
-                  <ul class="pcc-features">
-                    <li><span class="ok">✓</span>Vos coordonnées sur chaque plan</li>
-                    <li><span class="ok">✓</span>Badge RPPS vérifié</li>
-                    <li><span class="ok">✓</span>Alertes red flag</li>
-                    <li><span class="ok">✓</span>Visio intégrée (Lien perso)</li>
-                    <li><span class="ok">✓</span>Stats & tableau de bord</li>
-                    <li><span class="ok">✓</span>Support prioritaire</li>
-                  </ul>
-                </label>
-
+              <label>Formule choisie <span class="req">*</span></label>
+              <div class="formule-recap" id="formuleRecap">
+                <div class="formule-recap-name" id="formuleRecapName">Pro — 49 € / mois</div>
+                <button type="button" class="formule-change" onclick="scrollToPricing()">Modifier ↑</button>
               </div>
-              <div class="visio-note">
-                <span class="visio-tag">Visio</span>
-                Les formules Pro et Expert vous permettent d'afficher un lien de prise de rendez-vous visio directement sur le plan reçu par le patient. Un moyen simple de proposer un suivi personnalisé après la remise du plan.
-              </div>
+              <input type="hidden" id="formuleHidden" name="formule" value="pro"/>
             </div>
-
             <div class="form-group">
               <label>Mot de passe <span class="req">*</span></label>
               <div class="pwd-wrap">
-                <input type="password" id="password" placeholder="Minimum 8 caractères" required oninput="checkPwd(this.value)" />
+                <input type="password" id="password" placeholder="Minimum 8 caractères" required oninput="checkPwd(this.value)"/>
                 <button type="button" class="pwd-toggle" onclick="togglePwd()">Voir</button>
               </div>
               <div class="pwd-strength" id="pwdStrength"></div>
             </div>
             <div class="form-group">
               <label>Confirmer le mot de passe <span class="req">*</span></label>
-              <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required />
+              <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required/>
             </div>
             <label class="checkbox-option" style="margin-bottom:1rem;">
-              <input type="checkbox" id="cgu" required />
+              <input type="checkbox" id="cgu" required/>
               <span>J'accepte les <a href="#" style="color:var(--green);">CGU</a> et la <a href="#" style="color:var(--green);">politique de confidentialité</a> <span class="req">*</span></span>
             </label>
             <div class="btn-row">
@@ -243,20 +286,22 @@
         <!-- Confirmation -->
         <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
           <div class="confirm-icon">✓</div>
-          <h3>Demande envoyée !</h3>
-          <p>Votre numéro RPPS a été vérifié. Votre compte est en cours d'activation.</p>
+          <h3>Bienvenue dans NutriPlan !</h3>
+          <p>Votre RPPS a été vérifié. Compte en cours d'activation (~24h).</p>
           <div class="confirm-steps">
             <div class="confirm-step"><span class="conf-dot done"></span><span>RPPS vérifié</span></div>
-            <div class="confirm-step"><span class="conf-dot pending"></span><span>Validation manuelle par notre équipe (~24h)</span></div>
+            <div class="confirm-step"><span class="conf-dot pending"></span><span>Validation par notre équipe</span></div>
             <div class="confirm-step"><span class="conf-dot"></span><span>Email de confirmation envoyé</span></div>
           </div>
           <a href="dietitian.html" class="btn-hero" style="display:inline-block;margin-top:1.5rem;">Accéder à mon espace →</a>
         </div>
 
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
-  <script src="js/inscription-dieteticien.js"></script>
+</main>
+
+<script src="js/inscription-dieteticien.js"></script>
 </body>
 </html>

@@ -81,10 +81,21 @@
             <span class="price-amount">14,90 €</span>
             <span class="price-label">paiement unique</span>
           </div>
+          <div class="delai-banner" style="margin-bottom:1.25rem;">
+            <div class="delai-icon">⏱</div>
+            <div>
+              <div class="delai-title">Plan livré sous 48h max jours ouvrés</div>
+              <div class="delai-sub">Après paiement · Validé et signé par un diététicien certifié RPPS</div>
+            </div>
+          </div>
           <button class="btn-pay" id="btnPay" onclick="simulerPaiement()">
             Obtenir mon plan complet →
           </button>
           <p class="paywall-reassurance">Paiement sécurisé · Remboursé si non livré sous 5 jours</p>
+          <div style="margin-top:.75rem;padding:.75rem;background:#eff6ff;border-radius:8px;font-size:.8rem;color:#1e40af;border:1px solid #bfdbfe;text-align:left;">
+            <strong>Ajouter une visio de suivi</strong> — 39 € supplémentaires<br>
+            <span style="font-size:.75rem;opacity:.8;">Consultation remboursable partiellement par votre mutuelle (vérifiez votre contrat rubrique "Diététique" ou "Prévention").</span>
+          </div>
         </div>
       </div>
 
@@ -93,7 +104,7 @@
         <div class="status-card">
           <div class="status-dot pending"></div>
           <div>
-            <p class="status-label">Paiement reçu</p>
+            <p class="status-label">Paiement reçu · Plan en cours de rédaction</p>
             <p class="status-value">En cours de rédaction par votre diététicien</p>
           </div>
           <div class="status-eta">~48h</div>
@@ -221,7 +232,11 @@
           </div>
         </div>
       </div>
-      <div class="modal-total">Total : <strong>14,90 €</strong></div>
+      <label class="checkbox-option" style="margin:.5rem 0;font-size:.82rem;">
+        <input type="checkbox" id="addVisio" onchange="updateModalTotal()"/>
+        <span>Ajouter une visio de suivi — +39 € <span style="font-size:.72rem;color:var(--gray);">(remboursable mutuelle)</span></span>
+      </label>
+      <div class="modal-total">Total : <strong id="modalTotalVal">24,90 €</strong></div>
       <div class="modal-actions">
         <button class="btn-back" onclick="fermerModal()">Annuler</button>
         <button class="btn-pay" id="btnConfirm" onclick="confirmerPaiement()">Confirmer le paiement</button>

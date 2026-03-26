@@ -1,11 +1,41 @@
 let currentPrescStep = 1;
 const totalPrescSteps = 3;
+let packSelectionne = '20';
+
+const PACKS = {
+  '10': 'Découverte — 10 crédits · 49 € HT',
+  '20': 'Pro — 20 crédits · 89 € HT',
+  '50': 'Volume — 50 crédits · 219 € HT'
+};
+const PACK_CARDS = { '10':'packCard10', '20':'packCard20', '50':'packCard50' };
+
+function selectPack(pack, el) {
+  packSelectionne = pack;
+  document.querySelectorAll('.pricing-diet-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const recap = document.getElementById('pPackRecapName');
+  const hidden = document.getElementById('pPackHidden');
+  if (recap)  recap.textContent = PACKS[pack];
+  if (hidden) hidden.value = pack;
+}
+
+function scrollToPacks() {
+  document.getElementById('packCard10')?.scrollIntoView({ behavior:'smooth', block:'center' });
+}
 
 function showPrescStep(n) {
   document.querySelectorAll('#inscriptionPrescForm .insc-step').forEach(s => s.classList.remove('active'));
-  document.querySelector('#inscriptionPrescForm .insc-step[data-step="' + n + '"]').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('#inscriptionPrescForm .insc-step[data-step="'+n+'"]')?.classList.add('active');
+  for (let i = 1; i <= totalPrescSteps; i++) {
+    const el = document.getElementById('pProgStep'+i);
+    if (!el) continue;
+    el.classList.remove('active','done');
+    if (i === n) el.classList.add('active');
+    else if (i < n) el.classList.add('done');
+  }
+  window.scrollTo({ top: document.getElementById('formulaireSection')?.offsetTop - 80 || 0, behavior:'smooth' });
 }
+
 function nextPrescStep() {
   if (!validatePrescStep(currentPrescStep)) return;
   if (currentPrescStep < totalPrescSteps) { currentPrescStep++; showPrescStep(currentPrescStep); }
@@ -19,7 +49,7 @@ function validatePrescStep(step) {
     if (!document.getElementById('pPrenom').value.trim() || !document.getElementById('pNom').value.trim()) { showPrescError('Veuillez renseigner votre prénom et nom.'); return false; }
     if (!document.getElementById('pProfession').value) { showPrescError('Veuillez sélectionner votre profession.'); return false; }
     const email = document.getElementById('pEmail').value.trim();
-    if (!email || !email.includes('@')) { showPrescError('Veuillez entrer un email valide.'); return false; }
+    if (!email || !email.includes('@')) { showPrescError('Email invalide.'); return false; }
   }
   if (step === 2) {
     const checked = document.querySelectorAll('input[name="pObjectif"]:checked');
@@ -33,13 +63,12 @@ function showPrescError(msg) {
   const div = document.createElement('div');
   div.className = 'insc-error';
   div.textContent = msg;
-  const activeStep = document.querySelector('#inscriptionPrescForm .insc-step.active');
-  const target = activeStep.querySelector('.btn-row') || activeStep.querySelector('button');
-  activeStep.insertBefore(div, target);
+  const step = document.querySelector('#inscriptionPrescForm .insc-step.active');
+  const target = step?.querySelector('.btn-row') || step?.querySelector('button');
+  if (target) step.insertBefore(div, target);
   setTimeout(() => div.remove(), 4000);
 }
 
-// Aperçu coordonnées
 function updatePrescPreview() {
   const prenom    = document.getElementById('pPrenom')?.value.trim() || '';
   const nom       = document.getElementById('pNom')?.value.trim() || '';
@@ -47,21 +76,12 @@ function updatePrescPreview() {
   const cabinet   = document.getElementById('pCabinet')?.value.trim() || '';
   const tel       = document.getElementById('pTel')?.value.trim() || '';
   const site      = document.getElementById('pSite')?.value.trim() || '';
-
-  const titres = { coach_sportif: 'Coach sportif certifié', preparateur: 'Préparateur physique', kine: 'Kinésithérapeute DE' };
-
-  document.getElementById('pPrevNom').textContent    = (prenom || 'Prénom') + ' ' + (nom ? nom.toUpperCase() : 'NOM');
-  document.getElementById('pPrevTitre').textContent  = titres[profession] || 'Professionnel du sport et de la santé';
+  const titres    = { coach_sportif:'Coach sportif certifié', preparateur:'Préparateur physique', kine:'Kinésithérapeute DE', autre:'Professionnel du sport et de la santé' };
+  document.getElementById('pPrevNom').textContent     = (prenom||'Prénom') + ' ' + (nom ? nom.toUpperCase() : 'NOM');
+  document.getElementById('pPrevTitre').textContent   = titres[profession] || 'Professionnel du sport et de la santé';
   document.getElementById('pPrevCabinet').textContent = cabinet;
-  document.getElementById('pPrevContact').textContent = [tel, site].filter(Boolean).join(' · ') || 'coordonnées@pro.fr';
-  document.getElementById('pCoordPreview').style.opacity = (prenom || nom) ? '1' : '0.4';
-}
-
-// Pack highlight
-function updatePackSelection() {
-  document.querySelectorAll('.plan-choice-card').forEach(c => c.classList.remove('selected'));
-  const checked = document.querySelector('input[name="pPack"]:checked');
-  if (checked) checked.closest('.plan-choice-card').classList.add('selected');
+  document.getElementById('pPrevContact').textContent = [tel, site].filter(Boolean).join(' · ') || '';
+  document.getElementById('pCoordPreview').style.opacity = (prenom||nom) ? '1' : '0.4';
 }
 
 function checkPwdP(val) {
@@ -74,8 +94,8 @@ function checkPwdP(val) {
   const labels = ['','Faible','Moyen','Fort','Très fort'];
   const colors = ['','#ef4444','#f97316','#22c55e','#16a34a'];
   bar.innerHTML = val.length === 0 ? '' :
-    '<div class="pwd-bar"><div class="pwd-fill" style="width:' + (score*25) + '%;background:' + colors[score] + '"></div></div>' +
-    '<span style="font-size:0.75rem;color:' + colors[score] + '">' + labels[score] + '</span>';
+    '<div class="pwd-bar"><div class="pwd-fill" style="width:'+(score*25)+'%;background:'+colors[score]+'"></div></div>' +
+    '<span style="font-size:.75rem;color:'+colors[score]+'">'+labels[score]+'</span>';
 }
 function togglePwdP() {
   const inp = document.getElementById('pPassword');
@@ -83,40 +103,44 @@ function togglePwdP() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  selectPack('20', document.getElementById('packCard20'));
   ['pPrenom','pNom','pProfession','pTel','pCabinet','pSite'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', updatePrescPreview);
+    document.getElementById(id)?.addEventListener('input', updatePrescPreview);
   });
   updatePrescPreview();
 
-  document.querySelectorAll('input[name="pPack"]').forEach(r => r.addEventListener('change', updatePackSelection));
-  updatePackSelection();
-
-  document.getElementById('inscriptionPrescForm').addEventListener('submit', e => {
+  document.getElementById('inscriptionPrescForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (!validatePrescStep(3)) return;
     if (document.getElementById('pPassword').value !== document.getElementById('pPasswordConfirm').value) { showPrescError('Les mots de passe ne correspondent pas.'); return; }
     if (document.getElementById('pPassword').value.length < 8) { showPrescError('Mot de passe trop court.'); return; }
-    if (!document.getElementById('pCgu').checked) { showPrescError('Veuillez accepter les CGU et la charte prescripteur.'); return; }
+    if (!document.getElementById('pCgu').checked) { showPrescError('Veuillez accepter les CGU.'); return; }
+
+    const btn = document.querySelector('#inscriptionPrescForm .btn-submit');
+    btn.textContent = 'Création en cours…'; btn.disabled = true;
 
     const objectifs = Array.from(document.querySelectorAll('input[name="pObjectif"]:checked')).map(c => c.value);
-    const profil = {
-      type: 'prescripteur',
-      prenom:     document.getElementById('pPrenom').value.trim(),
-      nom:        document.getElementById('pNom').value.trim(),
+    const payload = {
+      email: document.getElementById('pEmail').value.trim(),
+      password: document.getElementById('pPassword').value,
+      prenom: document.getElementById('pPrenom').value.trim(),
+      nom: document.getElementById('pNom').value.trim(),
       profession: document.getElementById('pProfession').value,
-      email:      document.getElementById('pEmail').value.trim(),
-      tel:        document.getElementById('pTel').value.trim(),
-      site:       document.getElementById('pSite').value.trim(),
-      cabinet:    document.getElementById('pCabinet').value.trim(),
-      certif:     document.getElementById('pCertif').value.trim(),
+      tel: document.getElementById('pTel').value.trim(),
+      site: document.getElementById('pSite').value.trim(),
+      cabinet: document.getElementById('pCabinet').value.trim(),
+      certif: document.getElementById('pCertif').value.trim(),
       objectifs,
-      pack:       document.querySelector('input[name="pPack"]:checked').value,
-      credits:    parseInt(document.querySelector('input[name="pPack"]:checked').value),
-      statut:     'actif',
-      date:       new Date().toISOString()
+      pack: packSelectionne
     };
-    localStorage.setItem('nutri_prescripteur', JSON.stringify(profil));
+
+    if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
+      const { error } = await inscrirePrescripteur(payload);
+      if (error) { showPrescError(error.message || 'Erreur inscription.'); btn.textContent='Créer mon compte →'; btn.disabled=false; return; }
+    } else {
+      localStorage.setItem('nutri_prescripteur', JSON.stringify({ ...payload, credits: parseInt(packSelectionne), statut:'actif' }));
+    }
+
     document.getElementById('inscriptionPrescForm').classList.add('hidden');
     document.getElementById('prescConfirmation').classList.remove('hidden');
   });
