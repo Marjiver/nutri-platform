@@ -121,18 +121,90 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="submit" class="btn-submit">Générer mon plan →</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- Étape 5 — Red Flags -->
+      <div class="step" data-step="5">
+        <h2>Informations médicales</h2>
+        <p class="step-intro">Ces informations sont confidentielles et permettent d'assurer votre sécurité. Cochez tout ce qui vous concerne.</p>
+
+        <div class="redflag-notice">
+          <span class="redflag-icon">!</span>
+          Certaines situations nécessitent un suivi médical spécialisé avant tout plan nutritionnel.
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-list" id="redFlagList">
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="grossesse" />
+              <span>Grossesse ou allaitement en cours</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="tca" />
+              <span>Troubles du comportement alimentaire (TCA)</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="diabete" />
+              <span>Diabète sous traitement médical</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="insuffisance_renale" />
+              <span>Insuffisance rénale</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="bariatrique" />
+              <span>Chirurgie bariatrique (passée ou prévue)</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="allergies_severes" />
+              <span>Allergies multiples sévères</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="medicaments" />
+              <span>Médicaments impactant le poids ou l'appétit</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="redflag" value="antecedents" />
+              <span>Antécédents médicaux lourds (cancer, chirurgie lourde…)</span>
+            </label>
+            <label class="checkbox-option checkbox-none">
+              <input type="checkbox" name="redflag_aucun" id="redFlagAucun" value="aucun" />
+              <span>Aucune de ces situations ne me concerne</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="submit" class="btn-submit" id="btnSubmit">Envoyer mon bilan →</button>
         </div>
       </div>
 
     </form>
 
-    <!-- Résultat -->
+    <!-- Résultat : succès -->
     <div id="resultat" class="resultat hidden">
-      <div class="resultat-header">
-        <div class="check-icon">✓</div>
-        <h2>Bilan envoyé !</h2>
-        <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h.</p>
+      <div class="check-icon">✓</div>
+      <h2>Bilan envoyé !</h2>
+      <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h.</p>
+      <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+    </div>
+
+    <!-- Résultat : red flag bloquant -->
+    <div id="resultat-redflag" class="resultat redflag-blocked hidden">
+      <div class="redflag-block-icon">🚨</div>
+      <h2>Votre dossier nécessite un suivi spécialisé</h2>
+      <p>En raison des informations médicales renseignées, nous ne pouvons pas générer de plan automatique pour votre sécurité.</p>
+      <div class="redflag-flags" id="redFlagDisplay"></div>
+      <div class="redflag-next">
+        <p class="redflag-next-title">Que se passe-t-il maintenant ?</p>
+        <ul>
+          <li>Votre dossier a été transmis à un diététicien qualifié.</li>
+          <li>Il vous contactera pour un suivi personnalisé adapté à votre situation.</li>
+          <li>Aucun plan automatique ne sera généré sans validation médicale.</li>
+        </ul>
       </div>
       <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
     </div>
