@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon bilan — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="page-bilan">
+
+  <header class="header">
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </header>
+
+  <main class="bilan-container">
+    <form id="bilanForm">
+
+      <!-- Étape 1 -->
+      <div class="step active" data-step="1">
+        <h2>Informations générales</h2>
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" name="prenom" placeholder="Ex : Marie" required />
+        </div>
+        <div class="form-group">
+          <label>Âge</label>
+          <input type="number" name="age" placeholder="Ex : 34" min="16" max="100" required />
+        </div>
+        <div class="form-group">
+          <label>Sexe</label>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="sexe" value="femme" /> Femme</label>
+            <label class="radio-option"><input type="radio" name="sexe" value="homme" /> Homme</label>
+            <label class="radio-option"><input type="radio" name="sexe" value="autre" /> Autre</label>
+          </div>
+        </div>
+        <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+      </div>
+
+      <!-- Étape 2 -->
+      <div class="step" data-step="2">
+        <h2>Votre morphologie</h2>
+        <div class="form-group">
+          <label>Taille (cm)</label>
+          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="230" required />
+        </div>
+        <div class="form-group">
+          <label>Poids actuel (kg)</label>
+          <input type="number" name="poids" placeholder="Ex : 65" min="30" max="300" required />
+        </div>
+        <div class="form-group">
+          <label>Poids objectif (kg) — optionnel</label>
+          <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300" />
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- Étape 3 -->
+      <div class="step" data-step="3">
+        <h2>Activité &amp; habitudes</h2>
+        <div class="form-group">
+          <label>Niveau d'activité physique</label>
+          <select name="activite">
+            <option value="">— Choisir —</option>
+            <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
+            <option value="leger">Légèrement actif (1-2 fois/semaine)</option>
+            <option value="modere">Modérément actif (3-4 fois/semaine)</option>
+            <option value="actif">Très actif (5+ fois/semaine)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nombre de repas par jour</label>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="repas" value="2" /> 2</label>
+            <label class="radio-option"><input type="radio" name="repas" value="3" /> 3</label>
+            <label class="radio-option"><input type="radio" name="repas" value="4" /> 4+</label>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- Étape 4 -->
+      <div class="step" data-step="4">
+        <h2>Restrictions &amp; objectifs</h2>
+        <div class="form-group">
+          <label>Régime alimentaire</label>
+          <select name="regime">
+            <option value="">— Aucune restriction —</option>
+            <option value="vegetarien">Végétarien</option>
+            <option value="vegan">Vegan</option>
+            <option value="sans_gluten">Sans gluten</option>
+            <option value="sans_lactose">Sans lactose</option>
+            <option value="halal">Halal</option>
+            <option value="kasher">Kasher</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Allergies ou intolérances</label>
+          <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Objectif principal</label>
+          <select name="objectif">
+            <option value="">— Choisir —</option>
+            <option value="perte_poids">Perte de poids</option>
+            <option value="prise_masse">Prise de masse</option>
+            <option value="equilibre">Alimentation équilibrée</option>
+            <option value="energie">Améliorer mon énergie</option>
+            <option value="sante">Prévention santé</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="submit" class="btn-submit">Générer mon plan →</button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- Résultat -->
+    <div id="resultat" class="resultat hidden">
+      <div class="resultat-header">
+        <div class="check-icon">✓</div>
+        <h2>Bilan envoyé !</h2>
+        <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h.</p>
+      </div>
+      <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+    </div>
+  </main>
+
+  <script src="js/bilan.js"></script>
+</body>
+</html>

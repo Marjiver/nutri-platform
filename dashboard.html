@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon tableau de bord — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="page-dashboard">
+
+  <header class="header">
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <nav class="nav">
+      <span class="user-tag">Marie D.</span>
+    </nav>
+  </header>
+
+  <main class="dashboard-container">
+
+    <div class="dashboard-greeting">
+      <h2>Bonjour Marie 👋</h2>
+      <p>Voici votre espace personnel NutriPlan.</p>
+    </div>
+
+    <!-- Statut du plan -->
+    <div class="status-card">
+      <div class="status-dot pending"></div>
+      <div>
+        <p class="status-label">Statut de votre plan</p>
+        <p class="status-value">En attente de validation diététicien</p>
+      </div>
+      <div class="status-eta">~48h</div>
+    </div>
+
+    <!-- Résumé bilan -->
+    <section class="dashboard-section">
+      <h3>Votre bilan</h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="info-label">Objectif</span>
+          <span class="info-value">Perte de poids</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">Activité</span>
+          <span class="info-value">Modérément actif</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">Régime</span>
+          <span class="info-value">Végétarien</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">IMC estimé</span>
+          <span class="info-value">23.4</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Plan (verrouillé) -->
+    <section class="dashboard-section">
+      <h3>Votre plan nutritionnel</h3>
+      <div class="plan-locked">
+        <div class="lock-icon">🔒</div>
+        <p>Votre plan sera disponible dès validation par votre diététicien.</p>
+        <p class="plan-eta">Vous recevrez une notification par email.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

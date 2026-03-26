@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace diététicien — NutriPlan</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="page-dietitian">
+
+  <header class="header">
+    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <nav class="nav">
+      <span class="user-tag pro">Dr. Lemaire — Diététicien</span>
+    </nav>
+  </header>
+
+  <main class="dashboard-container">
+
+    <div class="dashboard-greeting">
+      <h2>Dossiers à valider</h2>
+      <p>3 plans en attente de votre validation.</p>
+    </div>
+
+    <!-- Liste patients -->
+    <div class="patients-list">
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="avatar">MD</div>
+          <div>
+            <p class="patient-name">Marie D. — 34 ans</p>
+            <p class="patient-meta">Végétarienne · Perte de poids · IMC 23.4</p>
+          </div>
+        </div>
+        <div class="patient-actions">
+          <button class="btn-view" onclick="togglePlan(this)">Voir le plan</button>
+          <button class="btn-validate">Valider ✓</button>
+        </div>
+        <div class="plan-detail hidden">
+          <h4>Plan IA généré</h4>
+          <p class="plan-text">Petit-déjeuner : Porridge aux fruits rouges, graines de chia. Déjeuner : Salade quinoa-légumes grillés, vinaigrette citronnée. Dîner : Soupe de lentilles corail, pain complet. Collation : Pomme + amandes.</p>
+          <div class="form-group">
+            <label>Annotations / modifications</label>
+            <textarea placeholder="Ajouter des remarques ou modifications au plan..." rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="avatar">TK</div>
+          <div>
+            <p class="patient-name">Thomas K. — 28 ans</p>
+            <p class="patient-meta">Sans restriction · Prise de masse · IMC 21.8</p>
+          </div>
+        </div>
+        <div class="patient-actions">
+          <button class="btn-view" onclick="togglePlan(this)">Voir le plan</button>
+          <button class="btn-validate">Valider ✓</button>
+        </div>
+        <div class="plan-detail hidden">
+          <h4>Plan IA généré</h4>
+          <p class="plan-text">Petit-déjeuner : Œufs brouillés, toast complet, avocat. Déjeuner : Poulet grillé, riz basmati, haricots verts. Dîner : Saumon, patate douce, brocolis vapeur. Collation : Yaourt grec + banane.</p>
+          <div class="form-group">
+            <label>Annotations / modifications</label>
+            <textarea placeholder="Ajouter des remarques ou modifications au plan..." rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/dietitian.js"></script>
+</body>
+</html>
