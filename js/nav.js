@@ -95,7 +95,8 @@ function buildUniversalNav() {
             <span>${l.label}</span>
           </a>`).join('')}
         <div class="unav-conn-divider"></div>
-        <a href="index.html" class="unav-tools-item"><span class="unav-tools-icon">🏡</span><span>Accueil</span></a>
+        <a href="admin.html" class="unav-tools-item" style="color:#8b5cf6;"><span class="unav-tools-icon">⚙</span><span>Admin CaliDoc</span></a>
+    <a href="index.html" class="unav-tools-item"><span class="unav-tools-icon">🏡</span><span>Accueil</span></a>
         <a href="#" onclick="unavDeconnect()" class="unav-tools-item" style="color:#ef4444;"><span class="unav-tools-icon">↩</span><span>Se déconnecter</span></a>
       </div>
     </div>` : '';

@@ -12,6 +12,7 @@
   <script src="js/nav.js" defer></script>
   <script src="js/support.js" defer></script>
   <script src="js/cookies.js"></script>
+  <script src="js/pdf-plan.js" defer></script>
 </head>
 <body class="page-dietitian">
 <main class="dashboard-container" style="padding-top:5rem;">
@@ -180,6 +181,11 @@ function validerPlan(id) {
   const p = PATIENTS.find(x => x.id === id);
   if (!p) return;
   p.statut_plan = 'valide';
+  // Bouton PDF dans les dossiers validés
+  if (typeof genererPDF !== 'undefined') {
+    const t = typeof totalsPlan !== 'undefined' ? { kcal: 1650, prot: 130, glu: 180, lip: 55 } : {};
+    genererPDF(p, getDemoData().plan, { nom:'Dr. Lemaire', rpps:'10 003 456 789', titre:'Diét.-Nutritionniste', email:'lemaire@nutridoc.fr', cabinet:'Cabinet NutriDoc' });
+  }
   if (typeof Email !== 'undefined') {
     Email.planLivre(p.email, { prenom: p.prenom, diet_nom: 'Dr. Lemaire', diet_rpps: '10 003 456 789', kcal: 1650, proteines: 130, visio_dispo: true });
   }
