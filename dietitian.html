@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Espace diététicien — NutriPlan</title>
+  <title>Espace diététicien — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,8 +12,13 @@
 <body class="page-dietitian">
 
   <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-    <nav class="nav"><span class="user-tag pro">Dr. Lemaire — Diététicien</span></nav>
+    <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+    <nav class="nav">
+    <a href="dietitian.html" class="nav-link">Dossiers</a>
+    <a href="agenda-dieteticien.html" class="nav-link">Agenda visios</a>
+    <a href="compta-dieteticien.html" class="nav-link">Comptabilité</a>
+  </nav>
+  <span class="user-tag pro">Dr. Lemaire</span>
   </header>
 
   <main class="dashboard-container">
@@ -30,6 +35,16 @@
     </div>
     <div id="alertesZone"></div>
     <div class="patients-list" id="patientsList"></div>
+
+    <!-- SUPPORT TICKET ─────────────────────────────────── -->
+    <section class="dashboard-section" style="margin-top:1rem;">
+      <div id="supportWidget_dietitian"></div>
+    </section>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initSupportWidget('supportWidget_dietitian', 'dietitian');
+    });
+    </script>
   </main>
 
   <!-- MODAL ÉDITEUR -->
@@ -61,5 +76,6 @@
 
   <script src="js/ciqual-data.js"></script>
   <script src="js/dietitian.js"></script>
+  <script src="js/support.js"></script>
 </body>
 </html>

@@ -1,261 +1,230 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mon bilan — NutriPlan</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Mon bilan — NutriDoc</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
 </head>
 <body class="page-bilan">
 
-  <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-  </header>
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</header>
 
-  <main class="bilan-container">
-    <form id="bilanForm">
+<main class="bilan-container">
+  <form id="bilanForm" novalidate>
 
-      <!-- Étape 1 -->
-      <div class="step active" data-step="1">
+    <!-- ─── ÉTAPE 1 : Identité ─────────────────────────── -->
+    <div class="step active" data-step="1">
+      <div class="step-header">
+        <div class="step-num-pill">1 / 5</div>
         <h2>Informations générales</h2>
-        <div class="form-group">
-          <label>Prénom</label>
-          <input type="text" name="prenom" placeholder="Ex : Marie" required />
-        </div>
-        <div class="form-group">
-          <label>Âge</label>
-          <input type="number" name="age" placeholder="Ex : 34" min="16" max="100" required />
-        </div>
-        <div class="form-group">
-          <label>Sexe</label>
-          <div class="radio-group">
-            <label class="radio-option"><input type="radio" name="sexe" value="femme" /> Femme</label>
-            <label class="radio-option"><input type="radio" name="sexe" value="homme" /> Homme</label>
-            <label class="radio-option"><input type="radio" name="sexe" value="autre" /> Autre</label>
-          </div>
-        </div>
-        <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
       </div>
+      <div class="form-group">
+        <label>Prénom <span class="req">*</span></label>
+        <input type="text" name="prenom" placeholder="Ex : Marie" required/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Âge <span class="req">*</span></label>
+          <input type="number" name="age" placeholder="Ex : 34" min="16" max="100" required/>
+        </div>
+        <div class="form-group">
+          <label>Sexe <span class="req">*</span></label>
+          <select name="sexe" required>
+            <option value="">— Choisir —</option>
+            <option value="femme">Femme</option>
+            <option value="homme">Homme</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Ville <span class="req">*</span></label>
+        <input type="text" name="ville" placeholder="Ex : Angoulême" required/>
+        <span class="field-hint">Permet d'assigner un diététicien proche de chez vous</span>
+      </div>
+      <button type="button" class="btn-next" onclick="goToStep(2)">Continuer →</button>
+    </div>
 
-      <!-- Étape 2 -->
-      <div class="step" data-step="2">
+    <!-- ─── ÉTAPE 2 : Morphologie ──────────────────────── -->
+    <div class="step" data-step="2">
+      <div class="step-header">
+        <div class="step-num-pill">2 / 5</div>
         <h2>Votre morphologie</h2>
+      </div>
+      <div class="form-row">
         <div class="form-group">
-          <label>Taille (cm)</label>
-          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="230" required />
+          <label>Taille (cm) <span class="req">*</span></label>
+          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="230" required/>
         </div>
         <div class="form-group">
-          <label>Poids actuel (kg)</label>
-          <input type="number" name="poids" placeholder="Ex : 65" min="30" max="300" required />
-        </div>
-        <div class="form-group">
-          <label>Poids objectif (kg) — optionnel</label>
-          <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300" />
-        </div>
-        <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+          <label>Poids actuel (kg) <span class="req">*</span></label>
+          <input type="number" name="poids" placeholder="Ex : 65" min="30" max="300" required/>
         </div>
       </div>
+      <div class="form-group">
+        <label>Poids objectif (kg) <span style="color:var(--gray);font-weight:400">optionnel</span></label>
+        <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300"/>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goToStep(1)">← Retour</button>
+        <button type="button" class="btn-next" onclick="goToStep(3)">Continuer →</button>
+      </div>
+    </div>
 
-      <!-- Étape 3 -->
-      <div class="step" data-step="3">
-        <h2>Activité &amp; habitudes</h2>
-        <div class="form-group">
-          <label>Niveau d'activité physique</label>
-          <select name="activite">
-            <option value="">— Choisir —</option>
-            <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
-            <option value="leger">Légèrement actif (1-2 fois/semaine)</option>
-            <option value="modere">Modérément actif (3-4 fois/semaine)</option>
-            <option value="actif">Très actif (5+ fois/semaine)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Nombre de repas par jour</label>
-          <div class="radio-group">
-            <label class="radio-option"><input type="radio" name="repas" value="2" /> 2</label>
-            <label class="radio-option"><input type="radio" name="repas" value="3" /> 3</label>
-            <label class="radio-option"><input type="radio" name="repas" value="4" /> 4+</label>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+    <!-- ─── ÉTAPE 3 : Activité & objectif ──────────────── -->
+    <div class="step" data-step="3">
+      <div class="step-header">
+        <div class="step-num-pill">3 / 5</div>
+        <h2>Activité &amp; objectif</h2>
+      </div>
+      <div class="form-group">
+        <label>Niveau d'activité physique <span class="req">*</span></label>
+        <select name="activite" required>
+          <option value="">— Choisir —</option>
+          <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
+          <option value="leger">Légèrement actif (1-2 fois/semaine)</option>
+          <option value="modere">Modérément actif (3-4 fois/semaine)</option>
+          <option value="actif">Très actif (5+ fois/semaine)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Objectif principal <span class="req">*</span></label>
+        <select name="objectif" required>
+          <option value="">— Choisir —</option>
+          <option value="perte_poids">Perte de poids / de gras</option>
+          <option value="prise_masse">Prise de masse / muscle</option>
+          <option value="equilibre">Alimentation équilibrée</option>
+          <option value="energie">Améliorer mon énergie</option>
+          <option value="sante">Prévention santé</option>
+          <option value="sport_perf">Performance sportive</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nombre de repas par jour</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="repas" value="2"/><span>2 repas</span></label>
+          <label class="radio-option"><input type="radio" name="repas" value="3" checked/><span>3 repas</span></label>
+          <label class="radio-option"><input type="radio" name="repas" value="4"/><span>4 repas ou plus</span></label>
         </div>
       </div>
-
-      <!-- Étape 4 -->
-      <div class="step" data-step="4">
-        <h2>Restrictions &amp; objectifs</h2>
-        <div class="form-group">
-          <label>Régime alimentaire</label>
-          <select name="regime">
-            <option value="">— Aucune restriction —</option>
-            <option value="vegetarien">Végétarien</option>
-            <option value="vegan">Vegan</option>
-            <option value="sans_gluten">Sans gluten</option>
-            <option value="sans_lactose">Sans lactose</option>
-            <option value="halal">Halal</option>
-            <option value="kasher">Kasher</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Allergies ou intolérances</label>
-          <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Objectif principal</label>
-          <select name="objectif">
-            <option value="">— Choisir —</option>
-            <option value="perte_poids">Perte de poids</option>
-            <option value="prise_masse">Prise de masse</option>
-            <option value="equilibre">Alimentation équilibrée</option>
-            <option value="energie">Améliorer mon énergie</option>
-            <option value="sante">Prévention santé</option>
-          </select>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
-        </div>
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goToStep(2)">← Retour</button>
+        <button type="button" class="btn-next" onclick="goToStep(4)">Continuer →</button>
       </div>
+    </div>
 
-      <!-- Étape 5 — Red Flags -->
-      <div class="step" data-step="5">
+    <!-- ─── ÉTAPE 4 : Restrictions ─────────────────────── -->
+    <div class="step" data-step="4">
+      <div class="step-header">
+        <div class="step-num-pill">4 / 5</div>
+        <h2>Restrictions &amp; habitudes</h2>
+      </div>
+      <div class="form-group">
+        <label>Régime alimentaire</label>
+        <select name="regime">
+          <option value="">— Aucune restriction —</option>
+          <option value="vegetarien">Végétarien</option>
+          <option value="vegan">Vegan</option>
+          <option value="sans_gluten">Sans gluten</option>
+          <option value="sans_lactose">Sans lactose</option>
+          <option value="halal">Halal</option>
+          <option value="kasher">Kasher</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Allergies ou intolérances</label>
+        <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Aliments que vous n'aimez pas</label>
+        <textarea name="aversions" placeholder="Ex : je ne mange pas de poisson, ni de champignons..." rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Budget alimentaire hebdomadaire</label>
+        <select name="budget">
+          <option value="">— Pas de contrainte —</option>
+          <option value="faible">Serré — moins de 40 €/semaine</option>
+          <option value="moyen">Moyen — 40 à 70 €/semaine</option>
+          <option value="confort">Confort — 70 €+ / semaine</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goToStep(3)">← Retour</button>
+        <button type="button" class="btn-next" onclick="goToStep(5)">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- ─── ÉTAPE 5 : Red Flags ─────────────────────────── -->
+    <div class="step" data-step="5">
+      <div class="step-header">
+        <div class="step-num-pill">5 / 5</div>
         <h2>Informations médicales</h2>
-        <p class="step-intro">Ces informations sont confidentielles et permettent d'assurer votre sécurité. Cochez tout ce qui vous concerne.</p>
-
-        <div class="redflag-notice">
-          <span class="redflag-icon">!</span>
-          Certaines situations nécessitent un suivi médical spécialisé avant tout plan nutritionnel.
-        </div>
-
-        <div class="form-group">
-          <div class="checkbox-list" id="redFlagList">
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="grossesse" />
-              <span>Grossesse ou allaitement en cours</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="tca" />
-              <span>Troubles du comportement alimentaire (TCA)</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="diabete" />
-              <span>Diabète sous traitement médical</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="insuffisance_renale" />
-              <span>Insuffisance rénale</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="bariatrique" />
-              <span>Chirurgie bariatrique (passée ou prévue)</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="allergies_severes" />
-              <span>Allergies multiples sévères</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="medicaments" />
-              <span>Médicaments impactant le poids ou l'appétit</span>
-            </label>
-            <label class="checkbox-option">
-              <input type="checkbox" name="redflag" value="antecedents" />
-              <span>Antécédents médicaux lourds (cancer, chirurgie lourde…)</span>
-            </label>
-            <label class="checkbox-option checkbox-none">
-              <input type="checkbox" name="redflag_aucun" id="redFlagAucun" value="aucun" />
-              <span>Aucune de ces situations ne me concerne</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="submit" class="btn-submit" id="btnSubmit">Envoyer mon bilan →</button>
+      </div>
+      <p class="step-intro">Confidentielles. Permettent d'assurer votre sécurité. Cochez tout ce qui vous concerne.</p>
+      <div class="redflag-notice">
+        <span class="redflag-icon">!</span>
+        Certaines situations nécessitent un suivi médical spécialisé avant tout plan nutritionnel.
+      </div>
+      <div class="form-group">
+        <div class="checkbox-list" id="redFlagList">
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="grossesse"/><span>Grossesse ou allaitement en cours</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="tca"/><span>Troubles du comportement alimentaire (TCA)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="diabete"/><span>Diabète sous traitement médical</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="insuffisance_renale"/><span>Insuffisance rénale</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="bariatrique"/><span>Chirurgie bariatrique (passée ou prévue)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="allergies_severes"/><span>Allergies multiples sévères</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="medicaments"/><span>Médicaments impactant le poids ou l'appétit</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="redflag" value="antecedents"/><span>Antécédents médicaux lourds</span></label>
+          <label class="checkbox-option checkbox-none"><input type="checkbox" id="redFlagAucun"/><span>Aucune de ces situations ne me concerne</span></label>
         </div>
       </div>
-
-    </form>
-
-    <!-- Résultat : succès -->
-    <div id="resultat" class="resultat hidden">
-      <div class="check-icon">✓</div>
-      <h2>Bilan envoyé !</h2>
-      <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h max jours ouvrés.</p>
-            <div class="delai-banner" style="margin:1rem 0 1.5rem;">
-        <div class="delai-icon">⏱</div>
-        <div>
-          <div class="delai-title">Plan livré sous 48h max jours ouvrés</div>
-          <div class="delai-sub">Dès validation de votre bilan par le diététicien assigné</div>
-        </div>
-      </div>
-      <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
-    </div>
-
-    <!-- Résultat : red flag bloquant -->
-    <div id="resultat-redflag" class="resultat redflag-blocked hidden">
-      <div class="redflag-block-icon">🚨</div>
-      <h2>Votre dossier nécessite un suivi spécialisé</h2>
-      <p>En raison des informations médicales renseignées, nous ne pouvons pas générer de plan automatique pour votre sécurité.</p>
-      <div class="redflag-flags" id="redFlagDisplay"></div>
-      <div class="redflag-next">
-        <p class="redflag-next-title">Que se passe-t-il maintenant ?</p>
-        <ul>
-          <li>Votre dossier a été transmis à un diététicien qualifié.</li>
-          <li>Il vous contactera pour un suivi personnalisé adapté à votre situation.</li>
-          <li>Aucun plan automatique ne sera généré sans validation médicale.</li>
-        </ul>
-      </div>
-            <div class="delai-banner" style="margin:1rem 0 1.5rem;">
-        <div class="delai-icon">⏱</div>
-        <div>
-          <div class="delai-title">Plan livré sous 48h max jours ouvrés</div>
-          <div class="delai-sub">Dès validation de votre bilan par le diététicien assigné</div>
-        </div>
-      </div>
-      <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
-    </div>
-  </main>
-
-  <script src="js/bilan.js"></script>
-
-  <footer class="footer-main">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
-        <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
-      </div>
-      <div class="footer-links">
-        <div class="footer-col">
-          <div class="footer-col-title">Patients</div>
-          <a href="bilan.html">Faire mon bilan</a>
-          <a href="dashboard.html">Mon espace</a>
-        </div>
-        <div class="footer-col">
-          <div class="footer-col-title">Professionnels</div>
-          <a href="inscription-dieteticien.html">Inscription diét.</a>
-          <a href="inscription-prescripteur.html">Inscription prescripteur</a>
-        </div>
-      </div>
-      <div class="footer-partner">
-        <div class="footer-col-title">Développée par</div>
-        <a href="https://calidoc.fr" target="_blank">
-          <img src="assets/calidoc-logo.jpg" alt="CaliDoc Santé" class="footer-calidoc-logo" />
-        </a>
+      <div id="stepError5" class="step-error hidden">Veuillez cocher au moins une case (ou "aucune de ces situations").</div>
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goToStep(4)">← Retour</button>
+        <button type="submit" class="btn-submit" id="btnSubmit">Envoyer mon bilan →</button>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
+
+  </form>
+
+  <!-- Résultat succès -->
+  <div id="resultat" class="resultat hidden">
+    <div class="check-icon">✓</div>
+    <h2>Bilan envoyé !</h2>
+    <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h max jours ouvrés.</p>
+    <div class="delai-banner" style="margin:1rem 0 1.5rem;">
+      <div class="delai-icon">⏱</div>
+      <div><div class="delai-title">Plan livré sous 48h max jours ouvrés</div><div class="delai-sub">Dès validation de votre bilan par le diététicien assigné</div></div>
     </div>
-  </footer>
+    <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+  </div>
+
+  <!-- Résultat red flag -->
+  <div id="resultat-redflag" class="resultat redflag-blocked hidden">
+    <div class="redflag-block-icon">🚨</div>
+    <h2>Votre dossier nécessite un suivi spécialisé</h2>
+    <p>En raison des informations médicales renseignées, un diététicien qualifié prendra en charge votre dossier personnellement.</p>
+    <div class="redflag-flags" id="redFlagDisplay"></div>
+    <div class="redflag-next">
+      <p class="redflag-next-title">Que se passe-t-il maintenant ?</p>
+      <ul>
+        <li>Votre dossier a été transmis à un diététicien qualifié.</li>
+        <li>Il vous contactera pour un suivi personnalisé adapté à votre situation.</li>
+        <li>Aucun plan automatique ne sera généré sans validation médicale.</li>
+      </ul>
+    </div>
+    <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+  </div>
+
+</main>
+
+<script src="js/bilan.js"></script>
 </body>
 </html>

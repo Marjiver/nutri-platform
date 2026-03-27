@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const { error } = await inscrireDieteticien(payload);
       if (error) { showError(error.message || 'Erreur inscription.'); submitBtn.textContent='Créer mon compte →'; submitBtn.disabled=false; return; }
     } else {
-      localStorage.setItem('nutri_dieteticien', JSON.stringify({ ...payload, statut:'en_attente' }));
+      localStorage.setItem('nutridoc_dieteticien', JSON.stringify({ ...payload, statut:'en_attente' }));
     }
 
     document.getElementById('inscriptionForm').classList.add('hidden');

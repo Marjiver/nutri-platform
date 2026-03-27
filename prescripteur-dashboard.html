@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Espace prescripteur — NutriPlan</title>
+  <title>Espace prescripteur — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,7 +12,7 @@
 <body class="page-dashboard">
 
   <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+    <a href="index.html" class="logo">Nutri<span>Doc</span></a>
     <nav class="nav">
       <span class="user-tag" style="background:#eff6ff;color:#1a3a6b;" id="prescTag">Mon espace</span>
     </nav>
@@ -22,7 +22,7 @@
 
     <div class="dashboard-greeting">
       <h2 id="prescGreeting">Bonjour 👋</h2>
-      <p id="prescSousTitre">Espace prescripteur NutriPlan</p>
+      <p id="prescSousTitre">Espace prescripteur NutriDoc</p>
     </div>
 
     <!-- Métriques crédits -->
@@ -139,6 +139,16 @@
       </div>
     </section>
 
+
+    <!-- SUPPORT TICKET ─────────────────────────────────── -->
+    <section class="dashboard-section" style="margin-top:1rem;">
+      <div id="supportWidget_prescriber"></div>
+    </section>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initSupportWidget('supportWidget_prescriber', 'prescriber');
+    });
+    </script>
   </main>
 
   <script src="js/prescripteur-dashboard.js"></script>
@@ -146,7 +156,7 @@
   <footer class="footer-main">
     <div class="footer-inner">
       <div class="footer-brand">
-        <a href="index.html" class="logo footer-logo">Nutri<span>Plan</span></a>
+        <a href="index.html" class="logo footer-logo">Nutri<span>Doc</span></a>
         <p>Plateforme sécurisée de pré-bilan nutritionnel avec validation par des diététiciens certifiés.</p>
       </div>
       <div class="footer-links">
@@ -169,8 +179,9 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 NutriPlan by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
+      <p>&copy; 2025 NutriDoc by CaliDoc Santé &mdash; Données sécurisées · Conformes RGPD</p>
     </div>
   </footer>
+  <script src="js/support.js"></script>
 </body>
 </html>

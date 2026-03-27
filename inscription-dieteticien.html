@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Inscription diététicien — NutriPlan</title>
+  <title>Inscription diététicien — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,7 +12,7 @@
 <body class="page-inscription-diet">
 
 <header class="header">
-  <a href="index.html" class="logo">Nutri<span>Plan</span></a>
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
   <nav class="nav">
     <a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a>
   </nav>
@@ -25,7 +25,7 @@
     <div class="insc-hero-inner">
       <div class="insc-hero-text">
         <span class="hero-tag-pill">Espace professionnel</span>
-        <h1>Rejoignez le réseau<br><em>NutriPlan</em></h1>
+        <h1>Rejoignez le réseau<br><em>NutriDoc</em></h1>
         <p class="hero-sub">Validez des plans alimentaires depuis chez vous. Vos coordonnées figureront sur chaque plan que vous signez — votre vitrine professionnelle auprès de chaque patient.</p>
         <div class="insc-hero-avantages">
           <div class="insc-avantage"><span class="insc-av-dot"></span>Nom, titre et RPPS imprimés sur chaque plan</div>
@@ -273,7 +273,7 @@
             </div>
             <label class="checkbox-option" style="margin-bottom:1rem;">
               <input type="checkbox" id="cgu" required/>
-              <span>J'accepte les <a href="#" style="color:var(--green);">CGU</a> et la <a href="#" style="color:var(--green);">politique de confidentialité</a> <span class="req">*</span></span>
+              <span>J'accepte les <a href="cgu-dieteticien.html" style="color:var(--green);" target="_blank">CGU Diététicien</a> et la <a href="politique-confidentialite.html" style="color:var(--green);" target="_blank">politique de confidentialité</a> <span class="req">*</span></span>
             </label>
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
@@ -286,7 +286,7 @@
         <!-- Confirmation -->
         <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
           <div class="confirm-icon">✓</div>
-          <h3>Bienvenue dans NutriPlan !</h3>
+          <h3>Bienvenue dans NutriDoc !</h3>
           <p>Votre RPPS a été vérifié. Compte en cours d'activation (~24h).</p>
           <div class="confirm-steps">
             <div class="confirm-step"><span class="conf-dot done"></span><span>RPPS vérifié</span></div>

@@ -272,10 +272,10 @@ function confirmerPaiement() {
   btn.disabled = true;
   setTimeout(() => {
     fermerModal();
-    const bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+    const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
     bilan.paiement = 'confirme';
     bilan.statut   = 'attente_validation';
-    localStorage.setItem('nutri_bilan', JSON.stringify(bilan));
+    localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
     document.getElementById('planLocked').classList.add('hidden');
     document.getElementById('planPending').classList.remove('hidden');
     setTimeout(() => simulerValidation(bilan), 3000);
@@ -283,7 +283,7 @@ function confirmerPaiement() {
 }
 function simulerValidation(bilan) {
   bilan.statut = 'valide';
-  localStorage.setItem('nutri_bilan', JSON.stringify(bilan));
+  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
   afficherPlanDebloque(bilan);
 }
 
@@ -296,7 +296,7 @@ async function initDashboard() {
     bilan = await getBilan();
     if (!bilan) { window.location.href = 'login.html'; return; }
   } else {
-    bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+    bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
   }
   initWithBilan(bilan);
 }
@@ -347,14 +347,14 @@ function initWithBilan(bilan) {
 
 // ── Chat patient ──────────────────────────────────────────────────────────────
 function activerChat() {
-  const bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+  const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
   // Simulation paiement instantané
   bilan.chatActif = true;
-  localStorage.setItem('nutri_bilan', JSON.stringify(bilan));
+  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
   document.getElementById('chatLocked').classList.add('hidden');
   document.getElementById('chatUnlocked').classList.remove('hidden');
   // Afficher nom du diét si disponible
-  const profil = JSON.parse(localStorage.getItem('nutri_dieteticien') || '{}');
+  const profil = JSON.parse(localStorage.getItem('nutridoc_dieteticien') || '{}');
   if (profil.prenom) {
     document.getElementById('chatDietName').textContent = profil.prenom + ' ' + (profil.nom || '').toUpperCase();
   }
@@ -391,7 +391,7 @@ async function initDashboard() {
     bilan = await getBilan();
     if (!bilan) { window.location.href = 'login.html'; return; }
   } else {
-    bilan = JSON.parse(localStorage.getItem('nutri_bilan') || '{}');
+    bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
   }
   initWithBilan(bilan);
 }

@@ -1,6 +1,6 @@
 // ── Storage ────────────────────────────────────────────────────────────────
-function loadClients() { return JSON.parse(localStorage.getItem('nutri_crm_clients') || '[]'); }
-function saveClients(c) { localStorage.setItem('nutri_crm_clients', JSON.stringify(c)); }
+function loadClients() { return JSON.parse(localStorage.getItem('nutridoc_crm_clients') || '[]'); }
+function saveClients(c) { localStorage.setItem('nutridoc_crm_clients', JSON.stringify(c)); }
 
 const OBJ_LABELS = { reequilibrage:'Rééquilibrage', prise_masse:'Prise de masse', perte_gras:'Perte de gras' };
 const STATUT_LABELS = { en_cours:'En cours', atteint:'Objectif atteint', pause:'En pause' };
@@ -355,10 +355,10 @@ function confirmerPhotos() {
 function nouvelleDemande() {
   const c = loadClients().find(x => x.id === selectedClientId);
   if (!c) return;
-  const profil = JSON.parse(localStorage.getItem('nutri_prescripteur') || '{}');
+  const profil = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
   if ((profil.credits || 0) <= 0) { alert('Plus de crédits. Rechargez votre compte.'); return; }
   profil.credits = (profil.credits || 1) - 1;
-  localStorage.setItem('nutri_prescripteur', JSON.stringify(profil));
+  localStorage.setItem('nutridoc_prescripteur', JSON.stringify(profil));
   const clients = loadClients();
   const client  = clients.find(x => x.id === selectedClientId);
   client.plans  = client.plans || [];

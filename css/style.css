@@ -1591,3 +1591,194 @@ input, select, textarea, button { font-family: var(--font-body); }
 .pack-decouverte.selected::after { background: var(--gray-light); color: var(--dark); }
 .pack-pro.selected::after        { background: #dbeafe; color: #1a3a6b; }
 .pack-volume.selected::after     { background: var(--green-light); color: var(--green); }
+
+/* ===== PAGES LÉGALES ===== */
+.legal-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+.legal-header { margin-bottom: 2.5rem; }
+.legal-profile-badge {
+  display: inline-block; font-size: .75rem; font-weight: 500;
+  padding: 4px 14px; border-radius: 999px; margin-bottom: 1rem;
+}
+.patient-badge  { background: var(--green-light); color: var(--green); }
+.diet-badge     { background: #EAF3DE; color: #3B6D11; }
+.presc-badge    { background: #E6F1FB; color: #185FA5; }
+.legal-header h1 { font-family: var(--font-display); font-size: clamp(1.6rem,3vw,2.2rem); margin-bottom: .75rem; }
+.legal-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .8rem; color: var(--gray); }
+
+.legal-toc {
+  background: var(--gray-light); border-radius: var(--radius);
+  padding: 1.25rem 1.5rem; margin-bottom: 2.5rem;
+}
+.legal-toc-title { font-size: .75rem; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--gray); margin-bottom: .75rem; }
+.legal-toc ol { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 4px; }
+.legal-toc li { font-size: .875rem; }
+.legal-toc a { color: var(--dark); transition: color .15s; }
+.legal-toc a:hover { color: var(--green); }
+
+.legal-body h2 {
+  font-family: var(--font-display); font-size: 1.25rem;
+  margin: 2.5rem 0 1rem; padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 80px;
+}
+.legal-body h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+.legal-body h3 { font-size: 1rem; font-weight: 500; margin: 1.5rem 0 .75rem; }
+.legal-body p { font-size: .9rem; color: var(--dark); line-height: 1.8; margin-bottom: 1rem; }
+.legal-body ul, .legal-body ol { padding-left: 1.5rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px; }
+.legal-body li { font-size: .875rem; color: var(--dark); line-height: 1.7; }
+.legal-body a { color: var(--green); }
+
+.legal-alert {
+  background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem; margin: 1.25rem 0;
+  font-size: .875rem; color: #92400e; line-height: 1.6;
+}
+.legal-alert strong { display: block; margin-bottom: .25rem; }
+
+.legal-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin: 1rem 0 1.5rem; }
+.legal-table th { background: var(--gray-light); padding: 8px 12px; text-align: left; font-weight: 500; font-size: .8rem; border: 1px solid var(--border); }
+.legal-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.legal-table tr:nth-child(even) td { background: var(--cream); }
+
+.legal-contact {
+  background: var(--green-light); border: 1px solid #9FE1CB;
+  border-radius: var(--radius); padding: 1.25rem 1.5rem;
+  font-size: .875rem; line-height: 1.8; margin-top: 2rem;
+}
+.legal-contact a { color: var(--green); }
+
+/* ===== SIRET / PRESCRIPTEUR GÉNÉRALISÉ ===== */
+.siret-explainer {
+  display: flex; gap: 1rem; align-items: flex-start;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;
+}
+.siret-icon {
+  width: 36px; height: 36px; background: #0ea5e9; color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: .875rem; font-weight: 700; flex-shrink: 0;
+}
+.siret-explainer strong { font-size: .875rem; color: #1e40af; display: block; margin-bottom: .25rem; }
+.siret-explainer p { font-size: .82rem; color: #1e40af; opacity: .8; line-height: 1.6; margin: 0; }
+
+.presc-metier-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .6rem .9rem;
+  font-size: .82rem; color: var(--dark); text-align: center;
+  transition: border-color .15s, color .15s;
+}
+.presc-metier-card:hover { border-color: #0ea5e9; color: #0284c7; }
+
+/* Rendre les couleurs médicales cohérentes dans le header/nav interne */
+.nd-section-inner .section-tag,
+.section-tag { color: #0284c7; background: rgba(14,165,233,.08); }
+
+/* ===== HARMONISATION COULEURS v19 ===== */
+/* Remplacer références vertes partout */
+:root {
+  --green:       #1D9E75;
+  --green2:      #0f6e56;
+  --green3:      #5DCAA5;
+  --green-light: #E1F5EE;
+  --dark:        #0d2018;
+  --cream:       #f7f9f7;
+}
+
+/* Profil de vie bilan */
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: border-color .15s, background .15s; font-size: .875rem;
+}
+.radio-option:hover { border-color: var(--green); background: var(--green-light); }
+.radio-option input[type="radio"] { accent-color: var(--green); flex-shrink: 0; }
+.radio-option span { flex: 1; }
+textarea {
+  width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: .6rem .75rem; font-family: var(--font-body); font-size: .875rem;
+  resize: vertical; transition: border-color .2s; background: #fff; color: var(--dark);
+}
+textarea:focus { border-color: var(--green); outline: none; }
+
+/* Liens boutons harmonisés */
+.btn-submit  { background: var(--green) !important; border-color: var(--green) !important; }
+.btn-submit:hover { background: var(--green2) !important; }
+.btn-next    { background: var(--green); color: #fff; }
+.btn-next:hover { background: var(--green2); }
+.btn-validate { background: var(--green); color: #fff; }
+
+/* Sections light harmonisées */
+.nd-section-light, .page-dashboard, .page-bilan { background: var(--cream); }
+
+/* Presc métier card */
+.presc-metier-card:hover { border-color: var(--green); color: var(--green); }
+.siret-icon { background: var(--green); }
+.siret-explainer { background: var(--green-light); border-color: #9FE1CB; }
+.siret-explainer strong { color: var(--green2); }
+.siret-explainer p { color: var(--green2); }
+
+/* ── Validation erreurs rouges ── */
+.step-error {
+  background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626;
+  border-radius: var(--radius-sm); padding: .6rem .9rem;
+  font-size: .82rem; margin-bottom: .75rem; display: flex; align-items: center; gap: 6px;
+  animation: shakeIn .3s ease;
+}
+.step-error::before { content: '⚠'; }
+.input-error {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+}
+@keyframes shakeIn {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+.step-num-pill {
+  display: inline-block; font-size: .72rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--green); background: var(--green-light);
+  padding: 3px 10px; border-radius: 999px; margin-bottom: .5rem;
+}
+.step-header { margin-bottom: 1.5rem; }
+.step-header h2 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 0; }
+
+/* ── File d'attente ── */
+.queue-widget { background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem; }
+.queue-status-row { display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;font-size:.875rem; }
+.queue-status-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:box-shadow .3s; }
+.queue-status-label { flex:1; }
+.queue-refresh { cursor:pointer;color:var(--gray);font-size:1rem;transition:transform .3s; }
+.queue-refresh:hover { transform:rotate(180deg); }
+.queue-metrics-row { display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:.75rem; }
+.queue-metric { text-align:center; }
+.queue-metric-val { font-family:var(--font-display);font-size:1.6rem;color:var(--dark);line-height:1; }
+.queue-metric-label { font-size:.7rem;color:var(--gray);margin-top:2px; }
+.queue-sat-bar { height:4px;background:var(--gray-light);border-radius:999px;overflow:hidden;margin-bottom:.5rem; }
+.queue-sat-fill { height:100%;border-radius:999px;transition:width .5s ease; }
+.queue-alert { background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--radius-sm);padding:.6rem .9rem;font-size:.8rem;color:#92400e;margin-top:.5rem; }
+.queue-success { display:flex;align-items:center;gap:.85rem;background:var(--green-light);border:1px solid #9FE1CB;border-radius:var(--radius-sm);padding:.85rem 1rem; }
+.queue-success-icon { width:32px;height:32px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.875rem;flex-shrink:0; }
+
+/* ── Widget Support ── */
+.support-widget { background:var(--gray-light);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem; }
+.support-header { display:flex;align-items:center;justify-content:space-between; }
+.support-header-title { display:flex;align-items:center;gap:.4rem;font-size:.875rem;font-weight:500;color:var(--dark); }
+.support-toggle { background:var(--green);color:#fff;border:none;padding:.4rem 1rem;border-radius:999px;font-size:.8rem;cursor:pointer;font-family:var(--font-body);transition:background .2s; }
+.support-toggle:hover { background:var(--green2); }
+.support-form-wrap { animation:fadeIn .2s ease; }
+.support-history { margin-top:.75rem; }
+.support-ticket-row { display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border); }
+.support-ticket-row:last-child { border-bottom:none; }
+.support-ticket-status { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.support-ticket-status.ouvert    { background:#f59e0b; }
+.support-ticket-status.en_cours  { background:var(--green); }
+.support-ticket-status.resolu    { background:#22c55e; }
+.support-ticket-status.ferme     { background:var(--gray); }
+.support-statut-label.ouvert     { color:#b45309; }
+.support-statut-label.en_cours   { color:var(--green2); }
+.support-statut-label.resolu     { color:#15803d; }

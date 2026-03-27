@@ -1,16 +1,16 @@
 const RED_FLAG_OBJECTIFS = ['sante', 'pathologie'];
 
 function loadProfil() {
-  return JSON.parse(localStorage.getItem('nutri_prescripteur') || '{}');
+  return JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
 }
 function saveProfil(p) {
-  localStorage.setItem('nutri_prescripteur', JSON.stringify(p));
+  localStorage.setItem('nutridoc_prescripteur', JSON.stringify(p));
 }
 function loadHistorique() {
-  return JSON.parse(localStorage.getItem('nutri_presc_historique') || '[]');
+  return JSON.parse(localStorage.getItem('nutridoc_presc_historique') || '[]');
 }
 function saveHistorique(h) {
-  localStorage.setItem('nutri_presc_historique', JSON.stringify(h));
+  localStorage.setItem('nutridoc_presc_historique', JSON.stringify(h));
 }
 
 function updateMetrics(profil) {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (profil.prenom) {
     document.getElementById('prescGreeting').textContent = 'Bonjour ' + profil.prenom + ' \uD83D\uDC4B';
-    document.getElementById('prescSousTitre').textContent = (titres[profil.profession] || 'Prescripteur') + ' · NutriPlan';
+    document.getElementById('prescSousTitre').textContent = (titres[profil.profession] || 'Prescripteur') + ' · NutriDoc';
     document.getElementById('prescTag').textContent = profil.prenom;
   }
 

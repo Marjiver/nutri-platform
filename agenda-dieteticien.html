@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Agenda Visios — NutriDoc</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body class="page-dietitian">
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+  <nav class="nav">
+    <a href="dietitian.html" class="nav-link">Dossiers</a>
+    <a href="agenda-dieteticien.html" class="nav-link active">Agenda visios</a>
+    <a href="compta-dieteticien.html" class="nav-link">Comptabilité</a>
+  </nav>
+  <span class="user-tag pro">Dr. Lemaire</span>
+</header>
+
+<main class="dashboard-container">
+  <div class="dashboard-greeting">
+    <h2>Agenda Visios</h2>
+    <p>Définissez vos créneaux disponibles. Les patients réservent directement depuis leur espace.</p>
+  </div>
+
+  <div class="agenda-layout">
+    <!-- Calendrier gauche -->
+    <div class="agenda-calendar-col">
+      <div class="dashboard-section">
+        <div class="section-header-row">
+          <h3 id="agendaMonthTitle"></h3>
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn-back" id="btnPrevMonth" onclick="changeMonth(-1)">‹</button>
+            <button class="btn-back" id="btnNextMonth" onclick="changeMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="agenda-weekdays">
+          <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+        </div>
+        <div class="agenda-grid" id="agendaGrid"></div>
+      </div>
+    </div>
+
+    <!-- Créneaux droite -->
+    <div class="agenda-slots-col">
+      <div class="dashboard-section">
+        <div class="section-header-row">
+          <h3 id="agendaSlotTitle">Sélectionnez un jour</h3>
+          <button class="btn-validate" id="btnAddSlot" onclick="ajouterCreneau()" style="display:none;">+ Ajouter un créneau</button>
+        </div>
+        <div id="agendaSlots"><p style="color:var(--gray);font-size:.875rem;">Cliquez sur un jour pour gérer les créneaux.</p></div>
+      </div>
+
+      <!-- Prochaines réservations -->
+      <div class="dashboard-section" style="margin-top:0;">
+        <div class="section-header-row"><h3>Prochaines réservations</h3></div>
+        <div id="agendaResas"></div>
+      </div>
+
+      <!-- Lien patient -->
+      <div class="dashboard-section" style="margin-top:0;background:var(--green-light);">
+        <div style="font-size:.875rem;font-weight:500;margin-bottom:.5rem;">Lien de réservation pour vos patients</div>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          <input type="text" value="https://nutridoc.fr/visio/lemaire" readonly style="flex:1;font-size:.8rem;background:#fff;"/>
+          <button class="btn-view" onclick="copyLink()">Copier</button>
+        </div>
+        <p style="font-size:.75rem;color:var(--gray);margin-top:.5rem;">Partagez ce lien à vos patients pour qu'ils réservent directement.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+let currentDate = new Date();
+let selectedDay = null;
+
+// Créneaux demo (par date "YYYY-MM-DD" → tableau d'heures)
+const creneaux = {};
+const reservations = [
+  { date:'2025-03-28', heure:'10:00', patient:'Marie D.', statut:'confirmée' },
+  { date:'2025-03-31', heure:'14:30', patient:'Thomas K.', statut:'confirmée' },
+  { date:'2025-04-03', heure:'11:00', patient:'Sophie M.', statut:'en attente' },
+];
+
+// Pré-remplir quelques créneaux demo
+const today = new Date();
+['09:00','10:00','11:00','14:00','15:00','16:00'].forEach(h => {
+  const d = new Date(today); d.setDate(d.getDate()+2);
+  const key = d.toISOString().slice(0,10);
+  if (!creneaux[key]) creneaux[key] = [];
+  creneaux[key].push({ heure: h, libre: true });
+});
+
+function renderCalendar() {
+  const yr = currentDate.getFullYear();
+  const mo = currentDate.getMonth();
+  const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('agendaMonthTitle').textContent = MOIS[mo] + ' ' + yr;
+
+  const first = new Date(yr, mo, 1);
+  const lastDay = new Date(yr, mo+1, 0).getDate();
+  let startDow = first.getDay(); // 0=dim → transformer en lun=0
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  const grid = document.getElementById('agendaGrid');
+  grid.innerHTML = '';
+
+  // Vides début
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement('div'); el.className = 'agenda-day empty'; grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= lastDay; d++) {
+    const dateKey = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'agenda-day';
+    el.textContent = d;
+
+    const hasCreneau = creneaux[dateKey]?.length > 0;
+    const hasResa    = reservations.some(r => r.date === dateKey);
+    if (hasCreneau) el.classList.add('has-slot');
+    if (hasResa)    el.classList.add('has-resa');
+
+    const todayKey = new Date().toISOString().slice(0,10);
+    if (dateKey === todayKey)    el.classList.add('today');
+    if (dateKey === selectedDay) el.classList.add('selected');
+    if (dateKey < todayKey)      el.classList.add('past');
+
+    el.onclick = () => selectDay(dateKey, d);
+    grid.appendChild(el);
+  }
+}
+
+function selectDay(dateKey, dayNum) {
+  selectedDay = dateKey;
+  renderCalendar();
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const d = new Date(dateKey);
+  document.getElementById('agendaSlotTitle').textContent = `Créneaux du ${dayNum} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('btnAddSlot').style.display = '';
+  renderSlots(dateKey);
+}
+
+function renderSlots(dateKey) {
+  const slots = creneaux[dateKey] || [];
+  const resas = reservations.filter(r => r.date === dateKey);
+  const z = document.getElementById('agendaSlots');
+  if (slots.length === 0 && resas.length === 0) {
+    z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;">Aucun créneau ce jour. Cliquez "+ Ajouter" pour en créer.</p>'; return;
+  }
+  z.innerHTML = `<div style="display:flex;flex-direction:column;gap:.4rem;">
+    ${slots.map((s,i) => {
+      const resa = resas.find(r => r.heure === s.heure);
+      return `<div class="agenda-slot-item ${resa ? 'slot-reserved' : ''}">
+        <span class="slot-heure">${s.heure}</span>
+        <span class="slot-status">${resa ? `<strong>${resa.patient}</strong> — ${resa.statut}` : 'Libre'}</span>
+        ${!resa ? `<button class="agenda-slot-del" onclick="supprimerCreneau('${dateKey}',${i})">✕</button>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function ajouterCreneau() {
+  const heure = prompt('Heure du créneau (ex: 09:00, 14:30) :');
+  if (!heure || !/^\d{2}:\d{2}$/.test(heure)) { alert('Format invalide. Ex: 09:00'); return; }
+  if (!creneaux[selectedDay]) creneaux[selectedDay] = [];
+  creneaux[selectedDay].push({ heure, libre: true });
+  creneaux[selectedDay].sort((a,b) => a.heure.localeCompare(b.heure));
+  renderSlots(selectedDay); renderCalendar();
+}
+
+function supprimerCreneau(dateKey, idx) {
+  creneaux[dateKey].splice(idx, 1);
+  if (!creneaux[dateKey].length) delete creneaux[dateKey];
+  renderSlots(dateKey); renderCalendar();
+}
+
+function changeMonth(delta) {
+  currentDate.setMonth(currentDate.getMonth() + delta);
+  renderCalendar();
+}
+
+function renderResas() {
+  const z = document.getElementById('agendaResas');
+  const upcoming = reservations.filter(r => r.date >= new Date().toISOString().slice(0,10));
+  if (!upcoming.length) { z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;">Aucune réservation à venir.</p>'; return; }
+  z.innerHTML = upcoming.map(r => `
+    <div class="agenda-resa-item">
+      <div class="resa-dot ${r.statut === 'confirmée' ? 'dot-green' : 'dot-amber'}"></div>
+      <div>
+        <div style="font-size:.875rem;font-weight:500;">${r.patient}</div>
+        <div style="font-size:.78rem;color:var(--gray);">${r.date.split('-').reverse().join('/')} à ${r.heure} — ${r.statut}</div>
+      </div>
+      <button class="btn-view" style="margin-left:auto;" onclick="rejoindreVisio('${r.patient}')">Rejoindre</button>
+    </div>`).join('');
+}
+
+function rejoindreVisio(patient) { alert('Lancement de la visio avec ' + patient + '...'); }
+function copyLink() { navigator.clipboard?.writeText('https://nutridoc.fr/visio/lemaire'); alert('Lien copié !'); }
+
+document.addEventListener('DOMContentLoaded', () => { renderCalendar(); renderResas(); });
+</script>
+
+<style>
+.agenda-layout { display:grid;grid-template-columns:1fr 1.2fr;gap:1.5rem; }
+.agenda-weekdays { display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px; }
+.agenda-weekdays span { text-align:center;font-size:.7rem;color:var(--gray);font-weight:500;padding:4px 0; }
+.agenda-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:3px; }
+.agenda-day {
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;
+  position:relative;
+}
+.agenda-day:not(.empty):not(.past):hover { background:var(--green-light);color:var(--green); }
+.agenda-day.today { font-weight:500;color:var(--green);background:var(--green-light); }
+.agenda-day.selected { background:var(--green)!important;color:#fff!important; }
+.agenda-day.past { color:#ccc;cursor:default; }
+.agenda-day.has-slot::after { content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green); }
+.agenda-day.has-resa::after { background:#f59e0b; }
+.agenda-day.empty { cursor:default; }
+.agenda-slot-item { display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff; }
+.agenda-slot-item.slot-reserved { background:var(--green-light);border-color:#9FE1CB; }
+.slot-heure { font-weight:500;font-size:.875rem;min-width:40px; }
+.slot-status { font-size:.82rem;color:var(--gray);flex:1; }
+.slot-status strong { color:var(--dark); }
+.agenda-slot-del { background:none;border:none;color:#ccc;cursor:pointer;font-size:.75rem;transition:color .15s; }
+.agenda-slot-del:hover { color:#ef4444; }
+.agenda-resa-item { display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-bottom:1px solid var(--border); }
+.resa-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.dot-green { background:var(--green); }
+.dot-amber { background:#f59e0b; }
+@media(max-width:900px){ .agenda-layout{grid-template-columns:1fr;} }
+</style>
+</body>
+</html>

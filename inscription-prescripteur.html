@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Inscription prescripteur — NutriPlan</title>
+  <title>Inscription prescripteur — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,145 +12,136 @@
 <body>
 
 <header class="header">
-  <a href="index.html" class="logo">Nutri<span>Plan</span></a>
-  <nav class="nav">
-    <a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a>
-  </nav>
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+  <nav class="nav"><a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a></nav>
 </header>
 
 <main>
 
   <!-- ══ HERO ══ -->
-  <section class="insc-hero" style="background:#1a3a6b;">
+  <section class="insc-hero" style="background:var(--dark,#0d1f3c);">
     <div class="insc-hero-inner">
       <div class="insc-hero-text">
-        <span class="hero-tag-pill" style="background:rgba(255,255,255,0.15);color:#fff;">Espace prescripteur</span>
-        <h1>Proposez des plans<br><em>à vos clients</em></h1>
-        <p class="hero-sub">Coach, préparateur physique ou kiné — prescrivez des plans nutritionnels validés par un diététicien certifié RPPS, directement depuis votre espace.</p>
+        <span class="hero-tag-pill" style="background:rgba(14,165,233,.15);color:#7dd3fc;border:1px solid rgba(14,165,233,.2);">Espace prescripteur</span>
+        <h1 style="color:#fff;">Prescrivez des plans<br><em style="color:#0ea5e9;font-style:italic;">à vos clients</em></h1>
+        <p class="hero-sub">Médecin, kinésithérapeute, coach sportif, ostéopathe, sage-femme, infirmier… Tout professionnel déclaré peut proposer des plans nutritionnels validés par un diététicien certifié RPPS à ses clients ou patients.</p>
         <div class="insc-hero-avantages">
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Vos coordonnées sur chaque plan prescrit</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Diététicien toujours responsable de la validation</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>CRM intégré — suivi des clients et courbes de progression</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Red flags automatiques — renvoi visio si besoin</div>
+          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Ouvert à tous les professionnels déclarés (SIRET obligatoire)</div>
+          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Diététicien certifié RPPS responsable de la validation</div>
+          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>CRM intégré — suivi de vos clients ou patients</div>
+          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Red flags automatiques — cas médicaux redirigés</div>
         </div>
-        <!-- Délai 48h -->
-        <div class="delai-banner" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);">
-          <div class="delai-icon" style="background:rgba(255,255,255,0.2);color:#fff;">⏱</div>
+        <div class="delai-banner" style="background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.2);margin-top:1.5rem;">
+          <div class="delai-icon" style="background:#0ea5e9;">⏱</div>
           <div>
-            <div style="font-weight:500;color:#fff;font-size:.875rem;">Plans livrés sous 48h max</div>
-            <div style="font-size:.775rem;color:rgba(255,255,255,0.7);">jours ouvrés · après validation par le diététicien</div>
+            <div class="delai-title" style="color:#fff;">Plans livrés sous 48h max jours ouvrés</div>
+            <div class="delai-sub" style="color:rgba(255,255,255,.55);">Dès validation par le diététicien assigné</div>
           </div>
         </div>
       </div>
       <div class="insc-hero-stats">
-        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
-          <div class="insc-stat-val">2,98 €</div>
-          <div class="insc-stat-label">/ plan dès 50 crédits</div>
+        <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
+          <div class="insc-stat-val" style="color:#7dd3fc;">4,38 €</div>
+          <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">/ plan dès 50 crédits</div>
         </div>
-        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
-          <div class="insc-stat-val">48h</div>
-          <div class="insc-stat-label">délai max jours ouvrés</div>
+        <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
+          <div class="insc-stat-val" style="color:#7dd3fc;">48h</div>
+          <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">délai max jours ouvrés</div>
         </div>
-        <div class="insc-stat" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
-          <div class="insc-stat-val">∞</div>
-          <div class="insc-stat-label">crédits sans expiration</div>
+        <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
+          <div class="insc-stat-val" style="color:#7dd3fc;">∞</div>
+          <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">crédits sans expiration</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ TARIFS CRÉDITS ══ -->
-  <section style="background:var(--cream);">
-    <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
-      <div class="section-tag">Tarifs</div>
-      <h2>Packs de crédits plans</h2>
-      <p style="color:var(--gray);font-size:.95rem;margin-bottom:.75rem;max-width:540px;">Chaque crédit = 1 plan alimentaire complet avec grammages, validé par un diététicien. Les crédits n'expirent jamais.</p>
-
-      <!-- Rappel délai -->
-      <div class="delai-banner" style="margin-bottom:2rem;max-width:480px;">
-        <div class="delai-icon">⏱</div>
-        <div>
-          <div class="delai-title">Plan livré sous 48h max jours ouvrés</div>
-          <div class="delai-sub">Dès validation du bilan par le diététicien assigné</div>
-        </div>
+  <!-- ══ QUI PEUT S'INSCRIRE ══ -->
+  <section style="background:#fff;padding:3rem 0 0;">
+    <div class="section-inner" style="padding-top:3rem;padding-bottom:2rem;">
+      <div class="section-tag" style="color:#0284c7;background:rgba(14,165,233,.08);">Qui peut s'inscrire ?</div>
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:1.25rem;">Tout professionnel de santé ou du sport déclaré</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin-bottom:1.5rem;">
+        <div class="presc-metier-card">🩺 Médecin généraliste</div>
+        <div class="presc-metier-card">🦴 Kinésithérapeute</div>
+        <div class="presc-metier-card">💪 Coach sportif</div>
+        <div class="presc-metier-card">🤲 Ostéopathe</div>
+        <div class="presc-metier-card">🏃 Préparateur physique</div>
+        <div class="presc-metier-card">👶 Sage-femme</div>
+        <div class="presc-metier-card">💉 Infirmier(e)</div>
+        <div class="presc-metier-card">🧬 Naturopathe déclaré</div>
+        <div class="presc-metier-card">🧠 Psychologue</div>
+        <div class="presc-metier-card" style="background:rgba(14,165,233,.05);color:var(--gray);">+ tout professionnel avec SIRET</div>
       </div>
+      <div class="redflag-notice" style="background:#eff6ff;border-color:#bfdbfe;max-width:580px;">
+        <span class="redflag-icon" style="background:#0284c7;">i</span>
+        <span style="color:#1e40af;font-size:.85rem;">Un numéro SIRET valide est requis pour vérifier que vous exercez légalement une activité professionnelle déclarée. Aucune restriction sur le métier.</span>
+      </div>
+    </div>
+  </section>
 
+  <!-- ══ TARIFS ══ -->
+  <section style="background:var(--cream,#f0f7ff);">
+    <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
+      <div class="section-tag" style="color:#0284c7;background:rgba(14,165,233,.08);">Tarifs</div>
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:.75rem;">Packs de crédits plans</h2>
+      <p style="color:var(--gray);font-size:.9rem;margin-bottom:2rem;max-width:500px;">1 crédit = 1 plan alimentaire validé par un diét. certifié. Sans expiration, rechargeables à tout moment.</p>
       <div class="pricing-diet-grid">
-
-        <!-- Découverte -->
         <div class="pricing-diet-card pack-decouverte" id="packCard10" onclick="selectPack('10',this)">
           <div class="pdc-header">
             <div class="pdc-name">Découverte</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price">49 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">HT · 10 crédits</div>
-            </div>
+            <div class="pdc-price-wrap"><div class="pdc-price">49<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 10 crédits</div></div>
             <div class="pdc-engage">4,90 € / plan</div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
             <li class="yes">10 plans validés par un diét.</li>
-            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Coordonnées sur chaque plan</li>
             <li class="yes">CRM clients inclus</li>
-            <li class="yes">Red flags automatiques</li>
-            <li class="yes">Plans livrés sous 48h ouvrés</li>
+            <li class="yes">Livré sous 48h ouvrés</li>
             <li class="no">Remise volume</li>
           </ul>
           <div class="pdc-cta pack-cta-decouverte">Choisir Découverte</div>
         </div>
-
-        <!-- Pro — RECOMMANDÉ -->
         <div class="pricing-diet-card pack-pro" id="packCard20" onclick="selectPack('20',this)">
-          <div class="pdc-badge pack-badge-pro">⭐ Recommandé</div>
+          <div class="pdc-badge pack-badge-pro" style="background:#0ea5e9;">⭐ Recommandé</div>
           <div class="pdc-header">
-            <div class="pdc-name" style="color:#1a3a6b;">Pro</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price" style="color:#1a3a6b;">89 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">HT · 20 crédits</div>
-            </div>
+            <div class="pdc-name" style="color:#0d1f3c;">Pro</div>
+            <div class="pdc-price-wrap"><div class="pdc-price" style="color:#0d1f3c;">89<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 20 crédits</div></div>
             <div class="pdc-engage"><span class="pdc-saving pdc-saving-pro">4,45 € / plan · −9%</span></div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
             <li class="yes">20 plans validés par un diét.</li>
-            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Coordonnées sur chaque plan</li>
             <li class="yes">CRM clients inclus</li>
-            <li class="yes">Red flags automatiques</li>
-            <li class="yes">Plans livrés sous 48h ouvrés</li>
-            <li class="yes">Remise 9% vs Découverte</li>
+            <li class="yes">Livré sous 48h ouvrés</li>
+            <li class="yes">Remise 9%</li>
           </ul>
-          <div class="pdc-cta pack-cta-pro">Choisir Pro</div>
+          <div class="pdc-cta pack-cta-pro" style="background:#0ea5e9;border-color:#0ea5e9;">Choisir Pro</div>
         </div>
-
-        <!-- Volume -->
-        <div class="pricing-diet-card pack-volume" id="packCard50" onclick="selectPack('50',this)">
+        <div class="pricing-diet-card pack-volume" id="packCard50" onclick="selectPack('50',this)" style="border-color:#14b8a6;">
           <div class="pdc-header">
-            <div class="pdc-name" style="color:#0F6E56;">Volume</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price" style="color:#0F6E56;">219 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">HT · 50 crédits</div>
-            </div>
-            <div class="pdc-engage"><span class="pdc-saving pdc-saving-volume">4,38 € / plan · −11%</span></div>
+            <div class="pdc-name" style="color:#0f766e;">Volume</div>
+            <div class="pdc-price-wrap"><div class="pdc-price" style="color:#0f766e;">219<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 50 crédits</div></div>
+            <div class="pdc-engage"><span class="pdc-saving" style="background:rgba(20,184,166,.1);color:#0f766e;">4,38 € / plan · −11%</span></div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
             <li class="yes">50 plans validés par un diét.</li>
-            <li class="yes">Vos coordonnées sur chaque plan</li>
+            <li class="yes">Coordonnées sur chaque plan</li>
             <li class="yes">CRM clients inclus</li>
-            <li class="yes">Red flags automatiques</li>
-            <li class="yes">Plans livrés sous 48h ouvrés</li>
+            <li class="yes">Livré sous 48h ouvrés</li>
             <li class="yes">Meilleur tarif — remise 11%</li>
           </ul>
-          <div class="pdc-cta pack-cta-volume">Choisir Volume</div>
+          <div class="pdc-cta" style="color:#0f766e;border-color:#14b8a6;">Choisir Volume</div>
         </div>
-
       </div>
-
       <div class="insc-pricing-reassurance">
         <span>✓ Crédits sans expiration</span>
-        <span>✓ Rechargement possible à tout moment</span>
-        <span>✓ Facturation électronique automatique</span>
+        <span>✓ Rechargement à tout moment</span>
         <span>✓ 1 crédit = 1 plan, même en red flag</span>
+        <span>✓ SIRET vérifié à l'inscription</span>
       </div>
     </div>
   </section>
@@ -158,21 +149,21 @@
   <!-- ══ FORMULAIRE ══ -->
   <section style="background:#fff;" id="formulaireSection">
     <div class="section-inner" style="padding-top:2rem;padding-bottom:4rem;">
-      <div class="section-tag">Inscription</div>
-      <h2>Créer mon compte</h2>
+      <div class="section-tag" style="color:#0284c7;background:rgba(14,165,233,.08);">Inscription</div>
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:2rem;">Créer mon compte</h2>
       <div class="insc-form-layout">
 
         <div class="insc-progress-bar">
-          <div class="insc-progress-step active" id="pProgStep1"><div class="insc-prog-dot">1</div><span>Identité</span></div>
+          <div class="insc-progress-step active" id="pProgStep1"><div class="insc-prog-dot" style="background:#0ea5e9;color:#fff;">1</div><span>Identité</span></div>
           <div class="insc-progress-line"></div>
-          <div class="insc-progress-step" id="pProgStep2"><div class="insc-prog-dot">2</div><span>Périmètre</span></div>
+          <div class="insc-progress-step" id="pProgStep2"><div class="insc-prog-dot">2</div><span>SIRET & périmètre</span></div>
           <div class="insc-progress-line"></div>
-          <div class="insc-progress-step" id="pProgStep3"><div class="insc-prog-dot">3</div><span>Pack & MDP</span></div>
+          <div class="insc-progress-step" id="pProgStep3"><div class="insc-prog-dot">3</div><span>Pack & accès</span></div>
         </div>
 
         <form id="inscriptionPrescForm" novalidate>
 
-          <!-- Étape 1 -->
+          <!-- Étape 1 — Identité -->
           <div class="insc-step active" data-step="1">
             <div class="form-row">
               <div class="form-group"><label>Prénom <span class="req">*</span></label><input type="text" id="pPrenom" placeholder="Ex : Lucas" required/></div>
@@ -181,80 +172,106 @@
             <div class="form-group">
               <label>Profession <span class="req">*</span></label>
               <select id="pProfession" required>
-                <option value="">— Choisir —</option>
-                <option value="coach_sportif">Coach sportif / fitness</option>
-                <option value="preparateur">Préparateur physique</option>
-                <option value="kine">Kinésithérapeute</option>
-                <option value="autre">Autre professionnel</option>
+                <option value="">— Choisir votre métier —</option>
+                <optgroup label="Santé réglementée">
+                  <option value="medecin">Médecin généraliste / spécialiste</option>
+                  <option value="kine">Kinésithérapeute DE</option>
+                  <option value="infirmier">Infirmier(e) DE</option>
+                  <option value="sage_femme">Sage-femme</option>
+                  <option value="medecin_sport">Médecin du sport</option>
+                  <option value="ergotherapeute">Ergothérapeute</option>
+                  <option value="psychologue">Psychologue</option>
+                </optgroup>
+                <optgroup label="Sport & performance">
+                  <option value="coach_sportif">Coach sportif / fitness</option>
+                  <option value="preparateur">Préparateur physique</option>
+                  <option value="educateur_sportif">Éducateur sportif</option>
+                </optgroup>
+                <optgroup label="Bien-être déclaré">
+                  <option value="osteopathe">Ostéopathe</option>
+                  <option value="naturopathe">Naturopathe</option>
+                  <option value="autre">Autre professionnel déclaré</option>
+                </optgroup>
               </select>
             </div>
             <div class="form-group"><label>Email professionnel <span class="req">*</span></label><input type="email" id="pEmail" placeholder="lucas.martin@cabinet.fr" required/></div>
             <div class="form-row">
               <div class="form-group"><label>Téléphone</label><input type="tel" id="pTel" placeholder="06 xx xx xx xx"/></div>
-              <div class="form-group"><label>Site / Instagram</label><input type="text" id="pSite" placeholder="@moncoach ou https://..."/></div>
+              <div class="form-group"><label>Site / Doctolib / Réseau</label><input type="text" id="pSite" placeholder="https://..."/></div>
             </div>
-            <div class="form-group"><label>Structure / cabinet</label><input type="text" id="pCabinet" placeholder="Ex : Salle Fit Paris 15"/></div>
+            <div class="form-group"><label>Structure / cabinet / salle</label><input type="text" id="pCabinet" placeholder="Ex : Cabinet médical Saint-Médard"/></div>
+
             <div class="coordonnees-preview" id="pCoordPreview">
               <div class="coordonnees-label">Aperçu — vos coordonnées sur le plan du client</div>
-              <div class="coordonnees-card" style="border-left-color:#1a3a6b;">
+              <div class="coordonnees-card" style="border-left-color:#0ea5e9;">
                 <div class="coord-name" id="pPrevNom">Prénom NOM</div>
-                <div class="coord-detail" id="pPrevTitre">Coach sportif certifié</div>
+                <div class="coord-detail" id="pPrevTitre">Professionnel de santé</div>
                 <div class="coord-detail" id="pPrevCabinet"></div>
                 <div class="coord-detail" id="pPrevContact"></div>
               </div>
             </div>
-            <button type="button" class="btn-next" style="background:#1a3a6b;" onclick="nextPrescStep()">Continuer →</button>
+            <button type="button" class="btn-next" style="background:#0ea5e9;" onclick="nextPrescStep()">Continuer →</button>
           </div>
 
-          <!-- Étape 2 : Périmètre -->
+          <!-- Étape 2 — SIRET + périmètre -->
           <div class="insc-step" data-step="2">
-            <div class="redflag-notice" style="background:#eff6ff;border-color:#bfdbfe;margin-bottom:1.25rem;">
-              <span class="redflag-icon" style="background:#1a3a6b;">!</span>
-              <span style="color:#1e40af;font-size:.85rem;">Vous ne pouvez prescrire que pour des objectifs non médicaux : rééquilibrage alimentaire, prise de masse, perte de gras. Tout cas médical sera automatiquement redirigé.</span>
-            </div>
-            <div class="form-group">
-              <label>Certification / diplôme</label>
-              <input type="text" id="pCertif" placeholder="Ex : BPJEPS, DE Kiné, CrossFit L2..."/>
-              <span class="field-hint">Renforce votre crédibilité auprès des patients</span>
-            </div>
-            <div class="form-group">
-              <label>Objectifs que vous prescrivez <span class="req">*</span></label>
-              <div class="checkbox-list">
-                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="reequilibrage" checked/><span>Rééquilibrage alimentaire</span></label>
-                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="prise_masse"/><span>Prise de masse</span></label>
-                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="perte_gras"/><span>Perte de gras / sèche</span></label>
+
+            <!-- SIRET -->
+            <div class="siret-explainer">
+              <div class="siret-icon">S</div>
+              <div>
+                <strong>Numéro SIRET obligatoire</strong>
+                <p>Identifiant à 14 chiffres de votre entreprise ou activité libérale. Il figure sur vos documents administratifs, avis de situation INSEE, ou sur <a href="https://annuaire-entreprises.data.gouv.fr" target="_blank" style="color:#0284c7;">annuaire-entreprises.data.gouv.fr</a>.</p>
               </div>
             </div>
-            <div class="redflag-notice" style="margin-top:1rem;">
-              <span class="redflag-icon">!</span>
-              <span style="font-size:.82rem;">Les cas TCA, pathologie, traitement médical seront <strong>automatiquement bloqués</strong> et redirigés vers un professionnel de santé.</span>
+
+            <div class="form-group">
+              <label>Numéro SIRET <span class="req">*</span></label>
+              <div class="rpps-input-wrap">
+                <input type="text" id="siretInput" placeholder="Ex : 123 456 789 00012"
+                  maxlength="19" inputmode="numeric" oninput="formatSiret(this)" required/>
+                <div class="rpps-status" id="siretStatus"><span class="rpps-hint">0 / 14 chiffres</span></div>
+              </div>
+              <div class="rpps-feedback" id="siretFeedback"></div>
+              <span class="field-hint">Votre SIRET confirme que vous exercez une activité professionnelle déclarée en France.</span>
             </div>
-            <div class="btn-row">
+
+            <!-- Périmètre -->
+            <div class="form-group" style="margin-top:1.5rem;">
+              <label>Objectifs nutritionnels que vous prescrivez <span class="req">*</span></label>
+              <div class="checkbox-list">
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="reequilibrage" checked/><span>Rééquilibrage alimentaire</span></label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="prise_masse"/><span>Prise de masse / muscle</span></label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="perte_gras"/><span>Perte de gras / sèche</span></label>
+                <label class="checkbox-option"><input type="checkbox" name="pObjectif" value="sport_performance"/><span>Nutrition sportive & performance</span></label>
+              </div>
+            </div>
+
+            <div class="redflag-notice" style="background:#eff6ff;border-color:#bfdbfe;margin-top:1rem;">
+              <span class="redflag-icon" style="background:#0284c7;">!</span>
+              <span style="color:#1e40af;font-size:.82rem;">Les dossiers avec pathologie médicale, TCA, grossesse ou traitement lourd seront <strong>automatiquement redirigés</strong> vers un professionnel compétent. 1 crédit remboursé en cas de blocage avéré.</span>
+            </div>
+
+            <div class="btn-row" style="margin-top:1.5rem;">
               <button type="button" class="btn-back" onclick="prevPrescStep()">← Retour</button>
-              <button type="button" class="btn-next" style="background:#1a3a6b;" onclick="nextPrescStep()">Continuer →</button>
+              <button type="button" class="btn-next" id="btnVerifSiret" style="background:#0ea5e9;" onclick="verifierSiret()">Vérifier le SIRET →</button>
             </div>
           </div>
 
-          <!-- Étape 3 : Pack + MDP -->
+          <!-- Étape 3 — Pack + MDP -->
           <div class="insc-step" data-step="3">
             <div class="form-group">
               <label>Pack choisi <span class="req">*</span></label>
-              <div class="formule-recap" style="border-color:#1a3a6b;background:#eff6ff;">
-                <div class="formule-recap-name" id="pPackRecapName" style="color:#1a3a6b;">Pro — 20 crédits · 89 € HT</div>
-                <button type="button" class="formule-change" style="color:#1a3a6b;" onclick="scrollToPacks()">Modifier ↑</button>
+              <div class="formule-recap" style="border-color:#0ea5e9;background:#eff6ff;">
+                <div class="formule-recap-name" id="pPackRecapName" style="color:#0284c7;">Pro — 20 crédits · 89 € HT</div>
+                <button type="button" class="formule-change" style="color:#0284c7;" onclick="scrollToPacks()">Modifier ↑</button>
               </div>
               <input type="hidden" id="pPackHidden" value="20"/>
             </div>
-
-            <!-- Rappel délai -->
             <div class="delai-banner" style="margin-bottom:1.25rem;">
-              <div class="delai-icon">⏱</div>
-              <div>
-                <div class="delai-title">Plans livrés sous 48h max jours ouvrés</div>
-                <div class="delai-sub">Après soumission du bilan client · Validation par diététicien certifié</div>
-              </div>
+              <div class="delai-icon" style="background:#0ea5e9;">⏱</div>
+              <div><div class="delai-title">Plans livrés sous 48h max jours ouvrés</div><div class="delai-sub">Après soumission du bilan · Validation par diét. certifié RPPS</div></div>
             </div>
-
             <div class="form-group">
               <label>Mot de passe <span class="req">*</span></label>
               <div class="pwd-wrap">
@@ -269,30 +286,30 @@
             </div>
             <label class="checkbox-option" style="margin-bottom:1rem;">
               <input type="checkbox" id="pCgu" required/>
-              <span style="font-size:.85rem;">J'accepte les <a href="#" style="color:#1a3a6b;">CGU</a>, la charte prescripteur et confirme que mes prescriptions restent dans le cadre non médical <span class="req">*</span></span>
+              <span style="font-size:.85rem;">J'accepte les <a href="cgu-prescripteur.html" target="_blank" style="color:#0284c7;">CGU Prescripteur</a> et confirme que mes prescriptions restent dans le cadre non médical <span class="req">*</span></span>
             </label>
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevPrescStep()">← Retour</button>
-              <button type="submit" class="btn-submit" style="background:#1a3a6b;">Créer mon compte →</button>
+              <button type="submit" class="btn-submit" style="background:#0ea5e9;border-color:#0ea5e9;">Créer mon compte →</button>
             </div>
           </div>
 
         </form>
 
         <div id="prescConfirmation" class="inscription-confirmation hidden">
-          <div class="confirm-icon" style="background:#eff6ff;color:#1a3a6b;">✓</div>
+          <div class="confirm-icon" style="background:#eff6ff;color:#0284c7;">✓</div>
           <h3>Compte prescripteur créé !</h3>
-          <p>Vos crédits seront activés dès confirmation du paiement.</p>
-          <div class="delai-banner" style="margin:1.25rem 0;max-width:380px;margin-left:auto;margin-right:auto;">
-            <div class="delai-icon">⏱</div>
+          <p>Votre SIRET a été vérifié. Vos crédits seront activés dès confirmation du paiement.</p>
+          <div class="delai-banner" style="margin:1.25rem auto;max-width:380px;">
+            <div class="delai-icon" style="background:#0ea5e9;">⏱</div>
             <div><div class="delai-title">Rappel : plans livrés sous 48h max jours ouvrés</div></div>
           </div>
           <div class="confirm-steps">
-            <div class="confirm-step"><span class="conf-dot done"></span><span>Profil enregistré</span></div>
+            <div class="confirm-step"><span class="conf-dot done"></span><span>Profil enregistré · SIRET vérifié</span></div>
             <div class="confirm-step"><span class="conf-dot pending"></span><span>Paiement en attente de confirmation</span></div>
             <div class="confirm-step"><span class="conf-dot"></span><span>Crédits activés — espace disponible</span></div>
           </div>
-          <a href="prescripteur-dashboard.html" class="btn-hero" style="display:inline-block;margin-top:1.5rem;background:#1a3a6b;">Accéder à mon espace →</a>
+          <a href="prescripteur-dashboard.html" class="btn-hero" style="display:inline-block;margin-top:1.5rem;background:#0ea5e9;border-color:#0ea5e9;">Accéder à mon espace →</a>
         </div>
 
       </div>

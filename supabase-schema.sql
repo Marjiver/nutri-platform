@@ -1,5 +1,5 @@
 -- ============================================================
--- NutriPlan — Schema Supabase
+-- NutriDoc — Schema Supabase
 -- Copiez ce fichier dans l'éditeur SQL de votre projet Supabase
 -- ============================================================
 
@@ -137,3 +137,74 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
+
+-- ═══════════════════════════════════════════════════════════
+-- FILE D'ATTENTE DES DEMANDES DE PLANS
+-- ═══════════════════════════════════════════════════════════
+
+create table if not exists queue_plans (
+  id              uuid default gen_random_uuid() primary key,
+  patient_id      uuid references auth.users,
+  patient_prenom  text,
+  ville           text,
+  objectif        text,
+  bilan_id        uuid references bilans(id),
+  type            text default 'plan',
+  statut          text default 'pending'
+                  check (statut in ('pending','accepted','in_progress','delivered','expired','cancelled')),
+  priorite        int  default 1,
+  tentatives      int  default 0,
+  dietitian_id    uuid references auth.users,
+  accepted_at     timestamptz,
+  delivered_at    timestamptz,
+  expires_at      timestamptz default (now() + interval '48 hours'),
+  created_at      timestamptz default now()
+);
+
+create index if not exists idx_queue_statut   on queue_plans(statut);
+create index if not exists idx_queue_ville    on queue_plans(ville);
+create index if not exists idx_queue_created  on queue_plans(created_at);
+
+alter table queue_plans enable row level security;
+create policy "patient voit sa demande"    on queue_plans for select using (auth.uid() = patient_id);
+create policy "patient crée une demande"   on queue_plans for insert with check (auth.uid() = patient_id);
+create policy "diet voit ses demandes"     on queue_plans for select using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'dietitian'));
+create policy "diet accepte une demande"   on queue_plans for update using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'dietitian'));
+
+-- Vue métriques file d'attente (pour tableau de bord admin)
+create or replace view queue_metrics as
+select
+  count(*) filter (where statut = 'pending')      as pending_count,
+  count(*) filter (where statut = 'accepted')     as accepted_count,
+  count(*) filter (where statut = 'delivered')    as delivered_count,
+  count(*) filter (where statut = 'expired')      as expired_count,
+  round(avg(extract(epoch from (delivered_at - created_at))/3600) filter (where statut = 'delivered'), 1) as avg_delay_hours,
+  count(*) filter (where statut = 'pending' and created_at < now() - interval '4 hours') as overdue_count
+from queue_plans
+where created_at > now() - interval '7 days';
+
+-- ═══════════════════════════════════════════════════════════
+-- TICKETS SUPPORT
+-- ═══════════════════════════════════════════════════════════
+
+create table if not exists support_tickets (
+  id          uuid default gen_random_uuid() primary key,
+  user_id     uuid references auth.users,
+  user_role   text,
+  user_nom    text,
+  user_email  text,
+  categorie   text not null,
+  titre       text not null,
+  description text not null,
+  priorite    text default 'normale' check (priorite in ('basse','normale','haute','urgente')),
+  statut      text default 'ouvert'  check (statut  in ('ouvert','en_cours','resolu','ferme')),
+  reponse     text,
+  repondu_at  timestamptz,
+  created_at  timestamptz default now()
+);
+
+alter table support_tickets enable row level security;
+create policy "user voit ses tickets"   on support_tickets for all using (auth.uid() = user_id);
+create policy "user crée un ticket"     on support_tickets for insert with check (auth.uid() = user_id);

@@ -43,14 +43,14 @@ function totalsPlan(plan) {
 
 // ── Patients list ──────────────────────────────────────────────────────────
 function renderPatients() {
-  const alertes = JSON.parse(localStorage.getItem('nutri_alertes') || '[]');
+  const alertes = JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]');
   const nonLues = alertes.filter(a => !a.lu);
   const az = document.getElementById('alertesZone');
   if (nonLues.length > 0) {
     const RF = { grossesse:'Grossesse',tca:'TCA',diabete:'Diabète',insuffisance_renale:'Insuf. rénale',bariatrique:'Bariatrique',allergies_severes:'Allergies sévères',medicaments:'Médicaments',antecedents:'Antécédents lourds' };
     az.innerHTML = nonLues.map(a => `<div class="alert-redflag" style="margin-bottom:.75rem;"><div class="alert-dot"></div><div class="alert-redflag-text"><span class="alert-redflag-title">Red flag — ${a.patient}</span>${a.flags.map(f=>RF[f]||f).join(', ')}</div></div>`).join('');
     alertes.forEach(a => a.lu = true);
-    localStorage.setItem('nutri_alertes', JSON.stringify(alertes));
+    localStorage.setItem('nutridoc_alertes', JSON.stringify(alertes));
   }
   document.getElementById('patientsList').innerHTML = PATIENTS_DEMO.map(p => {
     const t = totalsPlan(p.plan);

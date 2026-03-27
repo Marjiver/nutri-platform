@@ -1,5 +1,5 @@
 // ============================================================
-// auth.js — NutriPlan · Supabase Auth
+// auth.js — NutriDoc · Supabase Auth
 
 // ============================================================
 
@@ -246,13 +246,13 @@ async function rechargerCredits(nbCredits) {
 // Si Supabase n'est pas configuré, on retombe sur localStorage
 // pour que le projet fonctionne en mode démo.
 const LS = {
-  getBilan:    () => JSON.parse(localStorage.getItem('nutri_bilan') || 'null'),
-  saveBilan:   (d) => localStorage.setItem('nutri_bilan', JSON.stringify(d)),
-  getProfile:  () => JSON.parse(localStorage.getItem('nutri_dieteticien') || 'null'),
-  getPresc:    () => JSON.parse(localStorage.getItem('nutri_prescripteur') || 'null'),
-  getClients:  () => JSON.parse(localStorage.getItem('nutri_crm_clients') || '[]'),
-  saveClients: (d) => localStorage.setItem('nutri_crm_clients', JSON.stringify(d)),
-  getAlertes:  () => JSON.parse(localStorage.getItem('nutri_alertes') || '[]'),
+  getBilan:    () => JSON.parse(localStorage.getItem('nutridoc_bilan') || 'null'),
+  saveBilan:   (d) => localStorage.setItem('nutridoc_bilan', JSON.stringify(d)),
+  getProfile:  () => JSON.parse(localStorage.getItem('nutridoc_dieteticien') || 'null'),
+  getPresc:    () => JSON.parse(localStorage.getItem('nutridoc_prescripteur') || 'null'),
+  getClients:  () => JSON.parse(localStorage.getItem('nutridoc_crm_clients') || '[]'),
+  saveClients: (d) => localStorage.setItem('nutridoc_crm_clients', JSON.stringify(d)),
+  getAlertes:  () => JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]'),
 };
 
 // ── Détection mode (Supabase ou démo) ───────────────────────

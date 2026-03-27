@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Comptabilité — NutriDoc Diététicien</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body class="page-dietitian">
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+  <nav class="nav">
+    <a href="dietitian.html" class="nav-link">Dossiers</a>
+    <a href="agenda-dieteticien.html" class="nav-link">Agenda visios</a>
+    <a href="compta-dieteticien.html" class="nav-link active">Comptabilité</a>
+  </nav>
+  <span class="user-tag pro">Dr. Lemaire</span>
+</header>
+
+<main class="dashboard-container">
+  <div class="dashboard-greeting">
+    <h2>Comptabilité</h2>
+    <p>Suivi de vos rémunérations, factures et attestations mutuelle.</p>
+  </div>
+
+  <!-- Métriques du mois -->
+  <div class="compta-metrics" id="comptaMetrics"></div>
+
+  <!-- Graphique revenus 6 mois -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Revenus des 6 derniers mois</h3>
+      <select id="selectAnnee" class="calc-select" onchange="renderChart()">
+        <option value="2025">2025</option>
+      </select>
+    </div>
+    <div style="position:relative;height:220px;margin-top:.75rem;">
+      <canvas id="revenusChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Factures -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Factures électroniques</h3>
+      <button class="btn-view" onclick="genererFactureDemo()">+ Générer facture</button>
+    </div>
+    <table class="compta-table" id="facturesTable">
+      <thead><tr><th>N° Facture</th><th>Période</th><th>Plans</th><th>Visios</th><th>Abonnement</th><th>Total HT</th><th>Statut</th><th>PDF</th></tr></thead>
+      <tbody id="facturesBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Attestations mutuelle -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Attestations mutuelle — Visios</h3>
+      <div class="info-pill" style="font-size:.78rem;color:var(--gray);">Envoyez directement à vos patients</div>
+    </div>
+    <div id="attestationsZone"></div>
+  </div>
+
+</main>
+
+<script>
+const DEMO_REVENUS = {
+  labels: ['Oct','Nov','Déc','Jan','Fév','Mar'],
+  plans:  [12,18,22,15,26,31],
+  visios: [3,5,4,6,8,9],
+  tauxPlan: 18, tauxVisio: 28
+};
+const DEMO_FACTURES = [
+  { num:'FAC-2025-003', periode:'Mars 2025',  plans:31, visios:9,  abo:49, statut:'payée' },
+  { num:'FAC-2025-002', periode:'Février 2025',plans:26,visios:8,  abo:49, statut:'payée' },
+  { num:'FAC-2025-001', periode:'Janvier 2025',plans:15,visios:6,  abo:49, statut:'payée' },
+];
+const DEMO_VISIOS = [
+  { patient:'Marie D.',   date:'15/03/2025', duree:'45 min', montant:39 },
+  { patient:'Thomas K.',  date:'18/03/2025', duree:'45 min', montant:39 },
+  { patient:'Sophie M.',  date:'22/03/2025', duree:'45 min', montant:39 },
+];
+
+function renderMetrics() {
+  const m = DEMO_REVENUS;
+  const lastIdx = m.labels.length - 1;
+  const revenusPlans  = m.plans[lastIdx]  * m.tauxPlan;
+  const revenusVisios = m.visios[lastIdx] * m.tauxVisio;
+  const total         = revenusPlans + revenusVisios;
+  document.getElementById('comptaMetrics').innerHTML = `
+    <div class="compta-metric-card"><div class="compta-metric-val">${revenusPlans} €</div><div class="compta-metric-label">Plans ce mois (${m.plans[lastIdx]} validés × ${m.tauxPlan} €)</div></div>
+    <div class="compta-metric-card"><div class="compta-metric-val">${revenusVisios} €</div><div class="compta-metric-label">Visios ce mois (${m.visios[lastIdx]} séances × ${m.tauxVisio} €)</div></div>
+    <div class="compta-metric-card compta-metric-total"><div class="compta-metric-val">${total} €</div><div class="compta-metric-label">Total brut ce mois</div></div>
+    <div class="compta-metric-card"><div class="compta-metric-val">${(total*12).toLocaleString('fr-FR')} €</div><div class="compta-metric-label">Projection annuelle</div></div>
+  `;
+}
+
+let chart = null;
+function renderChart() {
+  const ctx = document.getElementById('revenusChart');
+  if (chart) chart.destroy();
+  const m = DEMO_REVENUS;
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: m.labels,
+      datasets: [
+        { label:'Plans (€)', data: m.plans.map(v=>v*m.tauxPlan), backgroundColor:'rgba(29,158,117,.75)', borderRadius:4, borderSkipped:false },
+        { label:'Visios (€)', data: m.visios.map(v=>v*m.tauxVisio), backgroundColor:'rgba(93,202,165,.65)', borderRadius:4, borderSkipped:false },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ display:false } },
+      scales: {
+        x: { stacked:true, grid:{ display:false }, ticks:{ color:'#6b7b74' } },
+        y: { stacked:true, grid:{ color:'rgba(0,0,0,.05)' }, ticks:{ color:'#6b7b74', callback: v => v+'€' } }
+      }
+    }
+  });
+}
+
+function renderFactures() {
+  const tbody = document.getElementById('facturesBody');
+  tbody.innerHTML = DEMO_FACTURES.map(f => {
+    const total = (f.plans * 18 + f.visios * 28 - f.abo).toFixed(2);
+    return `<tr>
+      <td style="font-weight:500;">${f.num}</td>
+      <td>${f.periode}</td>
+      <td>${f.plans} plans</td>
+      <td>${f.visios} visios</td>
+      <td>−${f.abo} €</td>
+      <td style="font-weight:500;">${total} €</td>
+      <td><span class="badge-ok">✓ ${f.statut}</span></td>
+      <td><button class="btn-view" onclick="telechargerFacture('${f.num}')">PDF</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAttestations() {
+  const z = document.getElementById('attestationsZone');
+  z.innerHTML = `
+    <div class="compta-attestation-intro">
+      <p>Chaque consultation visio génère automatiquement une attestation que vous pouvez envoyer directement au patient pour sa demande de remboursement mutuelle.</p>
+    </div>
+    <table class="compta-table">
+      <thead><tr><th>Patient</th><th>Date</th><th>Durée</th><th>Montant</th><th>Envoyer</th><th>PDF</th></tr></thead>
+      <tbody>
+        ${DEMO_VISIOS.map(v => `<tr>
+          <td style="font-weight:500;">${v.patient}</td>
+          <td>${v.date}</td>
+          <td>${v.duree}</td>
+          <td>${v.montant} €</td>
+          <td><button class="btn-validate" onclick="envoyerAttestation('${v.patient}')">✉ Envoyer au patient</button></td>
+          <td><button class="btn-view" onclick="dlAttestation('${v.patient}')">PDF</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function genererFactureDemo() { alert('Génération de la facture du mois en cours...'); }
+function telechargerFacture(num) { alert(`Téléchargement de ${num}.pdf`); }
+function envoyerAttestation(patient) { alert(`Attestation envoyée par email à ${patient} !`); }
+function dlAttestation(patient) { alert(`Téléchargement attestation_mutuelle_${patient.replace(' ','_')}.pdf`); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderMetrics();
+  renderChart();
+  renderFactures();
+  renderAttestations();
+});
+</script>
+
+<style>
+.compta-metrics { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem; }
+.compta-metric-card { background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem; }
+.compta-metric-card.compta-metric-total { border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0; }
+.compta-metric-val { font-family:var(--font-display);font-size:1.8rem;color:var(--dark);line-height:1; }
+.compta-metric-label { font-size:.75rem;color:var(--gray);margin-top:.25rem; }
+.compta-table { width:100%;border-collapse:collapse;font-size:.85rem; }
+.compta-table th { background:var(--gray-light);padding:8px 12px;text-align:left;font-size:.8rem;font-weight:500; }
+.compta-table td { padding:8px 12px;border-bottom:1px solid var(--border); }
+.compta-table tr:hover td { background:var(--green-light); }
+.badge-ok { background:var(--green-light);color:var(--green);font-size:.75rem;padding:2px 8px;border-radius:999px; }
+.compta-attestation-intro { background:var(--green-light);border:1px solid #9FE1CB;border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--dark); }
+@media(max-width:768px){.compta-metrics{grid-template-columns:1fr 1fr;}}
+</style>
+</body>
+</html>
