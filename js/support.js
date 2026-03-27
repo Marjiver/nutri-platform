@@ -159,8 +159,16 @@ async function soumettreTicket(id, role) {
     localStorage.setItem('nutridoc_tickets_' + role, JSON.stringify(tickets));
   }
 
-  // Email simulé à contact@calidocsante.fr
-  console.info(`[NutriDoc Support] Ticket ${ticket.id} soumis → contact@calidocsante.fr`, ticket);
+  // Email confirmation ticket à l'utilisateur + alerte interne
+  if (typeof Email !== 'undefined') {
+    Email.ticketSupport(document.querySelector('[name="email"]')?.value || '', {
+      ticket_id: ticket.id,
+      titre:     ticket.titre,
+      categorie: ticket.categorie,
+      priorite:  ticket.priorite
+    });
+  }
+  console.info(`[Support] Ticket ${ticket.id} soumis`, ticket);
 
   // Rafraîchir le widget
   const container = document.getElementById(id)?.closest('[id]');

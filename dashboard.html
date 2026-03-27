@@ -10,6 +10,7 @@
   <script src="js/auth.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="js/nav.js" defer></script>
+  <script src="js/cookies.js"></script>
 </head>
 <body class="page-dashboard">
 
@@ -49,6 +50,49 @@
     </section>
 
     <!-- GRATUIT : Recommandations & menus -->
+
+    <!-- DIÉTÉTICIEN ASSIGNÉ ───────────────────────── -->
+    <section class="dashboard-section diet-assigned-card" id="dietAssignedCard">
+      <div class="diet-assigned-header">
+        <div class="diet-assigned-avatar" id="dietAvatar">DL</div>
+        <div class="diet-assigned-info">
+          <div class="diet-assigned-name" id="dietNom">Dr. Lemaire</div>
+          <div class="diet-assigned-title">Diététicien certifié · RPPS 10 003 456 789</div>
+          <div class="diet-assigned-badges">
+            <span class="diet-badge-rpps">✓ RPPS vérifié</span>
+            <span class="diet-badge-loc">📍 Angoulême</span>
+          </div>
+        </div>
+        <div class="diet-assigned-actions">
+          <a href="mailto:lemaire@cabinet.fr" class="btn-view" style="font-size:.78rem;">✉ Contacter</a>
+          <button class="btn-back" style="font-size:.78rem;" onclick="demanderChangementDiet()">Changer de diét.</button>
+        </div>
+      </div>
+      <div class="diet-assigned-coords">
+        <span>📧 lemaire@nutridoc.fr</span>
+        <span>📞 05 45 XX XX XX</span>
+        <span>🕐 Répond sous 24h ouvrées</span>
+      </div>
+    </section>
+
+
+    <!-- QUIZ IDÉES REÇUES ─── placé en haut pour visibilité ─── -->
+    <section class="dashboard-section" id="quizSection" style="border:2px solid rgba(29,158,117,.2);background:linear-gradient(135deg,#f0f9f5 0%,#fff 100%);">
+      <div class="section-header-row">
+        <h3 style="font-family:var(--font-display);">🧠 Quiz · Idées reçues sur la nutrition</h3>
+        <span class="free-badge">Gratuit</span>
+      </div>
+      <p style="font-size:.82rem;color:var(--gray);margin-bottom:.75rem;">Testez vos connaissances — une question toutes les 8 secondes. Sans clic !</p>
+      <div id="quizContainer"></div>
+    </section>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if(typeof renderQuiz !== 'undefined') {
+        setTimeout(() => renderQuiz('quizContainer'), 1500);
+      }
+    });
+    </script>
+
     <section class="dashboard-section" id="sectionGratuit">
       <div class="section-header-row">
         <h3>Recommandations & menus</h3>
@@ -102,7 +146,7 @@
           </button>
           <p class="paywall-reassurance">Paiement sécurisé · Remboursé si non livré sous 5 jours</p>
           <div style="margin-top:.75rem;padding:.75rem;background:#eff6ff;border-radius:8px;font-size:.8rem;color:#1e40af;border:1px solid #bfdbfe;text-align:left;">
-            <strong>Ajouter une visio de suivi</strong> — 39 € supplémentaires<br>
+            <strong>Ajouter une visio de suivi</strong> — 55 € supplémentaires<br>
             <span style="font-size:.75rem;opacity:.8;">Consultation remboursable partiellement par votre mutuelle (vérifiez votre contrat rubrique "Diététique" ou "Prévention").</span>
           </div>
         </div>
@@ -344,19 +388,7 @@
     });
     </script>
 
-    <!-- QUIZ IDÉES REÇUES ────────────────────────── -->
-    <section class="dashboard-section quiz-autolaunch-hidden" id="quizSection" style="max-width:580px;">
-      <div class="section-header-row">
-        <h3>Quiz · Démêler le vrai du faux</h3>
-        <span class="free-badge">Gratuit</span>
-      </div>
-      <div id="quizContainer"></div>
-    </section>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if(typeof autoLaunchQuiz !== 'undefined') autoLaunchQuiz('quizSection');
-    });
-    </script>
+
 
   </main>
 
@@ -383,7 +415,7 @@
       </div>
       <label class="checkbox-option" style="margin:.5rem 0;font-size:.82rem;">
         <input type="checkbox" id="addVisio" onchange="updateModalTotal()"/>
-        <span>Ajouter une visio de suivi — +39 € <span style="font-size:.72rem;color:var(--gray);">(remboursable mutuelle)</span></span>
+        <span>Ajouter une visio de suivi — +55 € <span style="font-size:.72rem;color:var(--gray);">(remboursable mutuelle)</span></span>
       </label>
       <div class="modal-total">Total : <strong id="modalTotalVal">24,90 €</strong></div>
       <div class="modal-actions">
@@ -630,19 +662,7 @@
     });
     </script>
 
-    <!-- QUIZ IDÉES REÇUES ────────────────────────── -->
-    <section class="dashboard-section quiz-autolaunch-hidden" id="quizSection" style="max-width:580px;">
-      <div class="section-header-row">
-        <h3>Quiz · Démêler le vrai du faux</h3>
-        <span class="free-badge">Gratuit</span>
-      </div>
-      <div id="quizContainer"></div>
-    </section>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if(typeof autoLaunchQuiz !== 'undefined') autoLaunchQuiz('quizSection');
-    });
-    </script>
+
 
   </main>
 

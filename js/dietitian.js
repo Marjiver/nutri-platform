@@ -185,6 +185,18 @@ function validerPlan() {
   patientEnCours.plan   = planEnCours;
   patientEnCours.statut = 'valide';
   alert('Plan de '+patientEnCours.prenom+' validé et envoyé !');
+  // Email livraison plan au patient
+  if (typeof Email !== 'undefined') {
+    const tot = totalsPlan(planEnCours);
+    Email.planLivre(patientEnCours.email || '', {
+      prenom:      patientEnCours.prenom,
+      diet_nom:    'Dr. Lemaire',
+      diet_rpps:   '10 003 456 789',
+      kcal:        tot.kcal,
+      proteines:   tot.prot,
+      visio_dispo: true
+    });
+  }
   fermerEditeur(); renderPatients();
 }
 function validerDirectement(id) {

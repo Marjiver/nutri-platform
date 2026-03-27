@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Comptabilité — NutriDoc Prescripteur</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="js/nav.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="js/cookies.js"></script>
+</head>
+<body class="page-dashboard">
+<main class="dashboard-container" style="padding-top:5rem;">
+
+  <div class="dashboard-greeting">
+    <h2>Comptabilité</h2>
+    <p>Suivi de vos dépenses, crédits et factures.</p>
+  </div>
+
+  <!-- Métriques -->
+  <div class="compta-metrics" id="comptaMetrics"></div>
+
+  <!-- Graphique dépenses 6 mois -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Dépenses — 6 derniers mois</h3>
+    </div>
+    <div style="position:relative;height:200px;margin-top:.75rem;">
+      <canvas id="depensesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Historique plans commandés -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Historique des plans commandés</h3>
+      <button class="btn-view" onclick="exportCSV()">↓ Exporter CSV</button>
+    </div>
+    <table class="compta-table">
+      <thead><tr><th>Date</th><th>Patient</th><th>Objectif</th><th>Diét.</th><th>Crédits</th><th>Statut</th></tr></thead>
+      <tbody id="plansBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Factures packs achetés -->
+  <div class="dashboard-section">
+    <div class="section-header-row">
+      <h3>Factures — Achats de crédits</h3>
+    </div>
+    <table class="compta-table">
+      <thead><tr><th>N° Facture</th><th>Date</th><th>Pack</th><th>Montant HT</th><th>TVA 20%</th><th>TTC</th><th>PDF</th></tr></thead>
+      <tbody id="facturesBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Crédits restants -->
+  <div class="dashboard-section" style="background:var(--green-light);border:1px solid #9FE1CB;">
+    <div class="section-header-row">
+      <h3 style="color:var(--green2);">Crédits disponibles</h3>
+      <a href="inscription-prescripteur.html" class="btn-validate">+ Recharger</a>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:.5rem;margin-top:.5rem;">
+      <span style="font-family:var(--font-display);font-size:3rem;color:var(--green);" id="creditsRestants">14</span>
+      <span style="color:var(--gray);font-size:.875rem;">crédits restants · 1 crédit = 1 plan validé par un diét. RPPS</span>
+    </div>
+    <div style="height:6px;background:rgba(255,255,255,.5);border-radius:999px;margin-top:.75rem;overflow:hidden;">
+      <div id="creditsBar" style="height:100%;background:var(--green);border-radius:999px;transition:width .5s;"></div>
+    </div>
+    <p style="font-size:.75rem;color:var(--gray);margin-top:.4rem;">14 / 20 crédits restants sur le pack Pro</p>
+  </div>
+
+</main>
+
+<script>
+const DEMO_PLANS = [
+  { date:'2025-03-22', patient:'Marie D.',  objectif:'Perte de gras',  diet:'Dr. Lemaire', credits:1, statut:'livré'   },
+  { date:'2025-03-18', patient:'Thomas K.', objectif:'Prise de masse', diet:'Dr. Lemaire', credits:1, statut:'livré'   },
+  { date:'2025-03-15', patient:'Sophie M.', objectif:'Équilibre',      diet:'Dr. Lemaire', credits:1, statut:'en cours' },
+  { date:'2025-03-10', patient:'Lucas B.',  objectif:'Sport & perf.',  diet:'Dr. Lemaire', credits:1, statut:'livré'   },
+  { date:'2025-03-05', patient:'Emma R.',   objectif:'Perte de gras',  diet:'Dr. Lemaire', credits:1, statut:'livré'   },
+  { date:'2025-02-28', patient:'Paul L.',   objectif:'Équilibre',      diet:'Dr. Lemaire', credits:1, statut:'livré'   },
+];
+const DEMO_FACTURES = [
+  { num:'PRO-2025-002', date:'2025-03-01', pack:'Pro — 20 crédits', ht:89, tva:17.80 },
+  { num:'PRO-2025-001', date:'2025-01-15', pack:'Découverte — 10 crédits', ht:49, tva:9.80 },
+];
+
+function renderMetrics() {
+  const livre = DEMO_PLANS.filter(p => p.statut === 'livré').length;
+  const encours = DEMO_PLANS.filter(p => p.statut === 'en cours').length;
+  const depenses = DEMO_FACTURES.reduce((a,f) => a + f.ht * 1.2, 0).toFixed(2);
+  document.getElementById('comptaMetrics').innerHTML = `
+    <div class="compta-metric-card"><div class="compta-metric-val">${livre}</div><div class="compta-metric-label">Plans livrés</div></div>
+    <div class="compta-metric-card"><div class="compta-metric-val" style="color:#f59e0b">${encours}</div><div class="compta-metric-label">En cours</div></div>
+    <div class="compta-metric-card compta-metric-total"><div class="compta-metric-val">14</div><div class="compta-metric-label">Crédits restants</div></div>
+    <div class="compta-metric-card"><div class="compta-metric-val">${depenses} €</div><div class="compta-metric-label">Total dépensé TTC</div></div>
+  `;
+  // Barre crédits
+  document.getElementById('creditsBar').style.width = '70%';
+}
+
+function renderChart() {
+  const ctx = document.getElementById('depensesChart');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Oct','Nov','Déc','Jan','Fév','Mar'],
+      datasets:[{ label:'Dépenses HT (€)', data:[0,0,49,0,89,0], backgroundColor:'rgba(29,158,117,.7)', borderRadius:4 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false}, ticks:{color:'#6b7b74'}},
+        y:{grid:{color:'rgba(0,0,0,.05)'}, ticks:{color:'#6b7b74', callback:v=>v+'€'}}
+      }
+    }
+  });
+}
+
+function renderPlans() {
+  const STATUS_COLORS = { 'livré':'var(--green)', 'en cours':'#f59e0b', 'en attente':'#6b7b74' };
+  document.getElementById('plansBody').innerHTML = DEMO_PLANS.map(p => `<tr>
+    <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
+    <td style="font-weight:500;">${p.patient}</td>
+    <td>${p.objectif}</td>
+    <td>${p.diet}</td>
+    <td style="text-align:center;">1</td>
+    <td><span style="color:${STATUS_COLORS[p.statut]||'#6b7b74'};font-weight:500;">${p.statut}</span></td>
+  </tr>`).join('');
+}
+
+function renderFactures() {
+  document.getElementById('facturesBody').innerHTML = DEMO_FACTURES.map(f => `<tr>
+    <td style="font-weight:500;">${f.num}</td>
+    <td>${new Date(f.date).toLocaleDateString('fr-FR')}</td>
+    <td>${f.pack}</td>
+    <td>${f.ht.toFixed(2)} €</td>
+    <td>${f.tva.toFixed(2)} €</td>
+    <td style="font-weight:500;">${(f.ht*1.2).toFixed(2)} €</td>
+    <td><button class="btn-view" onclick="alert('Téléchargement ${f.num}.pdf')">PDF</button></td>
+  </tr>`).join('');
+}
+
+function exportCSV() {
+  const rows = [['Date','Patient','Objectif','Diét','Crédits','Statut']];
+  DEMO_PLANS.forEach(p => rows.push([p.date, p.patient, p.objectif, p.diet, p.credits, p.statut]));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'nutridoc-plans.csv';
+  a.click();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderMetrics(); renderChart(); renderPlans(); renderFactures();
+});
+</script>
+
+<style>
+.compta-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.compta-metric-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;}
+.compta-metric-card.compta-metric-total{border-left:3px solid var(--green);}
+.compta-metric-val{font-family:var(--font-display);font-size:1.8rem;color:var(--green);line-height:1;}
+.compta-metric-label{font-size:.75rem;color:var(--gray);margin-top:.25rem;}
+.compta-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.compta-table th{background:var(--gray-light);padding:8px 12px;text-align:left;font-size:.78rem;font-weight:500;}
+.compta-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.compta-table tr:hover td{background:var(--green-light);}
+</style>
+</body>
+</html>

@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="js/nav.js" defer></script>
+  <script src="js/cookies.js"></script>
 </head>
 <body>
 <header class="header">
@@ -46,7 +47,7 @@ const FAQ = [
       { q: "Combien de temps pour recevoir mon plan ?", a: "Maximum 48 heures ouvrées après validation de votre paiement. Un diététicien certifié RPPS analyse, personnalise et signe votre plan. En moyenne, les plans sont livrés en moins de 24h." },
       { q: "Que se passe-t-il si j'ai une situation médicale particulière (red flag) ?", a: "Si vous déclarez une grossesse, un TCA, un diabète traité, une insuffisance rénale, une chirurgie bariatrique ou d'autres pathologies, la génération automatique est bloquée. Votre dossier est transmis à un diététicien pour une prise en charge personnalisée sécurisée." },
       { q: "Puis-je modifier mon profil après le bilan ?", a: "Oui. Depuis votre tableau de bord, vous pouvez mettre à jour votre profil de vie (sport, sommeil, repas types, etc.) à tout moment. Ces modifications sont transmises au diététicien lors du prochain plan." },
-      { q: "La visio est-elle remboursée par ma mutuelle ?", a: "Selon votre contrat, la consultation visio (39 €) peut être partiellement remboursée au titre de la prévention ou de la diététique (généralement 20 à 50 € selon les mutuelles, dans la limite de 2 à 4 séances/an). NutriDoc génère automatiquement une attestation de consultation téléchargeable." },
+      { q: "La visio est-elle remboursée par ma mutuelle ?", a: "Selon votre contrat, la consultation visio (55 €) peut être partiellement remboursée au titre de la prévention ou de la diététique (généralement 20 à 50 € selon les mutuelles, dans la limite de 2 à 4 séances/an). NutriDoc génère automatiquement une attestation de consultation téléchargeable." },
       { q: "Puis-je avoir un remboursement si je ne suis pas satisfait ?", a: "En cas de non-livraison du plan dans un délai de 5 jours ouvrés, vous êtes remboursé intégralement. Conformément au droit de rétractation, vous disposez de 14 jours calendaires sauf si la prestation a été exécutée avec votre accord." },
     ]
   },
@@ -54,7 +55,7 @@ const FAQ = [
     cat: "Diététiciens",
     items: [
       { q: "Comment m'inscrire comme diététicien ?", a: "Rendez-vous sur la page d'inscription diététicien. Votre numéro RPPS (11 chiffres) est obligatoire et vérifié via l'Annuaire Santé national. L'activation intervient sous 24h." },
-      { q: "Combien est-ce que je gagne par plan validé ?", a: "De 16 € (formule Essentiel, sans abonnement) à 20 € (formule Expert, 39 €/mois en annuel). Pour les visios, vous percevez 28 € par séance (patient paie 39 €)." },
+      { q: "Combien est-ce que je gagne par plan validé ?", a: "De 16 € (formule Essentiel, sans abonnement) à 20 € (formule Expert, 55 €/mois en annuel). Pour les visios, vous percevez 28 € par séance (patient paie 55 €)." },
       { q: "Comment reçois-je les demandes de plans ?", a: "Les demandes sont notifiées par email et notification dans votre espace. La priorité est donnée aux diét. dans un rayon de 80km du patient. Le premier à accepter prend le dossier. Si aucune réponse sous 4h, la demande est diffusée nationalement." },
       { q: "Suis-je responsable du contenu des plans ?", a: "Oui. En validant un plan, vous engagez votre responsabilité professionnelle. Vous certifiez avoir analysé le dossier patient. Votre nom, titre et RPPS figurent sur chaque plan signé. Souscrivez une assurance RCP adaptée à la téléconsultation diététique." },
       { q: "Comment fonctionne la facturation ?", a: "Une facture électronique conforme est générée automatiquement chaque mois récapitulant tous vos actes. Les reversements sont effectués par virement sous 30 jours après fin de mois." },

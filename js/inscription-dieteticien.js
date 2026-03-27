@@ -5,7 +5,7 @@ let formuleSelectionnee = 'pro';
 const FORMULES = {
   essentiel: { label: 'Essentiel — 5 € / plan validé' },
   pro:       { label: 'Pro — 49 € / mois' },
-  expert:    { label: 'Expert — 39 € / mois (annuel)' }
+  expert:    { label: 'Expert — 55 € / mois (annuel)' }
 };
 
 // ── Tarifs — sélection depuis les cards ──────────────────────
@@ -210,6 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) { showError(error.message || 'Erreur inscription.'); submitBtn.textContent='Créer mon compte →'; submitBtn.disabled=false; return; }
     } else {
       localStorage.setItem('nutridoc_dieteticien', JSON.stringify({ ...payload, statut:'en_attente' }));
+      if (typeof Email !== 'undefined') {
+        Email.bienvenue(payload.email, { prenom: payload.prenom, role: 'dietitian' });
+      }
     }
 
     document.getElementById('inscriptionForm').classList.add('hidden');

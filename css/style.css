@@ -2171,3 +2171,88 @@ table { max-width: 100%; }
 .nd-section-inner { padding-top: var(--space-xl); padding-bottom: var(--space-xl); }
 .dashboard-section { margin-bottom: var(--space-md); }
 
+
+/* ══ DASHBOARD PATIENT — Design harmonisé ══════════════════ */
+.page-dashboard .dashboard-container {
+  padding-top: 5rem;
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.page-dashboard .dashboard-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  margin-bottom: 0;
+}
+.page-dashboard .dashboard-greeting {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+}
+.page-dashboard .dashboard-greeting h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  color: var(--dark);
+  margin-bottom: .25rem;
+}
+.page-dashboard .info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: .75rem;
+}
+.page-dashboard .info-card {
+  background: var(--gray-light);
+  border-radius: var(--radius-sm);
+  padding: .75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+.page-dashboard .info-label { font-size: .7rem; color: var(--gray); text-transform: uppercase; letter-spacing: .06em; }
+.page-dashboard .info-value { font-size: .9rem; font-weight: 500; color: var(--dark); }
+
+/* Encart diét assigné */
+.diet-assigned-card { border-left: 3px solid var(--green) !important; }
+.diet-assigned-header { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.diet-assigned-avatar {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1.1rem; font-weight: 600;
+  flex-shrink: 0;
+}
+.diet-assigned-info { flex: 1; min-width: 0; }
+.diet-assigned-name { font-size: 1rem; font-weight: 500; color: var(--dark); }
+.diet-assigned-title { font-size: .78rem; color: var(--gray); margin-top: 2px; }
+.diet-assigned-badges { display: flex; gap: .4rem; margin-top: .4rem; flex-wrap: wrap; }
+.diet-badge-rpps { background: var(--green-light); color: var(--green2); font-size: .68rem; font-weight: 500; padding: 2px 8px; border-radius: 999px; border: 1px solid #9FE1CB; }
+.diet-badge-loc  { background: var(--gray-light); color: var(--gray); font-size: .68rem; padding: 2px 8px; border-radius: 999px; }
+.diet-assigned-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.diet-assigned-coords { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .85rem; padding-top: .75rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--gray); }
+
+/* Section header standardisée */
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.section-header-row h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--dark);
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .diet-assigned-actions { width: 100%; }
+  .diet-assigned-coords { flex-direction: column; gap: .4rem; }
+}

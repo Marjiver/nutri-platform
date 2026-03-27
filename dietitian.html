@@ -2,82 +2,220 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Espace diététicien — NutriDoc</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Espace Diététicien — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
+  <script src="js/email.js" defer></script>
   <script src="js/nav.js" defer></script>
+  <script src="js/support.js" defer></script>
+  <script src="js/cookies.js"></script>
 </head>
 <body class="page-dietitian">
+<main class="dashboard-container" style="padding-top:5rem;">
 
-  <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-    <nav class="nav">
-    <a href="dietitian.html" class="nav-link">Dossiers</a>
-    <a href="agenda-dieteticien.html" class="nav-link">Agenda visios</a>
-    <a href="compta-dieteticien.html" class="nav-link">Comptabilité</a>
-  </nav>
-  <span class="user-tag pro">Dr. Lemaire</span>
-  </header>
+  <div class="dashboard-greeting">
+    <div>
+      <h2>Bonjour, Dr. Lemaire 👋</h2>
+      <p>Diététicien certifié · RPPS 10 003 456 789 · <span style="color:var(--green);font-weight:500;">●</span> Actif</p>
+    </div>
+    <div style="display:flex;gap:.75rem;align-items:center;">
+      <a href="agenda-dieteticien.html" class="btn-validate">📅 Agenda</a>
+      <a href="compta-dieteticien.html" class="btn-view">💶 Compta</a>
+    </div>
+  </div>
 
-  <main class="dashboard-container">
-    <div class="dashboard-greeting">
-      <h2>Dossiers à valider</h2>
-      <p>Modifiez et validez les plans alimentaires avec grammages et bilan nutritionnel complet.</p>
-      <div class="delai-banner" style="max-width:480px;margin-top:.75rem;">
-        <div class="delai-icon">⏱</div>
-        <div>
-          <div class="delai-title">Engagement : plans validés sous 48h max jours ouvrés</div>
-          <div class="delai-sub">Le patient est notifié dès votre validation</div>
+  <!-- KANBAN plans ──────────────────────────────────── -->
+  <div class="diet-kanban" id="dietKanban"></div>
+
+  <!-- FILTRES ────────────────────────────────────────── -->
+  <div class="dashboard-section">
+    <div class="section-header-row" style="flex-wrap:wrap;gap:.75rem;">
+      <h3>Dossiers patients</h3>
+      <div class="diet-filters" id="dietFilters"></div>
+    </div>
+
+    <!-- Recherche -->
+    <div style="margin-bottom:1rem;position:relative;">
+      <input type="text" id="searchPatient" placeholder="🔍 Rechercher un patient…"
+        oninput="filterDossiers()" style="width:100%;padding-left:1rem;"/>
+    </div>
+
+    <div id="dossiersList"></div>
+  </div>
+
+  <!-- SUPPORT ────────────────────────────────────────── -->
+  <section class="dashboard-section" style="margin-top:1rem;">
+    <div id="supportWidgetdietitian"></div>
+  </section>
+
+</main>
+
+<script>
+const OBJECTIFS = [
+  { val:'tous',         label:'Tous',            icon:'📋' },
+  { val:'perte_poids',  label:'Perte de gras',   icon:'⬇' },
+  { val:'prise_masse',  label:'Prise de masse',  icon:'💪' },
+  { val:'equilibre',    label:'Équilibre',        icon:'⚖' },
+  { val:'sport_perf',   label:'Performance',     icon:'🏃' },
+  { val:'energie',      label:'Énergie',          icon:'⚡' },
+  { val:'sante',        label:'Prévention',       icon:'❤' },
+];
+
+const PATIENTS = [
+  { id:'p1', prenom:'Marie',  nom:'Dupont',  age:34, ville:'Angoulême', objectif:'perte_poids',  statut_plan:'a_faire',  avatar:'#1D9E75', email:'marie@mail.fr', tel:'06 12 34 56 78', bmi:26.4, notes:'Régime sans gluten. Préfère les menus simples.' },
+  { id:'p2', prenom:'Thomas', nom:'Klein',   age:28, ville:'Poitiers',  objectif:'prise_masse',  statut_plan:'en_cours', avatar:'#5DCAA5', email:'thomas@mail.fr', tel:'06 98 76 54 32', bmi:22.1, notes:'Sportif 5x/semaine. Objectif +5kg muscle.' },
+  { id:'p3', prenom:'Sophie', nom:'Martin',  age:41, ville:'Bordeaux',  objectif:'equilibre',    statut_plan:'valide',   avatar:'#97C459', email:'sophie@mail.fr', tel:'07 11 22 33 44', bmi:24.8, notes:'Végétarienne. Travail sédentaire.' },
+  { id:'p4', prenom:'Lucas',  nom:'Bernard', age:25, ville:'La Rochelle',objectif:'sport_perf',  statut_plan:'valide',   avatar:'#f59e0b', email:'lucas@mail.fr',  tel:'06 55 66 77 88', bmi:21.3, notes:'Course à pied 3x/semaine. Objectif semi-marathon.' },
+  { id:'p5', prenom:'Emma',   nom:'Rousseau',age:33, ville:'Niort',     objectif:'perte_poids',  statut_plan:'a_faire',  avatar:'#0ea5e9', email:'emma@mail.fr',   tel:'06 44 55 66 77', bmi:29.1, notes:'Stress au travail. Fringales le soir.' },
+  { id:'p6', prenom:'Paul',   nom:'Laurent', age:52, ville:'Périgueux', objectif:'sante',        statut_plan:'en_cours', avatar:'#8b5cf6', email:'paul@mail.fr',   tel:'06 33 44 55 66', bmi:27.6, notes:'Antécédent cholestérol. Médecin suivi.' },
+];
+
+let filtreActif = 'tous';
+let patientSelectionne = null;
+
+// ── KANBAN ──────────────────────────────────────────────────
+function renderKanban() {
+  const cols = [
+    { key:'a_faire',  label:'À traiter',    color:'#f59e0b', bg:'#fff8e6' },
+    { key:'en_cours', label:'En cours',     color:'#0ea5e9', bg:'#eff6ff' },
+    { key:'valide',   label:'Validés',      color:'#1D9E75', bg:'#E1F5EE' },
+  ];
+  const kb = document.getElementById('dietKanban');
+  kb.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+    ${cols.map(col => {
+      const pts = PATIENTS.filter(p => p.statut_plan === col.key);
+      return `<div style="background:${col.bg};border:1px solid ${col.color}33;border-radius:var(--radius);padding:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+          <span style="font-size:.78rem;font-weight:500;color:${col.color};text-transform:uppercase;letter-spacing:.06em;">${col.label}</span>
+          <span style="background:${col.color};color:#fff;font-size:.7rem;font-weight:600;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${pts.length}</span>
         </div>
-      </div>
-    </div>
-    <div id="alertesZone"></div>
-    <div class="patients-list" id="patientsList"></div>
+        ${pts.map(p => `
+          <div class="kanban-card" onclick="ouvrirDossier('${p.id}')" style="cursor:pointer;">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <div style="width:28px;height:28px;border-radius:50%;background:${p.avatar};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;flex-shrink:0;">${p.prenom[0]+p.nom[0]}</div>
+              <div>
+                <div style="font-size:.82rem;font-weight:500;">${p.prenom} ${p.nom}</div>
+                <div style="font-size:.7rem;color:var(--gray);">${OBJECTIFS.find(o=>o.val===p.objectif)?.label||p.objectif}</div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
 
-    <!-- SUPPORT TICKET ─────────────────────────────────── -->
-    <section class="dashboard-section" style="margin-top:1rem;">
-      <div id="supportWidget_dietitian"></div>
-    </section>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      initSupportWidget('supportWidget_dietitian', 'dietitian');
-    });
-    </script>
-  </main>
+// ── FILTRES ─────────────────────────────────────────────────
+function renderFiltres() {
+  document.getElementById('dietFilters').innerHTML = OBJECTIFS.map(o => `
+    <button class="diet-filter-btn ${filtreActif===o.val?'active':''}"
+      onclick="setFiltre('${o.val}')">${o.icon} ${o.label}</button>
+  `).join('');
+}
 
-  <!-- MODAL ÉDITEUR -->
-  <div id="modalEditeur" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,0.5);padding:32px 1rem;z-index:200;">
-    <div style="background:#fff;border-radius:var(--radius);max-width:820px;margin:0 auto;overflow:hidden;">
-      <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
-        <h3 id="editeurTitre" style="font-family:var(--font-display);font-size:1.15rem;margin:0;"></h3>
-        <button class="btn-back" onclick="fermerEditeur()">✕ Fermer</button>
-      </div>
-      <div style="padding:1.25rem 1.5rem;max-height:78vh;overflow-y:auto;" id="editeurBody"></div>
-      <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:.75rem;justify-content:flex-end;background:#fafafa;">
-        <button class="btn-back" onclick="fermerEditeur()">Annuler</button>
-        <button class="btn-validate" onclick="validerPlan()">✓ Valider et envoyer au patient</button>
-      </div>
-    </div>
-  </div>
+function setFiltre(val) {
+  filtreActif = val;
+  renderFiltres();
+  filterDossiers();
+}
 
-  <!-- MODAL CIQUAL -->
-  <div id="modalCiqual" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,0.65);padding:24px 1rem;z-index:300;">
-    <div style="background:#fff;border-radius:var(--radius);max-width:820px;margin:0 auto;overflow:hidden;">
-      <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <div id="ciqualGroupLabel" style="font-size:0.95rem;font-weight:500;"></div>
-        <button class="btn-back" onclick="fermerCiqual()">✕</button>
-      </div>
-      <div id="ciqualTabs" style="display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--border);padding:0 1rem;background:#fafafa;"></div>
-      <div id="ciqualBody" style="max-height:55vh;overflow-y:auto;"></div>
-    </div>
-  </div>
+// ── DOSSIERS ────────────────────────────────────────────────
+function filterDossiers() {
+  const q = document.getElementById('searchPatient')?.value.toLowerCase() || '';
+  let pts = PATIENTS;
+  if (filtreActif !== 'tous') pts = pts.filter(p => p.objectif === filtreActif);
+  if (q) pts = pts.filter(p =>
+    (p.prenom+' '+p.nom).toLowerCase().includes(q) ||
+    p.ville.toLowerCase().includes(q) ||
+    p.email.toLowerCase().includes(q)
+  );
+  renderDossiers(pts);
+}
 
-  <script src="js/ciqual-data.js"></script>
-  <script src="js/dietitian.js"></script>
-  <script src="js/support.js"></script>
-  
+function renderDossiers(pts) {
+  const STATUS = {
+    a_faire:  { label:'À traiter',  color:'#f59e0b', bg:'#fff8e6' },
+    en_cours: { label:'En cours',   color:'#0ea5e9', bg:'#eff6ff' },
+    valide:   { label:'Validé',     color:'#1D9E75', bg:'#E1F5EE' },
+  };
+  const z = document.getElementById('dossiersList');
+  if (!pts.length) { z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;padding:1rem 0;">Aucun dossier pour ce filtre.</p>'; return; }
+  z.innerHTML = `<div class="diet-dossiers-grid">
+    ${pts.map(p => {
+      const s = STATUS[p.statut_plan] || STATUS.a_faire;
+      const obj = OBJECTIFS.find(o => o.val === p.objectif);
+      return `<div class="diet-dossier-card" onclick="ouvrirDossier('${p.id}')">
+        <div class="diet-dos-header">
+          <div style="width:40px;height:40px;border-radius:50%;background:${p.avatar};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;flex-shrink:0;">${p.prenom[0]+p.nom[0]}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.9rem;font-weight:500;">${p.prenom} ${p.nom} · ${p.age} ans</div>
+            <div style="font-size:.75rem;color:var(--gray);">📍 ${p.ville} · IMC ${p.bmi}</div>
+          </div>
+          <span style="background:${s.bg};color:${s.color};font-size:.68rem;font-weight:500;padding:2px 8px;border-radius:999px;border:1px solid ${s.color}33;white-space:nowrap;">${s.label}</span>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.6rem 0;">
+          <span class="diet-obj-badge">${obj?.icon} ${obj?.label}</span>
+          <span class="diet-obj-badge">📧 ${p.email}</span>
+          <span class="diet-obj-badge">📞 ${p.tel}</span>
+        </div>
+        <div style="font-size:.78rem;color:var(--gray);line-height:1.5;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.25rem;">${p.notes}</div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+          <button class="btn-validate" style="font-size:.78rem;padding:.35rem .85rem;" onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider plan</button>
+          <button class="btn-view"     style="font-size:.78rem;" onclick="event.stopPropagation();">📋 Voir dossier</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function ouvrirDossier(id) {
+  const p = PATIENTS.find(x => x.id === id);
+  if (!p) return;
+  alert(`Dossier de ${p.prenom} ${p.nom}\nObjectif : ${p.objectif}\nNotes : ${p.notes}`);
+}
+
+function validerPlan(id) {
+  const p = PATIENTS.find(x => x.id === id);
+  if (!p) return;
+  p.statut_plan = 'valide';
+  if (typeof Email !== 'undefined') {
+    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: 'Dr. Lemaire', diet_rpps: '10 003 456 789', kcal: 1650, proteines: 130, visio_dispo: true });
+  }
+  renderKanban(); filterDossiers();
+  showToast(`Plan de ${p.prenom} validé ✓`);
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;z-index:2000;';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderKanban();
+  renderFiltres();
+  filterDossiers();
+  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
+});
+</script>
+
+<style>
+.diet-kanban { margin-bottom:.5rem; }
+.kanban-card { background:#fff;border-radius:8px;padding:.6rem .75rem;margin-bottom:.5rem;border:1px solid rgba(0,0,0,.06);transition:box-shadow .15s; }
+.kanban-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.diet-filters { display:flex;gap:.4rem;flex-wrap:wrap; }
+.diet-filter-btn { background:#fff;border:1px solid var(--border);padding:.35rem .8rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);transition:all .15s;color:var(--gray); }
+.diet-filter-btn:hover { border-color:var(--green);color:var(--green); }
+.diet-filter-btn.active { background:var(--green);border-color:var(--green);color:#fff;font-weight:500; }
+.diet-dossiers-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:1rem; }
+.diet-dossier-card { background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;cursor:pointer;transition:box-shadow .2s,border-color .2s; }
+.diet-dossier-card:hover { box-shadow:0 4px 20px rgba(13,32,24,.08);border-color:rgba(29,158,117,.3); }
+.diet-dos-header { display:flex;align-items:center;gap:.65rem; }
+.diet-obj-badge { background:var(--gray-light);color:var(--gray);font-size:.7rem;padding:2px 8px;border-radius:999px; }
+</style>
 </body>
 </html>

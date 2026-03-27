@@ -112,6 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
       await inscrirePatient({ ...bilanData, redflags: flags });
     } else {
       localStorage.setItem('nutridoc_bilan', JSON.stringify(bilanData));
+    // Email confirmation bilan
+    if (typeof Email !== 'undefined') {
+      Email.confirmationBilan(bilanData.email || '', {
+        prenom:  bilanData.prenom || 'Patient',
+        objectif: bilanData.objectif || '',
+        ville:    bilanData.ville || ''
+      });
+    }
     }
 
     document.getElementById('bilanForm').classList.add('hidden');
@@ -131,6 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const alertes = JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]');
       alertes.push({ patient: data.prenom || 'Patient', flags, lu: false, date: new Date().toISOString() });
       localStorage.setItem('nutridoc_alertes', JSON.stringify(alertes));
+    // Email red flag patient
+    if (typeof Email !== 'undefined') {
+      const rf_labels = {grossesse:'Grossesse',tca:'TCA',diabete:'Diabète',insuffisance_renale:'Insuffisance rénale',bariatrique:'Bariatrique',allergies_severes:'Allergies sévères',medicaments:'Médicaments',antecedents:'Antécédents lourds'};
+      Email.redFlagPatient(data.email || '', {
+        prenom: data.prenom,
+        flags_label: flags.map(f => rf_labels[f]||f).join(', ')
+      });
+    }
     } else {
       document.getElementById('resultat').classList.remove('hidden');
     }

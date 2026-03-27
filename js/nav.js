@@ -29,6 +29,7 @@ const NAV_CONFIG = {
     links: [
       { href:'prescripteur-dashboard.html', icon:'🏠', label:'Tableau de bord' },
       { href:'prescripteur-crm.html',       icon:'👥', label:'Mes clients' },
+      { href:'compta-prescripteur.html',    icon:'💶', label:'Comptabilité' },
       { href:'faq.html',                    icon:'❓', label:'FAQ' },
     ]
   },

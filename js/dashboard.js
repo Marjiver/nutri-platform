@@ -406,3 +406,9 @@ function initWithBilan(bilan) {
 
 
 document.addEventListener('DOMContentLoaded', initDashboard);
+
+function demanderChangementDiet() {
+  if (confirm("Voulez-vous demander un changement de diététicien ?\n\nVotre dossier sera transféré à un autre diét. disponible dans votre zone. Cela peut prendre 24h.")) {
+    alert("Demande enregistrée. Vous serez notifié par email dès qu'un nouveau diét. est assigné.");
+  }
+}

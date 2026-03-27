@@ -243,6 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) { showPrescError(error.message || 'Erreur inscription.'); btn.textContent='Créer mon compte →'; btn.disabled=false; return; }
     } else {
       localStorage.setItem('nutridoc_prescripteur', JSON.stringify({ ...payload, credits: parseInt(packSelectionne), statut:'actif' }));
+      if (typeof Email !== 'undefined') {
+        Email.bienvenue(payload.email, { prenom: payload.prenom, role: 'prescriber', credits: packSelectionne });
+      }
     }
 
     form.classList.add('hidden');
