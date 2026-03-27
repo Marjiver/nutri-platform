@@ -3,236 +3,768 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Agenda Visios — NutriDoc</title>
+  <title>Agenda Visios — NutriDoc Diététicien</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
+  <script src="js/nav.js" defer></script>
 </head>
 <body class="page-dietitian">
+
 <header class="header">
   <a href="index.html" class="logo">Nutri<span>Doc</span></a>
   <nav class="nav">
     <a href="dietitian.html" class="nav-link">Dossiers</a>
-    <a href="agenda-dieteticien.html" class="nav-link active">Agenda visios</a>
+    <a href="agenda-dieteticien.html" class="nav-link active">Agenda</a>
     <a href="compta-dieteticien.html" class="nav-link">Comptabilité</a>
   </nav>
-  <span class="user-tag pro">Dr. Lemaire</span>
+  <div style="display:flex;align-items:center;gap:.75rem;">
+    <div class="agenda-legend">
+      <span class="leg-dot" style="background:#1D9E75;"></span>Confirmée
+      <span class="leg-dot" style="background:#f59e0b;margin-left:.5rem;"></span>En attente
+      <span class="leg-dot" style="background:#e5e7eb;margin-left:.5rem;"></span>Disponible
+    </div>
+    <span class="user-tag pro">Dr. Lemaire</span>
+  </div>
 </header>
 
-<main class="dashboard-container">
-  <div class="dashboard-greeting">
-    <h2>Agenda Visios</h2>
-    <p>Définissez vos créneaux disponibles. Les patients réservent directement depuis leur espace.</p>
-  </div>
+<main class="agenda-main">
 
-  <div class="agenda-layout">
-    <!-- Calendrier gauche -->
-    <div class="agenda-calendar-col">
-      <div class="dashboard-section">
-        <div class="section-header-row">
-          <h3 id="agendaMonthTitle"></h3>
-          <div style="display:flex;gap:.5rem;">
-            <button class="btn-back" id="btnPrevMonth" onclick="changeMonth(-1)">‹</button>
-            <button class="btn-back" id="btnNextMonth" onclick="changeMonth(1)">›</button>
-          </div>
-        </div>
-        <div class="agenda-weekdays">
-          <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
-        </div>
-        <div class="agenda-grid" id="agendaGrid"></div>
-      </div>
+  <!-- ── Barre outils ──────────────────────────────── -->
+  <div class="agenda-toolbar">
+    <div class="agenda-toolbar-left">
+      <button class="agenda-btn-today" onclick="goToday()">Aujourd'hui</button>
+      <button class="agenda-nav-btn" onclick="navigate(-1)">‹</button>
+      <button class="agenda-nav-btn" onclick="navigate(1)">›</button>
+      <h2 class="agenda-title" id="agendaTitle"></h2>
     </div>
-
-    <!-- Créneaux droite -->
-    <div class="agenda-slots-col">
-      <div class="dashboard-section">
-        <div class="section-header-row">
-          <h3 id="agendaSlotTitle">Sélectionnez un jour</h3>
-          <button class="btn-validate" id="btnAddSlot" onclick="ajouterCreneau()" style="display:none;">+ Ajouter un créneau</button>
-        </div>
-        <div id="agendaSlots"><p style="color:var(--gray);font-size:.875rem;">Cliquez sur un jour pour gérer les créneaux.</p></div>
+    <div class="agenda-toolbar-right">
+      <div class="agenda-view-tabs">
+        <button class="agenda-view-tab active" id="tabJour"    onclick="setView('day')">Jour</button>
+        <button class="agenda-view-tab"         id="tabSemaine" onclick="setView('week')">Semaine</button>
+        <button class="agenda-view-tab"         id="tabMois"   onclick="setView('month')">Mois</button>
       </div>
-
-      <!-- Prochaines réservations -->
-      <div class="dashboard-section" style="margin-top:0;">
-        <div class="section-header-row"><h3>Prochaines réservations</h3></div>
-        <div id="agendaResas"></div>
-      </div>
-
-      <!-- Lien patient -->
-      <div class="dashboard-section" style="margin-top:0;background:var(--green-light);">
-        <div style="font-size:.875rem;font-weight:500;margin-bottom:.5rem;">Lien de réservation pour vos patients</div>
-        <div style="display:flex;gap:.5rem;align-items:center;">
-          <input type="text" value="https://nutridoc.fr/visio/lemaire" readonly style="flex:1;font-size:.8rem;background:#fff;"/>
-          <button class="btn-view" onclick="copyLink()">Copier</button>
-        </div>
-        <p style="font-size:.75rem;color:var(--gray);margin-top:.5rem;">Partagez ce lien à vos patients pour qu'ils réservent directement.</p>
-      </div>
+      <button class="agenda-btn-add" onclick="openAddSlot()">+ Créneau</button>
     </div>
   </div>
+
+  <!-- ── Vues ─────────────────────────────────────── -->
+  <div class="agenda-body">
+    <div id="viewDay"   class="agenda-view"></div>
+    <div id="viewWeek"  class="agenda-view hidden"></div>
+    <div id="viewMonth" class="agenda-view hidden"></div>
+  </div>
+
+  <!-- ── Stats rapides ────────────────────────────── -->
+  <div class="agenda-stats-row" id="agendaStats"></div>
+
 </main>
 
-<script>
-let currentDate = new Date();
-let selectedDay = null;
+<!-- Tooltip patient -->
+<div class="patient-tooltip" id="patientTooltip"></div>
 
-// Créneaux demo (par date "YYYY-MM-DD" → tableau d'heures)
-const creneaux = {};
-const reservations = [
-  { date:'2025-03-28', heure:'10:00', patient:'Marie D.', statut:'confirmée' },
-  { date:'2025-03-31', heure:'14:30', patient:'Thomas K.', statut:'confirmée' },
-  { date:'2025-04-03', heure:'11:00', patient:'Sophie M.', statut:'en attente' },
+<!-- Modal ajout créneau -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-header">
+      <h3 id="modalTitle">Nouveau créneau</h3>
+      <button class="modal-close" onclick="closeModalForce()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── DONNÉES ─────────────────────────────────────────────────
+const PRIX_VISIO = 55;    // Patient paie
+const REV_DIET   = 49;    // Diét. reçoit
+
+const PATIENTS_DEMO = [
+  { id:'p1', prenom:'Marie',   nom:'Dupont',  age:34, objectif:'Perte de poids', email:'marie.d@mail.fr',  tel:'06 12 34 56 78', avatar:'#1D9E75' },
+  { id:'p2', prenom:'Thomas',  nom:'Klein',   age:28, objectif:'Prise de masse', email:'t.klein@mail.fr',  tel:'06 98 76 54 32', avatar:'#5DCAA5' },
+  { id:'p3', prenom:'Sophie',  nom:'Martin',  age:41, objectif:'Équilibre',      email:'soph.m@mail.fr',   tel:'07 11 22 33 44', avatar:'#97C459' },
+  { id:'p4', prenom:'Lucas',   nom:'Bernard', age:25, objectif:'Sport & perf.',  email:'lucas.b@mail.fr',  tel:'06 55 66 77 88', avatar:'#f59e0b' },
 ];
 
-// Pré-remplir quelques créneaux demo
-const today = new Date();
-['09:00','10:00','11:00','14:00','15:00','16:00'].forEach(h => {
-  const d = new Date(today); d.setDate(d.getDate()+2);
-  const key = d.toISOString().slice(0,10);
-  if (!creneaux[key]) creneaux[key] = [];
-  creneaux[key].push({ heure: h, libre: true });
-});
+// Créneaux: clé = "YYYY-MM-DD_HH:MM" → objet slot
+const slots = {};
 
-function renderCalendar() {
+// Pré-remplir des créneaux démo
+function initDemoSlots() {
+  const today = new Date();
+  const base  = new Date(today);
+  base.setHours(0,0,0,0);
+
+  const add = (offsetDays, hour, min, patientIdx, statut = 'confirme') => {
+    const d = new Date(base);
+    d.setDate(d.getDate() + offsetDays);
+    const key = dateKey(d) + `_${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+    slots[key] = {
+      date:    new Date(d),
+      heure:   `${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}`,
+      duree:   45,
+      patient: patientIdx !== null ? PATIENTS_DEMO[patientIdx] : null,
+      statut,
+      prix:    PRIX_VISIO,
+      notes:   ''
+    };
+  };
+
+  add(0,  9,  0, 0, 'confirme');
+  add(0, 10, 45, 1, 'confirme');
+  add(0, 14,  0, 2, 'attente');
+  add(0, 15, 45, null, 'libre');
+  add(1,  9,  0, 3, 'confirme');
+  add(1, 11,  0, null, 'libre');
+  add(1, 14,  0, null, 'libre');
+  add(1, 15, 45, 0, 'attente');
+  add(2, 10,  0, null, 'libre');
+  add(2, 14, 30, 1, 'confirme');
+  add(3,  9,  0, 2, 'confirme');
+  add(3, 15,  0, null, 'libre');
+  add(-1, 10, 0, 3, 'confirme');
+  add(-1, 14, 0, 0, 'confirme');
+  add(-2,  9, 0, 1, 'confirme');
+  add(-3, 11, 0, 2, 'confirme');
+}
+
+// ── ÉTAT ─────────────────────────────────────────────────────
+let currentView  = 'week';
+let currentDate  = new Date();
+let draggedSlot  = null;
+let dragSource   = null;
+
+function dateKey(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+function slotKey(date, heure) { return dateKey(date) + '_' + heure; }
+function parseDate(dk) {
+  const [y,m,d] = dk.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+const HEURES = [];
+for (let h = 8; h <= 19; h++) {
+  HEURES.push(`${String(h).padStart(2,'0')}:00`);
+  HEURES.push(`${String(h).padStart(2,'0')}:45`);
+}
+const HEURES_DISPLAY = [];
+for (let h = 8; h <= 19; h++) HEURES_DISPLAY.push(`${String(h).padStart(2,'0')}:00`);
+
+const JOURS_COURTS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const MOIS_LONGS   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+// ── COULEURS STATUTS ─────────────────────────────────────────
+const STATUT_COLORS = {
+  confirme:  { bg: '#E1F5EE', border: '#1D9E75', text: '#0f6e56', dot: '#1D9E75', badge:'Confirmée'  },
+  attente:   { bg: '#FFF8E6', border: '#f59e0b', text: '#92400e', dot: '#f59e0b', badge:'En attente' },
+  libre:     { bg: '#F3F4F6', border: '#d1d5db', text: '#6b7280', dot: '#9ca3af', badge:'Disponible' },
+  passe:     { bg: '#F9FAFB', border: '#e5e7eb', text: '#9ca3af', dot: '#d1d5db', badge:'Passée'     },
+};
+
+function getStatut(slot) {
+  const now = new Date();
+  const slotDate = new Date(slot.date);
+  slotDate.setHours(...slot.heure.split(':').map(Number));
+  if (slotDate < now && slot.statut !== 'libre') return 'passe';
+  return slot.statut;
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function render() {
+  updateTitle();
+  updateStats();
+  if (currentView === 'day')   renderDay();
+  if (currentView === 'week')  renderWeek();
+  if (currentView === 'month') renderMonth();
+}
+
+function updateTitle() {
+  const mo = MOIS_LONGS[currentDate.getMonth()];
   const yr = currentDate.getFullYear();
-  const mo = currentDate.getMonth();
-  const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  document.getElementById('agendaMonthTitle').textContent = MOIS[mo] + ' ' + yr;
+  if (currentView === 'day') {
+    const wd = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    document.getElementById('agendaTitle').textContent = wd[currentDate.getDay()] + ' ' + currentDate.getDate() + ' ' + mo + ' ' + yr;
+  } else if (currentView === 'week') {
+    const { start, end } = weekBounds(currentDate);
+    document.getElementById('agendaTitle').textContent = start.getDate() + ' – ' + end.getDate() + ' ' + mo + ' ' + yr;
+  } else {
+    document.getElementById('agendaTitle').textContent = mo + ' ' + yr;
+  }
+}
 
+function updateStats() {
+  const todayKey = dateKey(new Date());
+  const todaySlots = Object.entries(slots).filter(([k]) => k.startsWith(todayKey)).map(([,v]) => v);
+  const confirmes  = todaySlots.filter(s => s.statut === 'confirme').length;
+  const attente    = todaySlots.filter(s => s.statut === 'attente').length;
+  const rev        = confirmes * REV_DIET;
+  // Semaine
+  const { start, end } = weekBounds(new Date());
+  let weekRev = 0, weekCount = 0;
+  Object.entries(slots).forEach(([k, s]) => {
+    const d = parseDate(k.split('_')[0]);
+    if (d >= start && d <= end && s.statut === 'confirme') { weekRev += REV_DIET; weekCount++; }
+  });
+  document.getElementById('agendaStats').innerHTML = `
+    <div class="agenda-stat"><div class="agenda-stat-val">${confirmes}</div><div class="agenda-stat-label">Confirmées aujourd'hui</div></div>
+    <div class="agenda-stat"><div class="agenda-stat-val" style="color:#f59e0b">${attente}</div><div class="agenda-stat-label">En attente aujourd'hui</div></div>
+    <div class="agenda-stat"><div class="agenda-stat-val">${rev} €</div><div class="agenda-stat-label">Revenus aujourd'hui (${REV_DIET}€/visio)</div></div>
+    <div class="agenda-stat"><div class="agenda-stat-val">${weekCount}</div><div class="agenda-stat-label">Visios cette semaine</div></div>
+    <div class="agenda-stat"><div class="agenda-stat-val">${weekRev} €</div><div class="agenda-stat-label">Revenus cette semaine</div></div>
+  `;
+}
+
+// ── VUE JOUR ─────────────────────────────────────────────────
+function renderDay() {
+  const view = document.getElementById('viewDay');
+  const dk   = dateKey(currentDate);
+  view.innerHTML = `
+    <div class="agenda-time-grid">
+      <div class="agenda-time-col">
+        ${HEURES_DISPLAY.map(h => `<div class="agenda-time-label">${h}</div>`).join('')}
+      </div>
+      <div class="agenda-day-col" id="dayCol_${dk}" data-date="${dk}"
+        ondragover="onDragOver(event)" ondrop="onDrop(event,'${dk}')">
+        ${renderTimeSlots(dk)}
+      </div>
+    </div>`;
+  addDropZones();
+}
+
+// ── VUE SEMAINE ───────────────────────────────────────────────
+function renderWeek() {
+  const view = document.getElementById('viewWeek');
+  const { start } = weekBounds(currentDate);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+  view.innerHTML = `
+    <div class="agenda-time-grid agenda-week-grid">
+      <div class="agenda-time-col">
+        <div class="agenda-week-corner"></div>
+        ${HEURES_DISPLAY.map(h => `<div class="agenda-time-label">${h}</div>`).join('')}
+      </div>
+      ${days.map(d => {
+        const dk    = dateKey(d);
+        const today = dateKey(new Date()) === dk;
+        return `
+          <div class="agenda-week-day-col">
+            <div class="agenda-week-header ${today ? 'today' : ''}">
+              <span class="agenda-week-day-name">${JOURS_COURTS[d.getDay() === 0 ? 6 : d.getDay()-1]}</span>
+              <span class="agenda-week-day-num ${today ? 'today-num' : ''}">${d.getDate()}</span>
+            </div>
+            <div class="agenda-day-col" id="dayCol_${dk}" data-date="${dk}"
+              ondragover="onDragOver(event)" ondrop="onDrop(event,'${dk}')">
+              ${renderTimeSlots(dk)}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ── VUE MOIS ──────────────────────────────────────────────────
+function renderMonth() {
+  const view = document.getElementById('viewMonth');
+  const yr   = currentDate.getFullYear();
+  const mo   = currentDate.getMonth();
   const first = new Date(yr, mo, 1);
-  const lastDay = new Date(yr, mo+1, 0).getDate();
-  let startDow = first.getDay(); // 0=dim → transformer en lun=0
+  const last  = new Date(yr, mo+1, 0);
+  let startDow = first.getDay(); // 0=dim
   startDow = startDow === 0 ? 6 : startDow - 1;
 
-  const grid = document.getElementById('agendaGrid');
-  grid.innerHTML = '';
-
-  // Vides début
-  for (let i = 0; i < startDow; i++) {
-    const el = document.createElement('div'); el.className = 'agenda-day empty'; grid.appendChild(el);
-  }
-
-  for (let d = 1; d <= lastDay; d++) {
-    const dateKey = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el = document.createElement('div');
-    el.className = 'agenda-day';
-    el.textContent = d;
-
-    const hasCreneau = creneaux[dateKey]?.length > 0;
-    const hasResa    = reservations.some(r => r.date === dateKey);
-    if (hasCreneau) el.classList.add('has-slot');
-    if (hasResa)    el.classList.add('has-resa');
-
-    const todayKey = new Date().toISOString().slice(0,10);
-    if (dateKey === todayKey)    el.classList.add('today');
-    if (dateKey === selectedDay) el.classList.add('selected');
-    if (dateKey < todayKey)      el.classList.add('past');
-
-    el.onclick = () => selectDay(dateKey, d);
-    grid.appendChild(el);
-  }
-}
-
-function selectDay(dateKey, dayNum) {
-  selectedDay = dateKey;
-  renderCalendar();
-  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-  const d = new Date(dateKey);
-  document.getElementById('agendaSlotTitle').textContent = `Créneaux du ${dayNum} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
-  document.getElementById('btnAddSlot').style.display = '';
-  renderSlots(dateKey);
-}
-
-function renderSlots(dateKey) {
-  const slots = creneaux[dateKey] || [];
-  const resas = reservations.filter(r => r.date === dateKey);
-  const z = document.getElementById('agendaSlots');
-  if (slots.length === 0 && resas.length === 0) {
-    z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;">Aucun créneau ce jour. Cliquez "+ Ajouter" pour en créer.</p>'; return;
-  }
-  z.innerHTML = `<div style="display:flex;flex-direction:column;gap:.4rem;">
-    ${slots.map((s,i) => {
-      const resa = resas.find(r => r.heure === s.heure);
-      return `<div class="agenda-slot-item ${resa ? 'slot-reserved' : ''}">
-        <span class="slot-heure">${s.heure}</span>
-        <span class="slot-status">${resa ? `<strong>${resa.patient}</strong> — ${resa.statut}` : 'Libre'}</span>
-        ${!resa ? `<button class="agenda-slot-del" onclick="supprimerCreneau('${dateKey}',${i})">✕</button>` : ''}
+  let cells = '';
+  // Vides
+  for (let i = 0; i < startDow; i++) cells += `<div class="month-cell month-empty"></div>`;
+  for (let d = 1; d <= last.getDate(); d++) {
+    const date    = new Date(yr, mo, d);
+    const dk      = dateKey(date);
+    const today   = dateKey(new Date()) === dk;
+    const daySlots = Object.entries(slots).filter(([k]) => k.startsWith(dk)).map(([,v]) => v);
+    const nb = daySlots.length;
+    const nbConf  = daySlots.filter(s => s.statut === 'confirme').length;
+    const nbAtt   = daySlots.filter(s => s.statut === 'attente').length;
+    cells += `
+      <div class="month-cell ${today ? 'month-today' : ''}" onclick="goDay(${yr},${mo},${d})">
+        <div class="month-cell-num ${today ? 'today-num' : ''}">${d}</div>
+        ${nb > 0 ? `<div class="month-slots-preview">
+          ${nbConf > 0 ? `<div class="month-slot-dot confirme">${nbConf} visio${nbConf>1?'s':''}</div>` : ''}
+          ${nbAtt  > 0 ? `<div class="month-slot-dot attente">${nbAtt} en att.</div>` : ''}
+          ${nb - nbConf - nbAtt > 0 ? `<div class="month-slot-dot libre">${nb-nbConf-nbAtt} libre${nb-nbConf-nbAtt>1?'s':''}</div>` : ''}
+        </div>` : ''}
       </div>`;
-    }).join('')}
-  </div>`;
-}
+  }
 
-function ajouterCreneau() {
-  const heure = prompt('Heure du créneau (ex: 09:00, 14:30) :');
-  if (!heure || !/^\d{2}:\d{2}$/.test(heure)) { alert('Format invalide. Ex: 09:00'); return; }
-  if (!creneaux[selectedDay]) creneaux[selectedDay] = [];
-  creneaux[selectedDay].push({ heure, libre: true });
-  creneaux[selectedDay].sort((a,b) => a.heure.localeCompare(b.heure));
-  renderSlots(selectedDay); renderCalendar();
-}
-
-function supprimerCreneau(dateKey, idx) {
-  creneaux[dateKey].splice(idx, 1);
-  if (!creneaux[dateKey].length) delete creneaux[dateKey];
-  renderSlots(dateKey); renderCalendar();
-}
-
-function changeMonth(delta) {
-  currentDate.setMonth(currentDate.getMonth() + delta);
-  renderCalendar();
-}
-
-function renderResas() {
-  const z = document.getElementById('agendaResas');
-  const upcoming = reservations.filter(r => r.date >= new Date().toISOString().slice(0,10));
-  if (!upcoming.length) { z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;">Aucune réservation à venir.</p>'; return; }
-  z.innerHTML = upcoming.map(r => `
-    <div class="agenda-resa-item">
-      <div class="resa-dot ${r.statut === 'confirmée' ? 'dot-green' : 'dot-amber'}"></div>
-      <div>
-        <div style="font-size:.875rem;font-weight:500;">${r.patient}</div>
-        <div style="font-size:.78rem;color:var(--gray);">${r.date.split('-').reverse().join('/')} à ${r.heure} — ${r.statut}</div>
+  view.innerHTML = `
+    <div class="month-grid-wrap">
+      <div class="month-weekdays">
+        ${JOURS_COURTS.map(j => `<div class="month-wd">${j}</div>`).join('')}
       </div>
-      <button class="btn-view" style="margin-left:auto;" onclick="rejoindreVisio('${r.patient}')">Rejoindre</button>
-    </div>`).join('');
+      <div class="month-grid">${cells}</div>
+    </div>`;
 }
 
-function rejoindreVisio(patient) { alert('Lancement de la visio avec ' + patient + '...'); }
-function copyLink() { navigator.clipboard?.writeText('https://nutridoc.fr/visio/lemaire'); alert('Lien copié !'); }
+// ── BLOCS CRÉNEAUX ────────────────────────────────────────────
+function renderTimeSlots(dk) {
+  const daySlots = Object.entries(slots)
+    .filter(([k]) => k.startsWith(dk))
+    .map(([k, v]) => ({ key: k, ...v }));
 
-document.addEventListener('DOMContentLoaded', () => { renderCalendar(); renderResas(); });
+  let html = '';
+  HEURES.forEach((h, idx) => {
+    const sk    = dk + '_' + h;
+    const slot  = slots[sk];
+    const top   = idx * 36; // 36px par slot 45min
+
+    if (slot) {
+      const statut  = getStatut(slot);
+      const colors  = STATUT_COLORS[statut];
+      const patient = slot.patient;
+      const initials = patient
+        ? (patient.prenom[0] + patient.nom[0]).toUpperCase()
+        : null;
+      const tooltipData = patient
+        ? `data-patient='${JSON.stringify(patient).replace(/'/g,"&#39;")}'`
+        : '';
+
+      html += `
+        <div class="agenda-slot-block ${statut}"
+          style="top:${top}px;background:${colors.bg};border-color:${colors.border};"
+          draggable="true"
+          ondragstart="onDragStart(event,'${sk}')"
+          ondragend="onDragEnd()"
+          onmouseenter="showTooltip(event,'${sk}')"
+          onmouseleave="hideTooltip()"
+          onclick="openEditSlot('${sk}')"
+          ${tooltipData}>
+          <div class="slot-block-inner">
+            ${patient ? `
+              <div class="slot-avatar" style="background:${patient.avatar};color:#fff;">${initials}</div>
+              <div class="slot-info">
+                <div class="slot-name">${patient.prenom} ${patient.nom}</div>
+                <div class="slot-meta">${slot.heure} · 45 min · ${PRIX_VISIO}€</div>
+              </div>` : `
+              <div class="slot-info">
+                <div class="slot-name libre">Créneau libre</div>
+                <div class="slot-meta">${slot.heure} · 45 min</div>
+              </div>`}
+            <div class="slot-status-badge" style="background:${colors.border};color:#fff;">${colors.badge}</div>
+          </div>
+        </div>`;
+    } else {
+      // Zone de dépôt vide
+      html += `
+        <div class="agenda-drop-zone"
+          style="top:${top}px;"
+          data-date="${dk}"
+          data-heure="${h}"
+          ondragover="onDragOver(event)"
+          ondrop="onDrop(event,'${dk}','${h}')"
+          onclick="openAddSlotAt('${dk}','${h}')">
+          <span class="drop-zone-hint">+ ${h}</span>
+        </div>`;
+    }
+  });
+  return html;
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────
+function onDragStart(e, key) {
+  draggedSlot  = key;
+  dragSource   = key;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '.45';
+}
+function onDragEnd() {
+  document.querySelectorAll('.agenda-slot-block').forEach(el => el.style.opacity = '');
+  document.querySelectorAll('.agenda-drop-zone').forEach(el => el.classList.remove('drag-over'));
+}
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (e.currentTarget.classList.contains('agenda-drop-zone'))
+    e.currentTarget.classList.add('drag-over');
+}
+function onDrop(e, dk, heure) {
+  e.preventDefault();
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (!draggedSlot) return;
+
+  const source   = slots[draggedSlot];
+  if (!source)   return;
+
+  // Nouvelle clé
+  const newHeure = heure || e.currentTarget.dataset.heure || source.heure;
+  const newDk    = dk;
+  const newKey   = newDk + '_' + newHeure;
+
+  if (newKey === draggedSlot) { draggedSlot = null; return; }
+  if (slots[newKey] && slots[newKey].statut !== 'libre') {
+    showNotif('Ce créneau est déjà occupé.', 'error');
+    draggedSlot = null; return;
+  }
+
+  slots[newKey] = { ...source, date: parseDate(newDk), heure: newHeure };
+  delete slots[draggedSlot];
+  draggedSlot = null;
+  render();
+  showNotif('Créneau déplacé avec succès.', 'success');
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+let tooltipTimeout;
+function showTooltip(e, key) {
+  const slot = slots[key];
+  if (!slot) return;
+  clearTimeout(tooltipTimeout);
+  tooltipTimeout = setTimeout(() => {
+    const p   = slot.patient;
+    const tt  = document.getElementById('patientTooltip');
+    const statut = getStatut(slot);
+    const colors = STATUT_COLORS[statut];
+    tt.innerHTML = p ? `
+      <div class="tt-header" style="border-left:3px solid ${p.avatar};">
+        <div class="tt-avatar" style="background:${p.avatar}">${p.prenom[0]+p.nom[0]}</div>
+        <div>
+          <div class="tt-name">${p.prenom} ${p.nom}</div>
+          <div class="tt-age">${p.age} ans · ${p.objectif}</div>
+        </div>
+      </div>
+      <div class="tt-detail"><span>📧</span>${p.email}</div>
+      <div class="tt-detail"><span>📞</span>${p.tel}</div>
+      <div class="tt-detail"><span>⏱</span>${slot.heure} · 45 min</div>
+      <div class="tt-detail"><span>💶</span>${PRIX_VISIO} € patient · ${REV_DIET} € reversé</div>
+      <div class="tt-badge" style="background:${colors.bg};color:${colors.text};border:1px solid ${colors.border};">${colors.badge}</div>
+    ` : `
+      <div class="tt-name">Créneau disponible</div>
+      <div class="tt-detail"><span>⏱</span>${slot.heure} · 45 min</div>
+      <div class="tt-detail"><span>💶</span>${PRIX_VISIO} € · Réservable par un patient</div>
+    `;
+    const rect = e.currentTarget.getBoundingClientRect();
+    tt.style.left = Math.min(rect.right + 10, window.innerWidth - 260) + 'px';
+    tt.style.top  = Math.max(rect.top - 20, 10) + 'px';
+    tt.classList.add('visible');
+  }, 200);
+}
+function hideTooltip() {
+  clearTimeout(tooltipTimeout);
+  document.getElementById('patientTooltip').classList.remove('visible');
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function openAddSlot() {
+  const dk = dateKey(currentDate);
+  openAddSlotAt(dk, '09:00');
+}
+function openAddSlotAt(dk, heure) {
+  document.getElementById('modalTitle').textContent = 'Nouveau créneau';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="mDate" value="${dk}" style="width:100%"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Heure de début</label>
+        <select id="mHeure" style="width:100%" class="calc-select">
+          ${HEURES.map(h => `<option value="${h}" ${h===heure?'selected':''}>${h}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Durée</label>
+        <select id="mDuree" class="calc-select" style="width:100%">
+          <option value="45" selected>45 min (standard)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Patient (optionnel)</label>
+      <select id="mPatient" class="calc-select" style="width:100%">
+        <option value="">— Créneau libre —</option>
+        ${PATIENTS_DEMO.map(p => `<option value="${p.id}">${p.prenom} ${p.nom}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Statut</label>
+      <select id="mStatut" class="calc-select" style="width:100%">
+        <option value="libre">Disponible</option>
+        <option value="confirme">Confirmée</option>
+        <option value="attente">En attente</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes internes</label>
+      <textarea id="mNotes" placeholder="Notes visibles uniquement par vous..." style="min-height:50px;width:100%;"></textarea>
+    </div>
+    <div class="form-group" style="background:#f9fafb;padding:.75rem;border-radius:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;">
+        <span style="color:var(--gray);">Prix patient</span><strong>${PRIX_VISIO} €</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-top:4px;">
+        <span style="color:var(--gray);">Votre rémunération</span><strong style="color:var(--green);">${REV_DIET} €</strong>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:1rem;">
+      <button class="btn-validate" onclick="saveSlot()">Enregistrer</button>
+      <button class="btn-back" onclick="closeModalForce()">Annuler</button>
+    </div>`;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+function openEditSlot(key) {
+  const slot = slots[key];
+  if (!slot) return;
+  document.getElementById('modalTitle').textContent = 'Modifier le créneau';
+  document.getElementById('modalBody').innerHTML = `
+    <input type="hidden" id="mEditKey" value="${key}"/>
+    <div class="form-group">
+      <label>Heure</label>
+      <select id="mHeure" class="calc-select" style="width:100%">
+        ${HEURES.map(h => `<option value="${h}" ${h===slot.heure?'selected':''}>${h}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Patient</label>
+      <select id="mPatient" class="calc-select" style="width:100%">
+        <option value="">— Créneau libre —</option>
+        ${PATIENTS_DEMO.map(p => `<option value="${p.id}" ${slot.patient?.id===p.id?'selected':''}>${p.prenom} ${p.nom}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Statut</label>
+      <select id="mStatut" class="calc-select" style="width:100%">
+        ${['libre','confirme','attente'].map(s => `<option value="${s}" ${slot.statut===s?'selected':''}>${{libre:'Disponible',confirme:'Confirmée',attente:'En attente'}[s]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="mNotes" style="min-height:50px;width:100%;">${slot.notes||''}</textarea>
+    </div>
+    ${slot.patient ? `
+      <div style="background:var(--green-light);border-radius:8px;padding:.75rem;font-size:.82rem;">
+        <strong>Rejoindre la visio</strong><br>
+        <a href="#" style="color:var(--green);">https://meet.nutridoc.fr/${slot.patient.id}</a>
+      </div>` : ''}
+    <div class="btn-row" style="margin-top:1rem;justify-content:space-between;">
+      <button class="btn-submit" style="background:#ef4444;border-color:#ef4444;font-size:.8rem;" onclick="deleteSlot('${key}')">Supprimer</button>
+      <div style="display:flex;gap:.5rem;">
+        <button class="btn-validate" onclick="updateSlot()">Enregistrer</button>
+        <button class="btn-back" onclick="closeModalForce()">Annuler</button>
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+function saveSlot() {
+  const dk      = document.getElementById('mDate')?.value    || dateKey(currentDate);
+  const heure   = document.getElementById('mHeure').value;
+  const patId   = document.getElementById('mPatient').value;
+  const statut  = document.getElementById('mStatut').value;
+  const notes   = document.getElementById('mNotes').value;
+  const patient = patId ? PATIENTS_DEMO.find(p => p.id === patId) : null;
+  const key     = dk + '_' + heure;
+  slots[key] = { date: parseDate(dk), heure, duree: 45, patient, statut, notes, prix: PRIX_VISIO };
+  closeModalForce(); render();
+  showNotif('Créneau ajouté.', 'success');
+}
+function updateSlot() {
+  const key     = document.getElementById('mEditKey').value;
+  const heure   = document.getElementById('mHeure').value;
+  const patId   = document.getElementById('mPatient').value;
+  const statut  = document.getElementById('mStatut').value;
+  const notes   = document.getElementById('mNotes').value;
+  const patient = patId ? PATIENTS_DEMO.find(p => p.id === patId) : null;
+  const dk      = key.split('_')[0];
+  const newKey  = dk + '_' + heure;
+  if (newKey !== key) delete slots[key];
+  slots[newKey] = { ...slots[key], heure, patient, statut, notes };
+  closeModalForce(); render();
+  showNotif('Créneau mis à jour.', 'success');
+}
+function deleteSlot(key) {
+  if (!confirm('Supprimer ce créneau ?')) return;
+  delete slots[key];
+  closeModalForce(); render();
+  showNotif('Créneau supprimé.', 'error');
+}
+
+function closeModal(e) { if (e.target.id === 'modalOverlay') closeModalForce(); }
+function closeModalForce() { document.getElementById('modalOverlay').classList.add('hidden'); }
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function navigate(delta) {
+  if (currentView === 'day')   currentDate.setDate(currentDate.getDate() + delta);
+  if (currentView === 'week')  currentDate.setDate(currentDate.getDate() + delta * 7);
+  if (currentView === 'month') currentDate.setMonth(currentDate.getMonth() + delta);
+  render();
+}
+function goToday() { currentDate = new Date(); render(); }
+function goDay(yr, mo, d) { currentDate = new Date(yr, mo, d); setView('day'); }
+
+function setView(v) {
+  currentView = v;
+  ['day','week','month'].forEach(vv => {
+    document.getElementById('view' + vv.charAt(0).toUpperCase() + vv.slice(1)).classList.toggle('hidden', vv !== v);
+    document.getElementById('tab' + { day:'Jour', week:'Semaine', month:'Mois' }[vv]).classList.toggle('active', vv === v);
+  });
+  render();
+}
+
+function weekBounds(d) {
+  const dow   = d.getDay();
+  const diff  = dow === 0 ? -6 : 1 - dow;
+  const start = new Date(d); start.setDate(d.getDate() + diff); start.setHours(0,0,0,0);
+  const end   = new Date(start); end.setDate(start.getDate() + 6);
+  return { start, end };
+}
+
+function addDropZones() {} // zones déjà dans renderTimeSlots
+
+// ── NOTIF TOAST ───────────────────────────────────────────────
+function showNotif(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = 'agenda-toast ' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('visible'), 10);
+  setTimeout(() => { el.classList.remove('visible'); setTimeout(() => el.remove(), 300); }, 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initDemoSlots();
+  setView('week');
+});
 </script>
 
 <style>
-.agenda-layout { display:grid;grid-template-columns:1fr 1.2fr;gap:1.5rem; }
-.agenda-weekdays { display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px; }
-.agenda-weekdays span { text-align:center;font-size:.7rem;color:var(--gray);font-weight:500;padding:4px 0; }
-.agenda-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:3px; }
-.agenda-day {
-  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
-  font-size:.85rem;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;
-  position:relative;
+/* ── Layout principal ── */
+.agenda-main { display:flex;flex-direction:column;gap:1rem;padding:1rem 1.5rem;min-height:calc(100vh - 70px); }
+
+/* ── Toolbar ── */
+.agenda-toolbar { display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:#fff;border:1px solid var(--border);border-radius:var(--radius);flex-wrap:wrap;gap:.75rem; }
+.agenda-toolbar-left,.agenda-toolbar-right { display:flex;align-items:center;gap:.5rem; }
+.agenda-btn-today { background:var(--dark);color:#fff;border:none;padding:.4rem .9rem;border-radius:6px;font-size:.82rem;cursor:pointer;font-family:var(--font-body);transition:background .2s; }
+.agenda-btn-today:hover { background:var(--green); }
+.agenda-nav-btn { background:#fff;border:1px solid var(--border);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s; }
+.agenda-nav-btn:hover { background:var(--green-light); }
+.agenda-title { font-family:var(--font-display);font-size:1.1rem;color:var(--dark);margin:0 .5rem; }
+.agenda-view-tabs { display:flex;background:var(--gray-light);border-radius:8px;padding:2px;gap:2px; }
+.agenda-view-tab { background:transparent;border:none;padding:.35rem .9rem;border-radius:6px;font-size:.8rem;cursor:pointer;color:var(--gray);font-family:var(--font-body);transition:background .15s,color .15s; }
+.agenda-view-tab.active { background:#fff;color:var(--dark);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.agenda-btn-add { background:var(--green);color:#fff;border:none;padding:.4rem 1rem;border-radius:999px;font-size:.82rem;cursor:pointer;font-family:var(--font-body);transition:background .2s,transform .15s; }
+.agenda-btn-add:hover { background:var(--green2);transform:translateY(-1px); }
+.agenda-legend { display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--gray); }
+.leg-dot { width:8px;height:8px;border-radius:50%;display:inline-block; }
+
+/* ── Corps de l'agenda ── */
+.agenda-body { flex:1;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:auto; }
+.agenda-view { min-height:600px; }
+
+/* ── Grille horaire ── */
+.agenda-time-grid { display:flex;min-height:600px; }
+.agenda-week-grid { display:flex; }
+.agenda-time-col { width:52px;flex-shrink:0;padding-top:4px; }
+.agenda-week-corner { height:52px; }
+.agenda-time-label { height:72px;display:flex;align-items:flex-start;justify-content:flex-end;padding-right:8px;font-size:.68rem;color:var(--gray);padding-top:4px; }
+
+/* ── Colonnes jours ── */
+.agenda-day-col { flex:1;position:relative;min-height:720px;border-left:1px solid var(--border); }
+.agenda-week-day-col { flex:1;display:flex;flex-direction:column;min-width:0; }
+.agenda-week-header { display:flex;flex-direction:column;align-items:center;padding:.5rem .25rem;border-bottom:2px solid var(--border);border-left:1px solid var(--border);height:52px;justify-content:center; }
+.agenda-week-header.today { background:var(--green-light);border-bottom-color:var(--green); }
+.agenda-week-day-name { font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em; }
+.agenda-week-day-num { font-size:1.1rem;font-weight:500;color:var(--dark);line-height:1; }
+.agenda-week-day-num.today-num { background:var(--green);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem; }
+
+/* Ligne heure */
+.agenda-day-col::before { content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-image:repeating-linear-gradient(to bottom,transparent 0px,transparent 71px,rgba(0,0,0,.05) 71px,rgba(0,0,0,.05) 72px); }
+
+/* ── Blocs créneaux ── */
+.agenda-slot-block {
+  position:absolute;left:4px;right:4px;height:64px;
+  border:1.5px solid;border-radius:8px;
+  cursor:grab;transition:opacity .15s,transform .15s,box-shadow .15s;
+  z-index:2;
 }
-.agenda-day:not(.empty):not(.past):hover { background:var(--green-light);color:var(--green); }
-.agenda-day.today { font-weight:500;color:var(--green);background:var(--green-light); }
-.agenda-day.selected { background:var(--green)!important;color:#fff!important; }
-.agenda-day.past { color:#ccc;cursor:default; }
-.agenda-day.has-slot::after { content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green); }
-.agenda-day.has-resa::after { background:#f59e0b; }
-.agenda-day.empty { cursor:default; }
-.agenda-slot-item { display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff; }
-.agenda-slot-item.slot-reserved { background:var(--green-light);border-color:#9FE1CB; }
-.slot-heure { font-weight:500;font-size:.875rem;min-width:40px; }
-.slot-status { font-size:.82rem;color:var(--gray);flex:1; }
-.slot-status strong { color:var(--dark); }
-.agenda-slot-del { background:none;border:none;color:#ccc;cursor:pointer;font-size:.75rem;transition:color .15s; }
-.agenda-slot-del:hover { color:#ef4444; }
-.agenda-resa-item { display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-bottom:1px solid var(--border); }
-.resa-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
-.dot-green { background:var(--green); }
-.dot-amber { background:#f59e0b; }
-@media(max-width:900px){ .agenda-layout{grid-template-columns:1fr;} }
+.agenda-slot-block:hover { transform:scale(1.01);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:10; }
+.agenda-slot-block:active { cursor:grabbing; }
+.slot-block-inner { display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;height:100%; }
+.slot-avatar { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;flex-shrink:0; }
+.slot-info { flex:1;min-width:0; }
+.slot-name { font-size:.78rem;font-weight:500;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.slot-name.libre { color:var(--gray); }
+.slot-meta { font-size:.68rem;color:var(--gray);margin-top:1px; }
+.slot-status-badge { font-size:.62rem;font-weight:500;padding:2px 6px;border-radius:999px;white-space:nowrap;flex-shrink:0; }
+
+/* ── Drop zones ── */
+.agenda-drop-zone {
+  position:absolute;left:4px;right:4px;height:64px;
+  border:1.5px dashed transparent;border-radius:8px;
+  transition:border-color .15s,background .15s;
+  z-index:1;cursor:pointer;display:flex;align-items:center;
+}
+.agenda-drop-zone:hover,.agenda-drop-zone.drag-over { border-color:var(--green);background:rgba(29,158,117,.06); }
+.drop-zone-hint { font-size:.68rem;color:transparent;padding-left:.6rem;transition:color .15s; }
+.agenda-drop-zone:hover .drop-zone-hint,.agenda-drop-zone.drag-over .drop-zone-hint { color:var(--green); }
+
+/* ── Vue mois ── */
+.month-grid-wrap { padding:.5rem; }
+.month-weekdays { display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:.25rem; }
+.month-wd { text-align:center;font-size:.7rem;font-weight:500;color:var(--gray);padding:.25rem;text-transform:uppercase;letter-spacing:.05em; }
+.month-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px; }
+.month-cell { min-height:80px;border:1px solid var(--border);border-radius:6px;padding:.4rem .5rem;cursor:pointer;transition:background .15s; }
+.month-cell:hover { background:var(--green-light); }
+.month-cell.month-empty { border-color:transparent;cursor:default; }
+.month-cell.month-today { border-color:var(--green);border-width:2px; }
+.month-cell-num { font-size:.82rem;font-weight:500;color:var(--dark);margin-bottom:.3rem; }
+.today-num { background:var(--green);color:#fff !important;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem; }
+.month-slots-preview { display:flex;flex-direction:column;gap:2px; }
+.month-slot-dot { font-size:.65rem;padding:1px 6px;border-radius:4px;font-weight:500; }
+.month-slot-dot.confirme { background:#E1F5EE;color:#0f6e56; }
+.month-slot-dot.attente  { background:#FFF8E6;color:#92400e; }
+.month-slot-dot.libre    { background:#F3F4F6;color:#6b7280; }
+
+/* ── Stats ── */
+.agenda-stats-row { display:flex;gap:1rem;flex-wrap:wrap; }
+.agenda-stat { background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem 1rem;flex:1;min-width:120px; }
+.agenda-stat-val { font-family:var(--font-display);font-size:1.5rem;color:var(--green);line-height:1; }
+.agenda-stat-label { font-size:.72rem;color:var(--gray);margin-top:2px; }
+
+/* ── Tooltip ── */
+.patient-tooltip {
+  position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);
+  border-radius:12px;padding:1rem;width:240px;box-shadow:0 8px 32px rgba(0,0,0,.12);
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.patient-tooltip.visible { opacity:1; }
+.tt-header { display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;padding-left:.5rem; }
+.tt-avatar { width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:#fff;flex-shrink:0; }
+.tt-name { font-size:.875rem;font-weight:500;color:var(--dark); }
+.tt-age  { font-size:.72rem;color:var(--gray); }
+.tt-detail { display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--gray);padding:.2rem 0; }
+.tt-detail span { font-size:12px; }
+.tt-badge { font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:999px;margin-top:.4rem;display:inline-block; }
+
+/* ── Modal ── */
+.modal-overlay { position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:60px 1rem; }
+.modal-box { background:#fff;border-radius:var(--radius);width:100%;max-width:440px; }
+.modal-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border); }
+.modal-header h3 { font-family:var(--font-display);font-size:1.1rem;margin:0; }
+.modal-close { background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--gray);transition:color .15s; }
+.modal-close:hover { color:var(--dark); }
+.modal-body { padding:1.25rem;max-height:70vh;overflow-y:auto; }
+
+/* ── Toast ── */
+.agenda-toast { position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;opacity:0;transition:opacity .25s,transform .25s;z-index:2000;pointer-events:none; }
+.agenda-toast.success { background:var(--green); }
+.agenda-toast.error   { background:#ef4444; }
+.agenda-toast.visible { opacity:1;transform:translateX(-50%) translateY(0); }
 </style>
 </body>
 </html>

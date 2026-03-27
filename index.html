@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
+  <script src="js/nav.js" defer></script>
 </head>
 <body>
 
@@ -418,5 +419,14 @@
 </footer>
 
 <script src="js/home.js"></script>
+  
+
+<button class="scroll-top-btn" id="scrollTopBtn" title="Retour en haut" aria-label="Retour en haut de page" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+window.addEventListener('scroll',()=>{
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY>300);
+},{passive:true});
+</script>
+
 </body>
 </html>

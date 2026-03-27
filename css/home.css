@@ -122,6 +122,7 @@ a{text-decoration:none;color:inherit}
 .nd-hero-content{
   position:relative;z-index:2;flex:1;min-width:0;
   padding:8rem 0 4rem;max-width:580px;
+  opacity:1;
 }
 .nd-hero-eyebrow{
   display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;
@@ -173,7 +174,7 @@ a{text-decoration:none;color:inherit}
   background:rgba(255,255,255,.06);border:1px solid rgba(29,158,117,.25);
   border-radius:16px;backdrop-filter:blur(20px);
   padding:1.25rem;position:absolute;
-  animation:floatCard 6s ease-in-out infinite;
+  animation:floatCard 8s ease-in-out infinite;
 }
 .nd-mc-1{top:0;left:0;right:0;animation-delay:0s}
 .nd-mc-2{top:265px;left:0;width:150px;animation-delay:.8s}
@@ -380,4 +381,45 @@ a{text-decoration:none;color:inherit}
   .nd-footer-inner{grid-template-columns:1fr;gap:2rem}
   .nd-footer-links{grid-template-columns:1fr 1fr}
   .nd-hero-content{padding:7rem 0 3rem}
+}
+
+/* ── RESPONSIVE home.css ── */
+/* Breakpoints : sm=480 md=768 lg=1024 */
+
+@media(max-width:1100px){
+  .nd-hero-mockup{ flex:0 0 280px; }
+}
+@media(max-width:960px){
+  .nd-hero-mockup{ display:none }
+  .nd-hero{ padding:0 clamp(1rem,4vw,2rem); }
+  .nd-diff-grid{ grid-template-columns:1fr 1fr; }
+  .nd-pro-pricing-grid{ grid-template-columns:1fr; }
+}
+@media(max-width:768px){
+  .nd-header{ padding:.75rem 1rem; }
+  .nd-nav{ display:none; }
+  .nd-hero{
+    flex-direction:column; justify-content:center;
+    padding:0 1rem; min-height:auto; padding-top:60px;
+  }
+  .nd-hero-content{ padding:4rem 0 2rem; max-width:100%; }
+  .nd-hero-title{ font-size:clamp(2rem,7vw,3rem); }
+  .nd-steps{ grid-template-columns:1fr; gap:1rem; }
+  .nd-step-arrow{ display:none; }
+  .nd-diff-grid{ grid-template-columns:1fr; }
+  .nd-pricing-row{ grid-template-columns:1fr; }
+  .nd-pros-grid{ grid-template-columns:1fr; }
+  .nd-pro-pricing-grid{ grid-template-columns:1fr; }
+  .nd-footer-inner{ grid-template-columns:1fr; gap:1.5rem; }
+  .nd-footer-links{ grid-template-columns:1fr 1fr; }
+  .nd-section-inner{ padding:3rem 1rem; }
+}
+@media(max-width:480px){
+  .nd-hero-title{ font-size:clamp(1.8rem,8vw,2.5rem); }
+  .nd-hero-trust{ flex-wrap:wrap; gap:.75rem; }
+  .nd-hero-ctas{ flex-direction:column; align-items:flex-start; gap:.75rem; }
+  .nd-cta-main{ width:100%; justify-content:center; }
+  .nd-footer-links{ grid-template-columns:1fr; }
+  .nd-price-card{ padding:1.5rem 1rem; }
+  .nd-pro-card{ padding:1.5rem 1rem; }
 }
