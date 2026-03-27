@@ -42,21 +42,21 @@ const STRIPE_PRODUCTS = {
     currency:    'eur',
   },
   credits_decouverte: {
-    name:        'Pack Découverte — 10 crédits NutriDoc Pro',
-    description: '10 plans alimentaires validés · 4,90 € HT / plan',
-    amount:      5880,   // 49€ HT × 1,20 TVA = 58,80€ TTC
+    name:        'Pack Solo — 1 plan NutriDoc Pro',
+    description: '10 plans alimentaires validés · 20 € / plan',
+    amount:      2400,   // 49€ HT × 1,20 TVA = 58,80€ TTC
     currency:    'eur',
   },
   credits_pro: {
-    name:        'Pack Pro — 20 crédits NutriDoc Pro',
-    description: '20 plans alimentaires validés · 4,45 € HT / plan',
-    amount:      10680,  // 89€ HT × 1,20 = 106,80€ TTC
+    name:        'Pack Équipe — 10 plans NutriDoc Pro',
+    description: '20 plans alimentaires validés · 18 € / plan',
+    amount:      21600,  // 89€ HT × 1,20 = 106,80€ TTC
     currency:    'eur',
   },
   credits_volume: {
-    name:        'Pack Volume — 50 crédits NutriDoc Pro',
-    description: '50 plans alimentaires validés · 4,38 € HT / plan',
-    amount:      26280,  // 219€ HT × 1,20 = 262,80€ TTC
+    name:        'Pack Clinique — 20 plans NutriDoc Pro',
+    description: '50 plans alimentaires validés · 17 € / plan',
+    amount:      40800,  // 219€ HT × 1,20 = 262,80€ TTC
     currency:    'eur',
   },
 };
@@ -104,16 +104,16 @@ const StripeCheckout = {
    * Prescripteur — acheter un pack de crédits
    * @param {'decouverte'|'pro'|'volume'} pack
    */
-  async acheterCredits(pack = 'pro') {
+  async acheterPack(pack = 'pack_dix') {
     const user = getCurrentUser();
-    const CREDITS_MAP = { decouverte: 10, pro: 20, volume: 50 };
-    return this._checkout(`credits_${pack}`, {
-      type:               'credits',
+    const PLANS_MAP = { pack_solo: 1, pack_dix: 10, pack_vingt: 20, pack_cinquante: 50 };
+    return this._checkout(pack, {
+      type:               'pack_plans',
       prescriber_id:      user?.id     ?? 'demo',
       prescriber_email:   user?.email  ?? '',
       prescriber_prenom:  user?.prenom ?? '',
       pack,
-      credits:            String(CREDITS_MAP[pack] ?? 10),
+      nb_plans:           String(PLANS_MAP[pack] ?? 1),
     });
   },
 
@@ -170,9 +170,10 @@ const StripeCheckout = {
     const LABELS = {
       plan:               '✓ Plan alimentaire commandé (24,90€) — démo',
       visio:              '✓ Visio réservée (55€) — démo',
-      credits_decouverte: '✓ 10 crédits ajoutés (49€ HT) — démo',
-      credits_pro:        '✓ 20 crédits ajoutés (89€ HT) — démo',
-      credits_volume:     '✓ 50 crédits ajoutés (219€ HT) — démo',
+      pack_solo:          '✓ 1 plan commandé (20€) — démo',
+      pack_dix:           '✓ 10 plans commandés (180€) — démo',
+      pack_vingt:         '✓ 20 plans commandés (340€) — démo',
+      pack_cinquante:     '✓ 50 plans commandés (840€) — démo',
     };
 
     // Sauvegarder en local pour la démo

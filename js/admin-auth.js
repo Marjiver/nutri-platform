@@ -1,80 +1,156 @@
-/**
- * admin-auth.js — Protection de la page admin par mot de passe
- * Seul l'administrateur CaliDoc Santé peut accéder à admin.html
- */
-(function() {
-  const ADMIN_KEY   = 'nutridoc_admin_ok';
-  const SESSION_TTL = 8 * 3600000; // 8h
+/* admin-auth.js — NutriDoc · Protection page admin */
+(function () {
+  const SESSION_KEY = 'nd_admin';
+  const SESSION_TTL = 8 * 60 * 60 * 1000; // 8h
 
-  // Vérifier si déjà authentifié
-  const stored = sessionStorage.getItem(ADMIN_KEY);
-  if (stored) {
-    const { ts } = JSON.parse(stored);
-    if (Date.now() - ts < SESSION_TTL) return; // OK
-    sessionStorage.removeItem(ADMIN_KEY);
+  /* ── Vérifier si déjà authentifié ──────────────────────── */
+  function estConnecte() {
+    try {
+      var s = sessionStorage.getItem(SESSION_KEY);
+      if (!s) return false;
+      return (Date.now() - JSON.parse(s).ts) < SESSION_TTL;
+    } catch (e) { return false; }
   }
 
-  // Masquer le contenu pendant la vérification
-  document.documentElement.style.visibility = 'hidden';
+  if (estConnecte()) return; // rien à faire
 
-  // Créer la modale de connexion
-  const overlay = document.createElement('div');
-  overlay.innerHTML = `
-    <div style="
-      position:fixed;inset:0;background:#0d2018;
-      display:flex;align-items:center;justify-content:center;
-      z-index:99999;font-family:'DM Sans',system-ui,sans-serif;">
-      <div style="background:#fff;border-radius:16px;padding:2.5rem;width:340px;box-shadow:0 24px 64px rgba(0,0,0,.4);">
-        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.5rem;color:#0d2018;margin-bottom:.25rem;">
-          Nutri<em style="font-style:italic;color:#1D9E75;">Doc</em>
-        </div>
-        <div style="font-size:.75rem;color:#6b7b74;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:.08em;">
-          Administration · Accès restreint
-        </div>
-        <div style="margin-bottom:1rem;">
-          <label style="font-size:.78rem;color:#6b7b74;display:block;margin-bottom:.3rem;">Identifiant</label>
-          <input id="adminUser" type="text" placeholder="admin"
-            style="width:100%;border:1px solid #e8edeb;border-radius:8px;padding:.6rem .8rem;font-size:.9rem;font-family:inherit;"/>
-        </div>
-        <div style="margin-bottom:1.25rem;">
-          <label style="font-size:.78rem;color:#6b7b74;display:block;margin-bottom:.3rem;">Mot de passe</label>
-          <input id="adminPwd" type="password" placeholder="••••••••"
-            style="width:100%;border:1px solid #e8edeb;border-radius:8px;padding:.6rem .8rem;font-size:.9rem;font-family:inherit;"
-            onkeydown="if(event.key==='Enter') document.getElementById('adminLoginBtn').click()"/>
-        </div>
-        <div id="adminErr" style="color:#ef4444;font-size:.78rem;margin-bottom:.75rem;display:none;">
-          Identifiants incorrects.
-        </div>
-        <button id="adminLoginBtn"
-          style="width:100%;background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.7rem;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit;">
-          Connexion
-        </button>
-        <div style="text-align:center;margin-top:.75rem;">
-          <a href="index.html" style="font-size:.75rem;color:#6b7b74;">← Retour à l'accueil</a>
-        </div>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  document.documentElement.style.visibility = 'visible';
+  /* ── Masquer le contenu admin ───────────────────────────── */
+  var style = document.createElement('style');
+  style.id = 'nd-admin-hide';
+  style.textContent = '.admin-layout { display: none !important; } .sidebar { display: none !important; } .main-content { display: none !important; }';
+  document.head.appendChild(style);
 
-  setTimeout(() => document.getElementById('adminUser')?.focus(), 100);
+  /* ── Créer la modale de connexion ───────────────────────── */
+  function creerModale() {
+    var overlay = document.createElement('div');
+    overlay.id = 'nd-admin-login';
+    overlay.style.cssText = 'position:fixed;inset:0;background:#0d2018;display:flex;align-items:center;justify-content:center;z-index:99999;';
 
-  document.getElementById('adminLoginBtn').onclick = function() {
-    const user = document.getElementById('adminUser').value.trim();
-    const pwd  = document.getElementById('adminPwd').value;
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#ffffff;border-radius:16px;padding:40px;width:360px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,.6);';
 
-    // ⚠ En production : remplacer par une vérification via Supabase Auth
-    // Identifiants par défaut — À CHANGER avant mise en ligne
-    const ADMIN_USER = 'calidoc';
-    const ADMIN_PASS = 'NutriDoc2025!';
+    /* Logo */
+    var logo = document.createElement('div');
+    logo.style.cssText = 'font-size:22px;font-weight:700;color:#0d2018;margin-bottom:4px;';
+    logo.innerHTML = 'Nutri<span style="color:#1D9E75;font-style:italic;">Doc</span>';
 
-    if (user === ADMIN_USER && pwd === ADMIN_PASS) {
-      sessionStorage.setItem(ADMIN_KEY, JSON.stringify({ ts: Date.now() }));
-      overlay.remove();
-    } else {
-      document.getElementById('adminErr').style.display = 'block';
-      document.getElementById('adminPwd').value = '';
-      document.getElementById('adminPwd').focus();
+    var sousTitre = document.createElement('div');
+    sousTitre.style.cssText = 'font-size:11px;color:#6b7b74;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:28px;';
+    sousTitre.textContent = 'Administration · Accès restreint';
+
+    /* Champ identifiant */
+    var labelUser = document.createElement('label');
+    labelUser.style.cssText = 'display:block;font-size:12px;color:#6b7b74;margin-bottom:5px;';
+    labelUser.textContent = 'Identifiant';
+
+    var inputUser = document.createElement('input');
+    inputUser.type = 'text';
+    inputUser.autocomplete = 'username';
+    inputUser.placeholder = 'admin';
+    inputUser.style.cssText = 'display:block;width:100%;box-sizing:border-box;border:1px solid #e8edeb;border-radius:8px;padding:10px 14px;font-size:15px;margin-bottom:16px;outline:none;font-family:inherit;';
+
+    /* Champ mot de passe */
+    var labelPwd = document.createElement('label');
+    labelPwd.style.cssText = 'display:block;font-size:12px;color:#6b7b74;margin-bottom:5px;';
+    labelPwd.textContent = 'Mot de passe';
+
+    var inputPwd = document.createElement('input');
+    inputPwd.type = 'password';
+    inputPwd.autocomplete = 'current-password';
+    inputPwd.placeholder = '••••••••';
+    inputPwd.style.cssText = 'display:block;width:100%;box-sizing:border-box;border:1px solid #e8edeb;border-radius:8px;padding:10px 14px;font-size:15px;margin-bottom:8px;outline:none;font-family:inherit;';
+
+    /* Message erreur */
+    var errMsg = document.createElement('div');
+    errMsg.style.cssText = 'font-size:12px;color:#ef4444;margin-bottom:14px;min-height:18px;';
+    errMsg.textContent = '';
+
+    /* Bouton connexion */
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Se connecter';
+    btn.style.cssText = 'display:block;width:100%;background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:16px;';
+
+    /* Lien retour */
+    var retour = document.createElement('div');
+    retour.style.cssText = 'text-align:center;';
+    var lienRetour = document.createElement('a');
+    lienRetour.href = 'index.html';
+    lienRetour.textContent = '← Retour à l\'accueil';
+    lienRetour.style.cssText = 'font-size:12px;color:#6b7b74;text-decoration:none;';
+    retour.appendChild(lienRetour);
+
+    /* Assembler */
+    box.appendChild(logo);
+    box.appendChild(sousTitre);
+    box.appendChild(labelUser);
+    box.appendChild(inputUser);
+    box.appendChild(labelPwd);
+    box.appendChild(inputPwd);
+    box.appendChild(errMsg);
+    box.appendChild(btn);
+    box.appendChild(retour);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    /* Focus */
+    setTimeout(function () { inputUser.focus(); }, 100);
+
+    /* ── Logique de connexion ──────────────────────────────── */
+    // ⚠ À REMPLACER par vérification Supabase Auth en production
+    var ADMIN_USER = 'calidoc';
+    var ADMIN_PASS = 'NutriDoc2025!';
+
+    function tenterConnexion() {
+      var user = inputUser.value.trim();
+      var pass = inputPwd.value;
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        /* Succès */
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
+        overlay.remove();
+        var hide = document.getElementById('nd-admin-hide');
+        if (hide) hide.remove();
+      } else {
+        /* Échec */
+        errMsg.textContent = 'Identifiants incorrects. Réessayez.';
+        inputPwd.value = '';
+        inputPwd.style.borderColor = '#ef4444';
+        inputUser.style.borderColor = '#ef4444';
+        setTimeout(function () {
+          inputPwd.style.borderColor = '#e8edeb';
+          inputUser.style.borderColor = '#e8edeb';
+        }, 1500);
+        inputPwd.focus();
+      }
     }
-  };
+
+    btn.addEventListener('click', tenterConnexion);
+    inputPwd.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') tenterConnexion();
+    });
+    inputUser.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') inputPwd.focus();
+    });
+    inputUser.addEventListener('focus', function () {
+      this.style.borderColor = '#1D9E75';
+    });
+    inputUser.addEventListener('blur', function () {
+      this.style.borderColor = '#e8edeb';
+    });
+    inputPwd.addEventListener('focus', function () {
+      this.style.borderColor = '#1D9E75';
+    });
+    inputPwd.addEventListener('blur', function () {
+      this.style.borderColor = '#e8edeb';
+    });
+  }
+
+  /* ── Lancer quand le DOM est prêt ───────────────────────── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', creerModale);
+  } else {
+    creerModale();
+  }
+
 })();

@@ -1,12 +1,69 @@
 -- ============================================================
--- NutriDoc — Schéma Supabase COMPLET v31
--- VERSION IDEMPOTENTE — peut être exécuté plusieurs fois
+-- NutriDoc — Schéma v31 FINAL
+-- Les DROP POLICY sont dans des blocs DO pour éviter l'erreur
+-- si la table n'existe pas encore
 -- ============================================================
 
--- ── 1. PROFILES ─────────────────────────────────────────────
-create table if not exists profiles (
-  id                  uuid references auth.users on delete cascade primary key,
-  role                text not null check (role in ('patient','dietitian','prescriber')),
+-- Suppression sécurisée des policies existantes
+DO $$ BEGIN
+  -- profiles
+  DROP POLICY IF EXISTS "user voit son profil" ON profiles;
+  DROP POLICY IF EXISTS "diet voit tous les profils patients" ON profiles;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "patient voit son bilan" ON bilans;
+  DROP POLICY IF EXISTS "diet voit tous les bilans" ON bilans;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "patient voit son plan" ON plans;
+  DROP POLICY IF EXISTS "diet gère ses plans" ON plans;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "patient voit ses visios" ON visios;
+  DROP POLICY IF EXISTS "diet gère ses visios" ON visios;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "diet voit les alertes" ON alertes;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "patient voit sa demande" ON queue_plans;
+  DROP POLICY IF EXISTS "patient crée une demande" ON queue_plans;
+  DROP POLICY IF EXISTS "diet voit les demandes" ON queue_plans;
+  DROP POLICY IF EXISTS "diet accepte une demande" ON queue_plans;
+  DROP POLICY IF EXISTS "diet met à jour demande" ON queue_plans;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "prescripteur voit ses clients" ON clients_prescripteur;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "prescripteur voit ses demandes" ON demandes_plans;
+  DROP POLICY IF EXISTS "diet voit les demandes pro" ON demandes_plans;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "prescripteur voit ses factures" ON factures_prescripteur;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "user voit ses tickets" ON support_tickets;
+  DROP POLICY IF EXISTS "user crée un ticket" ON support_tickets;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "user gère son consentement" ON cookie_consents;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
+-- ── 1. PROFILES ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS profiles (
+  id                  uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  role                text NOT NULL CHECK (role IN ('patient','dietitian','prescriber')),
   prenom              text,
   nom                 text,
   email               text,
@@ -17,289 +74,284 @@ create table if not exists profiles (
   rpps                text,
   specialite          text,
   adeli               text,
-  formule             text default 'essentiel',
-  statut_rpps         text default 'en_attente',
+  iban                text,
+  bic                 text,
+  titulaire_compte    text,
+  formule             text DEFAULT 'essentiel',
+  statut_rpps         text DEFAULT 'en_attente',
+  commission_plan     int  DEFAULT 16,
+  commission_visio    int  DEFAULT 4900,
   profession          text,
   siret               text,
-  credits             int  default 0,
+  credits             int  DEFAULT 0,
+  credits_parrainage  int  DEFAULT 0,
+  code_parrainage     text UNIQUE,
+  parrain_id          uuid REFERENCES auth.users,
   pack                text,
+  mode_pilote         boolean DEFAULT false,
   objectifs_autorises text[],
-  statut              text default 'actif',
+  statut              text DEFAULT 'actif',
   avatar_url          text,
   notes               text,
-  created_at          timestamptz default now(),
-  updated_at          timestamptz default now()
+  created_at          timestamptz DEFAULT now(),
+  updated_at          timestamptz DEFAULT now()
 );
-alter table profiles enable row level security;
-drop policy if exists "user voit son profil" on profiles;
-create policy "user voit son profil" on profiles
-  for all using (auth.uid() = id);
-drop policy if exists "diet voit tous les profils patients" on profiles;
-create policy "diet voit tous les profils patients" on profiles
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'dietitian')
-  );
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user voit son profil" ON profiles
+  FOR ALL USING (auth.uid() = id);
 
 -- ── 2. BILANS ────────────────────────────────────────────────
-create table if not exists bilans (
-  id             uuid default gen_random_uuid() primary key,
-  patient_id     uuid references auth.users on delete cascade,
+CREATE TABLE IF NOT EXISTS bilans (
+  id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  patient_id     uuid REFERENCES auth.users ON DELETE CASCADE,
   prenom         text, nom text, age int, sexe text, ville text,
   poids          numeric, taille numeric, poids_objectif numeric,
   objectif       text, activite text, regime text,
   allergies      text, aversions text, budget text,
-  redflags       text[] default '{}',
+  alertes_sante  text[] DEFAULT '{}',
   travail        text, sport text, sport_freq int, sport_duree int,
   sommeil        text, tabagisme text, hydratation text,
   fringales      text, temps_repas text,
   repas_matin    text, repas_midi text, repas_soir text,
-  statut         text default 'en_attente',
-  paiement       text default 'gratuit',
-  paid_at        timestamptz,
-  stripe_id      text,
-  montant        int,
-  created_at     timestamptz default now()
+  statut         text DEFAULT 'en_attente',
+  paiement       text DEFAULT 'gratuit',
+  paid_at        timestamptz, stripe_id text, montant int,
+  created_at     timestamptz DEFAULT now()
 );
-alter table bilans enable row level security;
-drop policy if exists "patient voit son bilan" on bilans;
-create policy "patient voit son bilan" on bilans
-  for all using (auth.uid() = patient_id);
-drop policy if exists "diet voit tous les bilans" on bilans;
-create policy "diet voit tous les bilans" on bilans
-  for select using (
-    exists (select 1 from profiles where id = auth.uid() and role = 'dietitian')
-  );
+ALTER TABLE bilans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "patient voit son bilan" ON bilans
+  FOR ALL USING (auth.uid() = patient_id);
+CREATE POLICY "diet voit tous les bilans" ON bilans
+  FOR SELECT USING (auth.uid() = patient_id
+    OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'dietitian'));
 
 -- ── 3. PLANS ─────────────────────────────────────────────────
-create table if not exists plans (
-  id            uuid default gen_random_uuid() primary key,
-  patient_id    uuid references auth.users,
-  dietitian_id  uuid references auth.users,
-  bilan_id      uuid references bilans(id),
-  contenu       jsonb default '{}',
-  statut        text default 'en_attente'
-                check (statut in ('en_attente','paid','in_progress','valide','livre','expire')),
-  paid_at       timestamptz,
-  valide_at     timestamptz,
-  livre_at      timestamptz,
-  stripe_id     text,
-  montant       int default 2490,
-  pdf_url       text,
-  created_at    timestamptz default now()
+CREATE TABLE IF NOT EXISTS plans (
+  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  patient_id    uuid REFERENCES auth.users,
+  dietitian_id  uuid REFERENCES auth.users,
+  bilan_id      uuid REFERENCES bilans(id),
+  contenu       jsonb DEFAULT '{}',
+  statut        text DEFAULT 'en_attente'
+                CHECK (statut IN ('en_attente','paid','in_progress','valide','livre','expire')),
+  paid_at       timestamptz, valide_at timestamptz, livre_at timestamptz,
+  stripe_id     text, montant int DEFAULT 2490, pdf_url text,
+  created_at    timestamptz DEFAULT now()
 );
-alter table plans enable row level security;
-drop policy if exists "patient voit son plan" on plans;
-create policy "patient voit son plan" on plans
-  for select using (auth.uid() = patient_id);
-drop policy if exists "diet gère ses plans" on plans;
-create policy "diet gère ses plans" on plans
-  for all using (auth.uid() = dietitian_id);
+ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "patient voit son plan" ON plans
+  FOR SELECT USING (auth.uid() = patient_id);
+CREATE POLICY "diet gère ses plans" ON plans
+  FOR ALL USING (auth.uid() = dietitian_id);
 
 -- ── 4. VISIOS ────────────────────────────────────────────────
-create table if not exists visios (
-  id              uuid default gen_random_uuid() primary key,
-  patient_id      uuid references auth.users,
-  dietitian_id    uuid references auth.users,
+CREATE TABLE IF NOT EXISTS visios (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  patient_id      uuid REFERENCES auth.users,
+  dietitian_id    uuid REFERENCES auth.users,
   slot_key        text,
-  statut          text default 'en_attente'
-                  check (statut in ('en_attente','confirmee','annulee','terminee')),
-  montant         int default 5500,
-  reversement     int default 4900,
-  stripe_id       text,
-  confirmed_at    timestamptz,
-  lien_visio      text,
-  attestation_url text,
-  created_at      timestamptz default now()
+  statut          text DEFAULT 'en_attente'
+                  CHECK (statut IN ('en_attente','confirmee','annulee','terminee')),
+  montant         int DEFAULT 5500,
+  reversement     int DEFAULT 4900,
+  stripe_id       text, confirmed_at timestamptz,
+  lien_visio      text, attestation_url text,
+  created_at      timestamptz DEFAULT now()
 );
-alter table visios enable row level security;
-drop policy if exists "patient voit ses visios" on visios;
-create policy "patient voit ses visios" on visios
-  for select using (auth.uid() = patient_id);
-drop policy if exists "diet gère ses visios" on visios;
-create policy "diet gère ses visios" on visios
-  for all using (auth.uid() = dietitian_id);
+ALTER TABLE visios ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "patient voit ses visios" ON visios
+  FOR SELECT USING (auth.uid() = patient_id);
+CREATE POLICY "diet gère ses visios" ON visios
+  FOR ALL USING (auth.uid() = dietitian_id);
 
--- ── 5. ALERTES ───────────────────────────────────────────────
-create table if not exists alertes (
-  id              uuid default gen_random_uuid() primary key,
-  type            text default 'redflag',
-  patient_id      uuid references auth.users,
+-- ── 5. ALERTES SANTÉ (ex red flags) ─────────────────────────
+CREATE TABLE IF NOT EXISTS alertes (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  type            text DEFAULT 'alerte_sante',
+  patient_id      uuid REFERENCES auth.users,
   patient_prenom  text,
   flags           text[],
-  lu              boolean default false,
-  created_at      timestamptz default now()
+  lu              boolean DEFAULT false,
+  created_at      timestamptz DEFAULT now()
 );
-alter table alertes enable row level security;
-drop policy if exists "diet voit les alertes" on alertes;
-create policy "diet voit les alertes" on alertes
-  for all using (
-    exists (select 1 from profiles where id = auth.uid() and role = 'dietitian')
+ALTER TABLE alertes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "diet voit les alertes" ON alertes
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'dietitian')
   );
 
 -- ── 6. FILE D'ATTENTE ────────────────────────────────────────
-create table if not exists queue_plans (
-  id              uuid default gen_random_uuid() primary key,
-  patient_id      uuid references auth.users,
-  patient_prenom  text,
-  ville           text,
-  objectif        text,
-  bilan_id        uuid references bilans(id),
-  type            text default 'plan',
-  statut          text default 'pending'
-                  check (statut in ('pending','accepted','in_progress','delivered','expired','cancelled')),
-  priorite        int  default 1,
-  tentatives      int  default 0,
-  dietitian_id    uuid references auth.users,
-  accepted_at     timestamptz,
-  delivered_at    timestamptz,
-  expires_at      timestamptz default (now() + interval '48 hours'),
-  created_at      timestamptz default now()
+CREATE TABLE IF NOT EXISTS queue_plans (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  patient_id      uuid REFERENCES auth.users,
+  patient_prenom  text, ville text, objectif text,
+  bilan_id        uuid REFERENCES bilans(id),
+  type            text DEFAULT 'plan',
+  statut          text DEFAULT 'pending'
+                  CHECK (statut IN ('pending','accepted','in_progress','delivered','expired','cancelled')),
+  priorite        int DEFAULT 1, tentatives int DEFAULT 0,
+  dietitian_id    uuid REFERENCES auth.users,
+  accepted_at     timestamptz, delivered_at timestamptz,
+  expires_at      timestamptz DEFAULT (now() + INTERVAL '48 hours'),
+  created_at      timestamptz DEFAULT now()
 );
-create index if not exists idx_queue_statut  on queue_plans(statut);
-create index if not exists idx_queue_ville   on queue_plans(ville);
-create index if not exists idx_queue_created on queue_plans(created_at);
-alter table queue_plans enable row level security;
-drop policy if exists "patient voit sa demande"  on queue_plans;
-drop policy if exists "patient crée une demande" on queue_plans;
-drop policy if exists "diet voit les demandes"   on queue_plans;
-drop policy if exists "diet met à jour demande"  on queue_plans;
-create policy "patient voit sa demande"  on queue_plans for select using (auth.uid() = patient_id);
-create policy "patient crée une demande" on queue_plans for insert with check (auth.uid() = patient_id);
-create policy "diet voit les demandes"   on queue_plans for select using (
-  exists (select 1 from profiles where id = auth.uid() and role = 'dietitian'));
-create policy "diet met à jour demande"  on queue_plans for update using (
-  exists (select 1 from profiles where id = auth.uid() and role = 'dietitian'));
+CREATE INDEX IF NOT EXISTS idx_queue_statut  ON queue_plans(statut);
+CREATE INDEX IF NOT EXISTS idx_queue_ville   ON queue_plans(ville);
+CREATE INDEX IF NOT EXISTS idx_queue_created ON queue_plans(created_at);
+ALTER TABLE queue_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "patient voit sa demande"  ON queue_plans
+  FOR SELECT USING (auth.uid() = patient_id);
+CREATE POLICY "patient crée une demande" ON queue_plans
+  FOR INSERT WITH CHECK (auth.uid() = patient_id);
+CREATE POLICY "diet voit les demandes"   ON queue_plans
+  FOR SELECT USING (auth.uid() = dietitian_id OR dietitian_id IS NULL);
+CREATE POLICY "diet met à jour demande"  ON queue_plans
+  FOR UPDATE USING (auth.uid() = dietitian_id OR dietitian_id IS NULL);
 
-create or replace view queue_metrics as
-select
-  count(*) filter (where statut = 'pending')    as pending_count,
-  count(*) filter (where statut = 'accepted')   as accepted_count,
-  count(*) filter (where statut = 'delivered')  as delivered_count,
-  count(*) filter (where statut = 'expired')    as expired_count,
-  round(avg(extract(epoch from (delivered_at - created_at))/3600)
-    filter (where statut = 'delivered'), 1)     as avg_delay_hours,
-  count(*) filter (where statut = 'pending'
-    and created_at < now() - interval '4 hours') as overdue_count
-from queue_plans
-where created_at > now() - interval '7 days';
+CREATE OR REPLACE VIEW queue_metrics AS
+SELECT
+  count(*) FILTER (WHERE statut = 'pending')   AS pending_count,
+  count(*) FILTER (WHERE statut = 'accepted')  AS accepted_count,
+  count(*) FILTER (WHERE statut = 'delivered') AS delivered_count,
+  count(*) FILTER (WHERE statut = 'expired')   AS expired_count,
+  round(avg(EXTRACT(EPOCH FROM (delivered_at - created_at))/3600)
+    FILTER (WHERE statut = 'delivered'), 1)    AS avg_delay_hours,
+  count(*) FILTER (WHERE statut = 'pending'
+    AND created_at < now() - INTERVAL '4 hours') AS overdue_count
+FROM queue_plans
+WHERE created_at > now() - INTERVAL '7 days';
 
--- ── 7. CRM PRESCRIPTEURS ─────────────────────────────────────
-create table if not exists clients_prescripteur (
-  id                uuid default gen_random_uuid() primary key,
-  prescripteur_id   uuid references auth.users on delete cascade,
+-- ── 7. CRM PRESCRIPTEURS (sans photos) ──────────────────────
+CREATE TABLE IF NOT EXISTS clients_prescripteur (
+  id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  prescripteur_id   uuid REFERENCES auth.users ON DELETE CASCADE,
   prenom text, nom text, age int,
-  poids_initial numeric, taille numeric,
-  objectif text, statut text default 'en_cours',
-  notes text, mesures jsonb default '[]', plans jsonb default '[]',
+  poids_initial numeric, taille numeric, objectif text,
+  statut text DEFAULT 'en_cours', notes text,
+  mesures jsonb DEFAULT '[]', plans jsonb DEFAULT '[]',
   rappel_date timestamptz,
-  created_at timestamptz default now()
+  created_at timestamptz DEFAULT now()
 );
-alter table clients_prescripteur enable row level security;
-drop policy if exists "prescripteur voit ses clients" on clients_prescripteur;
-create policy "prescripteur voit ses clients" on clients_prescripteur
-  for all using (auth.uid() = prescripteur_id);
+ALTER TABLE clients_prescripteur ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "prescripteur voit ses clients" ON clients_prescripteur
+  FOR ALL USING (auth.uid() = prescripteur_id);
 
 -- ── 8. DEMANDES PLANS ────────────────────────────────────────
-create table if not exists demandes_plans (
-  id                uuid default gen_random_uuid() primary key,
-  client_id         uuid references clients_prescripteur,
-  prescripteur_id   uuid references auth.users,
-  objectif text, notes text,
-  credits_utilises  int default 1,
-  statut            text default 'en_attente',
-  created_at        timestamptz default now()
+CREATE TABLE IF NOT EXISTS demandes_plans (
+  id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  client_id         uuid REFERENCES clients_prescripteur,
+  prescripteur_id   uuid REFERENCES auth.users,
+  objectif text, notes text, credits_utilises int DEFAULT 1,
+  statut text DEFAULT 'en_attente',
+  created_at timestamptz DEFAULT now()
 );
-alter table demandes_plans enable row level security;
-drop policy if exists "prescripteur voit ses demandes" on demandes_plans;
-drop policy if exists "diet voit les demandes pro"     on demandes_plans;
-create policy "prescripteur voit ses demandes" on demandes_plans
-  for all using (auth.uid() = prescripteur_id);
-create policy "diet voit les demandes pro" on demandes_plans
-  for select using (
-    exists (select 1 from profiles where id = auth.uid() and role = 'dietitian')
+ALTER TABLE demandes_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "prescripteur voit ses demandes" ON demandes_plans
+  FOR ALL USING (auth.uid() = prescripteur_id);
+CREATE POLICY "diet voit les demandes pro" ON demandes_plans
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'dietitian')
   );
 
 -- ── 9. FACTURES PRESCRIPTEUR ─────────────────────────────────
-create table if not exists factures_prescripteur (
-  id              uuid default gen_random_uuid() primary key,
-  prescriber_id   uuid references auth.users,
-  numero          text unique,
-  pack            text,
-  credits         int,
-  montant_ht      int,
-  montant_ttc     int,
-  stripe_id       text,
-  created_at      timestamptz default now()
+CREATE TABLE IF NOT EXISTS factures_prescripteur (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  prescriber_id   uuid REFERENCES auth.users,
+  numero text UNIQUE, pack text, credits int,
+  montant_ht int, montant_ttc int, stripe_id text,
+  created_at timestamptz DEFAULT now()
 );
-alter table factures_prescripteur enable row level security;
-drop policy if exists "prescripteur voit ses factures" on factures_prescripteur;
-create policy "prescripteur voit ses factures" on factures_prescripteur
-  for select using (auth.uid() = prescriber_id);
+ALTER TABLE factures_prescripteur ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "prescripteur voit ses factures" ON factures_prescripteur
+  FOR SELECT USING (auth.uid() = prescriber_id);
 
 -- ── 10. TICKETS SUPPORT ──────────────────────────────────────
-create table if not exists support_tickets (
-  id          uuid default gen_random_uuid() primary key,
-  user_id     uuid references auth.users,
-  user_role   text, user_nom text, user_email text,
-  categorie   text not null,
-  titre       text not null,
-  description text not null,
-  priorite    text default 'normale' check (priorite in ('basse','normale','haute','urgente')),
-  statut      text default 'ouvert'  check (statut  in ('ouvert','en_cours','resolu','ferme')),
-  reponse     text,
-  repondu_at  timestamptz,
-  created_at  timestamptz default now()
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users,
+  user_role text, user_nom text, user_email text,
+  categorie text NOT NULL, titre text NOT NULL, description text NOT NULL,
+  priorite text DEFAULT 'normale' CHECK (priorite IN ('basse','normale','haute','urgente')),
+  statut   text DEFAULT 'ouvert'  CHECK (statut  IN ('ouvert','en_cours','resolu','ferme')),
+  reponse text, repondu_at timestamptz,
+  created_at timestamptz DEFAULT now()
 );
-alter table support_tickets enable row level security;
-drop policy if exists "user voit ses tickets" on support_tickets;
-create policy "user voit ses tickets" on support_tickets
-  for all using (auth.uid() = user_id);
+ALTER TABLE support_tickets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user voit ses tickets" ON support_tickets
+  FOR ALL USING (auth.uid() = user_id);
 
 -- ── 11. COOKIE CONSENTS ──────────────────────────────────────
-create table if not exists cookie_consents (
-  id          uuid default gen_random_uuid() primary key,
-  user_id     uuid references auth.users,
-  essential   boolean default true,
-  analytics   boolean default false,
-  version     text default '1.0',
-  created_at  timestamptz default now()
+CREATE TABLE IF NOT EXISTS cookie_consents (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users,
+  essential boolean DEFAULT true, analytics boolean DEFAULT false,
+  version text DEFAULT '1.0',
+  created_at timestamptz DEFAULT now()
 );
-alter table cookie_consents enable row level security;
-drop policy if exists "user gère son consentement" on cookie_consents;
-create policy "user gère son consentement" on cookie_consents
-  for all using (auth.uid() = user_id);
+ALTER TABLE cookie_consents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user gère son consentement" ON cookie_consents
+  FOR ALL USING (auth.uid() = user_id);
 
--- ── 12. TRIGGER auto-profil ──────────────────────────────────
-create or replace function handle_new_user()
-returns trigger as $$
-begin
-  insert into profiles (id, role, prenom, nom, email)
-  values (
-    new.id,
-    coalesce(new.raw_user_meta_data->>'role', 'patient'),
-    new.raw_user_meta_data->>'prenom',
-    new.raw_user_meta_data->>'nom',
-    new.email
+-- ── 12. PARRAINAGES ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS parrainages (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  parrain_id      uuid REFERENCES auth.users,
+  filleul_id      uuid REFERENCES auth.users,
+  type_filleul    text CHECK (type_filleul IN ('patient','dietitian','prescriber')),
+  credits_offerts int DEFAULT 5,
+  statut          text DEFAULT 'en_attente' CHECK (statut IN ('en_attente','valide','expire')),
+  valide_at       timestamptz,
+  created_at      timestamptz DEFAULT now()
+);
+ALTER TABLE parrainages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user voit ses parrainages" ON parrainages
+  FOR SELECT USING (auth.uid() = parrain_id OR auth.uid() = filleul_id);
+
+-- ── 13. EMAIL TEMPLATES (admin) ──────────────────────────────
+CREATE TABLE IF NOT EXISTS email_templates (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug        text UNIQUE NOT NULL,
+  nom         text NOT NULL,
+  sujet       text NOT NULL,
+  corps_html  text NOT NULL,
+  actif       boolean DEFAULT true,
+  created_at  timestamptz DEFAULT now(),
+  updated_at  timestamptz DEFAULT now()
+);
+
+-- ── 14. TRIGGERS ─────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, role, prenom, nom, email, code_parrainage)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'role', 'patient'),
+    NEW.raw_user_meta_data->>'prenom',
+    NEW.raw_user_meta_data->>'nom',
+    NEW.email,
+    UPPER(SUBSTRING(MD5(NEW.id::text), 1, 8))
   )
-  on conflict (id) do nothing;
-  return new;
-end;
-$$ language plpgsql security definer;
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure handle_new_user();
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
 
--- ── 13. TRIGGER updated_at ───────────────────────────────────
-create or replace function update_updated_at()
-returns trigger as $$
-begin new.updated_at = now(); return new; end;
-$$ language plpgsql;
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists profiles_updated_at on profiles;
-create trigger profiles_updated_at
-  before update on profiles
-  for each row execute procedure update_updated_at();
+DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
+CREATE TRIGGER profiles_updated_at
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE PROCEDURE update_updated_at();
 
--- Fin — 11 tables · RLS activé · triggers actifs
+-- ============================================================
+-- FIN — 13 tables · 1 vue · 2 triggers · RLS partout
+-- ============================================================

@@ -4,7 +4,7 @@ let formuleSelectionnee = 'pro';
 
 const FORMULES = {
   essentiel: { label: 'Essentiel — 5 € / plan validé' },
-  pro:       { label: 'Pro — 49 € / mois' },
+  pro:       { label: 'Pro — 29 € / mois' },
   expert:    { label: 'Expert — 55 € / mois (annuel)' }
 };
 

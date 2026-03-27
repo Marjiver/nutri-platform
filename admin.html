@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Admin CaliDoc Santé — NutriDoc</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <script src="js/admin-auth.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
 /* ── Reset & base ─────────────────────────────────────────── */
@@ -884,7 +883,7 @@ tbody tr:hover td{background:#fafcfa}
           <thead><tr><th>Source de revenu</th><th>Description</th><th>TVA applicable</th><th>Base de calcul</th></tr></thead>
           <tbody>
             <tr><td><strong>Commission plans (16-20€)</strong></td><td>Commission prélevée sur chaque plan validé par un diét.</td><td><span class="badge green">20% ✓</span></td><td>Montant HT de la commission</td></tr>
-            <tr><td><strong>Abonnements diét. (39-49€/mois)</strong></td><td>Accès à la plateforme pour les diét. inscrits</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
+            <tr><td><strong>Abonnements diét. (39-29€/mois)</strong></td><td>Accès à la plateforme pour les diét. inscrits</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
             <tr><td><strong>Crédits prescripteurs (4,38-4,90€/cr.)</strong></td><td>Vente de packs de crédits aux professionnels</td><td><span class="badge green">20% ✓</span></td><td>Prix HT du pack</td></tr>
 <!-- visio déjà incluse ci-dessus -->
             <tr><td><strong>Plan patient 24,90€</strong></td><td>Paiement patient — dont 18-20€ reversés au diét.</td><td><span class="badge green">20% ✓</span></td><td>Prix total HT (pas seulement la marge)</td></tr>
@@ -956,7 +955,7 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Formule Pro (49€/mois)</span>
+              <span>Formule Pro (29€/mois)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
                 <input type="number" value="18" min="0" max="25" id="commPro"
                   style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
@@ -1015,7 +1014,15 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
           </div>
-          <div class="alert-bar" style="margin-top:1rem;background:#fff8e6;border-color:#fed7aa;">
+          <div class="chart-header" style="margin-top:1.25rem;"><div class="chart-title">Packs plans prescripteurs</div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.75rem;">
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>18 €</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Équipe — 10 plans</span><strong>180 € (18€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Clinique — 20 plans</span><strong>340 € (12€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Volume — 50 plans</span><strong>840 € (10€/plan)</strong></div>
+        </div>
+        <div class="alert-bar" style="margin-top:.5rem;background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56;font-size:.78rem;">ℹ Les packs sont réglés directement aux diét. — NutriDoc ne perçoit que l'abonnement 29€.</div>
+        <div class="alert-bar" style="margin-top:.5rem;background:#fff8e6;border-color:#fed7aa;">
             ⚠ La modification des tarifs met à jour les affichages. Les prix Stripe doivent être mis à jour manuellement dans le Dashboard Stripe.
           </div>
         </div>
@@ -1176,12 +1183,12 @@ const PATIENTS_DATA = [
   { nom:'Julie Morin',   ville:'Angoulême', objectif:'Énergie',       plan:'Gratuit', date:'22/02/2025', statut:'inactif'},
 ];
 const DIETS_DATA = [
-  { nom:'Dr. A. Lemaire', rpps:'10 003 456 789', formule:'Pro 49€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
+  { nom:'Dr. A. Lemaire', rpps:'10 003 456 789', formule:'Pro 29€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
   { nom:'Dr. B. Mercier', rpps:'10 008 123 456', formule:'Expert 39€', zone:'Bordeaux 80km',  plans:24, reversement:'480 €', statut:'actif'    },
   { nom:'C. Fontaine',    rpps:'10 012 987 654', formule:'Essentiel',  zone:'Poitiers 80km',  plans:18, reversement:'288 €', statut:'actif'    },
-  { nom:'Dr. D. Simon',   rpps:'10 007 654 321', formule:'Pro 49€',    zone:'La Rochelle',    plans:16, reversement:'288 €', statut:'actif'    },
+  { nom:'Dr. D. Simon',   rpps:'10 007 654 321', formule:'Pro 29€',    zone:'La Rochelle',    plans:16, reversement:'288 €', statut:'actif'    },
   { nom:'E. Blanc',       rpps:'10 015 222 333', formule:'Essentiel',  zone:'Périgueux',      plans:0,  reversement:'0 €',   statut:'en attente'},
-  { nom:'F. Petit',       rpps:'10 009 111 222', formule:'Pro 49€',    zone:'Niort 80km',     plans:0,  reversement:'0 €',   statut:'en attente'},
+  { nom:'F. Petit',       rpps:'10 009 111 222', formule:'Pro 29€',    zone:'Niort 80km',     plans:0,  reversement:'0 €',   statut:'en attente'},
 ];
 const PRESC_DATA = [
   { nom:'Dr. G. Rolland',  prof:'Médecin généraliste', siret:'123 456 789 00012', pack:'Pro 20cr',    credits:6,  ca:'89 €'  },
@@ -1885,5 +1892,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderQueueGauge();
 });
 </script>
+  <script src="js/admin-auth.js"></script>
 </body>
 </html>

@@ -28,10 +28,10 @@
       <p id="prescSousTitre">Espace prescripteur NutriDoc</p>
     </div>
 
-    <!-- Métriques crédits -->
+    <!-- Métriques plans -->
     <div class="presc-metrics" id="prescMetrics">
       <div class="metric-card">
-        <div class="metric-label">Crédits restants</div>
+        <div class="metric-label">Plans restants</div>
         <div class="metric-value" id="metricCredits">—</div>
       </div>
       <div class="metric-card">
@@ -52,7 +52,7 @@
     <section class="dashboard-section">
       <div class="section-header-row">
         <h3>Nouvelle demande de plan</h3>
-        <span class="free-badge" id="creditsBadge" style="background:#eff6ff;color:#1a3a6b;">— crédits</span>
+        <span class="free-badge" id="creditsBadge" style="background:#eff6ff;color:#1a3a6b;">— plans</span>
       </div>
 
       <form id="prescDemandeForm" class="presc-form">
@@ -119,23 +119,23 @@
       </div>
     </section>
 
-    <!-- Recharger crédits -->
+    <!-- Recharger plans -->
     <section class="dashboard-section">
-      <h3>Recharger des crédits</h3>
+      <h3>Recharger des plans</h3>
       <div class="presc-recharge-grid">
         <div class="recharge-card" onclick="recharger(10, 49)">
-          <div class="recharge-nb">10 crédits</div>
+          <div class="recharge-nb">10 plans</div>
           <div class="recharge-prix">49 € HT</div>
           <div class="recharge-unitaire">4,90 € / plan</div>
         </div>
         <div class="recharge-card featured" onclick="recharger(20, 89)" style="border-color:#1a3a6b;">
           <div class="recharge-badge" style="background:#1a3a6b;">⭐ Recommandé</div>
-          <div class="recharge-nb" style="color:#1a3a6b;">20 crédits</div>
+          <div class="recharge-nb" style="color:#1a3a6b;">20 plans</div>
           <div class="recharge-prix" style="color:#1a3a6b;">89 € HT</div>
           <div class="recharge-unitaire">4,45 € / plan</div>
         </div>
         <div class="recharge-card" onclick="recharger(50, 219)" style="border-color:#9FE1CB;">
-          <div class="recharge-nb" style="color:var(--green);">50 crédits</div>
+          <div class="recharge-nb" style="color:var(--green);">50 plans</div>
           <div class="recharge-prix" style="color:var(--green);">219 € HT</div>
           <div class="recharge-unitaire">4,38 € / plan · Meilleur tarif</div>
         </div>
