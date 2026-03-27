@@ -54,7 +54,7 @@ async function deconnecter() {
 }
 
 // ── Inscription patient ──────────────────────────────────────
-async function inscrirePatient({ email, password, prenom, age, poids, taille, objectif, activite, regime, redflags }) {
+async function inscrirePatient({ email, password, prenom, age, poids, taille, objectif, activite, regime, alerte_santes }) {
   const { data, error } = await _supa.auth.signUp({
     email, password,
     options: { data: { role: 'patient', prenom } }
@@ -67,19 +67,19 @@ async function inscrirePatient({ email, password, prenom, age, poids, taille, ob
   const { error: bilanErr } = await _supa.from('bilans').insert({
     patient_id: userId,
     prenom, age, poids, taille, objectif, activite, regime,
-    redflags: redflags || [],
-    statut: redflags?.length > 0 ? 'redflag' : 'en_attente',
+    alerte_santes: alerte_santes || [],
+    statut: alerte_santes?.length > 0 ? 'alerte_sante' : 'en_attente',
     created_at: new Date().toISOString()
   });
   if (bilanErr) return { error: bilanErr };
 
-  // Si red flag → alerter les diét
-  if (redflags?.length > 0) {
+  // Si alerte santé → alerter les diét
+  if (alerte_santes?.length > 0) {
     await _supa.from('alertes').insert({
-      type: 'redflag',
+      type: 'alerte_sante',
       patient_id: userId,
       patient_prenom: prenom,
-      flags: redflags,
+      flags: alerte_santes,
       lu: false,
       created_at: new Date().toISOString()
     });

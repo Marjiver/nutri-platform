@@ -18,7 +18,7 @@ function updateMetrics(profil) {
   const credits = profil.credits || 0;
   const envoyes = histo.length;
   const valides = histo.filter(d => d.statut === 'valide').length;
-  const flags   = histo.filter(d => d.statut === 'redflag').length;
+  const flags   = histo.filter(d => d.statut === 'alerte_sante').length;
 
   document.getElementById('metricCredits').textContent  = credits;
   document.getElementById('metricEnvoyes').textContent  = envoyes;
@@ -39,8 +39,8 @@ function renderHistorique() {
     container.innerHTML = '<p style="font-size:0.875rem;color:var(--gray);">Aucune demande pour le moment.</p>';
     return;
   }
-  const STATUT = { en_attente: 'En attente', valide: 'Validé', redflag: 'Red flag — redirigé' };
-  const COULEUR = { en_attente: '#f59e0b', valide: '#22c55e', redflag: '#f97316' };
+  const STATUT = { en_attente: 'En attente', valide: 'Validé', alerte_sante: 'Alerte santé — redirigé' };
+  const COULEUR = { en_attente: '#f59e0b', valide: '#22c55e', alerte_sante: '#f97316' };
   container.innerHTML = histo.slice().reverse().map(d => `
     <div class="patient-card">
       <div class="patient-info">
@@ -52,7 +52,7 @@ function renderHistorique() {
       </div>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
         <span style="font-size:0.75rem;font-weight:500;color:${COULEUR[d.statut]};background:${COULEUR[d.statut]}18;padding:3px 10px;border-radius:999px;">${STATUT[d.statut] || d.statut}</span>
-        ${d.statut === 'redflag' ? '<span style="font-size:0.75rem;color:#f97316;">→ Visio recommandée</span>' : ''}
+        ${d.statut === 'alerte_sante' ? '<span style="font-size:0.75rem;color:#f97316;">→ Visio recommandée</span>' : ''}
       </div>
     </div>
   `).join('');

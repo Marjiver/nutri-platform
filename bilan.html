@@ -164,27 +164,27 @@
       </div>
     </div>
 
-    <!-- ─── ÉTAPE 5 : Red Flags ─────────────────────────── -->
+    <!-- ─── ÉTAPE 5 : Alerte Santés ─────────────────────────── -->
     <div class="step" data-step="5">
       <div class="step-header">
         <div class="step-num-pill">5 / 5</div>
         <h2>Informations médicales</h2>
       </div>
       <p class="step-intro">Confidentielles. Permettent d'assurer votre sécurité. Cochez tout ce qui vous concerne.</p>
-      <div class="redflag-notice">
-        <span class="redflag-icon">!</span>
+      <div class="alerte_sante-notice">
+        <span class="alerte_sante-icon">!</span>
         Certaines situations nécessitent un suivi médical spécialisé avant tout plan nutritionnel.
       </div>
       <div class="form-group">
         <div class="checkbox-list" id="redFlagList">
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="grossesse"/><span>Grossesse ou allaitement en cours</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="tca"/><span>Troubles du comportement alimentaire (TCA)</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="diabete"/><span>Diabète sous traitement médical</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="insuffisance_renale"/><span>Insuffisance rénale</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="bariatrique"/><span>Chirurgie bariatrique (passée ou prévue)</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="allergies_severes"/><span>Allergies multiples sévères</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="medicaments"/><span>Médicaments impactant le poids ou l'appétit</span></label>
-          <label class="checkbox-option"><input type="checkbox" name="redflag" value="antecedents"/><span>Antécédents médicaux lourds</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="grossesse"/><span>Grossesse ou allaitement en cours</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="tca"/><span>Troubles du comportement alimentaire (TCA)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="diabete"/><span>Diabète sous traitement médical</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="insuffisance_renale"/><span>Insuffisance rénale</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="bariatrique"/><span>Chirurgie bariatrique (passée ou prévue)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="allergies_severes"/><span>Allergies multiples sévères</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="medicaments"/><span>Médicaments impactant le poids ou l'appétit</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="antecedents"/><span>Antécédents médicaux lourds</span></label>
           <label class="checkbox-option checkbox-none"><input type="checkbox" id="redFlagAucun"/><span>Aucune de ces situations ne me concerne</span></label>
         </div>
       </div>
@@ -209,14 +209,14 @@
     <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
   </div>
 
-  <!-- Résultat red flag -->
-  <div id="resultat-redflag" class="resultat redflag-blocked hidden">
-    <div class="redflag-block-icon">🚨</div>
+  <!-- Résultat alerte santé -->
+  <div id="resultat-alerte_sante" class="resultat alerte_sante-blocked hidden">
+    <div class="alerte_sante-block-icon">🚨</div>
     <h2>Votre dossier nécessite un suivi spécialisé</h2>
     <p>En raison des informations médicales renseignées, un diététicien qualifié prendra en charge votre dossier personnellement.</p>
-    <div class="redflag-flags" id="redFlagDisplay"></div>
-    <div class="redflag-next">
-      <p class="redflag-next-title">Que se passe-t-il maintenant ?</p>
+    <div class="alerte_sante-flags" id="redFlagDisplay"></div>
+    <div class="alerte_sante-next">
+      <p class="alerte_sante-next-title">Que se passe-t-il maintenant ?</p>
       <ul>
         <li>Votre dossier a été transmis à un diététicien qualifié.</li>
         <li>Il vous contactera pour un suivi personnalisé adapté à votre situation.</li>

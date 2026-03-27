@@ -66,7 +66,7 @@ function validateStep(n) {
     if (!valid) showError(n, 'Veuillez renseigner votre niveau d\'activité et votre objectif.');
   }
   if (n === 5) {
-    const checked  = document.querySelectorAll('input[name="redflag"]:checked').length;
+    const checked  = document.querySelectorAll('input[name="alerte_sante"]:checked').length;
     const aucun    = document.getElementById('redFlagAucun')?.checked;
     if (!checked && !aucun) {
       showError(n, 'Veuillez cocher au moins une case, ou "Aucune de ces situations".');
@@ -82,10 +82,10 @@ function markError(el) {
   el?.addEventListener('change', () => el.classList.remove('input-error'), { once: true });
 }
 
-// ── Red flag mutex ────────────────────────────────────────────
+// ── Alerte santé mutex ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const aucunCb  = document.getElementById('redFlagAucun');
-  const flagCbs  = document.querySelectorAll('input[name="redflag"]');
+  const flagCbs  = document.querySelectorAll('input[name="alerte_sante"]');
   aucunCb?.addEventListener('change', () => { if (aucunCb.checked) flagCbs.forEach(c => c.checked = false); });
   flagCbs.forEach(c => c.addEventListener('change', () => { if (c.checked) aucunCb.checked = false; }));
   updateProgress();
@@ -96,20 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!validateStep(5)) return;
 
     const data   = Object.fromEntries(new FormData(e.target));
-    const flags  = Array.from(document.querySelectorAll('input[name="redflag"]:checked')).map(c => c.value);
+    const flags  = Array.from(document.querySelectorAll('input[name="alerte_sante"]:checked')).map(c => c.value);
     const aucun  = document.getElementById('redFlagAucun')?.checked;
     const hasFlag = flags.length > 0;
 
     const bilanData = {
       ...data,
-      redflags: flags,
+      alerte_santes: flags,
       ville: e.target.querySelector('[name="ville"]')?.value.trim(),
       submitted_at: new Date().toISOString()
     };
 
     // Sauvegarder
     if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
-      await inscrirePatient({ ...bilanData, redflags: flags });
+      await inscrirePatient({ ...bilanData, alerte_santes: flags });
     } else {
       localStorage.setItem('nutridoc_bilan', JSON.stringify(bilanData));
     // Email confirmation bilan
@@ -131,15 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
         allergies_severes:'Allergies sévères', medicaments:'Médicaments', antecedents:'Antécédents lourds'
       };
       document.getElementById('redFlagDisplay').innerHTML = flags.map(f =>
-        `<span class="redflag-badge">${RF_LABELS[f]||f}</span>`
+        `<span class="alerte_sante-badge">${RF_LABELS[f]||f}</span>`
       ).join('');
-      document.getElementById('resultat-redflag').classList.remove('hidden');
+      document.getElementById('resultat-alerte_sante').classList.remove('hidden');
 
       // Stocker alertes
       const alertes = JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]');
       alertes.push({ patient: data.prenom || 'Patient', flags, lu: false, date: new Date().toISOString() });
       localStorage.setItem('nutridoc_alertes', JSON.stringify(alertes));
-    // Email red flag patient
+    // Email alerte santé patient
     if (typeof Email !== 'undefined') {
       const rf_labels = {grossesse:'Grossesse',tca:'TCA',diabete:'Diabète',insuffisance_renale:'Insuffisance rénale',bariatrique:'Bariatrique',allergies_severes:'Allergies sévères',medicaments:'Médicaments',antecedents:'Antécédents lourds'};
       Email.redFlagPatient(data.email || '', {

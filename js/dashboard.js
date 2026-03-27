@@ -322,7 +322,7 @@ function initWithBilan(bilan) {
   const val = document.getElementById('statusValue');
   const eta = document.getElementById('statusEta');
 
-  if (statut === 'redflag') {
+  if (statut === 'alerte_sante') {
     dot.style.background = '#f97316';
     val.textContent = 'Dossier transmis à un diététicien spécialisé';
     eta.textContent = '';

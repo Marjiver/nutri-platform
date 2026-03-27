@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Admin CaliDoc Santé — NutriDoc</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="js/admin-auth.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
 /* ── Reset & base ─────────────────────────────────────────── */
@@ -264,6 +265,15 @@ tbody tr:hover td{background:#fafcfa}
       <span class="nav-icon">🎫</span> Tickets support
       <span class="nav-badge">5</span>
     </button>
+    <button class="nav-item" onclick="showPage('commissions')">
+      <span class="nav-icon">💰</span> Commissions & tarifs
+    </button>
+    <button class="nav-item" onclick="showPage('parrainage')">
+      <span class="nav-icon">🎁</span> Parrainage
+    </button>
+    <button class="nav-item" onclick="showPage('emailing')">
+      <span class="nav-icon">✉</span> Emailing & relances
+    </button>
     <button class="nav-item" onclick="showPage('settings')">
       <span class="nav-icon">⚙</span> Paramètres
     </button>
@@ -338,7 +348,7 @@ tbody tr:hover td{background:#fafcfa}
         </div>
         <div class="kpi-card" style="--kpi-color:#ef4444">
           <div class="kpi-icon" style="background:#fef2f2">🚨</div>
-          <div class="kpi-label">Red flags</div>
+          <div class="kpi-label">Alerte santés</div>
           <div class="kpi-value" id="kpiRedFlags">7</div>
           <div class="kpi-delta down">↑ +2 ce mois</div>
         </div>
@@ -510,7 +520,7 @@ tbody tr:hover td{background:#fafcfa}
 
       <div class="inline-stats">
         <div class="inline-stat">📋 Plans achetés : <strong>89</strong></div>
-        <div class="inline-stat">🚨 Red flags : <strong>7</strong></div>
+        <div class="inline-stat">🚨 Alerte santés : <strong>7</strong></div>
         <div class="inline-stat">📅 Visios : <strong>23</strong></div>
         <div class="inline-stat">🆓 Gratuits seuls : <strong>181</strong> (73%)</div>
       </div>
@@ -926,6 +936,186 @@ tbody tr:hover td{background:#fafcfa}
       </div>
     </div>
 
+
+    <!-- ══ PAGE : COMMISSIONS ════════════════════════════════ -->
+    <div class="page" id="page-commissions">
+      <div class="page-title">Commissions & tarifs</div>
+      <div class="page-sub">Modifier les commissions reversées aux diét. et les tarifs patients</div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Commissions diét. par plan (€ net)</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Essentiel</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="16" min="0" max="25" id="commEssentiel"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('essentiel')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Pro (49€/mois)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="18" min="0" max="25" id="commPro"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('pro')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Expert (39€/mois annuel)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="20" min="0" max="25" id="commExpert"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('expert')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Reversement visio (patient paie 55€)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="49" min="0" max="55" id="commVisio"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('visio')">Sauver</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Tarifs patients & prescripteurs</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Plan premium patient (TTC)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="24.90" step="0.10" id="tarifPlan"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
+                <button class="btn-sm green" onclick="saveTarif('plan')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Visio patient (TTC)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="55" step="1" id="tarifVisio"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
+                <button class="btn-sm green" onclick="saveTarif('visio')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Abonnement diét. Pro (HT/mois)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="49" step="1" id="tarifAboPro"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ HT</span>
+                <button class="btn-sm green" onclick="saveTarif('aboPro')">Sauver</button>
+              </div>
+            </div>
+          </div>
+          <div class="alert-bar" style="margin-top:1rem;background:#fff8e6;border-color:#fed7aa;">
+            ⚠ La modification des tarifs met à jour les affichages. Les prix Stripe doivent être mis à jour manuellement dans le Dashboard Stripe.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode pilote -->
+      <div class="chart-card" style="margin-top:1rem;">
+        <div class="chart-header">
+          <div><div class="chart-title">Mode pilote — Diét. gratuits</div>
+          <div class="chart-sub">Accès gratuit à la plateforme pour les diét. en phase de test</div></div>
+        </div>
+        <div id="piloteDietList" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;"></div>
+        <button class="btn-sm green" style="margin-top:.75rem;" onclick="ajouterDietPilote()">+ Ajouter un diét. pilote</button>
+        <div style="font-size:.75rem;color:var(--gray);margin-top:.5rem;">Les diét. pilotes ont accès à toutes les fonctionnalités Pro gratuitement. Leur abonnement n'est pas prélevé.</div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PARRAINAGE ══════════════════════════════════ -->
+    <div class="page" id="page-parrainage">
+      <div class="page-title">Programme de parrainage</div>
+      <div class="page-sub">Crédits cumulables · Récompenses automatiques</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#8b5cf6"><div class="kpi-label">Parrainages actifs</div><div class="kpi-value">23</div></div>
+        <div class="kpi-card" style="--kpi-color:#1D9E75"><div class="kpi-label">Crédits distribués</div><div class="kpi-value">115</div></div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b"><div class="kpi-label">Plans offerts</div><div class="kpi-value">8</div></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Règles de parrainage</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;">
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Crédits offerts au parrain (patient inscrit)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="5" id="credParrainPatient" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Crédits offerts au parrain (pro inscrit)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="10" id="credParrainPro" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Seuil plan offert (patient)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="20" id="seuilPlanOffert" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <button class="btn-sm green" onclick="saveParrainageRules()">Enregistrer les règles</button>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Comment ça fonctionne</div></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.82rem;color:var(--gray);">
+            <div>1️⃣ Chaque utilisateur reçoit un <strong>code de parrainage unique</strong> à son inscription.</div>
+            <div>2️⃣ Il partage son lien : <code style="background:var(--cream);padding:2px 6px;border-radius:4px;">nutridoc.fr?ref=XXXXXXXX</code></div>
+            <div>3️⃣ Quand un filleul s'inscrit et effectue son premier achat → le parrain reçoit des crédits.</div>
+            <div>4️⃣ Au seuil défini, le patient obtient automatiquement un plan offert.</div>
+            <div>5️⃣ Pour les pros : crédits supplémentaires ou réduction sur le prochain pack.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : EMAILING ════════════════════════════════════ -->
+    <div class="page" id="page-emailing">
+      <div class="page-title">Emailing & relances</div>
+      <div class="page-sub">Templates modifiables · Campagnes · Relances automatiques</div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Templates emails</div>
+          <button class="btn-sm green" onclick="nouveauTemplate()">+ Nouveau template</button>
+        </div>
+        <table>
+          <thead><tr><th>Slug</th><th>Nom</th><th>Sujet</th><th>Type</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="templatesBody"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-card" style="margin-top:1rem;">
+        <div class="chart-header"><div class="chart-title">Relances automatiques actives</div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;">
+          ${['Patient sans plan après 48h de conseils gratuits','Diét. sans activité depuis 7 jours','Prescripteur avec crédits < 3','Rappel abonnement diét. Pro J-3 avant prélèvement','Plan commandé non livré sous 24h'].map((r,i)=>`
+          <div class="inline-stat" style="justify-content:space-between;">
+            <span style="font-size:.8rem;">${r}</span>
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;">
+              <input type="checkbox" ${i<3?'checked':''} style="accent-color:var(--green);"/>
+              <span style="font-size:.75rem;color:var(--gray);">${i<3?'Actif':'Inactif'}</span>
+            </label>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
     <!-- ══ PAGE : PARAMÈTRES ══════════════════════════════════ -->
     <div class="page" id="page-settings">
       <div class="page-title">Paramètres plateforme</div>
@@ -1247,7 +1437,7 @@ function renderActivity() {
     { color:'#8b5cf6', text:'<strong>Dr. Lemaire</strong> a validé 2 plans ce matin', time:'Il y a 45 min' },
     { color:'#f59e0b', text:'Nouvelle demande de plan — <strong>Hugo Laurent</strong> · Poitiers (en attente)', time:'Il y a 1h20' },
     { color:'#3b82f6', text:'<strong>K. Moreau</strong> (kiné) a rechargé 50 crédits — Pack Volume', time:'Il y a 2h' },
-    { color:'#ef4444', text:'Red flag détecté — <strong>Emma R.</strong> · Grossesse déclarée → redirigée', time:'Il y a 3h' },
+    { color:'#ef4444', text:'Alerte santé détecté — <strong>Emma R.</strong> · Grossesse déclarée → redirigée', time:'Il y a 3h' },
     { color:'#1D9E75', text:'Visio <strong>Thomas Klein / Dr. Mercier</strong> confirmée pour demain 10h', time:'Il y a 4h' },
   ];
   document.getElementById('activityFeed').innerHTML = events.map((e,i)=>`
@@ -1635,9 +1825,58 @@ document.addEventListener('DOMContentLoaded', () => {
   initChartTVASeuil();
 });
 
+
+function saveComm(type) {
+  const vals = { essentiel: document.getElementById('commEssentiel')?.value, pro: document.getElementById('commPro')?.value, expert: document.getElementById('commExpert')?.value, visio: document.getElementById('commVisio')?.value };
+  showToast(`Commission ${type} mise à jour : ${vals[type]} € ✓`);
+}
+function saveTarif(type) { showToast(`Tarif ${type} sauvegardé ✓ — pensez à mettre à jour Stripe`); }
+function saveParrainageRules() { showToast('Règles de parrainage enregistrées ✓'); }
+function ajouterDietPilote() {
+  const email = prompt('Email du diét. pilote :');
+  if (!email) return;
+  const el = document.getElementById('piloteDietList');
+  if (el) {
+    const item = document.createElement('div');
+    item.className = 'inline-stat';
+    item.style.justifyContent = 'space-between';
+    item.innerHTML = `<span>${email}</span><span class="badge green">Mode pilote · Gratuit</span>`;
+    el.appendChild(item);
+    showToast(`${email} ajouté en mode pilote ✓`);
+  }
+}
+function renderTemplates() {
+  const TEMPLATES = [
+    { slug:'confirmation_bilan', nom:'Confirmation bilan', sujet:'✓ Votre bilan NutriDoc a bien été reçu', type:'Transactionnel' },
+    { slug:'plan_livre', nom:'Plan livré', sujet:'🎉 Votre plan alimentaire est prêt !', type:'Transactionnel' },
+    { slug:'relance_plan', nom:'Relance plan', sujet:'Votre plan alimentaire personnalisé vous attend 🥗', type:'Relance' },
+    { slug:'alerte_prelevement', nom:'Alerte prélèvement diét.', sujet:'Votre abonnement NutriDoc Pro sera prélevé dans 3 jours', type:'Alerte' },
+    { slug:'parrainage', nom:'Invitation parrainage', sujet:'${prenom} vous invite sur NutriDoc 🎁', type:'Marketing' },
+    { slug:'newsletter', nom:'Newsletter mensuelle', sujet:'Actualités NutriDoc · ${mois}', type:'Newsletter' },
+  ];
+  const el = document.getElementById('templatesBody');
+  if (!el) return;
+  el.innerHTML = TEMPLATES.map(t => `<tr>
+    <td style="font-family:monospace;font-size:.75rem;color:var(--gray)">${t.slug}</td>
+    <td><strong>${t.nom}</strong></td>
+    <td style="max-width:250px;font-size:.8rem;">${t.sujet}</td>
+    <td><span class="badge ${t.type==='Transactionnel'?'green':t.type==='Relance'?'amber':t.type==='Alerte'?'red':'blue'}">${t.type}</span></td>
+    <td><span class="badge green">Actif</span></td>
+    <td><button class="btn-sm gray" onclick="editTemplate('${t.slug}')">✏ Éditer</button></td>
+  </tr>`).join('');
+}
+function editTemplate(slug) { alert('Éditeur de template ' + slug + '\n(Intégration Resend à connecter)'); }
+function nouveauTemplate() { alert('Créer un nouveau template email\n(Éditeur HTML à intégrer)'); }
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;z-index:2000;';
+  el.textContent = msg; document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  initDate();
+  initDate(); renderTemplates();
   initChartRevenus();
   initChartSources();
   initSmallCharts();

@@ -33,7 +33,7 @@
         <div class="insc-hero-avantages">
           <div class="insc-avantage"><span class="insc-av-dot"></span>Nom, titre et RPPS imprimés sur chaque plan</div>
           <div class="insc-avantage"><span class="insc-av-dot"></span>Dossiers patients pré-remplis et structurés</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes red flag automatiques</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes alerte santé automatiques</div>
           <div class="insc-avantage"><span class="insc-av-dot"></span>Visio intégrée selon votre formule</div>
         </div>
       </div>
@@ -68,7 +68,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Alertes alerte santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="no">Visio intégrée</li>
             <li class="no">Tableau de bord & statistiques</li>
@@ -92,7 +92,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Alertes alerte santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="yes">Visio intégrée (lien personnalisé)</li>
             <li class="yes">Tableau de bord & statistiques</li>
@@ -117,7 +117,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes red flag automatiques</li>
+            <li class="yes">Alertes alerte santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="yes">Visio intégrée (lien personnalisé)</li>
             <li class="yes">Tableau de bord & statistiques</li>
@@ -280,7 +280,33 @@
             </label>
             <div class="btn-row">
               <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
-              <button type="submit" class="btn-submit">Créer mon compte →</button>
+              
+            <!-- Coordonnées bancaires -->
+            <div class="form-section">
+              <h3 class="form-section-title">💳 Coordonnées bancaires <span style="font-size:.75rem;color:var(--gray);font-weight:400;">(pour le versement de vos rémunérations)</span></h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Titulaire du compte <span class="req">*</span></label>
+                  <input type="text" id="dietTitulaire" placeholder="Nom Prénom ou Raison sociale" required/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>IBAN <span class="req">*</span></label>
+                  <input type="text" id="dietIBAN" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" required
+                    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()"/>
+                  <span class="form-hint">Vos reversements seront effectués le 5 de chaque mois</span>
+                </div>
+                <div class="form-group" style="max-width:200px;">
+                  <label>BIC / SWIFT</label>
+                  <input type="text" id="dietBIC" placeholder="BNPAFRPP" maxlength="11"/>
+                </div>
+              </div>
+              <div style="background:#e1f5ee;border:1px solid #9FE1CB;border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#0f6e56;margin-top:.5rem;">
+                🔒 Vos coordonnées bancaires sont chiffrées et uniquement accessibles par CaliDoc Santé pour les virements. Elles ne sont jamais partagées avec d'autres utilisateurs.
+              </div>
+            </div>
+            <button type="submit" class="btn-submit">Créer mon compte →</button>
             </div>
           </div>
 

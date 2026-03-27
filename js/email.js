@@ -66,9 +66,9 @@ const Email = {
   },
 
   /** Nouvelle demande de plan → notifier le(s) diét. */
-  async nouvelleDemandeD(dietEmail, { patient_prenom, age, objectif, ville, remuneration, has_redflag, redflag_label }) {
+  async nouvelleDemandeD(dietEmail, { patient_prenom, age, objectif, ville, remuneration, has_alerte_sante, alerte_sante_label }) {
     return this.send('nouvelle_demande_diet', dietEmail, {
-      patient_prenom, age, objectif, ville, remuneration, has_redflag, redflag_label
+      patient_prenom, age, objectif, ville, remuneration, has_alerte_sante, alerte_sante_label
     });
   },
 
@@ -87,9 +87,9 @@ const Email = {
     return this.send('bienvenue', email, { prenom, role, credits });
   },
 
-  /** Red flag détecté → rassurer le patient */
+  /** Alerte santé détecté → rassurer le patient */
   async redFlagPatient(email, { prenom, flags_label }) {
-    return this.send('redflag_patient', email, { prenom, flags_label });
+    return this.send('alerte_sante_patient', email, { prenom, flags_label });
   },
 
   /** Ticket support soumis */

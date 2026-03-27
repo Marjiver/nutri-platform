@@ -187,6 +187,15 @@ function drawCover(doc, W, H, mg, cw, patient, dietitian, options, setFont, fill
   // Bande verte décorative
   fillRect(0, H * 0.55, W, 4, PDF_CONFIG.colors.green);
 
+  // Filigrane CONFIDENTIEL (diagonal)
+  doc.saveGraphicsState();
+  doc.setGState(new doc.GState({opacity: 0.06}));
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(52);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CONFIDENTIEL', W/2, H*0.3, { align:'center', angle:45 });
+  doc.restoreGraphicsState();
+
   // Logo NutriDoc
   setFont(28, 'bold', PDF_CONFIG.colors.white);
   doc.text('Nutri', mg, 28);
@@ -212,7 +221,7 @@ function drawCover(doc, W, H, mg, cw, patient, dietitian, options, setFont, fill
   setFont(11, 'normal', PDF_CONFIG.colors.white);
   doc.text(`${patient.prenom} ${patient.nom}`, mg, 90);
   setFont(9, 'normal', [150, 170, 160]);
-  doc.text(`${patient.age} ans · ${patient.poids} kg · ${patient.taille} cm · ${patient.ville}`, mg, 98);
+  doc.text(`${patient.age||'—'} ans · ${patient.poids||'—'} kg · ${patient.taille||'—'} cm · ${patient.ville||'—'}`, mg, 98);
   doc.text(`Objectif : ${patient.objectif}`, mg, 106);
 
   // Date de création
@@ -285,22 +294,25 @@ function drawPageFooter(doc, W, H, mg, page, patient, dietitian) {
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...PDF_CONFIG.colors.gray);
-  doc.text(`Plan de ${patient.prenom} ${patient.nom} · Validé par ${dietitian.nom}`, mg, H - 7);
+  doc.text(`CONFIDENTIEL · Plan de ${patient.prenom||''} ${patient.nom||''} · Validé par ${dietitian.nom||''}`, mg, H - 7);
   doc.text(`Page ${page}`, W - mg, H - 7, { align: 'right' });
 }
 
 // ── SECTION PROFIL ────────────────────────────────────────────
 function drawProfilSection(doc, y, mg, cw, patient, plan, setFont, fillRect, strokeRect) {
   // Calcul IMC
-  const imc    = patient.taille ? (patient.poids / Math.pow(patient.taille / 100, 2)).toFixed(1) : '—';
+  const imc    = (patient.taille && patient.poids && patient.taille > 0) ? (patient.poids / Math.pow(patient.taille / 100, 2)).toFixed(1) : '—';
   const imcCat = parseFloat(imc) < 18.5 ? 'Insuffisance pondérale' :
                  parseFloat(imc) < 25    ? 'Poids normal' :
                  parseFloat(imc) < 30    ? 'Surpoids' : 'Obésité';
 
   // Calcul besoins caloriques (Harris-Benedict)
+  const _p = parseFloat(patient.poids)  || 65;
+  const _t = parseFloat(patient.taille) || 165;
+  const _a = parseInt(patient.age)      || 30;
   const bmr = patient.sexe === 'homme'
-    ? 88.4  + (13.4 * patient.poids) + (4.8 * patient.taille) - (5.7 * patient.age)
-    : 447.6 + (9.25 * patient.poids) + (3.1 * patient.taille) - (4.3 * patient.age);
+    ? 88.4  + (13.4 * _p) + (4.8 * _t) - (5.7 * _a)
+    : 447.6 + (9.25 * _p) + (3.1 * _t) - (4.3 * _a);
   const NIVEAUX = { sedentaire:1.2, leger:1.375, modere:1.55, actif:1.725 };
   const coeff   = NIVEAUX[patient.activite?.toLowerCase().split(' ')[0]] || 1.55;
   const tdee    = Math.round(bmr * coeff);

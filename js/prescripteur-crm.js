@@ -191,8 +191,8 @@ function renderPlans(c) {
   const container = document.getElementById('plansHistorique');
   const plans = c.plans || [];
   const OBJ = { reequilibrage:'Rééquilibrage', prise_masse:'Prise de masse', perte_gras:'Perte de gras' };
-  const ST  = { en_attente:'En attente', valide:'Validé', redflag:'Red flag' };
-  const SC  = { en_attente:'#f59e0b', valide:'#22c55e', redflag:'#f97316' };
+  const ST  = { en_attente:'En attente', valide:'Validé', alerte_sante:'Alerte santé' };
+  const SC  = { en_attente:'#f59e0b', valide:'#22c55e', alerte_sante:'#f97316' };
 
   if (plans.length === 0) {
     container.innerHTML = '<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center;color:var(--gray);font-size:0.875rem;">Aucun plan pour ce client.</div>';
