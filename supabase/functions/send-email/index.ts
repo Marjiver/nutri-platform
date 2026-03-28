@@ -209,7 +209,7 @@ function templatePlanLivre(d: any) {
       <div class="info-row"><span class="info-label">Protéines</span><span class="info-val">${d.proteines || "—"} g</span></div>
     </div>
     <a href="https://nutridoc.fr/dashboard.html" class="cta">Télécharger mon plan PDF →</a>
-    ${d.visio_dispo ? `<div class="alert">💬 Votre diététicien propose des consultations visio (55 €) — remboursables par votre mutuelle. <a href="https://nutridoc.fr/dashboard.html" style="color:#92400e">Réserver une visio</a></div>` : ""}
+    ${d.visio_dispo ? `<div class="alert">💬 Votre diététicien propose des consultations visio (50 €) — remboursables par votre mutuelle. <a href="https://nutridoc.fr/dashboard.html" style="color:#92400e">Réserver une visio</a></div>` : ""}
   `);
 }
 
@@ -241,7 +241,7 @@ function templateAttestationMutuelle(d: any) {
       <div class="info-row"><span class="info-label">N° RPPS</span><span class="info-val">${d.diet_rpps || "—"}</span></div>
       <div class="info-row"><span class="info-label">Date</span><span class="info-val">${d.date || "—"}</span></div>
       <div class="info-row"><span class="info-label">Durée</span><span class="info-val">45 minutes (téléconsultation)</span></div>
-      <div class="info-row"><span class="info-label">Montant réglé</span><span class="info-val">55,00 €</span></div>
+      <div class="info-row"><span class="info-label">Montant réglé</span><span class="info-val">50,00 €</span></div>
     </div>
     <div class="alert">📌 Transmettez ce document à votre mutuelle rubrique <strong>"Diététique"</strong> ou <strong>"Prévention"</strong>. Remboursement moyen : 20 à 50 € selon votre contrat.</div>
     <a href="https://nutridoc.fr/dashboard.html" class="cta">Télécharger l'attestation PDF →</a>
@@ -257,7 +257,7 @@ function templateConfirmationVisio(d: any) {
       <div class="info-row"><span class="info-label">Date</span><span class="info-val">${d.date || "—"}</span></div>
       <div class="info-row"><span class="info-label">Heure</span><span class="info-val">${d.heure || "—"}</span></div>
       <div class="info-row"><span class="info-label">Durée</span><span class="info-val">45 minutes</span></div>
-      <div class="info-row"><span class="info-label">Montant</span><span class="info-val">55 €</span></div>
+      <div class="info-row"><span class="info-label">Montant</span><span class="info-val">50 €</span></div>
     </div>
     <a href="${d.lien_visio || "https://nutridoc.fr/dashboard.html"}" class="cta">Rejoindre la visio →</a>
     <p>Préparez vos questions à l'avance. Votre diététicien aura accès à votre plan et à votre profil.</p>

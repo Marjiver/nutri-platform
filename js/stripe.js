@@ -3,7 +3,7 @@
  *
  * Usage :
  *   Stripe.payerPlan(bilanData)      → redirige vers Stripe Checkout 24,90€
- *   Stripe.payerVisio(slotData)      → redirige vers Stripe Checkout 55€
+ *   Stripe.payerVisio(slotData)      → redirige vers Stripe Checkout 50€
  *   Stripe.acheterCredits(pack)      → redirige vers Stripe Checkout (pro)
  *
  * La clé publishable est publique (côté client).
@@ -29,6 +29,26 @@ const STRIPE_CONFIG = {
 
 // ── Produits ──────────────────────────────────────────────────
 const STRIPE_PRODUCTS = {
+  // Abonnements patient
+  abo_essentiel: {
+    name:        'NutriDoc Essentiel',
+    description: 'Tableau de bord complet · Conseils personnalisés illimités · Menus · Diét. assigné',
+    amount:      500,   // 5€/mois TTC
+    currency:    'eur',
+  },
+  abo_premium: {
+    name:        'NutriDoc Premium',
+    description: '1 plan offert / 3 mois · Accès prioritaire diét. · -20% visios',
+    amount:      900,   // 9€/mois TTC
+    currency:    'eur',
+  },
+  // Abonnement annuel Premium
+  abo_premium_an: {
+    name:        'NutriDoc Premium — Annuel',
+    description: '99€/an · Économisez 9€ vs mensuel · 1 plan offert / 3 mois',
+    amount:      9900,  // 99€/an TTC
+    currency:    'eur',
+  },
   plan: {
     name:        'Plan alimentaire personnalisé — NutriDoc',
     description: 'Plan validé et signé par un diététicien certifié RPPS · Livré sous 48h',
@@ -38,13 +58,13 @@ const STRIPE_PRODUCTS = {
   visio: {
     name:        'Consultation visio diététicien — NutriDoc',
     description: 'Consultation de 45 min avec votre diététicien · Remboursable mutuelle',
-    amount:      5500,
+    amount:      5000,
     currency:    'eur',
   },
   credits_decouverte: {
     name:        'Pack Solo — 1 plan NutriDoc Pro',
     description: '10 plans alimentaires validés · 20 € / plan',
-    amount:      2400,   // 49€ HT × 1,20 TVA = 58,80€ TTC
+    amount:      2400,   // 50€ HT × 1,20 TVA = 58,80€ TTC
     currency:    'eur',
   },
   credits_pro: {
@@ -68,6 +88,23 @@ const StripeCheckout = {
    * Patient — payer le plan alimentaire (24,90€)
    * @param {Object} bilanData - données du bilan patient
    */
+
+  /**
+   * Patient — s'abonner (5€ ou 9€/mois)
+   * @param {'essentiel'|'premium'|'premium_an'} niveau
+   */
+  async abonnerPatient(niveau = 'essentiel') {
+    const user = getCurrentUser();
+    const key  = 'abo_' + niveau;
+    return this._checkout(key, {
+      type:            'abonnement_patient',
+      patient_id:      user?.id    ?? 'demo',
+      patient_email:   user?.email ?? '',
+      patient_prenom:  user?.prenom ?? '',
+      niveau,
+    });
+  },
+
   async payerPlan(bilanData = {}) {
     const user = getCurrentUser();
     return this._checkout('plan', {
@@ -83,7 +120,7 @@ const StripeCheckout = {
   },
 
   /**
-   * Patient — réserver une visio (55€)
+   * Patient — réserver une visio (50€)
    * @param {Object} slotData - { slot_key, diet_id, diet_nom, diet_email }
    */
   async payerVisio(slotData = {}) {
@@ -168,8 +205,11 @@ const StripeCheckout = {
   // ── Simulateur paiement (mode démo) ─────────────────────────
   _simulerPaiement(productKey, metadata) {
     const LABELS = {
+      abo_essentiel:      '✓ Abonnement Essentiel activé (5€/mois) — démo',
+      abo_premium:        '✓ Abonnement Premium activé (9€/mois) — démo',
+      abo_premium_an:     '✓ Abonnement Premium annuel activé (99€/an) — démo',
       plan:               '✓ Plan alimentaire commandé (24,90€) — démo',
-      visio:              '✓ Visio réservée (55€) — démo',
+      visio:              '✓ Visio réservée (50€) — démo',
       pack_solo:          '✓ 1 plan commandé (20€) — démo',
       pack_dix:           '✓ 10 plans commandés (180€) — démo',
       pack_vingt:         '✓ 20 plans commandés (340€) — démo',

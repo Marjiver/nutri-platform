@@ -13,6 +13,16 @@
   <script src="js/cookies.js"></script>
   <script src="js/pdf-plan.js" defer></script>
   <script src="js/stripe.js" defer></script>
+
+<script>
+// Stub pour fonctions optionnelles non encore chargées
+if (typeof initSupportWidget === 'undefined') {
+  function initSupportWidget(id, role) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+}
+</script>
 </head>
 <body class="page-dashboard">
 
@@ -31,6 +41,7 @@
     </div>
 
     <!-- Statut -->
+    <div id="upgradeBanner"></div>
     <div class="status-card" id="statusCard">
       <div class="status-dot pending" id="statusDot"></div>
       <div>
@@ -89,6 +100,9 @@
     </section>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+  const niv = getNiveauPatient();
+  afficherBanniereUpgrade(niv);
+  masquerSectionsGratuit(niv);
       if(typeof renderQuiz !== 'undefined') {
         setTimeout(() => renderQuiz('quizContainer'), 1500);
       }
@@ -108,7 +122,7 @@
     <!-- PAYANT : Plan avec grammages -->
     <section class="dashboard-section" id="sectionPlan">
       <div class="section-header-row">
-        <h3>Plan alimentaire personnalisé</h3>
+        <h3>Plan alimentaire complet — Passez au niveau supérieur</h3>
         <span class="paid-badge">Premium</span>
       </div>
 
@@ -117,7 +131,7 @@
         <div class="paywall-content">
           <div class="paywall-icon">📋</div>
           <h4>Plan avec grammages précis</h4>
-          <p>Recevez un plan sur 4 semaines avec les grammages exacts par repas, la répartition de vos macronutriments, et la signature d'un diététicien certifié.</p>
+          <p>Grammages précis par repas, répartition protéines / glucides / lipides sur 4 semaines. Contrairement aux conseils généraux, vous savez exactement quoi manger et en quelle quantité. Signé par votre diét. — valable pour votre mutuelle.</p>
           <ul class="paywall-features">
             <li><span class="ok">✓</span> Grammages précis par repas</li>
             <li><span class="ok">✓</span> Répartition protéines / glucides / lipides</li>
@@ -126,7 +140,16 @@
             <li><span class="ok">✓</span> PDF téléchargeable</li>
           </ul>
           <div class="paywall-price">
-            <span class="price-amount">14,90 €</span>
+            <div style="background:#e1f5ee;border:1px solid #9FE1CB;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="font-weight:500;color:#0f6e56;font-size:.88rem;margin-bottom:.5rem;">✅ Ce que vous avez déjà gratuitement</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <span style="background:rgba(255,255,255,.7);border-radius:8px;padding:.3rem .65rem;font-size:.74rem;color:#0d2018;">📋 Bilan nutritionnel</span>
+            <span style="background:rgba(255,255,255,.7);border-radius:8px;padding:.3rem .65rem;font-size:.74rem;color:#0d2018;">🥗 3 recommandations diét.</span>
+            <span style="background:rgba(255,255,255,.7);border-radius:8px;padding:.3rem .65rem;font-size:.74rem;color:#0d2018;">📅 1 idée de menu / semaine</span>
+          </div>
+          <div style="font-size:.74rem;color:#0f6e56;margin-top:.6rem;">Pour des grammages précis et un plan signé RPPS → passez au niveau supérieur</div>
+        </div>
+        <span class="price-amount">24,90 €</span>
             <span class="price-label">paiement unique</span>
           </div>
           
@@ -148,7 +171,7 @@
           </button>
           <p class="paywall-reassurance">Paiement sécurisé · Remboursé si non livré sous 5 jours</p>
           <div style="margin-top:.75rem;padding:.75rem;background:#eff6ff;border-radius:8px;font-size:.8rem;color:#1e40af;border:1px solid #bfdbfe;text-align:left;">
-            <strong>Ajouter une visio de suivi</strong> — 55 € supplémentaires<br>
+            <strong>Ajouter une visio de suivi</strong> — 50 € supplémentaires<br>
             <span style="font-size:.75rem;opacity:.8;">Consultation remboursable partiellement par votre mutuelle (vérifiez votre contrat rubrique "Diététique" ou "Prévention").</span>
           </div>
         </div>
@@ -156,7 +179,8 @@
 
       <!-- État B : payé, en attente validation -->
       <div id="planPending" class="hidden">
-        <div class="status-card">
+        <div id="upgradeBanner"></div>
+    <div class="status-card">
           <div class="status-dot pending"></div>
           <div>
             <p class="status-label">Paiement reçu · Plan en cours de rédaction</p>
@@ -175,7 +199,8 @@
 
       <!-- État C : plan validé et disponible -->
       <div id="planUnlocked" class="hidden">
-        <div class="status-card" style="margin-bottom:1.25rem;">
+        <div id="upgradeBanner"></div>
+    <div class="status-card" style="margin-bottom:1.25rem;">
           <div class="status-dot validated"></div>
           <div>
             <p class="status-label">Plan validé par</p>
@@ -417,7 +442,7 @@
       </div>
       <label class="checkbox-option" style="margin:.5rem 0;font-size:.82rem;">
         <input type="checkbox" id="addVisio" onchange="updateModalTotal()"/>
-        <span>Ajouter une visio de suivi — +55 € <span style="font-size:.72rem;color:var(--gray);">(remboursable mutuelle)</span></span>
+        <span>Ajouter une visio de suivi — +50 € <span style="font-size:.72rem;color:var(--gray);">(remboursable mutuelle)</span></span>
       </label>
       <div class="modal-total">Total : <strong id="modalTotalVal">24,90 €</strong></div>
       <div class="modal-actions">
@@ -709,7 +734,7 @@
         new Chart(ctxP, {
           type:'line',
           data:{
-            labels:['J-60','J-45','J-30','J-15','Aujourd'hui'],
+            labels:['J-60','J-45','J-30','J-15','Aujourd\'hui'],
             datasets:[{
               data:[68,67.5,66.8,65.5,65],
               borderColor:'#1D9E75',borderWidth:2,fill:true,

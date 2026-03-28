@@ -2,23 +2,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+    <meta name="description" content="Prescrivez des plans nutritionnels certifiés RPPS à vos patients. Médecin, kiné, coach… Rejoignez NutriDoc avec votre SIRET."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inscription prescripteur — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
-  <script src="js/nav.js" defer></script>
   <script src="js/email.js" defer></script>
   <script src="js/cookies.js"></script>
   <script src="js/stripe.js" defer></script>
 </head>
 <body>
 
-<header class="header">
-  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-  <nav class="nav"><a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a></nav>
+<header style="position:sticky;top:0;z-index:100;background:rgba(13,32,24,.98);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;">
+  <a href="index.html" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:#fff;text-decoration:none;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em></a>
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <a href="index.html" style="font-size:.82rem;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.55)'">← Accueil</a>
+    <a href="accueil-dieteticien.html" style="font-size:.82rem;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.55)'">Espace Diét.</a>
+    <a href="login.html" style="font-size:.82rem;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.35rem .9rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.45)'" onmouseout="this.style.borderColor='rgba(255,255,255,.2)'">Déjà inscrit ? Se connecter</a>
+  </div>
 </header>
+
+<!-- Barre profil -->
+<div style="background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.38rem 2rem;position:sticky;top:68px;z-index:99;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
+    <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
+    <a href="index.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>
+    <a href="accueil-dieteticien.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🥗 Diététicien</a>
+    <a href="inscription-prescripteur.html" style="font-size:.72rem;font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏥 Pro de santé</a>
+  </div>
+</div>
 
 <main>
 
@@ -33,7 +47,7 @@
           <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Ouvert à tous les professionnels déclarés (SIRET obligatoire)</div>
           <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Diététicien certifié RPPS responsable de la validation</div>
           <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>CRM intégré — suivi de vos clients ou patients</div>
-          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Alerte santés automatiques — cas médicaux redirigés</div>
+          <div class="insc-avantage"><span class="insc-av-dot" style="background:rgba(14,165,233,.6);"></span>Alerte santé automatiques — cas médicaux redirigés</div>
         </div>
         <div class="delai-banner" style="background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.2);margin-top:1.5rem;">
           <div class="delai-icon" style="background:#0ea5e9;">⏱</div>
@@ -45,7 +59,7 @@
       </div>
       <div class="insc-hero-stats">
         <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
-          <div class="insc-stat-val" style="color:#7dd3fc;">4,38 €</div>
+          <div class="insc-stat-val" style="color:#7dd3fc;">10 €</div>
           <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">/ plan dès 50 crédits</div>
         </div>
         <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
@@ -54,7 +68,7 @@
         </div>
         <div class="insc-stat" style="background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2);">
           <div class="insc-stat-val" style="color:#7dd3fc;">∞</div>
-          <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">crédits sans expiration</div>
+          <div class="insc-stat-label" style="color:rgba(255,255,255,.5);">crédits valables 12 mois</div>
         </div>
       </div>
     </div>
@@ -89,13 +103,13 @@
     <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
       <div class="section-tag" style="color:#0284c7;background:rgba(14,165,233,.08);">Tarifs</div>
       <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:.75rem;">Packs de crédits plans</h2>
-      <p style="color:var(--gray);font-size:.9rem;margin-bottom:2rem;max-width:500px;">1 crédit = 1 plan alimentaire validé par un diét. certifié. Sans expiration, rechargeables à tout moment.</p>
+      <p style="color:var(--gray);font-size:.9rem;margin-bottom:2rem;max-width:500px;">1 plan = 1 livraison alimentaire validé par un diét. certifié. Sans expiration, rechargeables à tout moment.</p>
       <div class="pricing-diet-grid">
         <div class="pricing-diet-card pack-decouverte" id="packCard10" onclick="selectPack('10',this)">
           <div class="pdc-header">
             <div class="pdc-name">Découverte</div>
             <div class="pdc-price-wrap"><div class="pdc-price">49<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 10 crédits</div></div>
-            <div class="pdc-engage">4,90 € / plan</div>
+            <div class="pdc-engage">10 € / plan</div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
@@ -105,14 +119,14 @@
             <li class="yes">Livré sous 48h ouvrés</li>
             <li class="no">Remise volume</li>
           </ul>
-          <div class="pdc-cta pack-cta-decouverte">Choisir Découverte</div>
+          <div class="pdc-cta pack-cta-decouverte">Choisir Solo</div>
         </div>
         <div class="pricing-diet-card pack-pro" id="packCard20" onclick="selectPack('20',this)">
           <div class="pdc-badge pack-badge-pro" style="background:#0ea5e9;">⭐ Recommandé</div>
           <div class="pdc-header">
             <div class="pdc-name" style="color:#0d1f3c;">Pro</div>
             <div class="pdc-price-wrap"><div class="pdc-price" style="color:#0d1f3c;">89<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 20 crédits</div></div>
-            <div class="pdc-engage"><span class="pdc-saving pdc-saving-pro">4,45 € / plan · −9%</span></div>
+            <div class="pdc-engage"><span class="pdc-saving pdc-saving-pro">10 € / plan · −9%</span></div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
@@ -122,13 +136,13 @@
             <li class="yes">Livré sous 48h ouvrés</li>
             <li class="yes">Remise 9%</li>
           </ul>
-          <div class="pdc-cta pack-cta-pro" style="background:#0ea5e9;border-color:#0ea5e9;">Choisir Pro</div>
+          <div class="pdc-cta pack-cta-pro" style="background:#0ea5e9;border-color:#0ea5e9;">Choisir Standard</div>
         </div>
         <div class="pricing-diet-card pack-volume" id="packCard50" onclick="selectPack('50',this)" style="border-color:#14b8a6;">
           <div class="pdc-header">
             <div class="pdc-name" style="color:#0f766e;">Volume</div>
             <div class="pdc-price-wrap"><div class="pdc-price" style="color:#0f766e;">219<span class="pdc-currency">€</span></div><div class="pdc-period">HT · 50 crédits</div></div>
-            <div class="pdc-engage"><span class="pdc-saving" style="background:rgba(20,184,166,.1);color:#0f766e;">4,38 € / plan · −11%</span></div>
+            <div class="pdc-engage"><span class="pdc-saving" style="background:rgba(20,184,166,.1);color:#0f766e;">10 € / plan</span></div>
           </div>
           <div class="pdc-divider"></div>
           <ul class="pdc-features">
@@ -138,13 +152,13 @@
             <li class="yes">Livré sous 48h ouvrés</li>
             <li class="yes">Meilleur tarif — remise 11%</li>
           </ul>
-          <div class="pdc-cta" style="color:#0f766e;border-color:#14b8a6;">Choisir Volume</div>
+          <div class="pdc-cta" style="color:#0f766e;border-color:#14b8a6;">Choisir Expert</div>
         </div>
       </div>
       <div class="insc-pricing-reassurance">
-        <span>✓ Crédits sans expiration</span>
+        <span>✓ Plans valables 12 mois</span>
         <span>✓ Rechargement à tout moment</span>
-        <span>✓ 1 crédit = 1 plan, même en alerte santé</span>
+        <span>✓ 1 crédit = 1 plan validé et livré</span>
         <span>✓ SIRET vérifié à l'inscription</span>
       </div>
     </div>
@@ -237,7 +251,10 @@
                 <div class="rpps-status" id="siretStatus"><span class="rpps-hint">0 / 14 chiffres</span></div>
               </div>
               <div class="rpps-feedback" id="siretFeedback"></div>
-              <span class="field-hint">Votre SIRET confirme que vous exercez une activité professionnelle déclarée en France.</span>
+              <span class="field-hint">Votre SIRET confirme que vous exercez une activité professionnelle déclarée en France.
+      <div style="margin-top:.6rem;padding:.6rem .875rem;background:rgba(29,158,117,.08);border-radius:8px;font-size:.75rem;color:rgba(255,255,255,.6);">
+        Pas encore de SIRET ? Vous pouvez créer une micro-entreprise en 24h sur <strong>autoentrepreneur.urssaf.fr</strong> avant de vous inscrire.
+      </div></span>
             </div>
 
             <!-- Périmètre -->
@@ -267,7 +284,7 @@
             <div class="form-group">
               <label>Pack choisi <span class="req">*</span></label>
               <div class="formule-recap" style="border-color:#0ea5e9;background:#eff6ff;">
-                <div class="formule-recap-name" id="pPackRecapName" style="color:#0284c7;">Pro — 20 crédits · 89 € HT</div>
+                <div class="formule-recap-name" id="pPackRecapName" style="color:#0284c7;">Pro — 20 crédits · 130 € HT</div>
                 <button type="button" class="formule-change" style="color:#0284c7;" onclick="scrollToPacks()">Modifier ↑</button>
               </div>
               <input type="hidden" id="pPackHidden" value="20"/>

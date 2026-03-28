@@ -95,8 +95,7 @@ function buildUniversalNav() {
             <span>${l.label}</span>
           </a>`).join('')}
         <div class="unav-conn-divider"></div>
-        <a href="admin.html" class="unav-tools-item" style="color:#8b5cf6;"><span class="unav-tools-icon">⚙</span><span>Admin CaliDoc</span></a>
-    <a href="index.html" class="unav-tools-item"><span class="unav-tools-icon">🏡</span><span>Accueil</span></a>
+        <a href="index.html" class="unav-tools-item"><span class="unav-tools-icon">🏡</span><span>Accueil</span></a>
         <a href="#" onclick="unavDeconnect()" class="unav-tools-item" style="color:#ef4444;"><span class="unav-tools-icon">↩</span><span>Se déconnecter</span></a>
       </div>
     </div>` : '';
@@ -119,12 +118,29 @@ function buildUniversalNav() {
   </div>
 </nav>`;
 
-  // Sur index.html, le nd-header natif gère déjà tout → on ne double pas
+  // Sur les pages avec leur propre nav → ne pas doubler
   if (document.querySelector('.nd-header')) return;
+  if (window._skipUniversalNav) return;
   // Injecter en haut du body si pas déjà fait
   if (!document.getElementById('universalNav')) {
     document.body.insertAdjacentHTML('afterbegin', navHtml);
     document.body.style.paddingTop = '60px';
+  }
+
+  // Barre profil sous la nav universelle
+  if (!document.getElementById('unavProfilBar')) {
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    var isDiet  = page.includes('dieteticien') || page.includes('dietitian') || page.includes('agenda-diet') || page.includes('compta-diet');
+    var isPresc = page.includes('prescripteur');
+    var barHtml = '<div id="unavProfilBar" style="position:sticky;top:60px;z-index:98;background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.38rem 2rem;">' +
+      '<div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">' +
+      '<span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>' +
+      '<a href="index.html" style="font-size:.72rem;' + (!isDiet && !isPresc ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>' +
+      '<a href="accueil-dieteticien.html" style="font-size:.72rem;' + (isDiet ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🥗 Diététicien</a>' +
+      '<a href="inscription-prescripteur.html" style="font-size:.72rem;' + (isPresc ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏥 Pro de santé</a>' +
+      '</div></div>';
+    document.body.insertAdjacentHTML('afterbegin', barHtml);
+    document.body.style.paddingTop = '98px';
   }
 
 

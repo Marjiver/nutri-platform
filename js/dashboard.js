@@ -1,3 +1,76 @@
+
+// ── Niveaux abonnement patient ─────────────────────────────
+const NIVEAUX_PATIENT = {
+  gratuit:   { label:'Découverte', color:'#6b7b74', badge:'Gratuit' },
+  essentiel: { label:'Essentiel',  color:'#1D9E75', badge:'5€/mois' },
+  premium:   { label:'Premium',    color:'#0d2018', badge:'9€/mois' },
+};
+
+function getNiveauPatient() {
+  try {
+    const b = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
+    return b.niveau_abo || 'gratuit';
+  } catch { return 'gratuit'; }
+}
+
+function afficherBanniereUpgrade(niveau) {
+  if (niveau === 'premium') return;
+  const banner = document.getElementById('upgradeBanner');
+  if (!banner) return;
+
+  if (niveau === 'gratuit') {
+    banner.innerHTML = `
+      <div style="background:#fff;border:1px solid #e8edeb;border-radius:12px;padding:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem;">
+        <div>
+          <div style="font-weight:500;color:#0d2018;margin-bottom:.2rem;">Vous êtes en version Découverte (gratuite)</div>
+          <div style="font-size:.8rem;color:#6b7b74;">Passez à Essentiel (5€/mois) pour accéder au tableau de bord complet, aux conseils illimités et à votre diét. attitré.</div>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button onclick="StripeCheckout.abonnerPatient('essentiel').catch(console.error)"
+            style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.5rem 1.1rem;font-size:.82rem;font-weight:500;cursor:pointer;">
+            Passer à Essentiel — 5€/mois
+          </button>
+          <button onclick="StripeCheckout.abonnerPatient('premium').catch(console.error)"
+            style="background:#0d2018;color:#fff;border:none;border-radius:999px;padding:.5rem 1.1rem;font-size:.82rem;cursor:pointer;">
+            Premium — 9€/mois
+          </button>
+        </div>
+      </div>`;
+  } else if (niveau === 'essentiel') {
+    banner.innerHTML = `
+      <div style="background:#e1f5ee;border:1px solid #9FE1CB;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem;">
+        <div style="font-size:.82rem;color:#0f6e56;">
+          <strong>Abonnement Essentiel actif</strong> · Passez à Premium (9€/mois) pour recevoir 1 plan offert tous les 3 mois.
+        </div>
+        <button onclick="StripeCheckout.abonnerPatient('premium').catch(console.error)"
+          style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.4rem .9rem;font-size:.78rem;cursor:pointer;white-space:nowrap;">
+          Passer à Premium →
+        </button>
+      </div>`;
+  }
+}
+
+function masquerSectionsGratuit(niveau) {
+  if (niveau === 'gratuit') {
+    // Masquer certaines sections avec un overlay "bloqué"
+    const sections = ['sectionMacros', 'sectionPoids', 'quizSection'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.position = 'relative';
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(247,249,247,.92);border-radius:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;';
+      overlay.innerHTML = `
+        <div style="font-size:.875rem;font-weight:500;color:#0d2018;margin-bottom:.5rem;">🔒 Disponible avec Essentiel (5€/mois)</div>
+        <button onclick="StripeCheckout.abonnerPatient('essentiel').catch(console.error)"
+          style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.78rem;cursor:pointer;">
+          Débloquer
+        </button>`;
+      el.appendChild(overlay);
+    });
+  }
+}
+
 const OBJECTIF_LABELS = {
   perte_poids: 'Perte de poids', prise_masse: 'Prise de masse',
   equilibre: 'Alimentation équilibrée', energie: 'Améliorer mon énergie', sante: 'Prévention santé'

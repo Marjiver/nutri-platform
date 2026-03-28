@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /dashboard.html
+Disallow: /dietitian.html
+Disallow: /prescripteur-dashboard.html
+Disallow: /prescripteur-crm.html
+Disallow: /agenda-dieteticien.html
+Disallow: /compta-dieteticien.html
+Disallow: /compta-prescripteur.html
+
+Sitemap: https://nutridoc.calidoc-sante.fr/sitemap.xml

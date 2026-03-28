@@ -347,7 +347,7 @@ tbody tr:hover td{background:#fafcfa}
         </div>
         <div class="kpi-card" style="--kpi-color:#ef4444">
           <div class="kpi-icon" style="background:#fef2f2">🚨</div>
-          <div class="kpi-label">Alerte santés</div>
+          <div class="kpi-label">Alerte santé</div>
           <div class="kpi-value" id="kpiRedFlags">7</div>
           <div class="kpi-delta down">↑ +2 ce mois</div>
         </div>
@@ -355,7 +355,7 @@ tbody tr:hover td{background:#fafcfa}
           <div class="kpi-icon" style="background:#e1f5ee">📅</div>
           <div class="kpi-label">Visios réalisées</div>
           <div class="kpi-value" id="kpiVisios">23</div>
-          <div class="kpi-delta up">× 55 € = 1 265 €</div>
+          <div class="kpi-delta up">× 50 € = 1 265 €</div>
         </div>
       </div>
 
@@ -444,7 +444,7 @@ tbody tr:hover td{background:#fafcfa}
           <div class="chart-wrap" style="height:150px"><canvas id="chartPlansRev"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-header"><div class="chart-title">Visios 55 €</div></div>
+          <div class="chart-header"><div class="chart-title">Visios 50 €</div></div>
           <div class="chart-wrap" style="height:150px"><canvas id="chartVisiosRev"></canvas></div>
         </div>
         <div class="chart-card">
@@ -519,7 +519,7 @@ tbody tr:hover td{background:#fafcfa}
 
       <div class="inline-stats">
         <div class="inline-stat">📋 Plans achetés : <strong>89</strong></div>
-        <div class="inline-stat">🚨 Alerte santés : <strong>7</strong></div>
+        <div class="inline-stat">🚨 Alerte santé : <strong>7</strong></div>
         <div class="inline-stat">📅 Visios : <strong>23</strong></div>
         <div class="inline-stat">🆓 Gratuits seuls : <strong>181</strong> (73%)</div>
       </div>
@@ -737,7 +737,7 @@ tbody tr:hover td{background:#fafcfa}
                 <th>Trimestre</th>
                 <th>Période</th>
                 <th>CA Plans (24,90€)</th>
-                <th>CA Visios (55€)</th>
+                <th>CA Visios (50€)</th>
                 <th>CA Abonnements diét.</th>
                 <th>CA Crédits pro</th>
                 <th style="color:var(--green)">CA Total</th>
@@ -918,10 +918,10 @@ tbody tr:hover td{background:#fafcfa}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
         <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:1rem;font-size:.82rem">
           <div style="font-weight:600;color:#dc2626;margin-bottom:.5rem">⚠ Modèle "en nom propre" — Implications TVA</div>
-          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 55€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
+          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 50€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
           <div style="background:#fee2e2;border-radius:6px;padding:.6rem .8rem;margin-top:.5rem">
             <div>Plan 24,90€ TTC → base HT : <strong>20,75€</strong> · TVA : <strong>4,15€</strong></div>
-            <div>Visio 55€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
+            <div>Visio 50€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
           </div>
         </div>
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:1rem;font-size:.82rem">
@@ -973,7 +973,7 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Reversement visio (patient paie 55€)</span>
+              <span>Reversement visio (patient paie 50€)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
                 <input type="number" value="49" min="0" max="55" id="commVisio"
                   style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
@@ -1111,14 +1111,11 @@ tbody tr:hover td{background:#fafcfa}
       <div class="chart-card" style="margin-top:1rem;">
         <div class="chart-header"><div class="chart-title">Relances automatiques actives</div></div>
         <div style="display:flex;flex-direction:column;gap:.6rem;">
-          ${['Patient sans plan après 48h de conseils gratuits','Diét. sans activité depuis 7 jours','Prescripteur avec crédits < 3','Rappel abonnement diét. Pro J-3 avant prélèvement','Plan commandé non livré sous 24h'].map((r,i)=>`
-          <div class="inline-stat" style="justify-content:space-between;">
-            <span style="font-size:.8rem;">${r}</span>
-            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;">
-              <input type="checkbox" ${i<3?'checked':''} style="accent-color:var(--green);"/>
-              <span style="font-size:.75rem;color:var(--gray);">${i<3?'Actif':'Inactif'}</span>
-            </label>
-          </div>`).join('')}
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Patient sans plan après 48h de conseils gratuits</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Diét. sans activité depuis 7 jours</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Prescripteur avec crédits insuffisants</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Rappel abonnement diét. Pro J-3 avant prélèvement</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Inactif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Plan commandé non livré sous 24h</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Inactif</span></label></div>
         </div>
       </div>
     </div>
@@ -1133,8 +1130,8 @@ tbody tr:hover td{background:#fafcfa}
           <div class="chart-header"><div class="chart-title">Tarifs</div></div>
           <div style="display:flex;flex-direction:column;gap:.75rem">
             <div class="inline-stat" style="justify-content:space-between"><span>Plan premium patient</span><strong>24,90 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Visio patient</span><strong>55,00 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Reversement visio diét.</span><strong>49,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Visio patient</span><strong>50,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Reversement visio diét.</span><strong>50,00 €</strong></div>
             <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Essentiel)</span><strong>16,00 €</strong></div>
             <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Pro)</span><strong>18,00 €</strong></div>
             <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Expert)</span><strong>20,00 €</strong></div>
@@ -1193,7 +1190,7 @@ const DIETS_DATA = [
 const PRESC_DATA = [
   { nom:'Dr. G. Rolland',  prof:'Médecin généraliste', siret:'123 456 789 00012', pack:'Pro 20cr',    credits:6,  ca:'89 €'  },
   { nom:'K. Moreau',       prof:'Kinésithérapeute',    siret:'234 567 890 00034', pack:'Volume 50cr', credits:34, ca:'219 €' },
-  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'49 €'  },
+  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'50 €'  },
   { nom:'Dr. M. Perret',   prof:'Médecin du sport',    siret:'456 789 012 00078', pack:'Pro 20cr',    credits:14, ca:'89 €'  },
 ];
 const PLANS_DATA = [
@@ -1219,10 +1216,10 @@ const TICKETS_DATA = [
 ];
 const TRANSACTIONS_DATA = [
   { date:'27/03', type:'Plan premium',   montant:'24,90 €', de:'Marie D.',   reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
-  { date:'27/03', type:'Visio',          montant:'55,00 €', de:'Thomas K.',  reverse:'49,00 €', net:'6,00 €',  statut:'payé'    },
+  { date:'27/03', type:'Visio',          montant:'50,00 €', de:'Thomas K.',  reverse:'50,00 €', net:'6,00 €',  statut:'payé'    },
   { date:'26/03', type:'Pack Pro',       montant:'89,00 €', de:'Dr. Rolland',reverse:'—',       net:'89,00 €', statut:'payé'    },
   { date:'26/03', type:'Plan premium',   montant:'24,90 €', de:'Sophie M.',  reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
-  { date:'25/03', type:'Abonnement Pro', montant:'49,00 €', de:'Dr. Lemaire',reverse:'—',       net:'49,00 €', statut:'payé'    },
+  { date:'25/03', type:'Abonnement Pro', montant:'50,00 €', de:'Dr. Lemaire',reverse:'—',       net:'50,00 €', statut:'payé'    },
   { date:'24/03', type:'Plan premium',   montant:'24,90 €', de:'Lucas B.',   reverse:'16,00 €', net:'8,90 €',  statut:'payé'    },
 ];
 
@@ -1508,8 +1505,8 @@ function filterTable(type)    { /* à brancher sur Supabase */ }
 // ── Données CA mensuel 2025 ───────────────────────────────────
 const CA_MENSUEL = {
   // CA réel ou estimé par mois (HT = prix TTC / 1.20)
-  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 55€ TTC → 45,83€ HT
-  // Abonnements diét. : 49€ TTC → 40,83€ HT · Crédits pro : prix HT
+  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 50€ TTC → 45,83€ HT
+  // Abonnements diét. : 50€ TTC → 40,83€ HT · Crédits pro : prix HT
   Jan: { plans: 890,  visios: 330, abo: 540, credits: 120 },
   Fév: { plans: 1020, visios: 495, abo: 540, credits: 160 },
   Mar: { plans: 1340, visios: 550, abo: 590, credits: 240 },

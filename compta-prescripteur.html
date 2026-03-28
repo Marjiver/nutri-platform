@@ -55,7 +55,7 @@
   </div>
 
   <!-- Crédits restants -->
-  <div class="dashboard-section" style="background:var(--green-light);border:1px solid #9FE1CB;">
+  <div class="dashboard-section" style="background:var(--green-light);border:1px solid var(--green-border);">
     <div class="section-header-row">
       <h3 style="color:var(--green2);">Crédits disponibles</h3>
       <a href="inscription-prescripteur.html" class="btn-validate">+ Recharger</a>
@@ -127,7 +127,7 @@ function renderPlans() {
     <td>${p.objectif}</td>
     <td>${p.diet}</td>
     <td style="text-align:center;">1</td>
-    <td><span style="color:${STATUS_COLORS[p.statut]||'#6b7b74'};font-weight:500;">${p.statut}</span></td>
+    <td><span style="color:${STATUS_COLORS[p.statut]||'var(--gray)'};font-weight:500;">${p.statut}</span></td>
   </tr>`).join('');
 }
 

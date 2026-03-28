@@ -72,6 +72,39 @@ serve(async (req: Request) => {
   }
 });
 
+
+// ── ABONNEMENT PATIENT (5€ ou 9€) ───────────────────────────
+async function abonnementPatientPaid(db: any, session: any, meta: any) {
+  const niveau = meta.niveau ?? 'essentiel';
+  const mois   = niveau === 'premium_an' ? 12 : 1;
+
+  await db.from("profiles").update({
+    niveau_abo:   niveau,
+    abo_debut:    new Date().toISOString(),
+    abo_fin:      new Date(Date.now() + mois * 30 * 86400000).toISOString(),
+    stripe_id:    session.id,
+    updated_at:   new Date().toISOString(),
+  }).eq("id", meta.patient_id);
+
+  // Email de bienvenue
+  await email("bienvenue_abo", meta.patient_email, {
+    prenom: meta.patient_prenom,
+    niveau,
+    montant: niveau === 'essentiel' ? '5€/mois' : niveau === 'premium_an' ? '99€/an' : '9€/mois',
+  });
+
+  // Si Premium : créer un rappel pour le plan offert dans 3 mois
+  if (niveau === 'premium' || niveau === 'premium_an') {
+    await db.from("alertes").insert({
+      type:      'plan_offert',
+      patient_id: meta.patient_id,
+      flags:     ['Plan offert Premium — dans 3 mois'],
+      lu:        false,
+    });
+  }
+  console.log(`Abonnement ${niveau} activé — patient ${meta.patient_id}`);
+}
+
 // ── PLAN PREMIUM (24,90€) ─────────────────────────────────────
 async function planPaid(db: any, session: any, meta: any) {
   // 1. Enregistrer le paiement
@@ -117,7 +150,7 @@ async function planPaid(db: any, session: any, meta: any) {
   }
 }
 
-// ── VISIO (55€) ───────────────────────────────────────────────
+// ── VISIO (50€) ───────────────────────────────────────────────
 async function visioPaid(db: any, session: any, meta: any) {
   const [date, heure] = (meta.slot_key ?? "_").split("_");
 
@@ -126,8 +159,8 @@ async function visioPaid(db: any, session: any, meta: any) {
     diet_id:     meta.diet_id,
     slot_key:    meta.slot_key,
     statut:      "confirmee",
-    montant:     5500,
-    reversement: 4900,
+    montant:     5000,
+    reversement: 5000,
     stripe_id:   session.id,
     confirmed_at: new Date().toISOString(),
   });

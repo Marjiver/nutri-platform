@@ -355,3 +355,8 @@ CREATE TRIGGER profiles_updated_at
 -- ============================================================
 -- FIN — 13 tables · 1 vue · 2 triggers · RLS partout
 -- ============================================================
+
+-- ── Colonnes abonnement patient (à ajouter si schéma déjà déployé) ──
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS niveau_abo  text DEFAULT 'gratuit';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS abo_debut   timestamptz;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS abo_fin     timestamptz;

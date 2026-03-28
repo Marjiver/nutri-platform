@@ -3,7 +3,7 @@ const totalPrescSteps = 3;
 let packSelectionne = '20';
 
 const PACKS = {
-  '10': 'Découverte — 10 crédits · 49 € HT',
+  '10': 'Découverte — 10 crédits · 50 € HT',
   '20': 'Pro — 20 crédits · 89 € HT',
   '50': 'Volume — 50 crédits · 219 € HT'
 };

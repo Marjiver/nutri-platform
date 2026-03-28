@@ -5,7 +5,7 @@ let formuleSelectionnee = 'pro';
 const FORMULES = {
   essentiel: { label: 'Essentiel — 5 € / plan validé' },
   pro:       { label: 'Pro — 29 € / mois' },
-  expert:    { label: 'Expert — 55 € / mois (annuel)' }
+  expert:    { label: 'Expert — 50 € / mois (annuel)' }
 };
 
 // ── Tarifs — sélection depuis les cards ──────────────────────

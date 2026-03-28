@@ -2,24 +2,35 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+    <meta name="description" content="Inscrivez-vous gratuitement sur NutriDoc. Accédez aux dossiers patients, validez des plans et encaissez directement. RPPS requis."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inscription diététicien — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
-  <script src="js/nav.js" defer></script>
+  
   <script src="js/email.js" defer></script>
   <script src="js/cookies.js"></script>
 </head>
 <body class="page-inscription-diet">
 
-<header class="header">
-  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-  <nav class="nav">
-    <a href="login.html" class="btn-back-link">Déjà inscrit ? Se connecter</a>
-  </nav>
+<header style="position:sticky;top:0;z-index:100;background:rgba(13,32,24,.98);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;">
+  <a href="index.html" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:#fff;text-decoration:none;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em><span style="font-size:.6rem;background:#1D9E75;color:#fff;border-radius:999px;padding:2px 8px;margin-left:.35rem;vertical-align:middle;text-transform:uppercase;letter-spacing:.07em;">Diét.</span></a>
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <a href="index.html" style="font-size:.82rem;color:rgba(255,255,255,.55);text-decoration:none;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.55)'">← Accueil</a>
+    <a href="login.html?role=dietitian" style="font-size:.82rem;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.35rem .9rem;text-decoration:none;">Déjà inscrit ? Se connecter</a>
+  </div>
 </header>
+
+<div style="background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.38rem 2rem;position:sticky;top:68px;z-index:99;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
+    <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
+    <a href="index.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>
+    <a href="accueil-dieteticien.html" style="font-size:.72rem;font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🥗 Diététicien</a>
+    <a href="inscription-prescripteur.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏥 Pro de santé</a>
+  </div>
+</div>
 
 <main>
 
@@ -29,11 +40,11 @@
       <div class="insc-hero-text">
         <span class="hero-tag-pill">Espace professionnel</span>
         <h1>Rejoignez le réseau<br><em>NutriDoc</em></h1>
-        <p class="hero-sub">Validez des plans alimentaires depuis chez vous. Vos coordonnées figureront sur chaque plan que vous signez — votre vitrine professionnelle auprès de chaque patient.</p>
+        <p class="hero-sub">Validez des plans alimentaires depuis chez vous. Vos coordonnées et numéro RPPS figurent sur chaque plan que vous signez. Compatible avec l'exercice libéral conventionné — chaque diét. reste seul responsable de ses actes professionnels.</p>
         <div class="insc-hero-avantages">
           <div class="insc-avantage"><span class="insc-av-dot"></span>Nom, titre et RPPS imprimés sur chaque plan</div>
           <div class="insc-avantage"><span class="insc-av-dot"></span>Dossiers patients pré-remplis et structurés</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes alerte santé automatiques</div>
+          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes santé automatiques</div>
           <div class="insc-avantage"><span class="insc-av-dot"></span>Visio intégrée selon votre formule</div>
         </div>
       </div>
@@ -59,7 +70,7 @@
           <div class="pdc-header">
             <div class="pdc-name">Essentiel</div>
             <div class="pdc-price-wrap">
-              <div class="pdc-price">5 <span class="pdc-currency">€</span></div>
+              <div class="pdc-price">0 <span class="pdc-currency">€</span></div>
               <div class="pdc-period">par plan validé</div>
             </div>
             <div class="pdc-engage">Sans engagement · Idéal pour démarrer</div>
@@ -68,7 +79,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes alerte santé automatiques</li>
+            <li class="yes">Alertes santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="no">Visio intégrée</li>
             <li class="no">Tableau de bord & statistiques</li>
@@ -83,7 +94,7 @@
           <div class="pdc-header">
             <div class="pdc-name">Pro</div>
             <div class="pdc-price-wrap">
-              <div class="pdc-price">49 <span class="pdc-currency">€</span></div>
+              <div class="pdc-price">29 <span class="pdc-currency">€</span></div>
               <div class="pdc-period">par mois · dossiers illimités</div>
             </div>
             <div class="pdc-engage">Sans engagement · Résiliable à tout moment</div>
@@ -92,7 +103,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes alerte santé automatiques</li>
+            <li class="yes">Alertes santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="yes">Visio intégrée (lien personnalisé)</li>
             <li class="yes">Tableau de bord & statistiques</li>
@@ -117,7 +128,7 @@
           <ul class="pdc-features">
             <li class="yes">Vos coordonnées sur chaque plan</li>
             <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes alerte santé automatiques</li>
+            <li class="yes">Alertes santé automatiques</li>
             <li class="yes">Accès à l'espace de validation</li>
             <li class="yes">Visio intégrée (lien personnalisé)</li>
             <li class="yes">Tableau de bord & statistiques</li>
@@ -302,7 +313,7 @@
                   <input type="text" id="dietBIC" placeholder="BNPAFRPP" maxlength="11"/>
                 </div>
               </div>
-              <div style="background:#e1f5ee;border:1px solid #9FE1CB;border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#0f6e56;margin-top:.5rem;">
+              <div style="background:#e1f5ee;border:1px solid var(--green-border);border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#0f6e56;margin-top:.5rem;">
                 🔒 Vos coordonnées bancaires sont chiffrées et uniquement accessibles par CaliDoc Santé pour les virements. Elles ne sont jamais partagées avec d'autres utilisateurs.
               </div>
             </div>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Espace Prescripteur · CaliDoc Santé</title>
+  <meta name="description" content="Prescrivez des plans alimentaires certifiés RPPS à vos clients. Médecin, kiné, coach sportif, ostéopathe — rejoignez NutriDoc avec votre SIRET."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --dark:#0d2018; --green:#1D9E75; --green-d:#0F6E56; --green-l:#E1F5EE; --gray:#6b7b74; --border:#e8edeb; --cream:#f7f9f7; --font-d:'DM Serif Display',Georgia,serif; --font-b:'DM Sans',system-ui,sans-serif; }
+    body { font-family:var(--font-b); color:var(--dark); background:#fff; line-height:1.6; }
+    a { text-decoration:none; }
+    .nav { position:sticky;top:0;z-index:100;background:var(--dark);border-bottom:1px solid rgba(255,255,255,.08); }
+    .nav-inner { max-width:1200px;margin:0 auto;padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap; }
+    .nav-logo { font-family:var(--font-d);font-size:1.3rem;color:#fff; }
+    .nav-logo em { color:var(--green);font-style:italic; }
+    .nav-badge { font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;background:#1a3a6b;color:#7dd3fc;border-radius:999px;padding:2px 8px;margin-left:.35rem;vertical-align:middle; }
+    .nav-links { display:flex;align-items:center;gap:1.5rem; }
+    .nav-links a { font-size:.875rem;color:rgba(255,255,255,.65);transition:color .2s; }
+    .nav-links a:hover { color:#fff; }
+    .nav-btns { display:flex;gap:.5rem; }
+    .btn-ghost { background:transparent;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);border-radius:999px;padding:.5rem 1.1rem;font-size:.85rem;cursor:pointer;font-family:var(--font-b);transition:all .2s;display:inline-block; }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.5);color:#fff; }
+    .btn-main { background:var(--green);color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.875rem;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:background .2s;display:inline-block; }
+    .btn-main:hover { background:var(--green-d); }
+    .profil-bar { background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.42rem 2rem; }
+    .profil-bar-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap; }
+    .pill { font-size:.72rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;color:rgba(255,255,255,.5); }
+    .pill.active { color:#fff;background:rgba(29,158,117,.18);border-color:rgba(29,158,117,.35);font-weight:500; }
+    /* Hero */
+    .hero { background:var(--dark);padding:4.5rem 2rem 3.5rem; }
+    .hero-inner { max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center; }
+    .hero-tag { display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:#7dd3fc;border:1px solid rgba(125,211,252,.2);border-radius:999px;padding:.3rem 1rem;margin-bottom:1.5rem; }
+    .hero-title { font-family:var(--font-d);font-size:clamp(2rem,4vw,2.8rem);color:#fff;line-height:1.2;margin-bottom:1.25rem; }
+    .hero-title em { color:#7dd3fc;font-style:italic; }
+    .hero-sub { font-size:1rem;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:2rem; }
+    .hero-btns { display:flex;gap:.75rem;flex-wrap:wrap; }
+    .hero-note { font-size:.73rem;color:rgba(255,255,255,.25);margin-top:.75rem; }
+    .stat-card { background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:1.25rem 1.5rem; }
+    .stat-val { font-family:var(--font-d);font-size:2rem;color:#7dd3fc;margin-bottom:.2rem;line-height:1; }
+    .stat-lbl { font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.4; }
+    .stat-row { display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem; }
+    /* Sections */
+    .section { padding:4rem 2rem; }
+    .section-cream { background:var(--cream); }
+    .section-dark { background:var(--dark); }
+    .section-inner { max-width:1100px;margin:0 auto; }
+    .section-tag { display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:500;margin-bottom:.6rem; }
+    .section-title { font-family:var(--font-d);font-size:clamp(1.6rem,3vw,2.2rem);color:var(--dark);margin-bottom:.6rem; }
+    .section-title-light { color:#fff; }
+    /* Métiers */
+    .metiers { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem; }
+    .metier { background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;transition:box-shadow .2s; }
+    .metier:hover { box-shadow:0 4px 16px rgba(13,32,24,.08); }
+    .metier-icon { font-size:1.5rem;margin-bottom:.4rem; }
+    .metier-name { font-size:.82rem;font-weight:500;color:var(--dark); }
+    /* Steps */
+    .steps { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem; }
+    .step { background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.5rem; }
+    .step-num { width:36px;height:36px;border-radius:50%;background:var(--green-l);color:var(--green-d);font-weight:600;display:flex;align-items:center;justify-content:center;margin-bottom:.875rem; }
+    .step-title { font-weight:500;color:var(--dark);margin-bottom:.35rem;font-size:.9rem; }
+    .step-desc { font-size:.82rem;color:var(--gray);line-height:1.65; }
+    /* Packs */
+    .packs { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;max-width:900px;margin:0 auto; }
+    .pack { background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.75rem;display:flex;flex-direction:column; }
+    .pack.featured { border:2px solid var(--green); }
+    .pack-tier { font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin-bottom:.5rem; }
+    .pack-tier.blue { color:#185FA5; }
+    .pack-price { font-family:var(--font-d);font-size:2.2rem;color:var(--dark);line-height:1;margin-bottom:.2rem; }
+    .pack-price span { font-size:.85rem;font-family:var(--font-b);color:var(--gray); }
+    .pack-sub { font-size:.82rem;color:var(--green);font-weight:500;margin-bottom:.3rem; }
+    .pack-desc { font-size:.78rem;color:var(--gray);margin-bottom:1.25rem; }
+    .pack-list { list-style:none;flex:1;margin-bottom:1.5rem; }
+    .pack-list li { font-size:.82rem;display:flex;gap:.4rem;padding:.25rem 0; }
+    .pack-list li.on::before { content:"✓";color:var(--green);flex-shrink:0; }
+    .pack-list li.on { color:var(--dark); }
+    .pack-cta { display:block;text-align:center;border-radius:999px;padding:.7rem;font-size:.875rem;font-weight:500;transition:all .2s; }
+    .pack-cta-main { background:var(--green);color:#fff; }
+    .pack-cta-main:hover { background:var(--green-d); }
+    .pack-cta-outline { border:1.5px solid var(--border);color:var(--dark); }
+    .pack-cta-outline:hover { border-color:var(--green);color:var(--green); }
+    /* FAQ */
+    .faq-item { border-bottom:1px solid var(--border);padding:1rem 0; }
+    .faq-q { font-weight:500;color:var(--dark);cursor:pointer;display:flex;justify-content:space-between;font-size:.9rem; }
+    .faq-a { font-size:.83rem;color:var(--gray);line-height:1.7;margin-top:.6rem;display:none; }
+    /* CTA */
+    .cta-section { background:#185FA5;padding:4rem 2rem;text-align:center; }
+    .cta-title { font-family:var(--font-d);font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:1rem; }
+    .cta-sub { font-size:.95rem;color:rgba(255,255,255,.75);margin-bottom:2rem; }
+    .cta-btn { background:#fff;color:#185FA5;border:none;border-radius:999px;padding:.85rem 2rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--font-b);display:inline-block; }
+    .footer { background:var(--dark);padding:2rem;text-align:center; }
+    .footer p { font-size:.78rem;color:rgba(255,255,255,.3); }
+    .footer a { color:rgba(255,255,255,.4); }
+    @media(max-width:768px){ .hero-inner{grid-template-columns:1fr;} .stat-row{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Nutri<em>Doc</em><span class="nav-badge">Pro</span></a>
+    <div class="nav-links">
+      <a href="#comment">Comment ça marche</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#faq">FAQ</a>
+      <a href="index.html" style="color:rgba(255,255,255,.35);font-size:.78rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .75rem;">← Espace patient</a>
+    </div>
+    <div class="nav-btns">
+      <a href="login.html?role=prescriber" class="btn-ghost">Se connecter</a>
+      <a href="inscription-prescripteur.html" class="btn-main">S'inscrire avec mon SIRET →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="profil-bar">
+  <div class="profil-bar-inner">
+    <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
+    <a href="index.html" class="pill">🧑 Patient</a>
+    <a href="accueil-dieteticien.html" class="pill">🥗 Diététicien</a>
+    <a href="accueil-prescripteur.html" class="pill active">🏥 Pro de santé / Coach</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">✓ SIRET requis · Ouvert à tous les pros déclarés</div>
+      <h1 class="hero-title">Proposez des plans nutritionnels <em>certifiés</em> à vos clients</h1>
+      <p class="hero-sub">Médecin, kiné, coach sportif, ostéopathe… Ajoutez un service nutritionnel validé par un diét. RPPS à votre offre. Vous prescrivez, un professionnel certifié s'en charge, votre client reçoit un plan signé.</p>
+      <div class="hero-btns">
+        <a href="inscription-prescripteur.html" class="btn-main" style="font-size:.95rem;padding:.75rem 1.75rem;">S'inscrire avec mon SIRET →</a>
+        <a href="#comment" class="btn-ghost" style="font-size:.95rem;padding:.75rem 1.75rem;">Voir comment ça marche</a>
+      </div>
+      <p class="hero-note">SIRET obligatoire · Pas de SIRET ? Micro-entreprise en 24h sur autoentrepreneur.urssaf.fr</p>
+    </div>
+    <div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-val">48h</div><div class="stat-lbl">Délai max de livraison au client</div></div>
+        <div class="stat-card"><div class="stat-val">10 €</div><div class="stat-lbl">Par plan dès 50 crédits (pack Expert)</div></div>
+      </div>
+      <div class="stat-card" style="margin-bottom:.875rem;">
+        <div style="font-size:.85rem;color:#fff;font-weight:500;margin-bottom:.3rem;">Vous prescrivez · un diét. RPPS valide</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.42);line-height:1.5;">Vous restez centré sur votre métier. NutriDoc s'occupe de trouver le diét., de lui transmettre le dossier, et de livrer le plan à votre client.</div>
+      </div>
+      <div class="stat-card" style="background:rgba(125,211,252,.08);border-color:rgba(125,211,252,.2);">
+        <div style="font-size:.8rem;color:#7dd3fc;font-weight:500;margin-bottom:.2rem;">✓ Aucun acte médical de votre part</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.42);">C'est le diét. certifié RPPS qui élabore, valide et signe le plan. Vous êtes prescripteur, pas praticien nutritionnel.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-cream" id="comment">
+  <div class="section-inner">
+    <span class="section-tag">Fonctionnement</span>
+    <h2 class="section-title">Comment ça marche</h2>
+    <p style="color:var(--gray);font-size:.9rem;max-width:540px;margin-bottom:2.5rem;">En 4 étapes simples. Vous commandez, NutriDoc s'occupe du reste.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-title">Vous commandez un plan pour votre client</div><div class="step-desc">Via votre espace prescripteur. Renseignez les informations du client (objectif, allergie, pathologie). 1 crédit est débité.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-title">Un diét. RPPS prend en charge le dossier</div><div class="step-desc">Assignation automatique sous 2h. Le diét. élabore le plan sur la base CIQUAL officielle et l'adapte au profil de votre client.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-title">Le plan est validé, signé et livré</div><div class="step-desc">PDF avec grammages précis par repas, macros sur 4 semaines, coordonnées et numéro RPPS du diét. Livré sous 48h ouvrées.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-title">Votre client reçoit son plan</div><div class="step-desc">Par email ou depuis votre CRM intégré. Le plan porte vos coordonnées ET celles du diét. — valeur perçue maximale pour votre client.</div></div>
+    </div>
+
+    <div style="margin-top:2rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;">
+      <p style="font-size:.85rem;font-weight:500;color:var(--dark);margin-bottom:.6rem;">Qui peut s'inscrire ?</p>
+      <div class="metiers" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));">
+        <div class="metier"><div class="metier-icon">🩺</div><div class="metier-name">Médecin</div></div>
+        <div class="metier"><div class="metier-icon">🦴</div><div class="metier-name">Kinésithérapeute</div></div>
+        <div class="metier"><div class="metier-icon">💪</div><div class="metier-name">Coach sportif</div></div>
+        <div class="metier"><div class="metier-icon">🤲</div><div class="metier-name">Ostéopathe</div></div>
+        <div class="metier"><div class="metier-icon">🏃</div><div class="metier-name">Préparateur physique</div></div>
+        <div class="metier"><div class="metier-icon">👶</div><div class="metier-name">Sage-femme</div></div>
+        <div class="metier"><div class="metier-icon">💉</div><div class="metier-name">Infirmier·e</div></div>
+        <div class="metier"><div class="metier-icon">🧬</div><div class="metier-name">Naturopathe déclaré</div></div>
+      </div>
+      <p style="font-size:.75rem;color:var(--gray);margin-top:.75rem;">+ Tout professionnel avec un SIRET valide. Aucune restriction sur le métier.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tarifs">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <span class="section-tag">Tarifs</span>
+      <h2 class="section-title">Packs de crédits plans</h2>
+      <p style="color:var(--gray);font-size:.9rem;max-width:520px;margin:.5rem auto 0;">1 crédit = 1 plan alimentaire complet validé et livré par un diét. certifié RPPS. Crédits valables 12 mois.</p>
+    </div>
+    <div class="packs">
+      <div class="pack">
+        <div class="pack-tier">Solo</div>
+        <div class="pack-price">18 € <span>HT</span></div>
+        <div class="pack-sub">1 crédit</div>
+        <div class="pack-desc">Pour tester le service</div>
+        <ul class="pack-list">
+          <li class="on">1 plan validé RPPS</li>
+          <li class="on">PDF signé livré sous 48h</li>
+          <li class="on">CRM clients inclus</li>
+        </ul>
+        <a href="inscription-prescripteur.html?pack=1" class="pack-cta pack-cta-outline">Commencer</a>
+      </div>
+      <div class="pack featured">
+        <div class="pack-tier" style="color:var(--green);">⭐ Standard — recommandé</div>
+        <div class="pack-price">130 € <span>HT</span></div>
+        <div class="pack-sub">10 crédits · 13€/plan</div>
+        <div class="pack-desc">Pour démarrer sereinement</div>
+        <ul class="pack-list">
+          <li class="on">10 plans validés RPPS</li>
+          <li class="on">PDF signé livré sous 48h</li>
+          <li class="on">CRM clients illimité</li>
+          <li class="on">Valables 12 mois</li>
+        </ul>
+        <a href="inscription-prescripteur.html?pack=10" class="pack-cta pack-cta-main">Choisir — 130€</a>
+      </div>
+      <div class="pack">
+        <div class="pack-tier">Expert</div>
+        <div class="pack-price">500 € <span>HT</span></div>
+        <div class="pack-sub">50 crédits · 10€/plan</div>
+        <div class="pack-desc">Meilleur tarif · volume</div>
+        <ul class="pack-list">
+          <li class="on">50 plans validés RPPS</li>
+          <li class="on">PDF signé livré sous 48h</li>
+          <li class="on">CRM clients illimité</li>
+          <li class="on">Valables 12 mois</li>
+        </ul>
+        <a href="inscription-prescripteur.html?pack=50" class="pack-cta pack-cta-outline">Choisir Expert</a>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:.8rem;color:var(--gray);margin-top:1.25rem;">Packs de 5 et 20 crédits aussi disponibles · Rechargez à tout moment · SIRET obligatoire à l'inscription</p>
+  </div>
+</section>
+
+<section class="section section-cream" id="faq">
+  <div class="section-inner" style="max-width:760px;">
+    <span class="section-tag">Questions fréquentes</span>
+    <h2 class="section-title" style="margin-bottom:1.75rem;">Vos questions</h2>
+    <div id="faqList">
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Ai-je le droit de prescrire des plans nutritionnels ?</span><span>+</span></div><div class="faq-a">Oui. En tant que professionnel déclaré (SIRET), vous pouvez prescrire un bilan nutritionnel à vos clients. C'est le diét. certifié RPPS qui élabore et signe le plan — vous n'exercez pas d'acte nutritionnel. Cela s'apparente à une orientation vers un spécialiste.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Je suis coach sportif salarié — puis-je m'inscrire ?</span><span>+</span></div><div class="faq-a">Oui, à condition d'avoir un SIRET personnel (micro-entreprise ou autre statut libéral). Si vous n'en avez pas encore, vous pouvez créer une micro-entreprise en 24h sur autoentrepreneur.urssaf.fr. Votre employeur n'a pas à être informé si vous agissez en dehors de vos heures de travail.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Combien puis-je facturer le plan à mon client ?</span><span>+</span></div><div class="faq-a">Vous êtes libre de fixer votre prix. NutriDoc vous fournit le plan au coût du crédit (10 à 18€ selon le pack). Vous pouvez le revendre à votre client au tarif de votre choix — par exemple 30 à 50€ dans le cadre d'un accompagnement global. Votre marge est libre.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Que se passe-t-il si mon client a une pathologie ?</span><span>+</span></div><div class="faq-a">Le système détecte automatiquement les cas sensibles (diabète, grossesse, TCA, insuffisance rénale…). Un diét. spécialisé prend alors en charge le dossier. Vous êtes notifié. Le crédit reste disponible si le cas est redirigé vers un suivi médical.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Le plan porte-t-il mes coordonnées ou celles du diét. ?</span><span>+</span></div><div class="faq-a">Les deux. Vos coordonnées professionnelles apparaissent en prescripteur, le numéro RPPS et les coordonnées du diét. apparaissent en validateur. C'est votre vitrine professionnelle ET la garantie de sérieux pour votre client.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2 class="cta-title">Proposez la nutrition à vos clients dès aujourd'hui</h2>
+  <p class="cta-sub">SIRET obligatoire · Inscription en 3 minutes · 1er plan offert en phase pilote</p>
+  <a href="inscription-prescripteur.html" class="cta-btn">S'inscrire avec mon SIRET →</a>
+  <p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-top:1rem;">Déjà inscrit ? <a href="login.html?role=prescriber" style="color:rgba(255,255,255,.7);text-decoration:underline;">Se connecter</a></p>
+</section>
+
+<footer class="footer">
+  <p>NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html">Espace patient</a> · <a href="accueil-dieteticien.html">Espace diét.</a> · <a href="mentions-legales.html">Mentions légales</a> · <a href="contact.html">Contact</a></p>
+  <p style="margin-top:.5rem;"><a href="admin.html" style="font-size:.65rem;color:rgba(255,255,255,.1);">Admin</a></p>
+</footer>
+
+<script>
+window._skipUniversalNav = true;
+function toggleFaq(el) {
+  var ans = el.nextElementSibling;
+  var icon = el.querySelector('span:last-child');
+  if (ans.style.display === 'block') {
+    ans.style.display = 'none'; icon.textContent = '+';
+  } else {
+    ans.style.display = 'block'; icon.textContent = '−';
+  }
+}
+</script>
+</body>
+</html>

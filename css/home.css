@@ -29,11 +29,13 @@ a{text-decoration:none;color:inherit}
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
   padding:1rem 2.5rem;
+  background:rgba(13,32,24,.98);
+  border-bottom:1px solid rgba(255,255,255,.07);
   transition:background .4s var(--ease),backdrop-filter .4s,box-shadow .4s;
 }
 .nd-header.scrolled{
-  background:rgba(13,32,24,.95);backdrop-filter:blur(16px);
-  box-shadow:0 1px 0 rgba(29,158,117,.12);
+  background:rgba(13,32,24,.99);backdrop-filter:blur(16px);
+  box-shadow:0 1px 0 rgba(29,158,117,.15);
 }
 .nd-logo{font-family:var(--font-d);font-size:1.5rem;color:#fff;letter-spacing:-.01em}
 .nd-logo em{font-style:italic;color:var(--green3)}
@@ -169,7 +171,7 @@ a{text-decoration:none;color:inherit}
 .nd-trust-sep  {width:1px;height:36px;background:rgba(255,255,255,.12)}
 
 /* Mockup hero */
-.nd-hero-mockup{flex:0 0 340px;position:relative;height:420px;z-index:2;margin-top:2rem}
+.nd-hero-mockup{flex:0 0 340px;position:relative;height:420px;z-index:2;margin-top:2rem;overflow:visible}
 .nd-mockup-card{
   background:rgba(255,255,255,.06);border:1px solid rgba(29,158,117,.25);
   border-radius:16px;backdrop-filter:blur(20px);
@@ -178,7 +180,8 @@ a{text-decoration:none;color:inherit}
 }
 .nd-mc-1{top:0;left:0;right:0;animation-delay:0s}
 .nd-mc-2{top:265px;left:0;width:150px;animation-delay:.8s}
-.nd-mc-3{top:340px;right:0;width:125px;text-align:center;animation-delay:1.6s}
+.nd-mc-3{top:300px;right:0;width:125px;text-align:center;animation-delay:1.6s}
+.nd-mc-4{top:0;right:-230px;width:210px;animation-delay:2s}
 @keyframes floatCard{
   0%,100%{transform:translateY(0)}
   50%     {transform:translateY(-8px)}
