@@ -137,7 +137,7 @@ function buildUniversalNav() {
       '<span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>' +
       '<a href="index.html" style="font-size:.72rem;' + (!isDiet && !isPresc ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>' +
       '<a href="accueil-dieteticien.html" style="font-size:.72rem;' + (isDiet ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🥗 Diététicien</a>' +
-      '<a href="inscription-prescripteur.html" style="font-size:.72rem;' + (isPresc ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏥 Pro de santé</a>' +
+      '<a href="inscription-prescripteur.html" style="font-size:.72rem;' + (isPresc ? 'font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);' : 'color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);') + 'border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏢 Entreprise / Experts</a>' +
       '</div></div>';
     document.body.insertAdjacentHTML('afterbegin', barHtml);
     document.body.style.paddingTop = '98px';

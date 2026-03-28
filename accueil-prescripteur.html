@@ -95,6 +95,17 @@
     .footer a { color:rgba(255,255,255,.4); }
     @media(max-width:768px){ .hero-inner{grid-template-columns:1fr;} .stat-row{grid-template-columns:1fr;} }
   </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "NutriDoc — Espace Prescripteur",
+    "description": "Prescrivez des plans alimentaires certifiés RPPS à vos patients. Médecin, kiné, coach sportif — SIRET requis.",
+    "url": "https://nutridoc.calidoc-sante.fr/accueil-prescripteur.html",
+    "keywords": "prescrire plan alimentaire, plan alimentaire médecin, plan nutritionnel coach sportif, nutrition patients, kiné nutrition, plan alimentaire certifié"
+  }
+  </script>
 </head>
 <body>
 <nav class="nav">
@@ -118,7 +129,7 @@
     <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
     <a href="index.html" class="pill">🧑 Patient</a>
     <a href="accueil-dieteticien.html" class="pill">🥗 Diététicien</a>
-    <a href="accueil-prescripteur.html" class="pill active">🏥 Pro de santé / Coach</a>
+    <a href="accueil-prescripteur.html" class="pill active">🏢 Entreprise / Experts</a>
   </div>
 </div>
 
@@ -158,7 +169,7 @@
     <p style="color:var(--gray);font-size:.9rem;max-width:540px;margin-bottom:2.5rem;">En 4 étapes simples. Vous commandez, NutriDoc s'occupe du reste.</p>
     <div class="steps">
       <div class="step"><div class="step-num">1</div><div class="step-title">Vous commandez un plan pour votre client</div><div class="step-desc">Via votre espace prescripteur. Renseignez les informations du client (objectif, allergie, pathologie). 1 crédit est débité.</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-title">Un diét. RPPS prend en charge le dossier</div><div class="step-desc">Assignation automatique sous 2h. Le diét. élabore le plan sur la base CIQUAL officielle et l'adapte au profil de votre client.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-title">Un diét. RPPS prend en charge le dossier</div><div class="step-desc">Assignation automatique sous 2h. Le diét. élabore le plan sur la base CIQUAL officielle : perte de poids, prise de masse, nutrition sportive avec périodisation entraînement/repos, pathologies chroniques (diabète, HTA…).</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-title">Le plan est validé, signé et livré</div><div class="step-desc">PDF avec grammages précis par repas, macros sur 4 semaines, coordonnées et numéro RPPS du diét. Livré sous 48h ouvrées.</div></div>
       <div class="step"><div class="step-num">4</div><div class="step-title">Votre client reçoit son plan</div><div class="step-desc">Par email ou depuis votre CRM intégré. Le plan porte vos coordonnées ET celles du diét. — valeur perçue maximale pour votre client.</div></div>
     </div>
@@ -240,6 +251,8 @@
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Je suis coach sportif salarié — puis-je m'inscrire ?</span><span>+</span></div><div class="faq-a">Oui, à condition d'avoir un SIRET personnel (micro-entreprise ou autre statut libéral). Si vous n'en avez pas encore, vous pouvez créer une micro-entreprise en 24h sur autoentrepreneur.urssaf.fr. Votre employeur n'a pas à être informé si vous agissez en dehors de vos heures de travail.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Combien puis-je facturer le plan à mon client ?</span><span>+</span></div><div class="faq-a">Vous êtes libre de fixer votre prix. NutriDoc vous fournit le plan au coût du crédit (10 à 18€ selon le pack). Vous pouvez le revendre à votre client au tarif de votre choix — par exemple 30 à 50€ dans le cadre d'un accompagnement global. Votre marge est libre.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Que se passe-t-il si mon client a une pathologie ?</span><span>+</span></div><div class="faq-a">Le système détecte automatiquement les cas sensibles (diabète, grossesse, TCA, insuffisance rénale…). Un diét. spécialisé prend alors en charge le dossier. Vous êtes notifié. Le crédit reste disponible si le cas est redirigé vers un suivi médical.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Le plan est-il importable dans mon logiciel médical (Doctolib, Medimail…) ?</span><span>+</span></div><div class="faq-a">Le plan est livré en PDF téléchargeable. Vous pouvez l'importer en pièce jointe dans n'importe quel dossier patient numérique (Doctolib, Medimail, Lifen, HelloDoc…). Nous travaillons sur une API de connexion directe pour les principaux logiciels — disponible prochainement.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Est-ce conforme aux obligations déontologiques du Conseil de l'Ordre ?</span><span>+</span></div><div class="faq-a">NutriDoc n'est pas une téléconsultation médicale — c'est un service nutritionnel complémentaire, comme orienter un patient vers un laboratoire ou un kiné partenaire. Vous prescrivez, un diét. certifié RPPS exécute. Cela ne constitue pas un acte médical de votre part et ne nécessite pas de mention spécifique dans votre activité CNOM.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Le plan porte-t-il mes coordonnées ou celles du diét. ?</span><span>+</span></div><div class="faq-a">Les deux. Vos coordonnées professionnelles apparaissent en prescripteur, le numéro RPPS et les coordonnées du diét. apparaissent en validateur. C'est votre vitrine professionnelle ET la garantie de sérieux pour votre client.</div></div>
     </div>
   </div>

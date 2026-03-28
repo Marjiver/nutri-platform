@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-    <meta name="description" content="Bilan nutritionnel gratuit en 5 minutes. Plan alimentaire personnalisé avec grammages précis, validé et signé par un diététicien certifié RPPS. Livré sous 48h."/>
+    <meta name="description" content="Bilan nutritionnel gratuit · Plan alimentaire avec grammages précis validé par un diététicien certifié RPPS. Perte de poids, prise de masse, performance sportive. Livré sous 48h. Ce que MyFitnessPal ne fait pas."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NutriDoc — Plateforme nutritionnelle certifiée · CaliDoc Santé</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -11,12 +11,46 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
   <script src="js/cookies.js"></script>
+  <meta name="keywords" content="plan alimentaire, diététicien RPPS, bilan nutritionnel gratuit, plan alimentaire personnalisé, perte de poids, prise de masse, nutrition sportive, macros, grammages, plan alimentaire sport, programme alimentaire, rééquilibrage alimentaire, coach nutrition, plan diète, CaliDoc Santé"/>
   <meta property="og:title" content="NutriDoc — La nutrition enfin prescrite par un vrai pro"/>
   <meta property="og:description" content="Bilan gratuit · Plan alimentaire certifié RPPS · Livré sous 48h"/>
   <meta property="og:type" content="website"/>
   <meta property="og:locale" content="fr_FR"/>
   <meta name="twitter:card" content="summary"/>
   <meta name="twitter:title" content="NutriDoc — La nutrition enfin prescrite par un vrai pro"/>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage",
+    "name": "NutriDoc — Plan alimentaire certifié RPPS",
+    "description": "Bilan nutritionnel gratuit en 5 minutes. Plan alimentaire personnalisé avec grammages précis, validé et signé par un diététicien certifié RPPS. Perte de poids, prise de masse, performance sportive. Livré sous 48h.",
+    "url": "https://nutridoc.calidoc-sante.fr",
+    "medicalAudience": {"@type": "Patient"},
+    "inLanguage": "fr",
+    "publisher": {
+      "@type": "Organization",
+      "name": "CaliDoc Santé",
+      "email": "contact@calidoc-sante.fr",
+      "url": "https://nutridoc.calidoc-sante.fr"
+    },
+    "mainEntity": {
+      "@type": "Service",
+      "name": "Plan alimentaire personnalisé",
+      "description": "Plan alimentaire complet avec grammages précis par repas, validé et signé par un diététicien certifié RPPS. Adapté à tous objectifs : perte de poids, prise de masse, performance sportive, santé.",
+      "provider": {"@type": "Organization", "name": "CaliDoc Santé"},
+      "serviceType": "Nutrition et diététique",
+      "areaServed": "France",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Bilan nutritionnel et conseils diététiques gratuits"
+      }
+    },
+    "keywords": "plan alimentaire, diététicien certifié RPPS, bilan nutritionnel, perte de poids, prise de masse, nutrition sportive, plan alimentaire personnalisé, grammages, macros, coach nutritionnel en ligne, plan alimentaire sport, régime personnalisé"
+  }
+  </script>
 </head>
 <body>
 
@@ -66,7 +100,7 @@
     <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
     <a href="index.html" style="font-size:.72rem;font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>
     <a href="accueil-dieteticien.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🥗 Diététicien</a>
-    <a href="accueil-prescripteur.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🏥 Pro de santé</a>
+    <a href="accueil-prescripteur.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🏢 Entreprise / Experts</a>
   </div>
 </div>
 
@@ -89,7 +123,7 @@
       <em>enfin prescrite</em><br>
       par un vrai pro.
     </h1>
-    <p class="nd-hero-sub">Bilan gratuit en 5 minutes. Plan alimentaire avec grammages précis, validé et signé par un diététicien certifié. Livré sous 48h.</p>
+    <p class="nd-hero-sub">Bilan gratuit en 5 minutes. Plan alimentaire avec grammages précis — perte de poids, prise de masse, performance sportive. Validé et signé par un diététicien certifié. Livré sous 48h.</p>
     <div class="nd-hero-ctas">
       <a href="bilan.html" class="nd-cta-main">
         Démarrer mes conseils diététiques gratuits
@@ -97,7 +131,15 @@
       </a>
       <a href="#comment" class="nd-cta-ghost">Voir comment ça marche</a>
     </div>
-    <div class="nd-hero-trust">
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem;">
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🎯 Perte de poids</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">💪 Prise de masse</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">⚡ Performance sportive</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🏃 Endurance</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🩺 Santé & prévention</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🫀 Diabète / HTA / Cholestérol</span>
+    </div>
+  <div class="nd-hero-trust">
       <div class="nd-trust-item"><span class="nd-trust-num">0 €</span><span class="nd-trust-label">Pour commencer</span></div>
       <div class="nd-trust-sep"></div>
       <div class="nd-trust-item"><span class="nd-trust-num">48h</span><span class="nd-trust-label">Délai max jours ouvrés</span></div>
@@ -110,12 +152,12 @@
     <div class="nd-mockup-card nd-mc-1">
       <div class="nd-mc-label">Plan validé · Dr. Lemaire</div>
       <div class="nd-mc-meals">
-        <div class="nd-mc-meal"><span>🍳 Petit déjeuner</span><span class="nd-mc-kcal">380 kcal</span></div>
-        <div class="nd-mc-meal"><span>🥗 Déjeuner</span><span class="nd-mc-kcal">520 kcal</span></div>
-        <div class="nd-mc-meal"><span>🍎 Collation</span><span class="nd-mc-kcal">190 kcal</span></div>
-        <div class="nd-mc-meal"><span>🍽 Dîner</span><span class="nd-mc-kcal">480 kcal</span></div>
+        <div class="nd-mc-meal"><span>🍳 Petit déjeuner</span><span class="nd-mc-kcal">selon objectif</span></div>
+        <div class="nd-mc-meal"><span>🥗 Déjeuner</span><span class="nd-mc-kcal">grammages précis</span></div>
+        <div class="nd-mc-meal"><span>🍎 Collation</span><span class="nd-mc-kcal">macros calculées</span></div>
+        <div class="nd-mc-meal"><span>🍽 Dîner</span><span class="nd-mc-kcal">4 semaines</span></div>
       </div>
-      <div class="nd-mc-total">Total · <strong>1 570 kcal</strong> · P42% G38% L20%</div>
+      <div class="nd-mc-total">Total · <strong>adapté à votre profil</strong> · macros personnalisées</div>
     </div>
     <div class="nd-mockup-card nd-mc-2">
       <div class="nd-mc2-icon">✓</div>
@@ -125,36 +167,31 @@
       <div class="nd-mc3-title">Gratuit</div>
       <div class="nd-mc3-sub">Recommandations<br>& menus</div>
     </div>
-    <div class="nd-mockup-card nd-mc-4" style="padding:.9rem 1rem;background:rgba(13,32,24,.75);border:1px solid rgba(255,255,255,.14);border-radius:14px;backdrop-filter:blur(12px);width:210px;">
+    <div class="nd-mockup-card nd-mc-4" style="padding:.9rem 1rem;background:rgba(13,32,24,.85);border:1px solid rgba(29,158,117,.25);border-radius:14px;backdrop-filter:blur(12px);width:215px;">
+      <!-- Badge conception -->
+      <div style="background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.3);border-radius:8px;padding:.3rem .6rem;margin-bottom:.65rem;text-align:center;">
+        <span style="font-size:.6rem;color:#1D9E75;font-weight:600;letter-spacing:.05em;">✦ CONÇU AVEC UN DIÉT. CERTIFIÉ</span>
+      </div>
       <!-- En-tête profil -->
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;padding-bottom:.6rem;border-bottom:1px solid rgba(255,255,255,.08);">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0a1a12);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:#fff;flex-shrink:0;font-family:'Playfair Display',serif;font-style:italic;border:1.5px solid rgba(29,158,117,.4);">GM</div>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.65rem;padding-bottom:.6rem;border-bottom:1px solid rgba(255,255,255,.08);">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0a1a12);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:#fff;flex-shrink:0;font-family:'Playfair Display',serif;font-style:italic;border:1.5px solid rgba(29,158,117,.5);">GM</div>
         <div>
           <div style="font-size:.75rem;font-weight:500;color:#fff;line-height:1.2;">Grégoire Martin</div>
-          <div style="display:flex;align-items:center;gap:.25rem;margin-top:.2rem;">
-            <span style="width:5px;height:5px;border-radius:50%;background:#1D9E75;display:inline-block;flex-shrink:0;"></span>
-            <span style="font-size:.58rem;color:#1D9E75;font-weight:500;letter-spacing:.04em;">CO-PILOTE NUTRIDOC</span>
-          </div>
+          <div style="font-size:.62rem;color:rgba(255,255,255,.45);margin-top:.1rem;">Diét.-Nutritionniste · RPPS</div>
         </div>
       </div>
-      <!-- Cursus -->
-      <div style="display:flex;flex-direction:column;gap:.35rem;">
-        <div style="display:flex;align-items:flex-start;gap:.4rem;">
-          <span style="font-size:.7rem;margin-top:.05rem;flex-shrink:0;">🏥</span>
-          <span style="font-size:.65rem;color:rgba(255,255,255,.6);line-height:1.35;">CHU Angoulême<br><span style="color:rgba(255,255,255,.35);">Diét. clinique · salarié</span></span>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:.4rem;">
-          <span style="font-size:.7rem;margin-top:.05rem;flex-shrink:0;">🏡</span>
-          <span style="font-size:.65rem;color:rgba(255,255,255,.6);line-height:1.35;">Cabinet libéral · 10 ans<br><span style="color:rgba(255,255,255,.35);">Conventionné, Angoulême</span></span>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:.4rem;">
-          <span style="font-size:.7rem;margin-top:.05rem;flex-shrink:0;">🚒</span>
-          <span style="font-size:.65rem;color:rgba(255,255,255,.6);line-height:1.35;">SDIS Charente<br><span style="color:rgba(255,255,255,.35);">SPV expert nutrition</span></span>
-        </div>
+      <!-- Message clé -->
+      <div style="font-size:.65rem;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:.65rem;">
+        Chaque plan NutriDoc est validé par un professionnel comme Grégoire — pas par un algorithme.
       </div>
-      <!-- Badge RPPS -->
-      <div style="margin-top:.65rem;padding-top:.55rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:.3rem;">
-        <span style="font-size:.6rem;font-weight:600;color:#1D9E75;letter-spacing:.05em;">✓ RPPS VÉRIFIÉ</span>
+      <!-- Expériences compactes -->
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div style="display:flex;align-items:center;gap:.35rem;"><span style="font-size:.65rem;">🏥</span><span style="font-size:.62rem;color:rgba(255,255,255,.5);">CHU Angoulême · clinique</span></div>
+        <div style="display:flex;align-items:center;gap:.35rem;"><span style="font-size:.65rem;">🏡</span><span style="font-size:.62rem;color:rgba(255,255,255,.5);">Cabinet libéral · 10 ans</span></div>
+        <div style="display:flex;align-items:center;gap:.35rem;"><span style="font-size:.65rem;">🚒</span><span style="font-size:.62rem;color:rgba(255,255,255,.5);">SDIS Charente · SPV expert</span></div>
+      </div>
+      <div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.07);text-align:center;">
+        <span style="font-size:.58rem;color:#1D9E75;font-weight:600;letter-spacing:.04em;">✓ Ce que MyFitnessPal n'a pas</span>
       </div>
     </div>
   </div>
@@ -345,7 +382,7 @@
     <div style="max-width:920px;margin:1.5rem auto 0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
       <div>
         <div style="font-weight:500;color:var(--dark);margin-bottom:.2rem;">📋 Plan alimentaire complet avec grammages</div>
-        <div style="font-size:.8rem;color:var(--gray);">Rédigé avec des outils d'analyse certifiés, validé et signé par votre diét. RPPS · Livré sous 48h ouvrées</div>
+        <div style="font-size:.8rem;color:var(--gray);">Rédigé avec des outils d'analyse certifiés, validé et signé par votre diét. RPPS · Livré sous 48h ouvrées<br/><span style="font-size:.7rem;color:var(--gray,#6b7b74);font-style:italic;">Les résultats varient selon votre métabolisme et votre suivi — aucun résultat garanti.</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
         <div>
