@@ -271,6 +271,10 @@
                 <div class="formule-recap-name" id="formuleRecapName">Pro — 29 € / mois</div>
                 <button type="button" class="formule-change" onclick="scrollToPricing()">Modifier ↑</button>
               </div>
+              <div id="ibanNote" style="display:none;background:var(--green-bg,#e1f5ee);border-left:3px solid var(--green,#1D9E75);border-radius:0 8px 8px 0;padding:.6rem .875rem;font-size:.8rem;color:var(--green-d,#0f6e56);margin-top:.5rem;">
+                ✅ Formule gratuite — aucune CB requise.<br/>
+                Vos coordonnées bancaires seront demandées depuis votre espace lorsque vous souhaiterez passer à une formule payante.
+              </div>
               <input type="hidden" id="formuleHidden" name="formule" value="pro"/>
             </div>
             <div class="form-group">
@@ -293,7 +297,7 @@
               <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
               
             <!-- Coordonnées bancaires -->
-            <div class="form-section">
+            <div class="form-section" id="ibanSection" style="display:none;">
               <h3 class="form-section-title">💳 Coordonnées bancaires <span style="font-size:.75rem;color:var(--gray);font-weight:400;">(pour le versement de vos rémunérations)</span></h3>
               <div class="form-row">
                 <div class="form-group">

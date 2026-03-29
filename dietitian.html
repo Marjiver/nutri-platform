@@ -20,8 +20,8 @@
 
   <div class="dashboard-greeting">
     <div>
-      <h2>Bonjour, Dr. Lemaire 👋</h2>
-      <p>Diététicien certifié · RPPS 10 003 456 789 · <span style="color:var(--green);font-weight:500;">●</span> Actif</p>
+      <h2 id="dietHeader">Bonjour 👋</h2>
+      <p id="dietSubHeader">Chargement de votre profil…</p>
     </div>
     <div style="display:flex;gap:.75rem;align-items:center;">
       <a href="agenda-dieteticien.html" class="btn-validate">📅 Agenda</a>
@@ -185,10 +185,10 @@ function validerPlan(id) {
   // Bouton PDF dans les dossiers validés
   if (typeof genererPDF !== 'undefined') {
     const t = typeof totalsPlan !== 'undefined' ? { kcal: 1650, prot: 130, glu: 180, lip: 55 } : {};
-    genererPDF(p, getDemoData().plan, { nom:'Dr. Lemaire', rpps:'10 003 456 789', titre:'Diét.-Nutritionniste', email:'lemaire@nutridoc.fr', cabinet:'Cabinet NutriDoc' });
+    genererPDF(p, getDemoData().plan, { nom:profile?.nom || 'Diét.', rpps:'10 003 456 789', titre:'Diét.-Nutritionniste', email:'lemaire@nutridoc.fr', cabinet:'Cabinet NutriDoc' });
   }
   if (typeof Email !== 'undefined') {
-    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: 'Dr. Lemaire', diet_rpps: '10 003 456 789', kcal: 1650, proteines: 130, visio_dispo: true });
+    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: profile?.nom || 'Diét.', diet_rpps: '10 003 456 789', kcal: 1650, proteines: 130, visio_dispo: true });
   }
   renderKanban(); filterDossiers();
   showToast(`Plan de ${p.prenom} validé ✓`);

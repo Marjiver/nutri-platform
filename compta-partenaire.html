@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Espace Partenaire · Comptabilité & Suivi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --dark:#0d2018; --green:#1D9E75; --green-d:#0F6E56; --green-l:#E1F5EE;
+      --gray:#6b7b74; --border:#e8edeb; --cream:#f7f9f7;
+      --blue:#185FA5; --blue-l:#E6F1FB;
+      --amber:#FAEEDA; --amber-d:#633806;
+      --red-l:#FEF2F2; --red:#A32D2D;
+      --font-d:'DM Serif Display',Georgia,serif; --font-b:'DM Sans',system-ui,sans-serif;
+    }
+    body { font-family:var(--font-b); background:var(--cream); color:var(--dark); min-height:100vh; }
+
+    /* NAV */
+    .nav { background:var(--dark); padding:.875rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:var(--font-d); font-size:1.2rem; color:#fff; }
+    .nav-logo em { color:var(--green); font-style:italic; }
+    .nav-badge { font-size:.6rem; background:rgba(29,158,117,.2); color:var(--green); border-radius:999px; padding:2px 8px; margin-left:.35rem; vertical-align:middle; }
+    .nav-links { display:flex; gap:1.25rem; }
+    .nav-links a { font-size:.82rem; color:rgba(255,255,255,.55); transition:color .2s; text-decoration:none; }
+    .nav-links a:hover, .nav-links a.active { color:#fff; }
+    .nav-right { display:flex; align-items:center; gap:.75rem; }
+    .nav-user { font-size:.8rem; color:rgba(255,255,255,.45); }
+    .btn-deconnect { font-size:.78rem; color:rgba(255,255,255,.4); cursor:pointer; background:none; border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.3rem .875rem; font-family:var(--font-b); transition:all .2s; }
+    .btn-deconnect:hover { color:#fff; border-color:rgba(255,255,255,.3); }
+
+    /* LAYOUT */
+    .page-inner { max-width:1160px; margin:0 auto; padding:2rem 1.5rem; }
+
+    /* HEADER PAGE */
+    .page-header { margin-bottom:2rem; }
+    .page-title { font-family:var(--font-d); font-size:1.75rem; color:var(--dark); margin-bottom:.3rem; }
+    .page-sub { font-size:.875rem; color:var(--gray); }
+    .partner-badge { display:inline-flex; align-items:center; gap:.4rem; background:var(--green-l); color:var(--green-d); border-radius:999px; padding:.3rem .875rem; font-size:.75rem; font-weight:600; margin-top:.5rem; }
+
+    /* KPI CARDS */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .kpi { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.25rem 1.5rem; }
+    .kpi-label { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--gray); margin-bottom:.4rem; }
+    .kpi-val { font-family:var(--font-d); font-size:2rem; color:var(--dark); line-height:1; margin-bottom:.2rem; }
+    .kpi-sub { font-size:.75rem; color:var(--gray); }
+    .kpi-green .kpi-val { color:var(--green); }
+    .kpi-blue .kpi-val { color:var(--blue); }
+    .kpi-amber .kpi-val { color:var(--amber-d); }
+
+    /* SECTIONS */
+    .section-title { font-weight:600; font-size:1rem; color:var(--dark); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .badge-count { background:var(--green-l); color:var(--green-d); border-radius:999px; font-size:.7rem; font-weight:600; padding:.15rem .55rem; }
+    .badge-warn { background:var(--amber); color:var(--amber-d); border-radius:999px; font-size:.7rem; font-weight:600; padding:.15rem .55rem; }
+    .badge-red { background:var(--red-l); color:var(--red); border-radius:999px; font-size:.7rem; font-weight:600; padding:.15rem .55rem; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+    .full-col { margin-bottom:2rem; }
+
+    /* CARDS */
+    .card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.25rem 1.5rem; }
+
+    /* FILE D'ATTENTE */
+    .queue-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .queue-filter { display:flex; gap:.35rem; }
+    .filter-btn { font-size:.75rem; border:1.5px solid var(--border); border-radius:999px; padding:.3rem .875rem; cursor:pointer; background:#fff; color:var(--gray); font-family:var(--font-b); transition:all .2s; }
+    .filter-btn.active { border-color:var(--green); color:var(--green); background:var(--green-l); font-weight:500; }
+
+    .queue-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .queue-table thead { background:var(--cream); }
+    .queue-table th { padding:.6rem .875rem; text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--gray); font-weight:500; border-bottom:1px solid var(--border); }
+    .queue-table td { padding:.75rem .875rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .queue-table tr:last-child td { border-bottom:none; }
+    .queue-table tr:hover td { background:var(--cream); }
+
+    .status-pill { display:inline-flex; align-items:center; gap:.3rem; border-radius:999px; padding:.2rem .65rem; font-size:.7rem; font-weight:500; }
+    .status-pending  { background:var(--amber); color:var(--amber-d); }
+    .status-progress { background:var(--blue-l); color:var(--blue); }
+    .status-done     { background:var(--green-l); color:var(--green-d); }
+    .status-expired  { background:var(--red-l); color:var(--red); }
+
+    .priority-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .prio-3 { background:#ef4444; }
+    .prio-2 { background:#f97316; }
+    .prio-1 { background:#3b82f6; }
+    .prio-0 { background:#9ca3af; }
+
+    .bar-track { height:6px; border-radius:999px; background:var(--border); overflow:hidden; }
+    .bar-fill { height:100%; border-radius:999px; background:var(--green); transition:width .4s; }
+    .bar-fill.warn { background:#f97316; }
+    .bar-fill.danger { background:#ef4444; }
+
+    /* BUDGET / COMPTA */
+    .compta-row { display:flex; justify-content:space-between; align-items:center; padding:.6rem 0; border-bottom:1px solid var(--border); font-size:.85rem; }
+    .compta-row:last-child { border-bottom:none; }
+    .compta-label { color:var(--gray); }
+    .compta-val { font-weight:600; color:var(--dark); }
+    .compta-val.green { color:var(--green); }
+    .compta-val.blue { color:var(--blue); }
+    .compta-sep { border-top:2px solid var(--dark); margin:.5rem 0; }
+
+    /* FACTURATION */
+    .invoice-row { display:flex; gap:1rem; align-items:center; padding:.7rem 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+    .invoice-row:last-child { border-bottom:none; }
+    .invoice-date { color:var(--gray); min-width:80px; }
+    .invoice-desc { flex:1; color:var(--dark); }
+    .invoice-montant { font-weight:600; color:var(--dark); min-width:70px; text-align:right; }
+    .invoice-link { font-size:.75rem; color:var(--green); cursor:pointer; }
+    .invoice-link:hover { text-decoration:underline; }
+
+    /* COMMANDE RAPIDE */
+    .commande-form { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
+    .form-group { display:flex; flex-direction:column; gap:.3rem; }
+    .form-label { font-size:.78rem; font-weight:500; color:var(--dark); }
+    .form-input, .form-select { border:1.5px solid var(--border); border-radius:9px; padding:.6rem .875rem; font-family:var(--font-b); font-size:.875rem; color:var(--dark); background:#fff; transition:border-color .2s; }
+    .form-input:focus, .form-select:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(29,158,117,.1); }
+    .btn-submit { background:var(--green); color:#fff; border:none; border-radius:999px; padding:.7rem 1.75rem; font-size:.9rem; font-weight:500; cursor:pointer; font-family:var(--font-b); transition:background .2s; margin-top:.5rem; }
+    .btn-submit:hover { background:var(--green-d); }
+    .btn-outline { background:transparent; border:1.5px solid var(--border); color:var(--dark); border-radius:999px; padding:.7rem 1.5rem; font-size:.875rem; cursor:pointer; font-family:var(--font-b); transition:all .2s; }
+    .btn-outline:hover { border-color:var(--green); color:var(--green); }
+
+    /* ALERTE QUOTA */
+    .alerte-quota { background:var(--amber); border:1px solid #E5A640; border-radius:10px; padding:.875rem 1.25rem; font-size:.82rem; color:var(--amber-d); display:flex; gap:.75rem; align-items:flex-start; margin-bottom:1.5rem; }
+    .alerte-quota-icon { font-size:1.1rem; flex-shrink:0; }
+
+    /* EXPLICATION MODÈLE */
+    .modele-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+    .modele-card { border-radius:12px; padding:1.25rem; }
+    .modele-acteur { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-bottom:.5rem; }
+    .modele-montant { font-family:var(--font-d); font-size:1.8rem; line-height:1; margin-bottom:.3rem; }
+    .modele-desc { font-size:.78rem; line-height:1.55; }
+
+
+    /* ── DYNAMISME ──────────────────────────────────────────────────── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes countUp { from { opacity:0; } to { opacity:1; } }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+    @keyframes slideIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes barGrow { from { width:0 !important; } to { } }
+
+    .page-header { animation: fadeUp .45s ease both; }
+    .kpi-grid .kpi { animation: fadeUp .4s ease both; }
+    .kpi-grid .kpi:nth-child(1) { animation-delay:.05s; }
+    .kpi-grid .kpi:nth-child(2) { animation-delay:.1s; }
+    .kpi-grid .kpi:nth-child(3) { animation-delay:.15s; }
+    .kpi-grid .kpi:nth-child(4) { animation-delay:.2s; }
+    .kpi-grid .kpi:nth-child(5) { animation-delay:.25s; }
+    .kpi-grid .kpi:nth-child(6) { animation-delay:.3s; }
+    .card { animation: fadeUp .45s ease both; animation-delay:.2s; }
+    .queue-table tbody tr { animation: slideIn .3s ease both; }
+    .queue-table tbody tr:nth-child(1) { animation-delay:.1s; }
+    .queue-table tbody tr:nth-child(2) { animation-delay:.15s; }
+    .queue-table tbody tr:nth-child(3) { animation-delay:.2s; }
+    .queue-table tbody tr:nth-child(4) { animation-delay:.25s; }
+    .queue-table tbody tr:nth-child(5) { animation-delay:.3s; }
+
+    /* KPI hover */
+    .kpi { transition: box-shadow .2s, transform .2s; }
+    .kpi:hover { box-shadow: 0 4px 16px rgba(29,158,117,.12); transform: translateY(-2px); }
+    .kpi-highlight { border-color: var(--green) !important; }
+
+    /* Barres SLA animées */
+    .bar-track .bar-fill { animation: barGrow .8s ease both; animation-delay:.4s; }
+
+    /* Status pills pulse */
+    .status-pending .pulse-dot { animation: pulse 1.5s ease-in-out infinite; }
+
+    /* Bouton commande */
+    .btn-submit { position:relative; overflow:hidden; }
+    .btn-submit::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.15); transform:scaleX(0); transform-origin:left; transition:transform .3s; }
+    .btn-submit:hover::after { transform:scaleX(1); }
+
+    /* Nav active indicator */
+    .nav-links a.active { color:#fff; border-bottom:2px solid var(--green); padding-bottom:2px; }
+
+    /* Tableau hover row */
+    .queue-table tbody tr { transition:background .15s; cursor:default; }
+
+    /* Scroll reveal pour les cards du bas */
+    .full-col .card { animation-delay:.35s; }
+
+    @media(max-width:900px) {
+      .two-col { grid-template-columns:1fr; }
+      .commande-form { grid-template-columns:1fr; }
+      .modele-grid { grid-template-columns:1fr; }
+    }
+  
+    /* Dropdown Outils */
+    .nav-dropdown { position:relative; }
+    .nav-dropdown-btn { background:none; border:none; color:rgba(255,255,255,.55); font-size:.82rem; cursor:pointer; font-family:var(--font-b); padding:0; transition:color .2s; }
+    .nav-dropdown-btn:hover { color:#fff; }
+    .nav-dropdown-menu { position:absolute; top:calc(100% + .75rem); left:50%; transform:translateX(-50%); background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.12); padding:.5rem; min-width:200px; z-index:200; }
+    .nav-dropdown-menu a { display:block; padding:.5rem .875rem; font-size:.82rem; color:var(--dark); border-radius:8px; transition:background .15s; }
+    .nav-dropdown-menu a:hover { background:var(--cream); color:var(--green); }
+
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="partenariats.html" class="nav-logo">Nutri<em>Doc</em><span class="nav-badge">Partenaires</span></a>
+  <div class="nav-links">
+    <a href="partenariats.html">Accueil</a>
+    <a href="compta-partenaire.html" class="active">Comptabilité</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn" onclick="toggleOutils()">Outils ▾</button>
+      <div class="nav-dropdown-menu" id="outilsMenu" style="display:none;">
+        <a href="partenariats.html#simulateur">📊 Simulateur ROI</a>
+        <a href="partenariats.html#contact">📧 Contacter NutriDoc</a>
+        <a href="faq.html" target="_blank">❓ FAQ</a>
+        <a href="mailto:contact@calidoc-sante.fr">✉️ Support</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser">Chargement…</span>
+    <button class="btn-deconnect" onclick="deconnecter()">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="page-inner">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Comptabilité & suivi des plans</h1>
+    <p class="page-sub">Gérez vos crédits, suivez la file d'attente et consultez vos factures.</p>
+    <div id="partnerBadge" class="partner-badge" style="display:none;">
+      <span id="partnerOffreBadge">⭐ Pack Pro</span>
+      <span>·</span>
+      <span id="partnerRaison">—</span>
+    </div>
+  </div>
+
+  <!-- Alerte quota (conditionnelle) -->
+  <div class="alerte-quota" id="alerteQuota" style="display:none;">
+    <span class="alerte-quota-icon">⚠️</span>
+    <div>
+      <strong>Quota mensuel presque atteint</strong> — il vous reste <span id="quotaRestant">—</span> plans ce mois.
+      Pour augmenter votre volume, <a href="partenariats.html#contact" style="color:var(--amber-d);text-decoration:underline;">contactez-nous</a> pour passer à l'offre supérieure.
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi kpi-green">
+      <div class="kpi-label">Crédits restants</div>
+      <div class="kpi-val" id="creditsRestants">—</div>
+      <div class="kpi-sub" id="creditsSub">sur — achetés</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Plans ce mois</div>
+      <div class="kpi-val" id="plansMois">—</div>
+      <div class="kpi-sub" id="plansMoisSub">/ — max</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-label">En attente</div>
+      <div class="kpi-val" id="kpiPending">—</div>
+      <div class="kpi-sub">dans la file</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Livrés total</div>
+      <div class="kpi-val" id="kpiDelivered">—</div>
+      <div class="kpi-sub">depuis le début</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="kpi-label">Délai moyen</div>
+      <div class="kpi-val" id="kpiDelai">—h</div>
+      <div class="kpi-sub">de livraison</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Dépensé ce mois</div>
+      <div class="kpi-val" id="kpiDepense">—€</div>
+      <div class="kpi-sub">HT</div>
+    </div>
+  </div>
+
+  <!-- File d'attente + Commande rapide -->
+  <div class="two-col">
+
+    <!-- FILE D'ATTENTE -->
+    <div class="card full-col" style="grid-column:1/-1;">
+      <div class="queue-bar">
+        <div class="section-title">
+          🔄 File d'attente
+          <span class="badge-count" id="queueCount">0</span>
+          <span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:.25rem;">— triée par priorité · SLA 48h</span>
+        </div>
+        <div class="queue-filter">
+          <button class="filter-btn active" onclick="filterQueue('all',this)">Tous</button>
+          <button class="filter-btn" onclick="filterQueue('pending',this)">En attente</button>
+          <button class="filter-btn" onclick="filterQueue('in_progress',this)">En cours</button>
+          <button class="filter-btn" onclick="filterQueue('delivered',this)">Livrés</button>
+        </div>
+      </div>
+
+      <table class="queue-table" id="queueTable">
+        <thead>
+          <tr>
+            <th>Priorité</th>
+            <th>Patient / Référence</th>
+            <th>Objectif</th>
+            <th>Commandé le</th>
+            <th>Délai restant</th>
+            <th>Diét. assigné</th>
+            <th>Statut</th>
+            <th>Tarif HT</th>
+          </tr>
+        </thead>
+        <tbody id="queueBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem;">Chargement…</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Explication priorité -->
+      <div style="margin-top:1rem;padding-top:.875rem;border-top:1px solid var(--border);display:flex;gap:1.5rem;flex-wrap:wrap;">
+        <span style="font-size:.72rem;color:var(--gray);"><span class="priority-dot prio-3"></span>Urgent partenaire</span>
+        <span style="font-size:.72rem;color:var(--gray);"><span class="priority-dot prio-2"></span>Partenaire standard</span>
+        <span style="font-size:.72rem;color:var(--gray);"><span class="priority-dot prio-1"></span>Prescripteur</span>
+        <span style="font-size:.72rem;color:var(--gray);"><span class="priority-dot prio-0"></span>Patient direct</span>
+        <span style="font-size:.72rem;color:var(--gray);margin-left:auto;font-style:italic;">SLA garanti 48h · au-delà : crédit remboursé automatiquement</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Commande + Compta + Modèle -->
+  <div class="two-col">
+
+    <!-- COMMANDE RAPIDE -->
+    <div class="card">
+      <div class="section-title">📋 Commander un plan</div>
+      <div class="commande-form">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Prénom du membre / patient</label>
+          <input type="text" id="cmd_prenom" class="form-input" placeholder="Marie"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Objectif principal</label>
+          <select id="cmd_objectif" class="form-select">
+            <option value="">— Choisir —</option>
+            <option value="perte_poids">Perte de poids</option>
+            <option value="prise_masse">Prise de masse</option>
+            <option value="seche">Sèche</option>
+            <option value="equilibre">Équilibre alimentaire</option>
+            <option value="performance">Performance sportive</option>
+            <option value="diabete">Diabète / HTA</option>
+            <option value="grossesse">Grossesse</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priorité</label>
+          <select id="cmd_priorite" class="form-select">
+            <option value="2">Standard (48h)</option>
+            <option value="3">Urgent (priorité haute)</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Notes médicales (optionnel)</label>
+          <input type="text" id="cmd_notes" class="form-input" placeholder="Ex : diabète T2, allergie gluten…"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:.875rem;align-items:center;">
+        <button class="btn-submit" onclick="commanderPlan()">Commander — 1 crédit →</button>
+        <span id="cmdInfo" style="font-size:.78rem;color:var(--gray);"></span>
+      </div>
+      <div id="cmdSuccess" style="display:none;background:var(--green-l);border-radius:8px;padding:.75rem 1rem;font-size:.82rem;color:var(--green-d);margin-top:.875rem;">
+        ✅ Plan ajouté à la file d'attente. Un diét. RPPS le prend en charge sous 2h.
+      </div>
+      <div id="cmdError" style="display:none;background:var(--red-l);border-radius:8px;padding:.75rem 1rem;font-size:.82rem;color:var(--red);margin-top:.875rem;"></div>
+    </div>
+
+    <!-- COMPTABILITÉ -->
+    <div class="card">
+      <div class="section-title">💶 Récapitulatif financier</div>
+
+      <div id="comptaBlock">
+        <div class="compta-row">
+          <span class="compta-label">Offre actuelle</span>
+          <span class="compta-val" id="cOffreLabel">—</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Tarif par plan</span>
+          <span class="compta-val" id="cTarifPlan">—€ HT</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Rémunération diét. / plan</span>
+          <span class="compta-val blue" id="cRemuDiet">—€</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Commission NutriDoc / plan</span>
+          <span class="compta-val green" id="cMargeND">0€</span>
+        </div>
+        <div class="compta-sep"></div>
+        <div class="compta-row">
+          <span class="compta-label">Crédits achetés (total)</span>
+          <span class="compta-val" id="cCreditsTotal">—</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Plans livrés</span>
+          <span class="compta-val" id="cPlansLivres">—</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Montant total dépensé HT</span>
+          <span class="compta-val green" id="cMontantTotal">—€</span>
+        </div>
+        <div class="compta-row">
+          <span class="compta-label">Total versé aux diét. RPPS</span>
+          <span class="compta-val blue" id="cTotalDiet">—€</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);">
+        <div class="section-title" style="font-size:.875rem;margin-bottom:.75rem;">📄 Factures</div>
+        <div id="facturesList">
+          <div style="font-size:.8rem;color:var(--gray);text-align:center;padding:1rem;">Aucune facture disponible pour le moment.</div>
+        </div>
+        <button class="btn-outline" style="width:100%;margin-top:.875rem;font-size:.8rem;" onclick="window.location.href='mailto:contact@calidoc-sante.fr?subject=Facture NutriDoc'">
+          📧 Demander une facture
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODÈLE ÉCONOMIQUE TRANSPARENT -->
+  <div class="full-col">
+    <div class="card">
+      <div class="section-title">💡 Modèle économique — 0% de commission sur les plans</div>
+      <p style="font-size:.82rem;color:var(--gray);margin-bottom:1.25rem;">NutriDoc est une plateforme SaaS : vous payez un abonnement pour accéder au service. Chaque euro pour un plan va intégralement au diét. RPPS. Aucune commission cachée.</p>
+
+      <!-- Modèle SaaS 0% marge plans -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" id="modeleGrid">
+        <div class="modele-card" style="background:var(--blue-l);grid-column:1/-1;">
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <div class="modele-acteur" style="color:var(--blue);">Vous — l'abonnement mensuel</div>
+              <div class="modele-montant" style="color:var(--blue);" id="m_partenaire">—€ HT/mois</div>
+              <div class="modele-desc" style="color:var(--blue);">C'est tout ce que vous payez à NutriDoc. Cela couvre l'accès plateforme, le CRM, le suivi, le support et la coordination diét.</div>
+            </div>
+            <div style="font-size:2rem;color:var(--blue);opacity:.3;">→</div>
+            <div style="flex:1;min-width:200px;">
+              <div class="modele-acteur" style="color:var(--green-d);">Le plan alimentaire → intégralement au diét.</div>
+              <div class="modele-montant" style="color:var(--green-d);" id="m_diet">—€ / plan</div>
+              <div class="modele-desc" style="color:var(--green-d);">Le tarif du plan (fixé avec votre diét. ou remboursé par votre membre) va <strong>100% au diét. certifié RPPS</strong>. NutriDoc ne prélève aucune commission sur cet acte.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modele-card" style="background:var(--cream);border:1px solid var(--border);grid-column:1/-1;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.25rem;">🛡️</span>
+            <div>
+              <strong style="font-size:.85rem;color:var(--dark);">NutriDoc (CaliDoc Santé) : 0€ sur les plans</strong>
+              <p style="font-size:.78rem;color:var(--gray);margin-top:.2rem;line-height:1.5;">Notre modèle est celui d'une plateforme SaaS : nous nous rémunérons sur l'accès, pas sur les actes de santé. C'est un engagement éthique — aucun conflit d'intérêt sur la qualité ou le volume de plans produits.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;background:var(--amber);border-radius:10px;padding:.875rem 1.25rem;font-size:.8rem;color:var(--amber-d);">
+        <strong>SLA garanti :</strong> Si un plan n'est pas livré sous 48h ouvrées, le crédit est automatiquement remboursé sur votre compte. Aucune démarche nécessaire.
+      </div>
+    </div>
+  </div>
+
+  <!-- GESTION FILE D'ATTENTE : CONSEILS B2B -->
+  <div class="full-col">
+    <div class="card" style="background:var(--dark);border-color:rgba(255,255,255,.1);">
+      <div class="section-title" style="color:#fff;">⚡ Gestion de la file d'attente — ce que vous devez savoir</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-top:.25rem;">
+        <div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--green);margin-bottom:.4rem;">🔴 Priorité haute (option Urgent)</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;">Vos plans urgents passent devant les patients directs et prescripteurs. Utilisez-le pour les membres avec pathologie ou échéance courte. SLA réduit à 24h ouvrées.</div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:600;color:#7dd3fc;margin-bottom:.4rem;">📦 Commandes groupées (batch)</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;">Si vous commandez plus de 10 plans en une fois, ils sont automatiquement répartis sur plusieurs diét. simultanément pour tenir le délai 48h. Pas besoin de les étaler manuellement.</div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:600;color:#fbbf24;margin-bottom:.4rem;">⚠️ Quota mensuel</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;">Votre offre inclut un plafond mensuel (visible dans vos KPIs). Si vous approchez 80%, une alerte apparaît automatiquement. Contactez-nous pour augmenter votre quota.</div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:600;color:#a78bfa;margin-bottom:.4rem;">🔌 Automatisation via API</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;">Les offres Volume et Grands comptes ont accès à l'API REST pour déclencher des commandes directement depuis votre logiciel (CRM, logiciel salle, Doctolib…). Contactez-nous pour les clés.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-inner -->
+
+<script>
+// ── Données mock pour la démo ─────────────────────────────────────────────
+const MOCK_PARTNER = {
+  raison_sociale: 'Basic-Fit Angoulême Centre',
+  offre: 'pro',
+  offre_label: '⭐ Pack Pro',
+  credits_total: 50,
+  credits_utilises: 31,
+  plans_ce_mois: 14,
+  quota_mensuel_max: 50,
+  tarif_ht_plan: 10,
+  remuneration_diet: 7,
+};
+
+const MOCK_QUEUE = [
+  { id:'q1', prenom:'Marie D.', objectif:'Perte de poids', date:'2026-03-28', heures:22, diet:'G. Martin', statut:'in_progress', priorite:2, tarif:10 },
+  { id:'q2', prenom:'Thomas K.', objectif:'Prise de masse', date:'2026-03-27', heures:6, diet:'G. Martin', statut:'delivered', priorite:2, tarif:10 },
+  { id:'q3', prenom:'Lucie M.', objectif:'Équilibre', date:'2026-03-28', heures:38, diet:'—', statut:'pending', priorite:3, tarif:10 },
+  { id:'q4', prenom:'Antoine B.', objectif:'Performance', date:'2026-03-26', heures:0, diet:'G. Martin', statut:'delivered', priorite:2, tarif:10 },
+  { id:'q5', prenom:'Camille R.', objectif:'Grossesse', date:'2026-03-28', heures:44, diet:'—', statut:'pending', priorite:2, tarif:10 },
+  { id:'q6', prenom:'Pierre L.', objectif:'Diabète / HTA', date:'2026-03-25', heures:0, diet:'G. Martin', statut:'delivered', priorite:3, tarif:10 },
+];
+
+var allQueue = MOCK_QUEUE;
+var filterActive = 'all';
+
+function animateCount(id, target, suffix) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var start = 0;
+  var duration = 800;
+  var step = Math.ceil(target / (duration / 16));
+  var current = start;
+  var timer = setInterval(function() {
+    current = Math.min(current + step, target);
+    el.textContent = current + (suffix || '');
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
+
+function init() {
+  var p = MOCK_PARTNER;
+  var restants = p.credits_total - p.credits_utilises;
+  var pct = Math.round(p.credits_utilises / p.credits_total * 100);
+  var marge = p.tarif_ht_plan - p.remuneration_diet;
+
+  // Header
+  document.getElementById('navUser').textContent = p.raison_sociale;
+  document.getElementById('partnerBadge').style.display = 'inline-flex';
+  document.getElementById('partnerOffreBadge').textContent = p.offre_label;
+  document.getElementById('partnerRaison').textContent = p.raison_sociale;
+
+  // KPIs
+  animateCount('creditsRestants', restants);
+  document.getElementById('creditsSub').textContent = 'sur ' + p.credits_total + ' achetés';
+  animateCount('plansMois', p.plans_ce_mois);
+  document.getElementById('plansMoisSub').textContent = '/ ' + p.quota_mensuel_max + ' max ce mois';
+  animateCount('kpiPending', allQueue.filter(q=>q.statut==='pending').length);
+  animateCount('kpiDelivered', allQueue.filter(q=>q.statut==='delivered').length);
+  document.getElementById('kpiDelai').textContent = '18h';
+  animateCount('kpiDepense', p.plans_ce_mois * p.tarif_ht_plan, '€');
+
+  // Alerte quota
+  if (p.plans_ce_mois / p.quota_mensuel_max >= 0.8) {
+    document.getElementById('alerteQuota').style.display = 'flex';
+    document.getElementById('quotaRestant').textContent = (p.quota_mensuel_max - p.plans_ce_mois) + ' plans';
+  }
+
+  // Compta
+  document.getElementById('cOffreLabel').textContent = p.offre_label;
+  document.getElementById('cTarifPlan').textContent = p.tarif_ht_plan + '€ HT';
+  document.getElementById('cRemuDiet').textContent = p.remuneration_diet + '€';
+  document.getElementById('cMargeND').textContent = '0€';
+  document.getElementById('cCreditsTotal').textContent = p.credits_total;
+  document.getElementById('cPlansLivres').textContent = p.credits_utilises;
+  document.getElementById('cMontantTotal').textContent = (p.credits_utilises * p.tarif_ht_plan) + '€ HT';
+  document.getElementById('cTotalDiet').textContent = (p.credits_utilises * p.remuneration_diet) + '€';
+
+  // Modèle
+  document.getElementById('m_partenaire').textContent = '299€ HT/mois (Pack Pro)';
+  document.getElementById('m_diet').textContent = '13–18€ / plan (tarif direct)';
+
+  // Cmd info
+  document.getElementById('cmdInfo').textContent = restants + ' crédit' + (restants > 1 ? 's' : '') + ' restant' + (restants > 1 ? 's' : '');
+
+  // Factures mock
+  document.getElementById('facturesList').innerHTML = [
+    { date:'Mars 2026', desc:'Pack Pro — 50 crédits', montant:'500€ HT', pdf:'#' },
+  ].map(f => `
+    <div class="invoice-row">
+      <span class="invoice-date">${f.date}</span>
+      <span class="invoice-desc">${f.desc}</span>
+      <span class="invoice-montant">${f.montant}</span>
+      <a href="${f.pdf}" class="invoice-link">📄 PDF</a>
+    </div>`).join('');
+
+  renderQueue(allQueue);
+}
+
+function statusPill(s, heures) {
+  if (s === 'pending')     return `<span class="status-pill status-pending">⏳ En attente</span>`;
+  if (s === 'in_progress') return `<span class="status-pill status-progress">🔄 En cours</span>`;
+  if (s === 'delivered')   return `<span class="status-pill status-done">✅ Livré</span>`;
+  if (s === 'expired')     return `<span class="status-pill status-expired">❌ Expiré</span>`;
+  return s;
+}
+
+function delaiCell(q) {
+  if (q.statut === 'delivered') return '<span style="color:var(--gray);font-size:.78rem;">—</span>';
+  var h = q.heures;
+  var pct = Math.min(100, Math.round(h / 48 * 100));
+  var cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
+  var label = h > 48 ? `<span style="color:#ef4444;font-weight:600;">⚠ ${h-48}h dépassé</span>` : `<span style="font-size:.75rem;color:var(--gray);">${48-h}h restantes</span>`;
+  return `<div class="bar-track" style="width:90px;margin-bottom:3px;"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>${label}`;
+}
+
+function prioCell(p) {
+  return `<span class="priority-dot prio-${p}"></span>`;
+}
+
+function renderQueue(data) {
+  var filtered = filterActive === 'all' ? data : data.filter(q => q.statut === filterActive);
+  document.getElementById('queueCount').textContent = filtered.length;
+  if (!filtered.length) {
+    document.getElementById('queueBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:1.5rem;">Aucun plan dans cette catégorie.</td></tr>';
+    return;
+  }
+  document.getElementById('queueBody').innerHTML = filtered.map(q => `
+    <tr>
+      <td>${prioCell(q.priorite)}</td>
+      <td><strong>${q.prenom}</strong></td>
+      <td style="font-size:.8rem;color:var(--gray);">${q.objectif}</td>
+      <td style="font-size:.78rem;color:var(--gray);">${q.date}</td>
+      <td>${delaiCell(q)}</td>
+      <td style="font-size:.8rem;">${q.diet}</td>
+      <td>${statusPill(q.statut, q.heures)}</td>
+      <td style="font-size:.82rem;font-weight:600;">${q.tarif}€ HT</td>
+    </tr>`).join('');
+}
+
+function filterQueue(val, btn) {
+  filterActive = val;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQueue(allQueue);
+}
+
+function commanderPlan() {
+  var prenom = document.getElementById('cmd_prenom').value.trim();
+  var obj = document.getElementById('cmd_objectif').value;
+  document.getElementById('cmdError').style.display = 'none';
+  document.getElementById('cmdSuccess').style.display = 'none';
+
+  if (!prenom) { document.getElementById('cmdError').textContent = 'Veuillez renseigner le prénom du membre.'; document.getElementById('cmdError').style.display='block'; return; }
+  if (!obj) { document.getElementById('cmdError').textContent = 'Veuillez choisir un objectif.'; document.getElementById('cmdError').style.display='block'; return; }
+
+  // Ajouter à la mock queue
+  allQueue.unshift({ id:'q'+Date.now(), prenom, objectif: obj.replace('_',' '), date:'2026-03-28', heures:47, diet:'—', statut:'pending', priorite: parseInt(document.getElementById('cmd_priorite').value), tarif:10 });
+  document.getElementById('cmdSuccess').style.display='block';
+  document.getElementById('cmd_prenom').value='';
+  document.getElementById('cmd_objectif').value='';
+  renderQueue(allQueue);
+  animateCount('kpiPending', allQueue.filter(q=>q.statut==='pending').length);
+}
+
+
+function toggleOutils() {
+  var m = document.getElementById('outilsMenu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-dropdown')) {
+    var m = document.getElementById('outilsMenu');
+    if (m) m.style.display = 'none';
+  }
+});
+
+function deconnecter() { window.location.href='partenariats.html'; }
+
+init();
+</script>
+</body>
+</html>

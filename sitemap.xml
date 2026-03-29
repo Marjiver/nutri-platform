@@ -12,4 +12,9 @@
   <url><loc>https://nutridoc.calidoc-sante.fr/cgu-patient.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
   <url><loc>https://nutridoc.calidoc-sante.fr/cgu-dieteticien.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
   <url><loc>https://nutridoc.calidoc-sante.fr/cgu-prescripteur.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/partenariats.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

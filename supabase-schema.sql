@@ -182,18 +182,39 @@ CREATE POLICY "diet voit les alertes" ON alertes
 
 -- ── 6. FILE D'ATTENTE ────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS queue_plans (
-  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  patient_id      uuid REFERENCES auth.users,
-  patient_prenom  text, ville text, objectif text,
-  bilan_id        uuid REFERENCES bilans(id),
-  type            text DEFAULT 'plan',
-  statut          text DEFAULT 'pending'
-                  CHECK (statut IN ('pending','accepted','in_progress','delivered','expired','cancelled')),
-  priorite        int DEFAULT 1, tentatives int DEFAULT 0,
-  dietitian_id    uuid REFERENCES auth.users,
-  accepted_at     timestamptz, delivered_at timestamptz,
-  expires_at      timestamptz DEFAULT (now() + INTERVAL '48 hours'),
-  created_at      timestamptz DEFAULT now()
+  id                  uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  -- Patient
+  patient_id          uuid REFERENCES auth.users,
+  patient_prenom      text, ville text, objectif text,
+  bilan_id            uuid REFERENCES bilans(id),
+  -- Source de la commande
+  source              text DEFAULT 'patient'
+                      CHECK (source IN ('patient','prescripteur','partenaire')),
+  prescripteur_id     uuid REFERENCES auth.users,  -- null si source=patient
+  partenaire_id       uuid REFERENCES auth.users,  -- null si source!=partenaire
+  batch_id            uuid,                         -- groupe de commandes B2B
+  -- Type et statut
+  type                text DEFAULT 'plan',
+  statut              text DEFAULT 'pending'
+                      CHECK (statut IN ('pending','accepted','in_progress','delivered','expired','cancelled')),
+  -- Priorité file d'attente
+  -- 0=standard patient | 1=prescripteur | 2=partenaire Pro | 3=partenaire urgence
+  priorite            int DEFAULT 0,
+  tentatives          int DEFAULT 0,
+  -- Diét. assigné
+  dietitian_id        uuid REFERENCES auth.users,
+  accepted_at         timestamptz,
+  delivered_at        timestamptz,
+  expires_at          timestamptz DEFAULT (now() + INTERVAL '48 hours'),
+  -- Financier — NutriDoc 0% marge sur les plans
+  -- Le tarif plan est négocié directement entre le partenaire/prescripteur et le diét.
+  -- NutriDoc se rémunère uniquement sur l'abonnement mensuel du partenaire
+  tarif_plan_convenu  numeric(8,2) DEFAULT 18.00,   -- tarif convenu avec le diét. (à titre informatif)
+  abonnement_mensuel  numeric(8,2) DEFAULT 0.00,    -- ce que paie le partenaire à NutriDoc/mois
+  -- Méta
+  notes_medicales     text,
+  created_at          timestamptz DEFAULT now(),
+  updated_at          timestamptz DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_queue_statut  ON queue_plans(statut);
 CREATE INDEX IF NOT EXISTS idx_queue_ville   ON queue_plans(ville);
@@ -293,6 +314,10 @@ CREATE POLICY "user gère son consentement" ON cookie_consents
   FOR ALL USING (auth.uid() = user_id);
 
 -- ── 12. PARRAINAGES ──────────────────────────────────────────
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "user voit ses parrainages" ON parrainages;
+EXCEPTION WHEN undefined_table THEN NULL; END $$;
+
 CREATE TABLE IF NOT EXISTS parrainages (
   id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   parrain_id      uuid REFERENCES auth.users,
@@ -322,17 +347,50 @@ CREATE TABLE IF NOT EXISTS email_templates (
 -- ── 14. TRIGGERS ─────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_code text;
 BEGIN
-  INSERT INTO profiles (id, role, prenom, nom, email, code_parrainage)
+  -- Générer un code parrainage unique
+  v_code := UPPER(SUBSTRING(MD5(NEW.id::text || NOW()::text), 1, 8));
+
+  INSERT INTO profiles (
+    id, role, prenom, nom, email, tel, rpps, specialite,
+    cabinet, profession, siret, formule, pack,
+    code_parrainage, statut, created_at
+  )
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'role', 'patient'),
-    NEW.raw_user_meta_data->>'prenom',
-    NEW.raw_user_meta_data->>'nom',
+    COALESCE(NEW.raw_user_meta_data->>'prenom', ''),
+    COALESCE(NEW.raw_user_meta_data->>'nom', ''),
     NEW.email,
-    UPPER(SUBSTRING(MD5(NEW.id::text), 1, 8))
+    COALESCE(NEW.raw_user_meta_data->>'tel', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'rpps', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'specialite', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'cabinet', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'profession', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'siret', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'formule', 'essentiel'),
+    COALESCE(NEW.raw_user_meta_data->>'pack', NULL),
+    v_code,
+    'actif',
+    NOW()
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET
+    prenom     = COALESCE(EXCLUDED.prenom, profiles.prenom),
+    nom        = COALESCE(EXCLUDED.nom, profiles.nom),
+    tel        = COALESCE(EXCLUDED.tel, profiles.tel),
+    rpps       = COALESCE(EXCLUDED.rpps, profiles.rpps),
+    specialite = COALESCE(EXCLUDED.specialite, profiles.specialite),
+    cabinet    = COALESCE(EXCLUDED.cabinet, profiles.cabinet),
+    profession = COALESCE(EXCLUDED.profession, profiles.profession),
+    siret      = COALESCE(EXCLUDED.siret, profiles.siret),
+    formule    = COALESCE(EXCLUDED.formule, profiles.formule),
+    pack       = COALESCE(EXCLUDED.pack, profiles.pack);
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  -- Ne jamais bloquer la création du compte Auth en cas d'erreur profil
+  RAISE WARNING 'handle_new_user error: %', SQLERRM;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -360,3 +418,74 @@ CREATE TRIGGER profiles_updated_at
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS niveau_abo  text DEFAULT 'gratuit';
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS abo_debut   timestamptz;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS abo_fin     timestamptz;
+
+-- ── PARTENAIRES B2B ──────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS partenaires_b2b (
+  id                  uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id             uuid REFERENCES auth.users ON DELETE CASCADE,
+  -- Identité
+  raison_sociale      text NOT NULL,
+  type_structure      text CHECK (type_structure IN (
+                        'salle_sport','club_sport','clinique','mutuelle',
+                        'entreprise','reseau','autre')),
+  siret               text,
+  -- Contact
+  nom_contact         text,
+  email               text,
+  tel                 text,
+  -- Contrat
+  offre               text DEFAULT 'decouverte'
+                      CHECK (offre IN ('decouverte','pro','volume','grand_compte')),
+  credits_total       int DEFAULT 0,
+  credits_utilises    int DEFAULT 0,
+  -- Modèle SaaS : NutriDoc se rémunère sur l'abonnement, 0% sur les plans
+  abonnement_mensuel_ht numeric(8,2) DEFAULT 99.00, -- abonnement mensuel NutriDoc
+  tarif_plan_dieteticien numeric(6,2) DEFAULT 18.00, -- tarif plan négocié avec le diét. (info seulement)
+  -- File d'attente
+  priorite_queue      int DEFAULT 2,    -- 2=partenaire standard, 3=partenaire urgent
+  quota_mensuel_max   int DEFAULT NULL, -- plafond mensuel (null=illimité)
+  plans_ce_mois       int DEFAULT 0,    -- compteur auto-réinitialisé
+  -- Facturation
+  facturation_mode    text DEFAULT 'prepaye'
+                      CHECK (facturation_mode IN ('prepaye','mensuel','annuel')),
+  date_debut          date DEFAULT current_date,
+  date_fin            date,
+  -- Marque blanche
+  logo_url            text,
+  marque_blanche      boolean DEFAULT false,
+  -- Statut
+  statut              text DEFAULT 'prospect'
+                      CHECK (statut IN ('prospect','actif','suspendu','resilié')),
+  notes               text,
+  created_at          timestamptz DEFAULT now(),
+  updated_at          timestamptz DEFAULT now()
+);
+
+-- Index performance pour la file d'attente B2B
+CREATE INDEX IF NOT EXISTS idx_partenaires_statut ON partenaires_b2b(statut);
+CREATE INDEX IF NOT EXISTS idx_queue_priorite ON queue_plans(priorite DESC, created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_queue_partenaire ON queue_plans(partenaire_id, statut);
+CREATE INDEX IF NOT EXISTS idx_queue_batch ON queue_plans(batch_id);
+
+-- Vue pour le dashboard diét. : file d'attente priorisée
+CREATE OR REPLACE VIEW v_queue_prioritaire AS
+SELECT
+  q.*,
+  CASE
+    WHEN q.priorite = 3 THEN '🔴 Urgent partenaire'
+    WHEN q.priorite = 2 THEN '🟠 Partenaire'
+    WHEN q.priorite = 1 THEN '🔵 Prescripteur'
+    ELSE '⚪ Patient direct'
+  END AS priorite_label,
+  EXTRACT(EPOCH FROM (q.expires_at - now())) / 3600 AS heures_restantes
+FROM queue_plans q
+WHERE q.statut IN ('pending', 'accepted', 'in_progress')
+ORDER BY q.priorite DESC, q.created_at ASC;
+
+-- RLS partenaires_b2b
+ALTER TABLE partenaires_b2b ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "partenaire voit son profil" ON partenaires_b2b;
+EXCEPTION WHEN undefined_object THEN NULL; END $$;
+CREATE POLICY "partenaire voit son profil" ON partenaires_b2b
+  FOR ALL USING (auth.uid() = user_id);

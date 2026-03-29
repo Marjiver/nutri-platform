@@ -94,6 +94,67 @@
     .footer p { font-size:.78rem;color:rgba(255,255,255,.3); }
     .footer a { color:rgba(255,255,255,.4); }
     @media(max-width:768px){ .hero-inner{grid-template-columns:1fr;} .stat-row{grid-template-columns:1fr;} }
+
+    /* ── SIMULATEUR PRESCRIPTEUR ─────────────────────────────────────────── */
+    .sim-section { background:var(--dark); padding:4rem 2rem; }
+    .sim-inner { max-width:1100px; margin:0 auto; }
+    .sim-layout { display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; margin-top:2rem; }
+
+    .sim-bloc { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:1.5rem; margin-bottom:1rem; }
+    .sim-bloc-title { font-size:.78rem; font-weight:600; color:rgba(255,255,255,.8); text-transform:uppercase; letter-spacing:.06em; margin-bottom:1.1rem; }
+
+    .sim-field { margin-bottom:1rem; }
+    .sim-label { display:flex; justify-content:space-between; font-size:.78rem; color:rgba(255,255,255,.5); margin-bottom:.4rem; }
+    .sim-val-badge { background:rgba(29,158,117,.15); color:var(--green); border-radius:999px; padding:.15rem .6rem; font-weight:700; font-size:.82rem; }
+
+    .sim-range { width:100%; -webkit-appearance:none; height:4px; border-radius:999px; background:rgba(255,255,255,.1); outline:none; cursor:pointer; }
+    .sim-range::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--green); cursor:pointer; transition:box-shadow .2s; box-shadow:0 0 0 3px rgba(29,158,117,.2); }
+    .sim-range::-webkit-slider-thumb:hover { box-shadow:0 0 0 5px rgba(29,158,117,.3); }
+    .sim-range-labels { display:flex; justify-content:space-between; font-size:.62rem; color:rgba(255,255,255,.2); margin-top:.2rem; }
+
+    .sim-chips { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .sim-chip { background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1); color:rgba(255,255,255,.5); border-radius:999px; padding:.3rem .8rem; font-size:.72rem; cursor:pointer; font-family:var(--font-b); transition:all .2s; }
+    .sim-chip.active { background:rgba(29,158,117,.15); border-color:var(--green); color:var(--green); font-weight:500; }
+
+    /* Résultats */
+    .sim-results { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:1.75rem; position:sticky; top:72px; }
+    .sim-results-title { font-size:.85rem; font-weight:600; color:rgba(255,255,255,.9); margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .sim-live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulseDot 1.5s ease-in-out infinite; }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.8);} }
+
+    .sim-kpis { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1.25rem; }
+    .sim-kpi { background:rgba(255,255,255,.05); border-radius:10px; padding:.875rem 1rem; }
+    .sim-kpi-big { grid-column:1/-1; border:1.5px solid rgba(29,158,117,.25); background:rgba(29,158,117,.07); }
+    .sim-kpi-label { font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin-bottom:.3rem; }
+    .sim-kpi-val { font-family:var(--font-d); font-size:1.4rem; color:#fff; }
+    .sim-kpi-val.g { color:var(--green); }
+    .sim-kpi-val.big { font-size:2rem; }
+
+    /* Barre rentabilité */
+    .sim-rentab { margin-bottom:1.25rem; }
+    .sim-rentab-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin-bottom:.5rem; }
+    .sim-rentab-track { height:8px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; margin-bottom:.35rem; }
+    .sim-rentab-fill { height:100%; border-radius:999px; background:var(--green); transition:width .6s cubic-bezier(.4,0,.2,1); }
+    .sim-rentab-desc { font-size:.72rem; color:rgba(255,255,255,.35); }
+
+    /* Délai box */
+    .sim-delai { background:rgba(29,158,117,.08); border:1px solid rgba(29,158,117,.2); border-radius:10px; padding:.875rem 1.1rem; margin-bottom:1.25rem; }
+    .sim-delai-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin-bottom:.3rem; }
+    .sim-delai-val { font-family:var(--font-d); font-size:1.4rem; color:var(--green); }
+    .sim-delai-sub { font-size:.72rem; color:rgba(255,255,255,.35); margin-top:.2rem; }
+
+    /* Projection annuelle */
+    .sim-annuel { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:1.25rem; }
+    .sim-annuel-item { background:rgba(255,255,255,.03); border-radius:8px; padding:.6rem .875rem; }
+    .sim-annuel-label { font-size:.62rem; color:rgba(255,255,255,.3); margin-bottom:.2rem; }
+    .sim-annuel-val { font-size:.9rem; font-weight:600; color:#fff; }
+    .sim-annuel-val.g { color:var(--green); }
+
+    .sim-cta { display:block; text-align:center; background:var(--green); color:#fff; border-radius:999px; padding:.8rem; font-size:.9rem; font-weight:600; margin-top:.5rem; transition:background .2s; }
+    .sim-cta:hover { background:var(--green-d); }
+    .sim-note { font-size:.68rem; color:rgba(255,255,255,.25); text-align:center; margin-top:.5rem; }
+
+    @media(max-width:900px) { .sim-layout { grid-template-columns:1fr; } .sim-results { position:static; } }
   </style>
 
   <script type="application/ld+json">
@@ -114,6 +175,7 @@
     <div class="nav-links">
       <a href="#comment">Comment ça marche</a>
       <a href="#tarifs">Tarifs</a>
+      <a href="#simulateur">Simulateur</a>
       <a href="#faq">FAQ</a>
       <a href="index.html" style="color:rgba(255,255,255,.35);font-size:.78rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .75rem;">← Espace patient</a>
     </div>
@@ -258,6 +320,164 @@
   </div>
 </section>
 
+
+<section class="sim-section" id="simulateur">
+  <div class="sim-inner">
+    <div style="text-align:center;margin-bottom:.5rem;">
+      <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:500;">Simulateur</span>
+      <h2 style="font-family:var(--font-d);font-size:clamp(1.5rem,2.8vw,2rem);color:#fff;margin-top:.4rem;">Estimez votre ROI prescripteur</h2>
+      <p style="font-size:.875rem;color:rgba(255,255,255,.45);max-width:520px;margin:.6rem auto 0;line-height:1.7;">Ajustez votre volume et vos prix — les résultats se calculent en temps réel.</p>
+    </div>
+
+    <div class="sim-layout">
+      <!-- Formulaire -->
+      <div>
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">Votre activité</div>
+
+          <div class="sim-field">
+            <label class="sim-label">
+              <span>Clients / patients par mois</span>
+              <span class="sim-val-badge" id="p_disp_clients">25</span>
+            </label>
+            <input type="range" class="sim-range" id="p_sim_clients" min="5" max="200" step="5" value="25"
+              oninput="pUpdateDisp('clients');pCompute()"/>
+            <div class="sim-range-labels"><span>5</span><span>200</span></div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">
+              <span>% qui commandent un plan</span>
+              <span class="sim-val-badge" id="p_disp_taux">30%</span>
+            </label>
+            <input type="range" class="sim-range" id="p_sim_taux" min="5" max="80" step="5" value="30"
+              oninput="pUpdateDisp('taux','%');pCompute()"/>
+            <div class="sim-range-labels"><span>5%</span><span>80%</span></div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">
+              <span>Prix facturé à votre client (€)</span>
+              <span class="sim-val-badge" id="p_disp_prix">35€</span>
+            </label>
+            <input type="range" class="sim-range" id="p_sim_prix" min="15" max="80" step="1" value="35"
+              oninput="pUpdateDisp('prix','€');pCompute()"/>
+            <div class="sim-range-labels"><span>15€</span><span>80€</span></div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">
+              <span>Tarif plan au diét. (selon pack)</span>
+              <span class="sim-val-badge" id="p_disp_tarif">13€</span>
+            </label>
+            <input type="range" class="sim-range" id="p_sim_tarif" min="10" max="18" step="1" value="13"
+              oninput="pUpdateDisp('tarif','€');pCompute()"/>
+            <div class="sim-range-labels"><span>10€ (pack 50)</span><span>18€ (solo)</span></div>
+          </div>
+        </div>
+
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">Votre pack crédits</div>
+          <div class="sim-chips" id="pPackChips">
+            <button class="sim-chip" onclick="pSetPack(1,18,this)">1 crédit · 18€</button>
+            <button class="sim-chip" onclick="pSetPack(5,75,this)">5 crédits · 75€</button>
+            <button class="sim-chip active" onclick="pSetPack(10,130,this)">10 crédits · 130€</button>
+            <button class="sim-chip" onclick="pSetPack(20,240,this)">20 crédits · 240€</button>
+            <button class="sim-chip" onclick="pSetPack(50,500,this)">50 crédits · 500€</button>
+          </div>
+          <div style="margin-top:.875rem;font-size:.75rem;color:rgba(255,255,255,.3);line-height:1.5;" id="pPackNote">
+            Pack 10 crédits : 13€/plan · valables 12 mois
+          </div>
+        </div>
+
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">Votre métier</div>
+          <div class="sim-chips" id="pMetierChips">
+            <button class="sim-chip active" onclick="pSetMetier('coach',this)">💪 Coach sportif</button>
+            <button class="sim-chip" onclick="pSetMetier('medecin',this)">🩺 Médecin</button>
+            <button class="sim-chip" onclick="pSetMetier('kine',this)">🦴 Kiné</button>
+            <button class="sim-chip" onclick="pSetMetier('osteo',this)">🤲 Ostéopathe</button>
+          </div>
+          <div style="margin-top:.875rem;font-size:.73rem;color:rgba(255,255,255,.3);line-height:1.55;" id="pMetierNote">
+            Intégrez la nutrition dans votre bilan de forme. Vos clients restent chez vous plutôt que de consulter un diét. externe.
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultats -->
+      <div>
+        <div class="sim-results">
+          <div class="sim-results-title">
+            <span class="sim-live-dot"></span>
+            Résultats temps réel
+          </div>
+
+          <div class="sim-kpis">
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Plans / mois</div>
+              <div class="sim-kpi-val" id="p_r_plans">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Coût / plan</div>
+              <div class="sim-kpi-val" id="p_r_cout">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">CA généré / mois</div>
+              <div class="sim-kpi-val g" id="p_r_ca">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Coût plans / mois</div>
+              <div class="sim-kpi-val" id="p_r_couts_plans">—</div>
+            </div>
+            <div class="sim-kpi sim-kpi-big">
+              <div class="sim-kpi-label">Marge nette / mois</div>
+              <div class="sim-kpi-val g big" id="p_r_marge">—</div>
+            </div>
+          </div>
+
+          <div class="sim-rentab">
+            <div class="sim-rentab-label">Rentabilité du pack</div>
+            <div class="sim-rentab-track">
+              <div class="sim-rentab-fill" id="p_rentab_bar" style="width:0%"></div>
+            </div>
+            <div class="sim-rentab-desc" id="p_rentab_desc">—</div>
+          </div>
+
+          <div class="sim-delai">
+            <div class="sim-delai-label">⏱ Délai de livraison</div>
+            <div class="sim-delai-val" id="p_r_delai">—</div>
+            <div class="sim-delai-sub" id="p_r_delai_sub">—</div>
+          </div>
+
+          <div class="sim-annuel">
+            <div class="sim-annuel-item">
+              <div class="sim-annuel-label">CA annuel</div>
+              <div class="sim-annuel-val g" id="p_r_ca_an">—</div>
+            </div>
+            <div class="sim-annuel-item">
+              <div class="sim-annuel-label">Marge annuelle</div>
+              <div class="sim-annuel-val g" id="p_r_marge_an">—</div>
+            </div>
+            <div class="sim-annuel-item">
+              <div class="sim-annuel-label">Seuil de rentabilité</div>
+              <div class="sim-annuel-val" id="p_r_seuil">—</div>
+            </div>
+            <div class="sim-annuel-item">
+              <div class="sim-annuel-label">ROI du pack</div>
+              <div class="sim-annuel-val g" id="p_r_roi">—</div>
+            </div>
+          </div>
+
+          <div id="p_valeur" style="background:rgba(255,255,255,.04);border-radius:10px;padding:.875rem 1rem;margin-bottom:1rem;font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.65;" id="p_valeur_txt"></div>
+
+          <a href="inscription-prescripteur.html" class="sim-cta">Commencer avec ce pack →</a>
+          <p class="sim-note">SIRET requis · Inscription 3 min · 1er plan offert en phase pilote</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cta-section">
   <h2 class="cta-title">Proposez la nutrition à vos clients dès aujourd'hui</h2>
   <p class="cta-sub">SIRET obligatoire · Inscription en 3 minutes · 1er plan offert en phase pilote</p>
@@ -272,6 +492,118 @@
 
 <script>
 window._skipUniversalNav = true;
+
+// ══════════════════════════════════════════════════════════════
+// SIMULATEUR PRESCRIPTEUR
+// ══════════════════════════════════════════════════════════════
+var pPack = { nb:10, total:130, tarif:13 };
+var pMetier = 'coach';
+
+var pMetierNotes = {
+  coach:   'Intégrez la nutrition dans votre bilan de forme. Vos clients restent chez vous plutôt que de consulter un diét. externe.',
+  medecin: 'Prescrivez un plan diététique certifié sans mobiliser une consultation supplémentaire. Le diét. RPPS signe — vous prescrivez.',
+  kine:    'Associez la nutrition à votre rééducation. Récupération et résultats améliorés pour vos patients.',
+  osteo:   'Complétez votre approche globale avec un plan alimentaire signé RPPS. Valeur ajoutée pour vos consultations.'
+};
+
+var pPackNotes = {
+  1:  '1 crédit : 18€/plan · idéal pour tester avant de s\'engager.',
+  5:  '5 crédits : 15€/plan · économisez 15€ vs tarif solo.',
+  10: 'Pack 10 crédits : 13€/plan · valables 12 mois · recommandé.',
+  20: 'Pack 20 crédits : 12€/plan · économisez 120€ vs tarif solo.',
+  50: 'Pack 50 crédits : 10€/plan · meilleur tarif · −44% vs solo.'
+};
+
+function pUpdateDisp(id, suffix) {
+  document.getElementById('p_disp_' + id).textContent = document.getElementById('p_sim_' + id).value + (suffix || '');
+}
+
+function pSetPack(nb, total, btn) {
+  pPack = { nb:nb, total:total, tarif:Math.round(total/nb) };
+  document.getElementById('pPackChips').querySelectorAll('.sim-chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('pPackNote').textContent = pPackNotes[nb] || '';
+  // Mettre à jour le slider tarif
+  document.getElementById('p_sim_tarif').value = pPack.tarif;
+  document.getElementById('p_disp_tarif').textContent = pPack.tarif + '€';
+  pCompute();
+}
+
+function pSetMetier(m, btn) {
+  pMetier = m;
+  document.getElementById('pMetierChips').querySelectorAll('.sim-chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('pMetierNote').textContent = pMetierNotes[m] || '';
+  pCompute();
+}
+
+function pDelai(plans) {
+  if (plans <= 1)  return { val:'12 à 24h', sub:'Assignation immédiate à un diét. disponible' };
+  if (plans <= 5)  return { val:'18 à 30h', sub:plans + ' plans répartis sur 2 diét. en parallèle' };
+  if (plans <= 15) return { val:'24 à 36h', sub:plans + ' plans — traitement par batch' };
+  if (plans <= 30) return { val:'30 à 42h', sub:plans + ' plans — 5-6 diét. mobilisés simultanément' };
+  return { val:'36 à 48h', sub:plans + ' plans — traitement en vagues · SLA garanti 48h' };
+}
+
+function pCompute() {
+  var clients = parseInt(document.getElementById('p_sim_clients').value);
+  var taux    = parseInt(document.getElementById('p_sim_taux').value) / 100;
+  var prix    = parseInt(document.getElementById('p_sim_prix').value);
+  var tarif   = parseInt(document.getElementById('p_sim_tarif').value);
+
+  var plans   = Math.round(clients * taux);
+  var ca      = plans * prix;
+  var couts   = plans * tarif;
+  var marge   = ca - couts;
+  var roi     = tarif > 0 ? Math.round((prix - tarif) / tarif * 100) : 0;
+  var seuil   = prix > tarif ? Math.ceil(pPack.total / (prix - tarif)) : '—';
+  var rentab  = pPack.total > 0 ? Math.min(100, Math.round((marge / pPack.total) * 100)) : 0;
+
+  document.getElementById('p_r_plans').textContent = plans + ' plan' + (plans > 1 ? 's' : '');
+  document.getElementById('p_r_cout').textContent  = tarif + '€';
+  document.getElementById('p_r_ca').textContent    = ca.toLocaleString('fr') + '€';
+  document.getElementById('p_r_couts_plans').textContent = couts + '€';
+
+  var margeEl = document.getElementById('p_r_marge');
+  margeEl.textContent = (marge >= 0 ? '+' : '') + marge.toLocaleString('fr') + '€';
+  margeEl.className   = 'sim-kpi-val big ' + (marge >= 0 ? 'g' : '');
+  margeEl.style.color = marge >= 0 ? '' : '#ef4444';
+
+  // Rentabilité
+  document.getElementById('p_rentab_bar').style.width = Math.max(0, rentab) + '%';
+  document.getElementById('p_rentab_bar').style.background = rentab > 80 ? '#1D9E75' : rentab > 40 ? '#f97316' : '#ef4444';
+  document.getElementById('p_rentab_desc').textContent = marge >= 0
+    ? 'Rentable · ' + roi + '% de marge sur chaque plan · Pack amorti en ' + seuil + ' plans'
+    : 'Pack non encore amorti — augmentez le prix facturé ou réduisez le tarif diét.';
+
+  // Délai
+  var d = pDelai(plans);
+  document.getElementById('p_r_delai').textContent     = d.val;
+  document.getElementById('p_r_delai_sub').textContent = d.sub;
+
+  // Annuel
+  document.getElementById('p_r_ca_an').textContent    = (ca * 12).toLocaleString('fr') + '€';
+  document.getElementById('p_r_marge_an').textContent = ((marge >= 0 ? '+' : '') + (marge * 12).toLocaleString('fr')) + '€';
+  document.getElementById('p_r_seuil').textContent    = seuil + ' plans';
+  document.getElementById('p_r_roi').textContent      = roi + '% / plan';
+
+  // Valeur perçue selon métier
+  var vals = {
+    coach:   'Vos clients ne vont plus chercher un diét. externe — vous devenez leur référent complet sport + nutrition.',
+    medecin: 'Vous prescrivez un plan certifié RPPS sans mobiliser une consultation dédiée. Traçabilité intégrable au dossier patient.',
+    kine:    'La nutrition accélère la récupération de vos patients. Plan livré sous 48h, signé par un diét. RPPS.',
+    osteo:   'Approche globale valorisée : votre client reçoit un document professionnel co-signé par votre cabinet et un diét. RPPS.'
+  };
+  document.getElementById('p_valeur').textContent = '💡 ' + (vals[pMetier] || '');
+}
+
+// Init prescripteur
+pUpdateDisp('clients');
+pUpdateDisp('taux', '%');
+pUpdateDisp('prix', '€');
+pUpdateDisp('tarif', '€');
+pCompute();
+
 function toggleFaq(el) {
   var ans = el.nextElementSibling;
   var icon = el.querySelector('span:last-child');

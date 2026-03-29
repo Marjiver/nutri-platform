@@ -138,6 +138,7 @@
       <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🏃 Endurance</span>
       <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🩺 Santé & prévention</span>
       <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🫀 Diabète / HTA / Cholestérol</span>
+      <span style="font-size:.72rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .7rem;color:rgba(255,255,255,.6);">🤰 Grossesse & allaitement</span>
     </div>
   <div class="nd-hero-trust">
       <div class="nd-trust-item"><span class="nd-trust-num">0 €</span><span class="nd-trust-label">Pour commencer</span></div>
@@ -154,10 +155,10 @@
       <div class="nd-mc-meals">
         <div class="nd-mc-meal"><span>🍳 Petit déjeuner</span><span class="nd-mc-kcal">selon objectif</span></div>
         <div class="nd-mc-meal"><span>🥗 Déjeuner</span><span class="nd-mc-kcal">grammages précis</span></div>
-        <div class="nd-mc-meal"><span>🍎 Collation</span><span class="nd-mc-kcal">macros calculées</span></div>
-        <div class="nd-mc-meal"><span>🍽 Dîner</span><span class="nd-mc-kcal">4 semaines</span></div>
+        <div class="nd-mc-meal"><span>🍎 Collation pré-sport</span><span class="nd-mc-kcal">adapté J entraîn.</span></div>
+        <div class="nd-mc-meal"><span>🍽 Dîner récupération</span><span class="nd-mc-kcal">4 semaines</span></div>
       </div>
-      <div class="nd-mc-total">Total · <strong>adapté à votre profil</strong> · macros personnalisées</div>
+      <div class="nd-mc-total">Plan · <strong>prise de masse ou perte de poids</strong> · périodisé J actif / J repos</div>
     </div>
     <div class="nd-mockup-card nd-mc-2">
       <div class="nd-mc2-icon">✓</div>
@@ -403,182 +404,8 @@
 
 
 <!-- ══ PROFESSIONNELS ═══════════════════════════════════════ -->
-<section class="nd-section nd-section-dark" id="pros">
-  <div class="nd-section-inner">
-    <div class="nd-section-header nd-header-light">
-      <span class="nd-tag nd-tag-light">Espace professionnel</span>
-      <h2 class="nd-title nd-title-light">Vous êtes professionnel de santé<br>ou du sport ?</h2>
-    </div>
-    <div class="nd-pros-grid">
 
-      <div class="nd-pro-card" data-reveal>
-        <div class="nd-pro-icon">🩺</div>
-        <h3>Diététicien certifié</h3>
-        <p>Validez des plans depuis chez vous. Vos coordonnées et numéro RPPS figurent sur chaque plan. Formule à partir de la commission.</p>
-        <div class="nd-pro-features">
-          <span>Badge RPPS vérifié</span>
-          <span>Visio intégrée</span>
-          <span>Facturation auto</span>
-          <span>Alertes santé</span>
-        </div>
-        <div class="nd-pro-actions">
-          <a href="accueil-dieteticien.html" class="nd-pro-btn">Découvrir l'espace diét. →</a>
-          <a href="login.html?role=dietitian" class="nd-pro-ghost">Se connecter</a>
-        </div>
-      </div>
 
-      <div class="nd-pro-card" data-reveal style="animation-delay:.15s">
-        <div class="nd-pro-icon">🏥</div>
-        <h3>Médecin, kiné, coach, ostéo…</h3>
-        <p>Tout professionnel déclaré (SIRET requis) peut prescrire des plans nutritionnels validés à ses clients ou patients. CRM intégré pour le suivi.</p>
-        <div class="nd-pro-features">
-          <span>SIRET vérifié</span>
-          <span>CRM patients</span>
-          <span>Plans directs au diét.</span>
-          <span>Plans sous 48h</span>
-        </div>
-        <div class="nd-pro-actions">
-          <a href="accueil-prescripteur.html" class="nd-pro-btn nd-pro-btn-alt">S'inscrire</a>
-          <a href="login.html?role=prescriber" class="nd-pro-ghost">Se connecter</a>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Tarifs pros — collapsibles -->
-    <div style="margin-top:3rem;text-align:center;">
-      <button class="nd-pro-pricing-toggle" id="btnTarifsDiet" onclick="togglePricing('diet')">
-        Voir les tarifs diététiciens <span class="nd-toggle-arrow">▾</span>
-      </button>
-      <div class="nd-pro-pricing-panel" id="panelDiet">
-        <div class="nd-pro-pricing-grid" style="max-width:860px;margin:0 auto;">
-          <div class="nd-pro-price-card">
-            <div class="nd-pro-tier">Essentiel</div>
-            <div class="nd-pro-amount">Gratuit <span>toujours</span></div>
-            <div class="nd-pro-revers">16 € reversés / plan validé</div>
-            <ul class="nd-pro-list">
-              <li class="yes">Sans engagement</li>
-              <li class="yes">Badge RPPS</li>
-              <li class="yes">Alertes santé</li>
-              <li class="no">Visio intégrée</li>
-              <li class="no">Stats & tableau de bord</li>
-            </ul>
-          </div>
-          <div class="nd-pro-price-card featured-pro">
-            <div class="nd-pro-price-featured-badge">Recommandé</div>
-            <div class="nd-pro-tier">Pro</div>
-            <div class="nd-pro-amount">29 € <span>/ mois</span></div>
-            <div class="nd-pro-revers">payé directement au diét. / plan validé</div>
-            <ul class="nd-pro-list">
-              <li class="yes">Dossiers illimités</li>
-              <li class="yes">Badge RPPS</li>
-              <li class="yes">Alertes santé</li>
-              <li class="yes">Visio intégrée</li>
-              <li class="yes">Stats & tableau de bord</li>
-            </ul>
-          </div>
-          <div class="nd-pro-price-card">
-            <div class="nd-pro-tier">Expert</div>
-            <div class="nd-pro-amount">39 € <span>/ mois annuel</span></div>
-            <div class="nd-pro-revers">20 € reversés / plan validé</div>
-            <ul class="nd-pro-list">
-              <li class="yes">Dossiers illimités</li>
-              <li class="yes">Badge RPPS</li>
-              <li class="yes">Alertes santé</li>
-              <li class="yes">Visio intégrée</li>
-              <li class="yes">Support prioritaire</li>
-            </ul>
-          </div>
-        </div>
-        <p style="text-align:center;margin-top:1rem;font-size:.8rem;color:rgba(255,255,255,.4);">Visio : 50 € reversés (patient paie 50 €) · Facturation électronique mensuelle automatique</p>
-        <div style="text-align:center;margin-top:1.25rem;">
-          <a href="inscription-dieteticien.html" class="nd-pro-btn" style="display:inline-block;">S'inscrire comme diététicien →</a>
-        </div>
-      </div>
-
-      <button class="nd-pro-pricing-toggle" id="btnTarifsPresc" onclick="togglePricing('presc')" style="margin-top:.75rem;">
-        Voir les tarifs prescripteurs <span class="nd-toggle-arrow">▾</span>
-      </button>
-      <div class="nd-pro-pricing-panel" id="panelPresc">
-        <div style="max-width:860px;margin:0 auto;">
-
-          <!-- Abonnement mensuel -->
-          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
-            <div>
-              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:.3rem;">Abonnement mensuel</div>
-              <div style="font-family:var(--font-display);font-size:1.75rem;color:#fff;">29 € <span style="font-size:.85rem;color:rgba(255,255,255,.4);font-family:var(--font-body);">HT / mois</span></div>
-              <div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-top:.2rem;">Sans engagement · CRM illimité · Annuaire diét. RPPS certifiés</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:.75rem;color:rgba(255,255,255,.35);margin-bottom:.3rem;">1er mois offert en phase pilote</div>
-              <a href="accueil-prescripteur.html" class="nd-pro-btn nd-pro-btn-alt" style="display:inline-block;padding:.5rem 1.1rem;font-size:.82rem;">Essayer gratuitement →</a>
-            </div>
-          </div>
-
-          <!-- Packs plans -->
-          <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:.75rem;text-align:center;">Packs de plans — payés directement au diét. · NutriDoc 0% de commission</div>
-          <div class="nd-pro-pricing-grid">
-
-            <div class="nd-pro-price-card" style="text-align:center;">
-              <div class="nd-pro-tier">Solo</div>
-              <div class="nd-pro-amount">18 € <span style="font-size:.8rem;">/ plan</span></div>
-              <div class="nd-pro-revers" style="color:rgba(255,255,255,.5);">1 plan alimentaire</div>
-              <ul class="nd-pro-list">
-                <li class="yes">1 plan validé RPPS</li>
-                <li class="yes">Livraison 48h ouvrées</li>
-                <li class="yes">PDF signé inclus</li>
-              </ul>
-            </div>
-
-            <div class="nd-pro-price-card featured-pro" style="text-align:center;">
-              <div class="nd-pro-price-featured-badge">Populaire</div>
-              <div class="nd-pro-tier">Pack 10 plans</div>
-              <div class="nd-pro-amount">130 € <span style="font-size:.8rem;">HT</span></div>
-              <div class="nd-pro-revers" style="color:var(--green);">13 € / plan — éco. 50 €</div>
-              <ul class="nd-pro-list">
-                <li class="yes">10 plans validés RPPS</li>
-                <li class="yes">Livraison 48h ouvrées</li>
-                <li class="yes">Valables 12 mois</li>
-                <li class="yes">−28% vs Solo</li>
-              </ul>
-            </div>
-
-            <div class="nd-pro-price-card" style="text-align:center;">
-              <div class="nd-pro-tier">Pack 50 plans</div>
-              <div class="nd-pro-amount">500 € <span style="font-size:.8rem;">HT</span></div>
-              <div class="nd-pro-revers" style="color:rgba(255,255,255,.6);">10 € / plan — éco. 400 €</div>
-              <ul class="nd-pro-list">
-                <li class="yes">50 plans validés RPPS</li>
-                <li class="yes">Livraison 48h ouvrées</li>
-                <li class="yes">Valables 12 mois</li>
-                <li class="yes">−44% vs Solo</li>
-              </ul>
-            </div>
-
-          </div>
-
-          <div style="margin-top:.75rem;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.3);border-radius:8px;padding:.65rem 1rem;text-align:center;">
-            <span style="font-size:.78rem;color:rgba(255,255,255,.6);">5 et 20 plans disponibles aussi · Tous les packs sont valables 12 mois · SIRET obligatoire · <a href="inscription-prescripteur.html" style="color:var(--green);text-decoration:none;">Voir tous les packs →</a></span>
-          </div>
-
-        </div>
-        <div style="text-align:center;margin-top:1.5rem;">
-          <a href="accueil-prescripteur.html" class="nd-pro-btn nd-pro-btn-alt" style="display:inline-block;">S'inscrire comme prescripteur →</a>
-        </div>
-      </div>
-    <!-- CTA pros -->
-    <div style="margin-top:2.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <a href="accueil-dieteticien.html" class="nd-pro-btn" style="display:inline-flex;align-items:center;gap:.5rem;">
-        🥗 Espace Diététicien →
-      </a>
-      <a href="accueil-prescripteur.html" class="nd-pro-btn nd-pro-btn-alt" style="display:inline-flex;align-items:center;gap:.5rem;">
-        🏥 Espace Prescripteur →
-      </a>
-    </div>
-    </div>
-
-  </div>
-</section>
 
 <!-- ══ FOOTER ════════════════════════════════════════════════ -->
 

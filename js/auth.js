@@ -257,3 +257,162 @@ const LS = {
 
 // ── Détection mode (Supabase ou démo) ───────────────────────
 const MODE_SUPA = !!window.supabase && SUPABASE_URL !== 'https://VOTRE-ID.supabase.co';
+
+// ═══════════════════════════════════════════════════════════════════
+// INSCRIPTION DIÉTÉTICIEN — appelée depuis inscription-dieteticien.js
+// ═══════════════════════════════════════════════════════════════════
+async function inscrireDieteticien(payload) {
+  try {
+    // 1. Créer le compte Auth Supabase
+    const { data: authData, error: authError } = await _supa.auth.signUp({
+      email: payload.email,
+      password: payload.password,
+      options: {
+        emailRedirectTo: window.location.origin + '/login.html?role=dietitian&confirmed=1',
+        data: {
+          role:      'dietitian',
+          prenom:    payload.prenom,
+          nom:       payload.nom,
+          tel:       payload.tel || '',
+          rpps:      payload.rpps || '',
+          specialite:payload.specialite || '',
+          cabinet:   payload.cabinet || '',
+          formule:   payload.formule || 'essentiel',
+        }
+      }
+    });
+
+    if (authError) return { error: authError };
+
+    const userId = authData.user?.id;
+    if (!userId) return { error: { message: 'Erreur création compte — réessayez.' } };
+
+    // 2. Insérer le profil complet dans la table profiles
+    const { error: profError } = await _supa.from('profiles').upsert({
+      id:           userId,
+      role:         'dietitian',
+      prenom:       payload.prenom,
+      nom:          payload.nom,
+      email:        payload.email,
+      tel:          payload.tel || null,
+      site_web:     payload.siteWeb || null,
+      cabinet:      payload.cabinet || null,
+      rpps:         payload.rpps || null,
+      specialite:   payload.specialite || null,
+      adeli:        payload.adeli || null,
+      iban:         payload.iban || null,
+      formule:      payload.formule || 'essentiel',
+      statut_rpps:  'en_attente',
+      statut:       'actif',
+      mode_pilote:  false,
+      code_parrainage: Math.random().toString(36).substr(2, 8).toUpperCase(),
+    });
+
+    if (profError) {
+      console.error('Erreur profil diét.:', profError);
+      return { error: { message: 'Compte créé mais erreur profil. Contactez le support.' } };
+    }
+
+    // Envoyer email de bienvenue via Edge Function
+    try {
+      await _supa.functions.invoke('send-email', {
+        body: {
+          type: 'bienvenue',
+          to: payload.email,
+          data: {
+            role:    'dietitian',
+            prenom:  payload.prenom,
+            nom:     payload.nom,
+            formule: payload.formule || 'essentiel',
+            credits: 0,
+          }
+        }
+      });
+    } catch(emailErr) { console.warn('Email bienvenue non envoyé:', emailErr); }
+
+    return { data: authData, error: null };
+
+  } catch (err) {
+    console.error('inscrireDieteticien:', err);
+    return { error: { message: 'Erreur inattendue. Réessayez.' } };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INSCRIPTION PRESCRIPTEUR — appelée depuis inscription-prescripteur.js
+// ═══════════════════════════════════════════════════════════════════
+async function inscrirePrescripteur(payload) {
+  try {
+    // 1. Créer le compte Auth Supabase
+    const { data: authData, error: authError } = await _supa.auth.signUp({
+      email: payload.email,
+      password: payload.password,
+      options: {
+        emailRedirectTo: window.location.origin + '/login.html?role=prescriber&confirmed=1',
+        data: {
+          role:      'prescriber',
+          prenom:    payload.prenom,
+          nom:       payload.nom,
+          tel:       payload.tel || '',
+          profession:payload.profession || '',
+          siret:     payload.siret || '',
+          cabinet:   payload.cabinet || '',
+          pack:      payload.pack || 'decouverte',
+        }
+      }
+    });
+
+    if (authError) return { error: authError };
+
+    const userId = authData.user?.id;
+    if (!userId) return { error: { message: 'Erreur création compte — réessayez.' } };
+
+    // 2. Insérer le profil complet dans la table profiles
+    const { error: profError } = await _supa.from('profiles').upsert({
+      id:                  userId,
+      role:                'prescriber',
+      prenom:              payload.prenom,
+      nom:                 payload.nom,
+      email:               payload.email,
+      tel:                 payload.tel || null,
+      site_web:            payload.site || payload.siteWeb || null,
+      cabinet:             payload.cabinet || null,
+      profession:          payload.profession || null,
+      siret:               payload.siret || null,
+      objectifs_autorises: payload.objectifs || [],
+      pack:                payload.pack || 'decouverte',
+      credits:             payload.pack === 'expert' ? 50 : payload.pack === 'standard' ? 10 : 1,
+      statut:              'actif',
+      mode_pilote:         false,
+      code_parrainage:     Math.random().toString(36).substr(2, 8).toUpperCase(),
+    });
+
+    if (profError) {
+      console.error('Erreur profil prescripteur:', profError);
+      return { error: { message: 'Compte créé mais erreur profil. Contactez le support.' } };
+    }
+
+    // Envoyer email de bienvenue via Edge Function
+    try {
+      await _supa.functions.invoke('send-email', {
+        body: {
+          type: 'bienvenue',
+          to: payload.email,
+          data: {
+            role:    'prescriber',
+            prenom:  payload.prenom,
+            nom:     payload.nom,
+            pack:    payload.pack || 'decouverte',
+            credits: payload.pack === 'expert' ? 50 : payload.pack === 'standard' ? 10 : 1,
+          }
+        }
+      });
+    } catch(emailErr) { console.warn('Email bienvenue non envoyé:', emailErr); }
+
+    return { data: authData, error: null };
+
+  } catch (err) {
+    console.error('inscrirePrescripteur:', err);
+    return { error: { message: 'Erreur inattendue. Réessayez.' } };
+  }
+}

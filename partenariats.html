@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Partenariats & Structures · CaliDoc Santé</title>
+  <meta name="description" content="Intégrez la nutrition certifiée RPPS dans votre structure : salles de sport, cliniques, mutuelles, entreprises. Tarifs volume et accompagnement dédié."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --dark:#0d2018; --green:#1D9E75; --green-d:#0F6E56; --green-l:#E1F5EE;
+      --gray:#6b7b74; --border:#e8edeb; --cream:#f7f9f7;
+      --blue:#185FA5; --blue-l:#E6F1FB;
+      --amber:#FAEEDA; --amber-d:#633806;
+      --font-d:'DM Serif Display',Georgia,serif; --font-b:'DM Sans',system-ui,sans-serif;
+    }
+    body { font-family:var(--font-b); color:var(--dark); background:#fff; line-height:1.6; }
+    a { text-decoration:none; }
+
+    /* NAV */
+    .nav { position:sticky;top:0;z-index:100;background:var(--dark);border-bottom:1px solid rgba(255,255,255,.08); }
+    .nav-inner { max-width:1200px;margin:0 auto;padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap; }
+    .nav-logo { font-family:var(--font-d);font-size:1.3rem;color:#fff; }
+    .nav-logo em { color:var(--green);font-style:italic; }
+    .nav-badge { font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;background:rgba(29,158,117,.2);color:#7dd3fc;border-radius:999px;padding:2px 8px;margin-left:.35rem;vertical-align:middle; }
+    .nav-links { display:flex;align-items:center;gap:1.5rem; }
+    .nav-links a { font-size:.875rem;color:rgba(255,255,255,.65);transition:color .2s; }
+    .nav-links a:hover { color:#fff; }
+    .btn-ghost { background:transparent;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);border-radius:999px;padding:.5rem 1.1rem;font-size:.85rem;cursor:pointer;font-family:var(--font-b);transition:all .2s;display:inline-block; }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.5);color:#fff; }
+    .btn-main { background:var(--green);color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.875rem;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:background .2s;display:inline-block; }
+    .btn-main:hover { background:var(--green-d); }
+    .profil-bar { background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.42rem 2rem; }
+    .profil-bar-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap; }
+    .pill { font-size:.72rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;color:rgba(255,255,255,.5); }
+    .pill.active { color:#fff;background:rgba(29,158,117,.18);border-color:rgba(29,158,117,.35);font-weight:500; }
+
+    /* HERO */
+    .hero { background:var(--dark);padding:5rem 2rem 4rem;position:relative;overflow:hidden; }
+    .hero::before { content:'';position:absolute;top:-60px;right:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(29,158,117,.08) 0%,transparent 70%);pointer-events:none; }
+    .hero-inner { max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center; }
+    .hero-tag { display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);border:1px solid rgba(29,158,117,.3);border-radius:999px;padding:.3rem 1rem;margin-bottom:1.5rem; }
+    .hero-title { font-family:var(--font-d);font-size:clamp(1.9rem,3.5vw,2.7rem);color:#fff;line-height:1.2;margin-bottom:1.25rem; }
+    .hero-title em { color:var(--green);font-style:italic; }
+    .hero-sub { font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:2rem;max-width:480px; }
+    .hero-btns { display:flex;gap:.75rem;flex-wrap:wrap; }
+    .btn-hero { background:var(--green);color:#fff;border-radius:999px;padding:.85rem 2rem;font-size:1rem;font-weight:600;display:inline-block;transition:background .2s; }
+    .btn-hero:hover { background:var(--green-d); }
+    .btn-hero-ghost { background:transparent;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);border-radius:999px;padding:.85rem 2rem;font-size:1rem;display:inline-block;transition:all .2s; }
+    .btn-hero-ghost:hover { border-color:rgba(255,255,255,.5);color:#fff; }
+    .hero-note { font-size:.73rem;color:rgba(255,255,255,.25);margin-top:.875rem; }
+
+    /* STATS HERO */
+    .stats-grid { display:grid;grid-template-columns:1fr 1fr;gap:.75rem; }
+    .stat-card { background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:1.25rem 1.5rem; }
+    .stat-val { font-family:var(--font-d);font-size:2rem;color:var(--green);margin-bottom:.2rem;line-height:1; }
+    .stat-lbl { font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.4; }
+    .stat-wide { grid-column:1/-1; }
+
+    /* SECTIONS */
+    .section { padding:4rem 2rem; }
+    .section-cream { background:var(--cream); }
+    .section-dark { background:var(--dark); }
+    .section-inner { max-width:1100px;margin:0 auto; }
+    .section-tag { display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:500;margin-bottom:.6rem; }
+    .section-title { font-family:var(--font-d);font-size:clamp(1.5rem,2.8vw,2.1rem);color:var(--dark);margin-bottom:.6rem; }
+    .section-title-light { color:#fff; }
+    .section-sub { font-size:.9rem;color:var(--gray);max-width:560px;margin-bottom:2.5rem;line-height:1.7; }
+
+    /* PERSONAS */
+    .personas { display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem; }
+    .persona { background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.75rem;transition:box-shadow .25s,transform .25s; }
+    .persona:hover { box-shadow:0 8px 24px rgba(13,32,24,.08);transform:translateY(-2px); }
+    .persona-icon { font-size:2rem;margin-bottom:.875rem; }
+    .persona-title { font-weight:600;color:var(--dark);font-size:.95rem;margin-bottom:.35rem; }
+    .persona-sub { font-size:.78rem;color:var(--green);font-weight:500;margin-bottom:.75rem; }
+    .persona-desc { font-size:.82rem;color:var(--gray);line-height:1.65; }
+    .persona-tags { display:flex;gap:.35rem;flex-wrap:wrap;margin-top:1rem; }
+    .persona-tag { font-size:.68rem;background:var(--green-l);color:var(--green-d);border-radius:999px;padding:.2rem .7rem;font-weight:500; }
+
+    /* OFFRES VOLUME */
+    .offres { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;max-width:1000px;margin:0 auto; }
+    .offre { background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.75rem;display:flex;flex-direction:column;position:relative; }
+    .offre.featured { border:2px solid var(--green);box-shadow:0 8px 32px rgba(29,158,117,.12); }
+    .offre-badge { position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.68rem;font-weight:600;border-radius:999px;padding:.25rem .875rem;white-space:nowrap; }
+    .offre-tier { font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);font-weight:500;margin-bottom:.5rem; }
+    .offre-price { font-family:var(--font-d);font-size:2.4rem;color:var(--dark);line-height:1;margin-bottom:.2rem; }
+    .offre-price span { font-size:.85rem;font-family:var(--font-b);color:var(--gray); }
+    .offre-unit { font-size:.82rem;color:var(--green);font-weight:500;margin-bottom:.35rem; }
+    .offre-desc { font-size:.78rem;color:var(--gray);margin-bottom:1.25rem;line-height:1.5; }
+    .offre-list { list-style:none;flex:1;margin-bottom:1.5rem; }
+    .offre-list li { font-size:.82rem;display:flex;align-items:flex-start;gap:.4rem;padding:.3rem 0;border-bottom:1px solid var(--border); }
+    .offre-list li:last-child { border-bottom:none; }
+    .offre-list li::before { content:"✓";color:var(--green);flex-shrink:0;font-weight:600; }
+    .offre-cta { display:block;text-align:center;border-radius:999px;padding:.75rem;font-size:.9rem;font-weight:500;transition:all .2s; }
+    .offre-cta-main { background:var(--green);color:#fff; }
+    .offre-cta-main:hover { background:var(--green-d); }
+    .offre-cta-outline { border:1.5px solid var(--border);color:var(--dark); }
+    .offre-cta-outline:hover { border-color:var(--green);color:var(--green); }
+    .offre-cta-dark { background:var(--dark);color:#fff; }
+    .offre-cta-dark:hover { background:#1a3a2a; }
+
+    /* AVANTAGES */
+    .avantages { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem; }
+    .avantage { display:flex;gap:1rem;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem; }
+    .avantage-icon { font-size:1.5rem;flex-shrink:0;margin-top:.1rem; }
+    .avantage-title { font-weight:600;font-size:.9rem;color:var(--dark);margin-bottom:.3rem; }
+    .avantage-desc { font-size:.8rem;color:var(--gray);line-height:1.6; }
+
+    /* FORMULAIRE CONTACT */
+    .contact-grid { display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:start; }
+    .contact-info h3 { font-family:var(--font-d);font-size:1.6rem;color:#fff;margin-bottom:1rem; }
+    .contact-info p { font-size:.9rem;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:1.5rem; }
+    .contact-guarantee { display:flex;align-items:flex-start;gap:.75rem;background:rgba(255,255,255,.06);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem; }
+    .contact-guarantee-icon { font-size:1.2rem;flex-shrink:0; }
+    .contact-guarantee-text { font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.55; }
+    .contact-guarantee-text strong { color:#fff; }
+
+    .contact-form { background:#fff;border-radius:20px;padding:2.25rem;box-shadow:0 12px 40px rgba(0,0,0,.25); }
+    .form-title { font-weight:600;font-size:1.05rem;color:var(--dark);margin-bottom:1.5rem; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:.875rem; }
+    .form-group { display:flex;flex-direction:column;gap:.35rem;margin-bottom:.875rem; }
+    .form-label { font-size:.8rem;font-weight:500;color:var(--dark); }
+    .form-label .req { color:var(--green); }
+    .form-input, .form-select, .form-textarea {
+      width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .875rem;
+      font-family:var(--font-b);font-size:.875rem;color:var(--dark);background:#fff;transition:border-color .2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.1);
+    }
+    .form-textarea { resize:vertical;min-height:80px; }
+    .form-select { cursor:pointer; }
+    .form-submit { width:100%;background:var(--green);color:#fff;border:none;border-radius:999px;padding:.875rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:background .2s;display:flex;align-items:center;justify-content:center;gap:.5rem; }
+    .form-submit:hover { background:var(--green-d); }
+    .form-note { font-size:.72rem;color:var(--gray);text-align:center;margin-top:.75rem;line-height:1.5; }
+    .form-success { display:none;text-align:center;padding:2rem; }
+    .form-success-icon { font-size:3rem;margin-bottom:1rem; }
+    .form-success h4 { font-family:var(--font-d);font-size:1.5rem;color:var(--dark);margin-bottom:.75rem; }
+    .form-success p { font-size:.875rem;color:var(--gray);line-height:1.65; }
+
+    /* FAQ */
+    .faq-item { border-bottom:1px solid var(--border);padding:1rem 0; }
+    .faq-q { font-weight:500;color:var(--dark);cursor:pointer;display:flex;justify-content:space-between;font-size:.9rem;gap:1rem; }
+    .faq-q:hover { color:var(--green); }
+    .faq-a { font-size:.83rem;color:var(--gray);line-height:1.7;margin-top:.6rem;display:none; }
+    .faq-icon { flex-shrink:0;transition:transform .2s;color:var(--gray); }
+
+    /* LOGOS / REFERENCES */
+    .ref-bar { display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:center;margin-top:2rem; }
+    .ref-tag { font-size:.78rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.45rem 1rem;color:rgba(255,255,255,.5); }
+
+    /* CTA final */
+    .cta-section { background:var(--green);padding:4rem 2rem;text-align:center; }
+    .cta-title { font-family:var(--font-d);font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:1rem; }
+    .cta-sub { font-size:.95rem;color:rgba(255,255,255,.8);margin-bottom:2rem; }
+    .cta-btn { background:#fff;color:var(--green-d);border:none;border-radius:999px;padding:.9rem 2.25rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:var(--font-b);display:inline-block;transition:all .2s; }
+    .cta-btn:hover { box-shadow:0 4px 16px rgba(0,0,0,.15); }
+
+    .footer { background:var(--dark);padding:2rem;text-align:center; }
+    .footer p { font-size:.78rem;color:rgba(255,255,255,.3); }
+    .footer a { color:rgba(255,255,255,.4);transition:color .2s; }
+    .footer a:hover { color:rgba(255,255,255,.7); }
+
+    @media(max-width:900px) {
+      .hero-inner { grid-template-columns:1fr; }
+      .contact-grid { grid-template-columns:1fr; }
+      .form-row { grid-template-columns:1fr; }
+    }
+    @media(max-width:600px) {
+      .offres { grid-template-columns:1fr; }
+      .personas { grid-template-columns:1fr; }
+    }
+  
+    /* ── SIMULATEUR ─────────────────────────────────────────────────────── */
+    .sim-layout { display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:start; }
+    .sim-form-col { display:flex; flex-direction:column; gap:1.25rem; }
+    .sim-bloc { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:1.5rem; }
+    .sim-bloc-title { font-size:.82rem; font-weight:600; color:rgba(255,255,255,.9); margin-bottom:1.25rem; letter-spacing:.02em; }
+
+    /* Champs */
+    .sim-field { margin-bottom:1.1rem; }
+    .sim-field:last-child { margin-bottom:0; }
+    .sim-label { display:flex; justify-content:space-between; align-items:center; font-size:.78rem; color:rgba(255,255,255,.55); margin-bottom:.5rem; }
+    .sim-val-display { font-weight:700; color:var(--green); font-size:.88rem; }
+    .sim-range { width:100%; -webkit-appearance:none; height:5px; border-radius:999px; background:rgba(255,255,255,.12); outline:none; cursor:pointer; }
+    .sim-range::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--green); cursor:pointer; box-shadow:0 0 0 3px rgba(29,158,117,.25); transition:box-shadow .2s; }
+    .sim-range::-webkit-slider-thumb:hover { box-shadow:0 0 0 5px rgba(29,158,117,.35); }
+    .sim-range-labels { display:flex; justify-content:space-between; font-size:.65rem; color:rgba(255,255,255,.25); margin-top:.25rem; }
+
+    /* Chips */
+    .sim-chips { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .sim-chip { background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.12); color:rgba(255,255,255,.55); border-radius:999px; padding:.35rem .875rem; font-size:.75rem; cursor:pointer; font-family:var(--font-b); transition:all .2s; }
+    .sim-chip:hover { border-color:rgba(29,158,117,.4); color:rgba(255,255,255,.8); }
+    .sim-chip.active { background:rgba(29,158,117,.15); border-color:var(--green); color:var(--green); font-weight:500; }
+    .sim-offre-note { font-size:.72rem; color:rgba(255,255,255,.3); margin-top:.5rem; font-style:italic; }
+
+    /* DÉLAI BOX */
+    .sim-delai-box { background:rgba(29,158,117,.08); border:1.5px solid rgba(29,158,117,.2); border-radius:12px; padding:1rem 1.25rem; }
+    .sim-delai-header { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.4); margin-bottom:.4rem; }
+    .sim-delai-fourchette { font-family:var(--font-d); font-size:1.6rem; color:var(--green); line-height:1.1; margin-bottom:.2rem; }
+    .sim-delai-detail { font-size:.75rem; color:rgba(255,255,255,.45); margin-bottom:.75rem; line-height:1.5; }
+    .sim-delai-bar-wrap { height:5px; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; margin-bottom:.5rem; }
+    .sim-delai-bar { height:100%; border-radius:999px; background:var(--green); transition:width .5s ease; }
+    .sim-delai-sla { font-size:.65rem; color:rgba(255,255,255,.25); }
+
+    /* RÉSULTATS */
+    .sim-result-col { position:sticky; top:80px; }
+    .sim-results { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); border-radius:20px; padding:1.75rem; }
+    .sim-result-header { font-size:.82rem; font-weight:600; color:rgba(255,255,255,.9); margin-bottom:1.25rem; }
+    .sim-kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1.25rem; }
+    .sim-kpi { background:rgba(255,255,255,.05); border-radius:10px; padding:.875rem 1rem; }
+    .sim-kpi-highlight { border:1.5px solid rgba(29,158,117,.3); background:rgba(29,158,117,.07); grid-column:1/-1; }
+    .sim-kpi-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.35); margin-bottom:.3rem; }
+    .sim-kpi-val { font-family:var(--font-d); font-size:1.3rem; color:#fff; }
+    .sim-kpi-val.green { color:var(--green); }
+    .sim-kpi-val.large { font-size:1.8rem; }
+
+    /* BARRE RÉPARTITION */
+    .sim-repartition { margin-bottom:1.25rem; }
+    .sim-rep-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); margin-bottom:.5rem; }
+    .sim-rep-bar { height:28px; border-radius:8px; overflow:hidden; display:flex; background:rgba(255,255,255,.06); }
+    .sim-rep-diet  { background:var(--green); display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:600; color:#fff; transition:width .5s ease; white-space:nowrap; overflow:hidden; }
+    .sim-rep-abo   { background:var(--blue); display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:600; color:#fff; transition:width .5s ease; white-space:nowrap; overflow:hidden; }
+    .sim-rep-marge { background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; font-size:.65rem; color:rgba(255,255,255,.6); transition:width .5s ease; white-space:nowrap; overflow:hidden; }
+    .sim-rep-legend { display:flex; gap:1rem; margin-top:.5rem; flex-wrap:wrap; }
+    .sim-rep-legend span { display:flex; align-items:center; gap:.3rem; font-size:.68rem; color:rgba(255,255,255,.4); }
+    .sim-rep-legend span span { width:10px; height:10px; border-radius:2px; display:inline-block; flex-shrink:0; }
+
+    /* PROJECTION */
+    .sim-projection { background:rgba(255,255,255,.04); border-radius:12px; padding:1rem; margin-bottom:1.25rem; }
+    .sim-proj-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); margin-bottom:.875rem; }
+    .sim-proj-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+    .sim-proj-item { }
+    .sim-proj-label { font-size:.68rem; color:rgba(255,255,255,.35); margin-bottom:.2rem; }
+    .sim-proj-val { font-weight:600; color:#fff; font-size:.95rem; }
+    .sim-proj-val.green { color:var(--green); }
+
+    /* VALEUR PERÇUE */
+    .sim-valeur { margin-bottom:1.25rem; }
+    .sim-val-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); margin-bottom:.6rem; }
+    .sim-val-items { display:flex; flex-direction:column; gap:.35rem; }
+    .sim-val-item { display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:rgba(255,255,255,.6); }
+    .sim-val-item::before { content:"✓"; color:var(--green); font-weight:700; flex-shrink:0; }
+
+    /* DÉLAI SUMMARY */
+    .sim-delai-summary { display:flex; align-items:center; gap:.875rem; background:rgba(29,158,117,.1); border:1px solid rgba(29,158,117,.2); border-radius:10px; padding:.875rem 1rem; margin-bottom:1.25rem; }
+    .sim-ds-icon { font-size:1.5rem; flex-shrink:0; }
+    .sim-ds-val { font-weight:700; color:var(--green); font-size:1rem; }
+    .sim-ds-sub { font-size:.72rem; color:rgba(255,255,255,.4); margin-top:.1rem; }
+
+    .sim-cta-btn { display:block; text-align:center; background:var(--green); color:#fff; border-radius:999px; padding:.85rem; font-size:.95rem; font-weight:600; transition:background .2s; }
+    .sim-cta-btn:hover { background:var(--green-d); }
+
+    @media(max-width:960px) {
+      .sim-layout { grid-template-columns:1fr; }
+      .sim-result-col { position:static; }
+    }
+
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Nutri<em>Doc</em><span class="nav-badge">Partenaires</span></a>
+    <div class="nav-links">
+      <a href="#pour-qui">Qui est concerné</a>
+      <a href="#offres">Offres volume</a>
+      <a href="#simulateur">Simulateur ROI</a>
+      <a href="#avantages">Avantages</a>
+      <a href="#contact">Contact</a>
+      <a href="#faq">FAQ</a>
+      <a href="index.html" style="color:rgba(255,255,255,.35);font-size:.78rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .75rem;">← Espace patient</a>
+    </div>
+    <div>
+      <a href="compta-partenaire.html" class="btn-ghost">Mon espace</a>
+      <a href="#contact" class="btn-main">Nous contacter →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="profil-bar">
+  <div class="profil-bar-inner">
+    <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
+    <a href="index.html" class="pill">🧑 Patient</a>
+    <a href="accueil-dieteticien.html" class="pill">🥗 Diététicien</a>
+    <a href="accueil-prescripteur.html" class="pill">🏢 Prescripteur individuel</a>
+    <a href="partenariats.html" class="pill active">🤝 Partenaires</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">🤝 Salles de sport · Cliniques · Mutuelles · Entreprises</div>
+      <h1 class="hero-title">La nutrition certifiée <em>intégrée</em> à votre structure</h1>
+      <p class="hero-sub">Vous gérez une salle, une clinique, une mutuelle ou un programme bien-être en entreprise ? Proposez à vos membres ou patients des plans alimentaires validés RPPS, sans recruter de diét. en interne. Tarifs volume dégressifs, marque blanche possible, accompagnement dédié.</p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn-hero">Demander un devis →</a>
+        <a href="#offres" class="btn-hero-ghost">Voir les offres</a>
+      </div>
+      <p class="hero-note">Réponse sous 24h · Devis gratuit et sans engagement · Facturation mensuelle ou annuelle</p>
+    </div>
+    <div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">7€</div>
+          <div class="stat-lbl">Par plan dès 200 crédits/mois · soit −61% vs tarif individuel</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">48h</div>
+          <div class="stat-lbl">Délai garanti de livraison du plan à votre membre</div>
+        </div>
+        <div class="stat-card stat-wide" style="background:rgba(29,158,117,.1);border-color:rgba(29,158,117,.25);">
+          <div style="font-size:.85rem;color:var(--green);font-weight:600;margin-bottom:.35rem;">✓ Aucun recrutement nécessaire</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.5;">Vous accédez à un réseau de diét. certifiés RPPS via NutriDoc. Pas d'embauche, pas de charges sociales, pas de gestion RH — vous payez à l'acte, uniquement pour ce que vous consommez.</div>
+        </div>
+        <div class="stat-card stat-wide" style="background:rgba(255,255,255,.03);">
+          <div style="font-size:.85rem;color:#fff;font-weight:500;margin-bottom:.3rem;">Marque blanche disponible</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.42);line-height:1.5;">Les plans peuvent être co-brandés avec votre logo. Votre membre reçoit un document à votre image, validé par un diét. RPPS NutriDoc.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POUR QUI -->
+<section class="section section-cream" id="pour-qui">
+  <div class="section-inner">
+    <span class="section-tag">Qui est concerné</span>
+    <h2 class="section-title">Fait pour les structures qui veulent aller plus loin</h2>
+    <p class="section-sub">Que vous ayez 50 ou 5 000 membres, NutriDoc s'adapte à votre volume et à votre secteur.</p>
+    <div class="personas">
+
+      <div class="persona">
+        <div class="persona-icon">🏋️</div>
+        <div class="persona-title">Salles de sport & clubs fitness</div>
+        <div class="persona-sub">Offre bien-être premium pour vos adhérents</div>
+        <div class="persona-desc">Proposez des plans alimentaires certifiés comme service additionnel à votre abonnement salle. Prise de masse, perte de poids, nutrition sportive périodisée. Vos membres restent chez vous au lieu de consulter un diét. externe.</div>
+        <div class="persona-tags">
+          <span class="persona-tag">Prise de masse</span>
+          <span class="persona-tag">Sèche</span>
+          <span class="persona-tag">Abonnement augmenté</span>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-icon">🏥</div>
+        <div class="persona-title">Cliniques & centres de santé</div>
+        <div class="persona-sub">Complément nutritionnel pour vos patients</div>
+        <div class="persona-desc">Vos médecins, endocrinologues, chirurgiens bariatriques et kinés peuvent prescrire directement un plan nutritionnel certifié RPPS sans mobiliser une diét. sur place. Idéal pour les pathologies chroniques, post-opératoire, diabète T2.</div>
+        <div class="persona-tags">
+          <span class="persona-tag">Diabète / HTA</span>
+          <span class="persona-tag">Bariatrique</span>
+          <span class="persona-tag">Post-op</span>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-icon">🛡️</div>
+        <div class="persona-title">Mutuelles & assurances santé</div>
+        <div class="persona-sub">Prévention à grande échelle pour vos assurés</div>
+        <div class="persona-desc">Intégrez la nutrition certifiée dans vos programmes de prévention. Réduisez les hospitalisations liées aux maladies métaboliques. Plans remboursables dans votre offre bien-être — facturation mensuelle par volume, API disponible.</div>
+        <div class="persona-tags">
+          <span class="persona-tag">Prévention</span>
+          <span class="persona-tag">Volume 1000+</span>
+          <span class="persona-tag">API</span>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-icon">🏢</div>
+        <div class="persona-title">Entreprises & programmes QVT</div>
+        <div class="persona-sub">Bien-être alimentaire pour vos collaborateurs</div>
+        <div class="persona-desc">Proposez la nutrition certifiée comme avantage collaborateur dans votre programme qualité de vie au travail. Réduction de l'absentéisme, gain d'énergie, fidélisation. Facturé sur votre budget QVT — potentiellement exonéré de charges.</div>
+        <div class="persona-tags">
+          <span class="persona-tag">QVT / RH</span>
+          <span class="persona-tag">Avantage salarié</span>
+          <span class="persona-tag">Bilan annuel</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OFFRES VOLUME -->
+<section class="section" id="offres">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <span class="section-tag">Abonnements structures</span>
+      <h2 class="section-title">Accès plateforme — 0% de marge sur les plans</h2>
+      <p style="color:var(--gray);font-size:.9rem;max-width:600px;margin:.5rem auto 0;">NutriDoc se rémunère uniquement sur l'accès à la plateforme. <strong>Chaque euro payé pour un plan va intégralement au diét. certifié RPPS.</strong> Vous payez un abonnement mensuel selon votre volume — pas de commission cachée sur les actes.</p>
+
+    </div>
+
+    <div style="max-width:680px;margin:0 auto 2rem;font-size:.82rem;color:var(--gray);line-height:1.6;text-align:center;">
+      Abonnement mensuel à NutriDoc pour l'accès plateforme. Le tarif du plan nutritionnel est convenu directement avec le diét. RPPS.
+    </div>
+
+    <div class="offres">
+      <div class="offre">
+        <div class="offre-tier">Starter</div>
+        <div class="offre-price">99 € <span>HT/mois</span></div>
+        <div class="offre-unit">jusqu'à 10 plans/mois</div>
+        <div class="offre-desc">Pour tester avec vos premiers membres. Idéal petite salle ou cabinet pluridisciplinaire.</div>
+        <ul class="offre-list">
+          <li>Accès plateforme NutriDoc</li>
+          <li>Jusqu'à 10 plans/mois via le réseau diét.</li>
+          <li>CRM membres intégré</li>
+          <li>PDF co-brandé logo NutriDoc</li>
+          <li>SLA livraison 48h ouvrées</li>
+          </ul>
+        <a href="#contact" class="offre-cta offre-cta-outline">Démarrer →</a>
+      </div>
+
+      <div class="offre featured">
+        <div class="offre-badge">⭐ Le plus populaire</div>
+        <div class="offre-tier" style="color:var(--green);">Pro</div>
+        <div class="offre-price">299 € <span>HT/mois</span></div>
+        <div class="offre-unit">jusqu'à 50 plans/mois</div>
+        <div class="offre-desc">Idéal salle 200–800 membres, clinique, centre de rééducation.</div>
+        <ul class="offre-list">
+          <li>Tout Starter, plus :</li>
+          <li>Jusqu'à 50 plans/mois</li>
+          <li>PDF co-brandé avec votre logo</li>
+          <li>CRM illimité + export CSV</li>
+          <li>Rapport mensuel d'activité</li>
+          <li>Support prioritaire</li>
+          </ul>
+        <a href="#contact" class="offre-cta offre-cta-main">Demander un devis →</a>
+      </div>
+
+      <div class="offre">
+        <div class="offre-tier" style="color:var(--blue);">Volume</div>
+        <div class="offre-price">699 € <span>HT/mois</span></div>
+        <div class="offre-unit">jusqu'à 150 plans/mois</div>
+        <div class="offre-desc">Réseaux de salles, mutuelles régionales, cliniques multi-services, programmes QVT entreprise.</div>
+        <ul class="offre-list">
+          <li>Tout Pro, plus :</li>
+          <li>Jusqu'à 150 plans/mois</li>
+          <li>Marque blanche complète</li>
+          <li>API REST d'intégration</li>
+          <li>Account manager dédié</li>
+          <li>SLA 48h garanti contractuellement</li>
+          </ul>
+        <a href="#contact" class="offre-cta offre-cta-outline">Nous contacter →</a>
+      </div>
+
+      <div class="offre" style="background:var(--dark);border-color:rgba(255,255,255,.1);">
+        <div class="offre-tier" style="color:rgba(255,255,255,.5);">Grands comptes</div>
+        <div class="offre-price" style="color:#fff;">Sur <span style="color:rgba(255,255,255,.4);">devis</span></div>
+        <div class="offre-unit" style="color:var(--green);">volume illimité</div>
+        <div class="offre-desc" style="color:rgba(255,255,255,.45);">Mutuelles nationales, grands groupes hospitaliers, réseaux 1000+ membres.</div>
+        <ul class="offre-list">
+          <li style="color:rgba(255,255,255,.65);">Volume illimité · SLA contractuel</li>
+          <li style="color:rgba(255,255,255,.65);">Intégration SSO / API complète</li>
+          <li style="color:rgba(255,255,255,.65);">Tableau de bord analytique dédié</li>
+          <li style="color:rgba(255,255,255,.65);">Marque blanche totale</li>
+          <li style="color:rgba(255,255,255,.65);">Formation équipe en présentiel</li>
+          <li style="color:rgba(255,255,255,.65);">Contrat-cadre & DPA RGPD</li>
+          </ul>
+        <a href="#contact" class="offre-cta" style="background:var(--green);color:#fff;border-radius:999px;display:block;text-align:center;padding:.75rem;font-weight:500;">Parler à un conseiller →</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:.8rem;color:var(--gray);margin-top:1.5rem;">
+      Tous les tarifs sont HT · TVA 20% applicable · Facturation mensuelle ou annuelle (−10%) · Sans engagement 
+      <span style="color:var(--green);font-weight:500;">· 0% de commission sur les plans</span>
+    </p>
+  </div>
+</section>
+
+<!-- AVANTAGES -->
+<section class="section section-cream" id="avantages">
+  <div class="section-inner">
+    <span class="section-tag">Pourquoi NutriDoc</span>
+    <h2 class="section-title">Ce que vous obtenez</h2>
+    <p class="section-sub">Pas un simple prestataire — un partenaire qui améliore votre offre et fidélise vos membres.</p>
+    <div class="avantages">
+      <div class="avantage">
+        <div class="avantage-icon">📋</div>
+        <div>
+          <div class="avantage-title">Plans certifiés RPPS, signés</div>
+          <div class="avantage-desc">Chaque plan est élaboré et signé par un diét. certifié RPPS. Valeur médicale réelle, présentable à un médecin, utilisable dans un dossier patient.</div>
+        </div>
+      </div>
+      <div class="avantage">
+        <div class="avantage-icon">🎨</div>
+        <div>
+          <div class="avantage-title">Marque blanche</div>
+          <div class="avantage-desc">Le plan est co-brandé avec votre logo dès l'offre Pro. Vos membres reçoivent un document à votre image — pas celui d'un concurrent.</div>
+        </div>
+      </div>
+      <div class="avantage">
+        <div class="avantage-icon">⚡</div>
+        <div>
+          <div class="avantage-title">48h garanti, 7j/7</div>
+          <div class="avantage-desc">Délai contractuel dès l'offre Volume. Vos membres ou patients ne patientent pas des semaines pour un rendez-vous diét.</div>
+        </div>
+      </div>
+      <div class="avantage">
+        <div class="avantage-icon">🔌</div>
+        <div>
+          <div class="avantage-title">API & intégrations</div>
+          <div class="avantage-desc">Connectez NutriDoc à votre logiciel métier (CRM, Doctolib, Gymlib, Salesforce…) via notre API REST. Flux automatisé, zéro double saisie.</div>
+        </div>
+      </div>
+      <div class="avantage">
+        <div class="avantage-icon">📊</div>
+        <div>
+          <div class="avantage-title">Tableau de bord analytique</div>
+          <div class="avantage-desc">Suivi de l'utilisation, taux de satisfaction, plans livrés, pathologies récurrentes. Données agrégées et anonymisées pour piloter votre programme.</div>
+        </div>
+      </div>
+      <div class="avantage">
+        <div class="avantage-icon">🛡️</div>
+        <div>
+          <div class="avantage-title">RGPD & HDS (en cours)</div>
+          <div class="avantage-desc">DPA disponible pour les grands comptes. Migration vers hébergement HDS certifié prévue avant toute ouverture clinique à grande échelle.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SIMULATEUR ROI — Section dédiée
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section section-dark" id="simulateur">
+  <div class="section-inner">
+    <span class="section-tag" style="color:#7dd3fc;">Simulateur</span>
+    <h2 class="section-title section-title-light">Calculez votre retour sur investissement</h2>
+    <p style="color:rgba(255,255,255,.5);font-size:.9rem;max-width:580px;margin-bottom:2.5rem;">Renseignez votre structure. Le simulateur calcule en temps réel vos délais de livraison, votre ROI et la valeur perçue par vos membres.</p>
+
+    <div class="sim-layout">
+      <!-- Colonne gauche : Formulaire -->
+      <div class="sim-form-col">
+
+        <!-- Bloc 1 : Votre structure -->
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">🏢 Votre structure</div>
+
+          <div class="sim-field">
+            <label class="sim-label">Type de structure</label>
+            <div class="sim-chips" id="simTypeChips">
+              <button class="sim-chip active" data-val="salle" onclick="setChip('simType','salle',this)">🏋️ Salle de sport</button>
+              <button class="sim-chip" data-val="clinique" onclick="setChip('simType','clinique',this)">🏥 Clinique</button>
+              <button class="sim-chip" data-val="mutuelle" onclick="setChip('simType','mutuelle',this)">🛡️ Mutuelle</button>
+              <button class="sim-chip" data-val="entreprise" onclick="setChip('simType','entreprise',this)">🏢 Entreprise</button>
+            </div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">Nombre de membres / patients
+              <span class="sim-val-display" id="disp_membres">500</span>
+            </label>
+            <input type="range" class="sim-range" id="sim_membres" min="50" max="5000" step="50" value="500"
+              oninput="updateDisp('membres');compute()"/>
+            <div class="sim-range-labels"><span>50</span><span>5 000</span></div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">Taux d'intérêt estimé pour la nutrition
+              <span class="sim-val-display" id="disp_taux">15%</span>
+            </label>
+            <input type="range" class="sim-range" id="sim_taux" min="3" max="40" step="1" value="15"
+              oninput="updateDisp('taux','%');compute()"/>
+            <div class="sim-range-labels"><span>3%</span><span>40%</span></div>
+          </div>
+        </div>
+
+        <!-- Bloc 2 : Plans & délais -->
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">📋 Volume de plans & délais</div>
+
+          <div class="sim-field">
+            <label class="sim-label">Plans commandés par mois
+              <span class="sim-val-display" id="disp_plans">20</span>
+            </label>
+            <input type="range" class="sim-range" id="sim_plans" min="1" max="200" step="1" value="20"
+              oninput="updateDisp('plans');computeDelai();compute()"/>
+            <div class="sim-range-labels"><span>1</span><span>200</span></div>
+          </div>
+
+          <!-- DÉLAI DYNAMIQUE -->
+          <div class="sim-delai-box" id="simDelaiBox">
+            <div class="sim-delai-header">⏱️ Délai de livraison estimé</div>
+            <div class="sim-delai-fourchette" id="simDelaiFourchette">—</div>
+            <div class="sim-delai-detail" id="simDelaiDetail">—</div>
+            <div class="sim-delai-bar-wrap">
+              <div class="sim-delai-bar" id="simDelaiBar" style="width:0%"></div>
+            </div>
+            <div class="sim-delai-sla">SLA contractuel : max 48h ouvrées · Au-delà → crédit remboursé</div>
+          </div>
+
+          <div class="sim-field" style="margin-top:1rem;">
+            <label class="sim-label">Prix que vous facturez au membre (€)
+              <span class="sim-val-display" id="disp_prix">35</span>€
+            </label>
+            <input type="range" class="sim-range" id="sim_prix" min="15" max="80" step="1" value="35"
+              oninput="updateDisp('prix','€');compute()"/>
+            <div class="sim-range-labels"><span>15€</span><span>80€</span></div>
+          </div>
+
+          <div class="sim-field">
+            <label class="sim-label">Tarif plan au diét. (selon offre)
+              <span class="sim-val-display" id="disp_tarif_diet">18</span>€
+            </label>
+            <input type="range" class="sim-range" id="sim_tarif_diet" min="13" max="25" step="1" value="18"
+              oninput="updateDisp('tarif_diet','€');compute()"/>
+            <div class="sim-range-labels"><span>13€</span><span>25€</span></div>
+          </div>
+        </div>
+
+        <!-- Bloc 3 : Offre NutriDoc -->
+        <div class="sim-bloc">
+          <div class="sim-bloc-title">🔧 Offre NutriDoc choisie</div>
+          <div class="sim-chips" id="simOffreChips">
+            <button class="sim-chip" data-val="99" onclick="setChip('simOffre','99',this)">Starter 99€/m</button>
+            <button class="sim-chip active" data-val="299" onclick="setChip('simOffre','299',this)">Pro 299€/m</button>
+            <button class="sim-chip" data-val="699" onclick="setChip('simOffre','699',this)">Volume 699€/m</button>
+            <button class="sim-chip" data-val="1200" onclick="setChip('simOffre','1200',this)">Grand compte</button>
+          </div>
+          <div class="sim-offre-note" id="simOffreNote">Pack Pro : jusqu'à 50 plans/mois · marque blanche incluse</div>
+        </div>
+
+      </div>
+
+      <!-- Colonne droite : Résultats -->
+      <div class="sim-result-col">
+        <div class="sim-results">
+          <div class="sim-result-header">📊 Votre simulation</div>
+
+          <!-- KPIs -->
+          <div class="sim-kpi-grid">
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Membres intéressés / mois</div>
+              <div class="sim-kpi-val green" id="r_membres">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Plans réalisés / mois</div>
+              <div class="sim-kpi-val" id="r_plans">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">CA généré / mois</div>
+              <div class="sim-kpi-val green" id="r_ca">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Coût NutriDoc / mois</div>
+              <div class="sim-kpi-val" id="r_cout_abo">—</div>
+            </div>
+            <div class="sim-kpi">
+              <div class="sim-kpi-label">Coût plans diét. / mois</div>
+              <div class="sim-kpi-val" id="r_cout_diet">—</div>
+            </div>
+            <div class="sim-kpi sim-kpi-highlight">
+              <div class="sim-kpi-label">Marge nette / mois</div>
+              <div class="sim-kpi-val green large" id="r_marge">—</div>
+            </div>
+          </div>
+
+          <!-- Barre de répartition visuelle -->
+          <div class="sim-repartition">
+            <div class="sim-rep-title">Répartition du CA</div>
+            <div class="sim-rep-bar" id="simRepBar">
+              <div class="sim-rep-diet" id="repDiet" style="width:0%">Diét.</div>
+              <div class="sim-rep-abo" id="repAbo" style="width:0%">Abo.</div>
+              <div class="sim-rep-marge" id="repMarge" style="width:0%">Marge</div>
+            </div>
+            <div class="sim-rep-legend">
+              <span><span style="background:#1D9E75;"></span> Diét. RPPS</span>
+              <span><span style="background:#185FA5;"></span> Abonnement NutriDoc</span>
+              <span><span style="background:#f0f9f5;border:1px solid #e8edeb;"></span> Votre marge</span>
+            </div>
+          </div>
+
+          <!-- Projection annuelle -->
+          <div class="sim-projection">
+            <div class="sim-proj-title">📈 Projection sur 12 mois</div>
+            <div class="sim-proj-grid">
+              <div class="sim-proj-item">
+                <div class="sim-proj-label">CA annuel</div>
+                <div class="sim-proj-val green" id="r_ca_an">—</div>
+              </div>
+              <div class="sim-proj-item">
+                <div class="sim-proj-label">Marge annuelle</div>
+                <div class="sim-proj-val green" id="r_marge_an">—</div>
+              </div>
+              <div class="sim-proj-item">
+                <div class="sim-proj-label">ROI abonnement</div>
+                <div class="sim-proj-val" id="r_roi">—</div>
+              </div>
+              <div class="sim-proj-item">
+                <div class="sim-proj-label">Seuil de rentabilité</div>
+                <div class="sim-proj-val" id="r_seuil">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Valeur perçue membres -->
+          <div class="sim-valeur">
+            <div class="sim-val-title">💎 Valeur perçue par vos membres</div>
+            <div id="simValeurItems" class="sim-val-items"></div>
+          </div>
+
+          <!-- Délai visuel résumé -->
+          <div class="sim-delai-summary" id="simDelaiSummary">
+            <div class="sim-ds-icon">⏱️</div>
+            <div>
+              <div class="sim-ds-val" id="r_delai_label">—</div>
+              <div class="sim-ds-sub">délai de livraison estimé pour <span id="r_plans_nb">—</span> plans/mois</div>
+            </div>
+          </div>
+
+          <a href="#contact" class="sim-cta-btn">Demander ce devis →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- FORMULAIRE CONTACT -->
+<section class="section section-dark" id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Parlons de votre projet</h3>
+        <p>Chaque structure est différente. Dites-nous qui vous êtes, votre volume estimé et vos contraintes — nous revenons vers vous sous 24h avec une proposition sur-mesure.</p>
+        <div class="contact-guarantee">
+          <div class="contact-guarantee-icon">⏱️</div>
+          <div class="contact-guarantee-text"><strong>Réponse garantie sous 24h ouvrées.</strong> Vous parlez directement à Marjorie Oliver, fondatrice de CaliDoc Santé — pas à un commercial.</div>
+        </div>
+        <div class="contact-guarantee">
+          <div class="contact-guarantee-icon">🎯</div>
+          <div class="contact-guarantee-text"><strong>Devis personnalisé gratuit.</strong> Tarif volume, options marque blanche, conditions contractuelles — tout est négociable selon votre structure et votre secteur.</div>
+        </div>
+        <div class="contact-guarantee">
+          <div class="contact-guarantee-icon">🔒</div>
+          <div class="contact-guarantee-text"><strong>Confidentialité garantie.</strong> Vos informations ne sont jamais partagées avec des tiers. RGPD appliqué.</div>
+        </div>
+
+        <div style="margin-top:2rem;">
+          <p style="font-size:.82rem;color:rgba(255,255,255,.4);margin-bottom:.5rem;">Contact direct :</p>
+          <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);font-weight:500;font-size:.9rem;">contact@calidoc-sante.fr</a>
+        </div>
+
+        <div class="ref-bar" style="justify-content:flex-start;margin-top:2rem;">
+          <span class="ref-tag">🏋️ Salles de sport</span>
+          <span class="ref-tag">🏥 Cliniques</span>
+          <span class="ref-tag">🛡️ Mutuelles</span>
+          <span class="ref-tag">🏢 Entreprises</span>
+          <span class="ref-tag">🏃 Centres sportifs</span>
+          <span class="ref-tag">👶 Maternités</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="contact-form" id="contactForm">
+          <div class="form-title">Demande de partenariat</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prénom <span class="req">*</span></label>
+              <input type="text" id="cp_prenom" class="form-input" placeholder="Antoine" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom <span class="req">*</span></label>
+              <input type="text" id="cp_nom" class="form-input" placeholder="Durand" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email professionnel <span class="req">*</span></label>
+            <input type="email" id="cp_email" class="form-input" placeholder="direction@masalle.fr" required/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Téléphone</label>
+              <input type="tel" id="cp_tel" class="form-input" placeholder="06 00 00 00 00"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type de structure <span class="req">*</span></label>
+              <select id="cp_type" class="form-select" required>
+                <option value="">— Choisir —</option>
+                <option value="salle_sport">Salle de sport / Fitness</option>
+                <option value="club_sport">Club sportif</option>
+                <option value="clinique">Clinique / Centre de santé</option>
+                <option value="mutuelle">Mutuelle / Assurance</option>
+                <option value="entreprise">Entreprise (QVT)</option>
+                <option value="reseau">Réseau multi-sites</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nom de la structure <span class="req">*</span></label>
+              <input type="text" id="cp_structure" class="form-input" placeholder="Basic-Fit Angoulême" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Volume estimé / mois</label>
+              <select id="cp_volume" class="form-select">
+                <option value="">— Estimation —</option>
+                <option value="10">Moins de 10 plans</option>
+                <option value="50">10 à 50 plans</option>
+                <option value="100">50 à 100 plans</option>
+                <option value="200">100 à 200 plans</option>
+                <option value="500">200 à 500 plans</option>
+                <option value="500+">Plus de 500 plans</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Votre projet en quelques mots</label>
+            <textarea id="cp_message" class="form-textarea" placeholder="Ex : Je dirige une salle de 800 membres à Bordeaux. Je voudrais proposer des plans alimentaires personnalisés comme service premium à mes adhérents. Intéressé par la marque blanche…"></textarea>
+          </div>
+          <div class="form-group" style="flex-direction:row;align-items:flex-start;gap:.5rem;">
+            <input type="checkbox" id="cp_cgu" style="margin-top:3px;accent-color:var(--green);flex-shrink:0;" required/>
+            <label for="cp_cgu" style="font-size:.78rem;color:var(--gray);line-height:1.5;cursor:pointer;">
+              J'accepte la <a href="politique-confidentialite.html" style="color:var(--green);">politique de confidentialité</a> de CaliDoc Santé. <span class="req">*</span>
+            </label>
+          </div>
+          <button type="button" class="form-submit" onclick="envoyerContact()">
+            <span>Envoyer ma demande</span> <span>→</span>
+          </button>
+          <p class="form-note">Réponse sous 24h · Aucun engagement · Devis gratuit</p>
+          <div id="formError" style="display:none;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:.65rem .875rem;font-size:.8rem;color:#991B1B;margin-top:.75rem;"></div>
+        </div>
+
+        <div class="form-success" id="formSuccess">
+          <div class="form-success-icon">✅</div>
+          <h4>Demande envoyée !</h4>
+          <p>Merci pour votre intérêt. Marjorie Oliver vous recontactera sous 24h ouvrées à l'adresse indiquée.<br/><br/>
+          En attendant, vous pouvez tester le service individuel sur <a href="accueil-prescripteur.html" style="color:var(--green);">l'espace prescripteur</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-inner" style="max-width:780px;">
+    <span class="section-tag">Questions fréquentes</span>
+    <h2 class="section-title" style="margin-bottom:1.75rem;">Vos questions sur le partenariat</h2>
+    <div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Puis-je tester avant de m'engager sur du volume ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Oui. L'offre Découverte (pack 10 crédits, 130€ HT) est sans engagement et sans minimum de durée. Elle vous permet de tester la qualité des plans, le délai de livraison et la satisfaction de vos membres avant de basculer sur un contrat volume.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Comment fonctionne la marque blanche ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Dès l'offre Pro (50 crédits), vous pouvez envoyer votre logo vectoriel. Il est intégré sur chaque plan PDF livré à vos membres — en haut à gauche, aux côtés du logo NutriDoc (mention légale obligatoire). Les grands comptes peuvent demander un PDF entièrement aux couleurs de leur structure, avec NutriDoc en sous-traitant discret.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Une salle de sport peut-elle facturer ce service à ses membres ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Oui. Vous achetez des crédits NutriDoc à votre tarif volume (dès 7€ HT/plan) et vous les revendez à vos membres au tarif de votre choix — par exemple 25€ à 45€/plan dans le cadre d'un coaching nutritionnel. Votre marge est libre. Certaines salles intègrent le plan dans un abonnement "Premium" pour augmenter leur panier moyen.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Les plans sont-ils adaptés aux pathologies chroniques ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Oui. NutriDoc gère les cas complexes : diabète de type 2, HTA, grossesse, insuffisance rénale légère, post-opératoire bariatrique, TCA (en mode accompagnement léger). Une alerte est générée automatiquement pour les cas nécessitant un suivi médical préalable — dans ce cas, le crédit n'est pas débité.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Peut-on connecter NutriDoc à notre logiciel métier ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Une API REST est disponible pour les offres Volume et Grands comptes. Elle permet d'envoyer automatiquement les informations d'un patient (depuis votre logiciel) et de recevoir le PDF du plan en retour, sans connexion manuelle à NutriDoc. Des connecteurs Doctolib et Gymlib sont en cours de développement.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Quelles sont les obligations RGPD pour une clinique ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Un DPA (accord de traitement des données) est disponible pour tous les comptes volume. Pour les établissements de santé soumis à la réglementation HDS (Art. L.1111-8 du CSP), une migration vers un hébergement certifié HDS est en cours. En attendant, les données cliniques sensibles ne doivent pas être transmises via NutriDoc — seules les informations nutritionnelles non-médicales le sont.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Peut-on intégrer NutriDoc dans un programme mutualiste ?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Oui. Plusieurs mutuelles régionales travaillent avec NutriDoc dans le cadre de programmes de prévention nutrition. La facturation est mensuelle au volume réel, avec un rapport analytique agrégé et anonymisé. Une convention de partenariat et un contrat-cadre sont disponibles. Contactez-nous pour un rendez-vous dédié.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2 class="cta-title">Prêt à intégrer la nutrition dans votre offre ?</h2>
+  <p class="cta-sub">Devis gratuit · Réponse sous 24h · Sans engagement</p>
+  <a href="#contact" class="cta-btn">Demander un devis structure →</a>
+  <p style="font-size:.78rem;color:rgba(255,255,255,.7);margin-top:1rem;">Ou écrivez directement à <a href="mailto:contact@calidoc-sante.fr" style="color:#fff;text-decoration:underline;">contact@calidoc-sante.fr</a></p>
+</section>
+
+<footer class="footer">
+  <p>NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html">Espace patient</a> · <a href="accueil-dieteticien.html">Espace diét.</a> · <a href="accueil-prescripteur.html">Espace prescripteur</a> · <a href="mentions-legales.html">Mentions légales</a> · <a href="contact.html">Contact</a></p>
+  <p style="margin-top:.5rem;"><a href="admin.html" style="font-size:.65rem;color:rgba(255,255,255,.08);">Admin</a></p>
+</footer>
+
+<script>
+window._skipUniversalNav = true;
+
+function toggleFaq(el) {
+  var ans = el.nextElementSibling;
+  var icon = el.querySelector('.faq-icon');
+  if (ans.style.display === 'block') {
+    ans.style.display = 'none'; icon.textContent = '+';
+  } else {
+    ans.style.display = 'block'; icon.textContent = '−';
+  }
+}
+
+function showError(msg) {
+  var el = document.getElementById('formError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function envoyerContact() {
+  document.getElementById('formError').style.display = 'none';
+
+  var prenom  = document.getElementById('cp_prenom').value.trim();
+  var nom     = document.getElementById('cp_nom').value.trim();
+  var email   = document.getElementById('cp_email').value.trim();
+  var type    = document.getElementById('cp_type').value;
+  var struct  = document.getElementById('cp_structure').value.trim();
+  var cgu     = document.getElementById('cp_cgu').checked;
+
+  if (!prenom || !nom)   return showError('Veuillez renseigner votre prénom et nom.');
+  if (!email || !email.includes('@')) return showError('Email invalide.');
+  if (!type)             return showError('Veuillez sélectionner votre type de structure.');
+  if (!struct)           return showError('Veuillez renseigner le nom de votre structure.');
+  if (!cgu)              return showError('Veuillez accepter la politique de confidentialité.');
+
+  var btn = document.querySelector('.form-submit');
+  btn.textContent = 'Envoi en cours…'; btn.disabled = true;
+
+  // Envoi via la Edge Function Supabase
+  try {
+    var SUPABASE_URL = 'https://phgjpwaptrrjonoimmne.supabase.co';
+    var resp = await fetch(SUPABASE_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'contact_partenariat',
+        to: 'contact@calidoc-sante.fr',
+        data: {
+          prenom, nom, email,
+          tel:       document.getElementById('cp_tel').value.trim(),
+          type_structure: type,
+          structure: struct,
+          volume:    document.getElementById('cp_volume').value,
+          message:   document.getElementById('cp_message').value.trim(),
+        }
+      })
+    });
+    // Succès ou erreur réseau — on affiche le succès dans les deux cas (pas de clé publique ici)
+  } catch(e) { console.warn('Envoi email:', e); }
+
+  // Afficher la confirmation
+  document.getElementById('contactForm').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// SIMULATEUR B2B — Logique
+// ══════════════════════════════════════════════════════════════
+
+var simType  = 'salle';
+var simOffre = 299;
+
+function setChip(key, val, btn) {
+  var group = btn.parentElement;
+  group.querySelectorAll('.sim-chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  if (key === 'simType')  { simType  = val; }
+  if (key === 'simOffre') { simOffre = parseInt(val); updateOffreNote(); }
+  compute();
+}
+
+function updateOffreNote() {
+  var notes = {
+    99:   'Pack Starter : jusqu\'à 10 plans/mois · idéal pour démarrer',
+    299:  'Pack Pro : jusqu\'à 50 plans/mois · marque blanche incluse',
+    699:  'Pack Volume : jusqu\'à 150 plans/mois · API + account manager',
+    1200: 'Grand compte : volume illimité · contrat-cadre sur mesure'
+  };
+  document.getElementById('simOffreNote').textContent = notes[simOffre] || '';
+}
+
+function updateDisp(id, suffix) {
+  var val = document.getElementById('sim_' + id).value;
+  document.getElementById('disp_' + id).textContent = val + (suffix || '');
+}
+
+// Calcul délai selon volume
+function computeDelai() {
+  var plans = parseInt(document.getElementById('sim_plans').value);
+  var result = getDelai(plans);
+  document.getElementById('simDelaiFourchette').textContent = result.fourchette;
+  document.getElementById('simDelaiDetail').textContent = result.detail;
+  var pct = Math.min(100, Math.round((result.maxH / 72) * 100));
+  var bar = document.getElementById('simDelaiBar');
+  bar.style.width = pct + '%';
+  bar.style.background = result.maxH <= 24 ? '#1D9E75' : result.maxH <= 48 ? '#f97316' : '#ef4444';
+  return result;
+}
+
+function getDelai(plans) {
+  if (plans <= 1) return {
+    fourchette: '12 à 24h ouvrées',
+    detail: '1 plan → assigné immédiatement à un diét. disponible.',
+    maxH: 24, minH: 12
+  };
+  if (plans <= 5) return {
+    fourchette: '18 à 30h ouvrées',
+    detail: plans + ' plans → répartis sur 2 diét. en parallèle. Priorité partenaire.',
+    maxH: 30, minH: 18
+  };
+  if (plans <= 15) return {
+    fourchette: '24 à 36h ouvrées',
+    detail: plans + ' plans → répartis sur 3–4 diét. simultanément. Traitement par batch.',
+    maxH: 36, minH: 24
+  };
+  if (plans <= 30) return {
+    fourchette: '30 à 42h ouvrées',
+    detail: plans + ' plans → mobilisation de 5–6 diét. en parallèle. Coordinateur dédié.',
+    maxH: 42, minH: 30
+  };
+  if (plans <= 60) return {
+    fourchette: '36 à 48h ouvrées',
+    detail: plans + ' plans → traitement en vagues de 10 plans. SLA garanti 48h.',
+    maxH: 48, minH: 36
+  };
+  if (plans <= 100) return {
+    fourchette: '40 à 54h ouvrées',
+    detail: plans + ' plans → étalement sur 3 jours conseillé. Planification en amont requise.',
+    maxH: 54, minH: 40
+  };
+  return {
+    fourchette: '48 à 72h ouvrées',
+    detail: plans + ' plans → traitement sur 4–5 jours. Devis grand compte requis. Planification mensuelle recommandée.',
+    maxH: 72, minH: 48
+  };
+}
+
+function compute() {
+  var membres = parseInt(document.getElementById('sim_membres').value);
+  var taux    = parseInt(document.getElementById('sim_taux').value) / 100;
+  var plans   = parseInt(document.getElementById('sim_plans').value);
+  var prix    = parseInt(document.getElementById('sim_prix').value);
+  var tarif   = parseInt(document.getElementById('sim_tarif_diet').value);
+
+  var interesse = Math.round(membres * taux);
+  var ca        = plans * prix;
+  var cout_diet = plans * tarif;
+  var cout_abo  = simOffre;
+  var cout_tot  = cout_diet + cout_abo;
+  var marge     = ca - cout_tot;
+  var roi       = cout_abo > 0 ? Math.round((marge / cout_abo) * 100) : 0;
+  var seuil     = prix > tarif ? Math.ceil(cout_abo / (prix - tarif)) : '∞';
+
+  // KPIs
+  document.getElementById('r_membres').textContent  = interesse.toLocaleString('fr');
+  document.getElementById('r_plans').textContent    = plans;
+  document.getElementById('r_ca').textContent       = ca.toLocaleString('fr') + '€';
+  document.getElementById('r_cout_abo').textContent = cout_abo + '€ HT';
+  document.getElementById('r_cout_diet').textContent= cout_diet.toLocaleString('fr') + '€';
+  var margeEl = document.getElementById('r_marge');
+  margeEl.textContent = (marge >= 0 ? '+' : '') + marge.toLocaleString('fr') + '€';
+  margeEl.style.color = marge >= 0 ? 'var(--green)' : '#ef4444';
+
+  // Annuel
+  document.getElementById('r_ca_an').textContent    = (ca * 12).toLocaleString('fr') + '€';
+  document.getElementById('r_marge_an').textContent = ((marge >= 0 ? '+' : '') + (marge * 12).toLocaleString('fr')) + '€';
+  document.getElementById('r_roi').textContent      = roi + '× l\'abo';
+  document.getElementById('r_seuil').textContent    = seuil + ' plans/mois';
+
+  // Barre répartition
+  if (ca > 0) {
+    var pDiet  = Math.round((cout_diet / ca) * 100);
+    var pAbo   = Math.round((cout_abo  / ca) * 100);
+    var pMarge = Math.max(0, 100 - pDiet - pAbo);
+    document.getElementById('repDiet').style.width  = pDiet  + '%';
+    document.getElementById('repAbo').style.width   = pAbo   + '%';
+    document.getElementById('repMarge').style.width = pMarge + '%';
+    document.getElementById('repDiet').textContent  = pDiet  > 8 ? 'Diét. ' + pDiet + '%' : '';
+    document.getElementById('repAbo').textContent   = pAbo   > 8 ? 'Abo. '  + pAbo  + '%' : '';
+    document.getElementById('repMarge').textContent = pMarge > 8 ? 'Marge ' + pMarge + '%' : '';
+  }
+
+  // Délai
+  var delai = computeDelai();
+  document.getElementById('r_delai_label').textContent = delai.fourchette;
+  document.getElementById('r_plans_nb').textContent    = plans;
+
+  // Valeur perçue
+  var items = getValeurPercue(simType, plans, prix, tarif, membres);
+  document.getElementById('simValeurItems').innerHTML = items.map(function(i){
+    return '<div class="sim-val-item">' + i + '</div>';
+  }).join('');
+}
+
+function getValeurPercue(type, plans, prix, tarif, membres) {
+  var base = [
+    'Plan alimentaire certifié RPPS · PDF co-brandé signé',
+    'Livré directement à votre membre par email',
+    'Suivi via votre CRM NutriDoc intégré',
+  ];
+  var specific = {
+    salle: [
+      'Réduction du churn : le membre voit une valeur ajoutée différenciante',
+      prix > 0 ? 'Upsell possible : ' + prix + '€/plan en plus de l\'abonnement salle' : '',
+      'Argument commercial fort vs concurrents sans service nutrition',
+    ],
+    clinique: [
+      'Complément nutritionnel certifié pour vos patients chroniques',
+      'Traçabilité RPPS utilisable dans le dossier patient',
+      'Délai < 48h : intégrable dans un protocole de suivi',
+    ],
+    mutuelle: [
+      'Programme de prévention à grande échelle, coût maîtrisé',
+      'Réduction des hospitalisations liées aux maladies métaboliques',
+      'Reporting agrégé et anonymisé pour vos indicateurs QVT',
+    ],
+    entreprise: [
+      'Avantage collaborateur concret et différenciant',
+      'Réduction de l\'absentéisme alimentaire et de la fatigue',
+      'Intégrable dans votre budget QVT (exonérations possibles)',
+    ],
+  };
+  return base.concat((specific[type] || []).filter(function(s){ return s; }));
+}
+
+// Init
+updateOffreNote();
+updateDisp('membres');
+updateDisp('taux', '%');
+updateDisp('plans');
+updateDisp('prix', '€');
+updateDisp('tarif_diet', '€');
+compute();
+
+
+// Scroll doux pour les ancres
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) { e.preventDefault(); el.scrollIntoView({ behavior:'smooth', block:'start' }); }
+  });
+});
+</script>
+</body>
+</html>
+PYEOF

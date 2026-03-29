@@ -7,7 +7,20 @@
   <title>Mon bilan — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function toggleNiveauPratique(val) {
+  var el = document.getElementById('niveauPratiqueGroup');
+  if (!el) return;
+  var showFor = ['prise_masse','performance','endurance'];
+  el.style.display = showFor.indexOf(val) > -1 ? 'block' : 'none';
+  // Animer l'apparition
+  if (el.style.display === 'block') {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .3s';
+    setTimeout(function(){ el.style.opacity = '1'; }, 10);
+  }
+}
+</script>
   <script src="js/auth.js"></script>
   <script src="js/nav.js" defer></script>
   <script src="js/email.js" defer></script>
@@ -100,7 +113,7 @@
       </div>
       <div class="form-group">
         <label>Objectif principal <span class="req">*</span></label>
-        <select name="objectif" required>
+        <select name="objectif" required onchange="toggleNiveauPratique(this.value)">
           <option value="">— Choisir —</option>
           <option value="perte_poids">Perte de poids / de gras</option>
           <option value="prise_masse">Prise de masse / muscle</option>

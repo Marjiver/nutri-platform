@@ -7,6 +7,60 @@ const PATIENTS_DEMO = [
   }
 ];
 
+
+// ── Charger le profil réel du diét. depuis Supabase ─────────────────────
+async function loadDietProfile() {
+  const headerEl = document.getElementById('dietHeader');
+  const subEl    = document.getElementById('dietSubHeader');
+
+  // Tentative Supabase
+  try {
+    if (typeof _supa !== 'undefined') {
+      const { data: { user } } = await _supa.auth.getUser();
+      if (user) {
+        const { data: profile } = await _supa.from('profiles').select('*').eq('id', user.id).single();
+        if (profile) {
+          window._dietProfile = profile;
+          const prenom = profile.prenom || '';
+          const nom    = (profile.nom || '').toUpperCase();
+          const rpps   = profile.rpps || '—';
+          if (headerEl) headerEl.textContent = 'Bonjour, ' + prenom + ' ' + nom + ' 👋';
+          if (subEl) subEl.innerHTML = 'Diététicien certifié · RPPS ' + rpps
+            + ' · <span style="color:var(--green);font-weight:500;">●</span> Actif';
+          return;
+        }
+      }
+    }
+  } catch(e) { console.warn('loadDietProfile Supabase:', e); }
+
+  // Fallback localStorage (mode démo / local)
+  try {
+    const stored = localStorage.getItem('nutridoc_dieteticien');
+    if (stored) {
+      const p = JSON.parse(stored);
+      window._dietProfile = p;
+      const prenom = p.prenom || '';
+      const nom    = (p.nom || '').toUpperCase();
+      const rpps   = p.rpps || '—';
+      if (headerEl) headerEl.textContent = 'Bonjour, ' + prenom + ' ' + nom + ' 👋';
+      if (subEl) subEl.innerHTML = 'Diététicien certifié · RPPS ' + rpps
+        + ' · <span style="color:var(--green);font-weight:500;">●</span> Actif';
+      return;
+    }
+  } catch(e) { console.warn('loadDietProfile localStorage:', e); }
+
+  // Aucune donnée — rediriger vers login
+  if (headerEl) headerEl.textContent = 'Bonjour 👋';
+  if (subEl)    subEl.textContent    = 'Redirection vers la connexion…';
+  // Ne rediriger que si on est sur un vrai serveur (pas en local file://)
+  if (window.location.protocol !== 'file:') {
+    setTimeout(() => { window.location.href = 'login.html?role=dietitian'; }, 1500);
+  } else {
+    // En local : afficher un message d'aide
+    if (subEl) subEl.innerHTML = '<span style="color:var(--amber,#f97316);">⚠ Mode local — connectez-vous d'abord via <a href="login.html?role=dietitian">login.html</a></span>';
+  }
+}
+
 const REPAS_LABELS = { petitDej:{label:'Petit déjeuner',icon:'🍳'}, dejeuner:{label:'Déjeuner',icon:'🥗'}, collation:{label:'Collation',icon:'🍎'}, diner:{label:'Dîner',icon:'🍽'} };
 
 let patientEnCours = null;
@@ -190,7 +244,7 @@ function validerPlan() {
     const tot = totalsPlan(planEnCours);
     Email.planLivre(patientEnCours.email || '', {
       prenom:      patientEnCours.prenom,
-      diet_nom:    'Dr. Lemaire',
+      diet_nom:    window._dietProfile?.prenom + ' ' + window._dietProfile?.nom || 'Votre diét.',
       diet_rpps:   '10 003 456 789',
       kcal:        tot.kcal,
       proteines:   tot.prot,

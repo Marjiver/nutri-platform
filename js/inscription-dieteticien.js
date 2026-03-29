@@ -3,9 +3,9 @@ const totalInscSteps = 3;
 let formuleSelectionnee = 'pro';
 
 const FORMULES = {
-  essentiel: { label: 'Essentiel — 5 € / plan validé' },
-  pro:       { label: 'Pro — 29 € / mois' },
-  expert:    { label: 'Expert — 50 € / mois (annuel)' }
+  essentiel: { label: 'Essentiel — Gratuit · référencement seul' },
+  pro:       { label: 'Pro — 29 € / mois · dossiers illimités' },
+  expert:    { label: 'Expert — 39 € / mois · engagement annuel' }
 };
 
 // ── Tarifs — sélection depuis les cards ──────────────────────
@@ -19,6 +19,31 @@ function selectFormule(formule) {
   const recap  = document.getElementById('formuleRecapName');
   if (hidden) hidden.value = formule;
   if (recap)  recap.textContent = FORMULES[formule].label;
+  // Afficher l'IBAN uniquement pour les formules payantes
+  const ibanSection = document.getElementById('ibanSection');
+  if (ibanSection) {
+    if (formule === 'essentiel') {
+      ibanSection.style.display = 'none';
+      // Non obligatoire pour Essentiel
+      ['ibanTitulaire','iban','bic'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.required = false; }
+      });
+      // Afficher la note explicative
+      const note = document.getElementById('ibanNote');
+      if (note) note.style.display = 'block';
+    } else {
+      ibanSection.style.display = 'block';
+      // IBAN requis pour les formules payantes
+      ['ibanTitulaire','iban'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.required = true; }
+      });
+      // Masquer la note explicative
+      const note = document.getElementById('ibanNote');
+      if (note) note.style.display = 'none';
+    }
+  }
 }
 
 function scrollToPricing() {
@@ -60,6 +85,15 @@ function validateStep(step) {
   if (step === 2) {
     if (getRppsRaw().length !== 11) { showError('Le numéro RPPS doit contenir exactement 11 chiffres.'); return false; }
     if (!document.getElementById('specialite').value) { showError('Veuillez choisir votre spécialité.'); return false; }
+  }
+  if (step === 3) {
+    // IBAN requis uniquement pour les formules payantes
+    if (formuleSelectionnee !== 'essentiel') {
+      const titulaire = document.getElementById('ibanTitulaire')?.value.trim();
+      const iban = document.getElementById('iban')?.value.trim();
+      if (!titulaire) { showError('Veuillez renseigner le titulaire du compte.'); return false; }
+      if (!iban || iban.length < 14) { showError('Veuillez renseigner un IBAN valide.'); return false; }
+    }
   }
   return true;
 }
@@ -173,15 +207,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   updatePreview();
 
-  // Soumission
+  // Intercepter Entrée sur les étapes 1 et 2 pour éviter submit prématuré
+  document.getElementById('inscriptionForm').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && currentInscStep < 3) {
+      e.preventDefault();
+      if (currentInscStep === 1) nextInscStep();
+      else if (currentInscStep === 2) verifierRpps();
+    }
+  });
+
+  // Soumission — uniquement depuis l'étape 3
   document.getElementById('inscriptionForm').addEventListener('submit', async e => {
     e.preventDefault();
-    if (!validateStep(3)) return;
-    if (document.getElementById('password').value !== document.getElementById('passwordConfirm').value) {
-      showError('Les mots de passe ne correspondent pas.'); return;
+    // Sécurité : ne soumettre que si on est à l'étape 3
+    if (currentInscStep !== 3) {
+      e.stopPropagation();
+      return;
     }
-    if (document.getElementById('password').value.length < 8) {
+    if (!validateStep(3)) return;
+    const pwd = document.getElementById('password')?.value || '';
+    if (pwd.length < 8) {
       showError('Mot de passe trop court (8 caractères min).'); return;
+    }
+    if (pwd !== (document.getElementById('passwordConfirm')?.value || '')) {
+      showError('Les mots de passe ne correspondent pas.'); return;
     }
     if (!document.getElementById('cgu').checked) {
       showError('Veuillez accepter les CGU.'); return;
