@@ -198,6 +198,18 @@
     .nav-dropdown-menu a:hover { background:var(--cream); color:var(--green); }
 
   </style>
+<script>
+// Vérification session Supabase
+document.addEventListener('DOMContentLoaded', async function() {
+  if (typeof _supa === 'undefined') return; // Mode démo local
+  try {
+    var r = await _supa.auth.getSession();
+    if (!r.data.session) {
+      window.location.href = 'partenariats.html';
+    }
+  } catch(e) { console.warn('Auth check:', e); }
+});
+</script>
 </head>
 <body>
 
@@ -205,7 +217,8 @@
   <a href="partenariats.html" class="nav-logo">Nutri<em>Doc</em><span class="nav-badge">Partenaires</span></a>
   <div class="nav-links">
     <a href="partenariats.html">Accueil</a>
-    <a href="compta-partenaire.html" class="active">Comptabilité</a>
+    <a href="partenaire-crm.html">CRM commandes</a>
+      <a href="compta-partenaire.html" class="active">Comptabilité</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn" onclick="toggleOutils()">Outils ▾</button>
       <div class="nav-dropdown-menu" id="outilsMenu" style="display:none;">
@@ -572,8 +585,8 @@ function init() {
   document.getElementById('cTotalDiet').textContent = (p.credits_utilises * p.remuneration_diet) + '€';
 
   // Modèle
-  document.getElementById('m_partenaire').textContent = '299€ HT/mois (Pack Pro)';
-  document.getElementById('m_diet').textContent = '13–18€ / plan (tarif direct)';
+  document.getElementById('m_partenaire').textContent = '249€ HT/mois (Pack Pro)';
+  document.getElementById('m_diet').textContent = '13–24,90€ / plan (tarif direct)';
 
   // Cmd info
   document.getElementById('cmdInfo').textContent = restants + ' crédit' + (restants > 1 ? 's' : '') + ' restant' + (restants > 1 ? 's' : '');

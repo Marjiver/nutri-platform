@@ -14,7 +14,8 @@
 // ── Config ────────────────────────────────────────────────────
 const STRIPE_CONFIG = {
   // Remplacer par vos vraies clés Stripe
-  publishableKey: 'pk_test_VOTRE_CLE_PUBLISHABLE',
+  // ⚠ TODO avant mise en ligne : remplacer par votre clé Stripe Live
+  publishableKey: 'pk_live_REMPLACER_ICI',
 
   // URL de votre Edge Function create-checkout
   checkoutFnUrl: 'https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/create-checkout',
@@ -166,7 +167,7 @@ const StripeCheckout = {
 
     try {
       // Mode démo : pas de vraie session Stripe
-      if (STRIPE_CONFIG.publishableKey.includes('VOTRE_CLE')) {
+      if (STRIPE_CONFIG.publishableKey.includes('pk_live_REMPLACER_ICI')) {
         console.info('[Stripe DEMO] Checkout simulé :', productKey, metadata);
         this._simulerPaiement(productKey, metadata);
         if (btn) { btn.disabled = false; btn.textContent = originalText; }

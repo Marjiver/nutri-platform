@@ -6,14 +6,206 @@
   <title>Espace Diététicien — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/email.js" defer></script>
-  <script src="js/nav.js" defer></script>
-  <script src="js/support.js" defer></script>
-  <script src="js/cookies.js"></script>
-  <script src="js/pdf-plan.js" defer></script>
-  <script src="js/dossier-patient.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/auth.js">
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/email.js" defer>
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/nav.js" defer>
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/support.js" defer>
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/cookies.js">
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/pdf-plan.js" defer>
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
+  <script src="js/dossier-patient.js" defer>
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+</script>
 </head>
 <body class="page-dietitian">
 <main class="dashboard-container" style="padding-top:5rem;">
@@ -25,6 +217,7 @@
     </div>
     <div style="display:flex;gap:.75rem;align-items:center;">
       <a href="agenda-dieteticien.html" class="btn-validate">📅 Agenda</a>
+      <a href="gestion-forfait-dieteticien.html" style="font-size:.82rem;color:rgba(255,255,255,.55);">📊 Forfait</a>
       <a href="compta-dieteticien.html" class="btn-view">💶 Compta</a>
     </div>
   </div>
@@ -185,10 +378,10 @@ function validerPlan(id) {
   // Bouton PDF dans les dossiers validés
   if (typeof genererPDF !== 'undefined') {
     const t = typeof totalsPlan !== 'undefined' ? { kcal: 1650, prot: 130, glu: 180, lip: 55 } : {};
-    genererPDF(p, getDemoData().plan, { nom:profile?.nom || 'Diét.', rpps:'10 003 456 789', titre:'Diét.-Nutritionniste', email:'lemaire@nutridoc.fr', cabinet:'Cabinet NutriDoc' });
+    genererPDF(p, getDemoData().plan, { nom:profile?.nom || 'Diét.', rpps:'10 008 019 381', titre:'Diét.-Nutritionniste', email:'gmartin.diet@gmail.com', cabinet:'Cabinet NutriDoc' });
   }
   if (typeof Email !== 'undefined') {
-    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: profile?.nom || 'Diét.', diet_rpps: '10 003 456 789', kcal: 1650, proteines: 130, visio_dispo: true });
+    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: profile?.nom || 'Diét.', diet_rpps: '10 008 019 381', kcal: 1650, proteines: 130, visio_dispo: true });
   }
   renderKanban(); filterDossiers();
   showToast(`Plan de ${p.prenom} validé ✓`);
@@ -208,6 +401,30 @@ document.addEventListener('DOMContentLoaded', () => {
   filterDossiers();
   if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
 });
+
+// Message facturation lors de la validation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
+  
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+    var forfait = (diot.formule || 'essentiel').toLowerCase();
+    var fee = fees[forfait] || 3.00;
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
 </script>
 
 <style>

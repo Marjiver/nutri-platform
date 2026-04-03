@@ -2256,3 +2256,10 @@ table { max-width: 100%; }
   .diet-assigned-actions { width: 100%; }
   .diet-assigned-coords { flex-direction: column; gap: .4rem; }
 }
+
+/* ── Profil bar (barre de sélection du profil) ────────────────────────── */
+.profil-bar { background:#080f0b; border-bottom:1px solid rgba(255,255,255,.07); padding:.42rem 2rem; }
+.profil-bar-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:.5rem; flex-wrap:wrap; }
+.pill { font-size:.72rem; border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:.18rem .8rem; color:rgba(255,255,255,.5); transition:all .2s; text-decoration:none; }
+.pill:hover { color:rgba(255,255,255,.8); border-color:rgba(255,255,255,.25); }
+.pill.active { color:#fff; background:rgba(29,158,117,.18); border-color:rgba(29,158,117,.35); font-weight:500; }

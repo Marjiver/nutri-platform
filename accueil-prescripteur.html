@@ -192,6 +192,7 @@
     <a href="index.html" class="pill">🧑 Patient</a>
     <a href="accueil-dieteticien.html" class="pill">🥗 Diététicien</a>
     <a href="accueil-prescripteur.html" class="pill active">🏢 Entreprise / Experts</a>
+    <a href="partenariats.html" class="pill">🤝 Partenaires</a>
   </div>
 </div>
 
@@ -217,7 +218,7 @@
         <div style="font-size:.78rem;color:rgba(255,255,255,.42);line-height:1.5;">Vous restez centré sur votre métier. NutriDoc s'occupe de trouver le diét., de lui transmettre le dossier, et de livrer le plan à votre client.</div>
       </div>
       <div class="stat-card" style="background:rgba(125,211,252,.08);border-color:rgba(125,211,252,.2);">
-        <div style="font-size:.8rem;color:#7dd3fc;font-weight:500;margin-bottom:.2rem;">✓ Aucun acte médical de votre part</div>
+        <div style="font-size:.8rem;color:#7dd3fc;font-weight:500;margin-bottom:.2rem;">✓ Vous prescrivez · le diét. RPPS valide et signe</div>
         <div style="font-size:.78rem;color:rgba(255,255,255,.42);">C'est le diét. certifié RPPS qui élabore, valide et signe le plan. Vous êtes prescripteur, pas praticien nutritionnel.</div>
       </div>
     </div>
@@ -263,7 +264,7 @@
     <div class="packs">
       <div class="pack">
         <div class="pack-tier">Solo</div>
-        <div class="pack-price">18 € <span>HT</span></div>
+        <div class="pack-price">24,90€ <span>HT</span></div>
         <div class="pack-sub">1 crédit</div>
         <div class="pack-desc">Pour tester le service</div>
         <ul class="pack-list">
@@ -311,7 +312,7 @@
     <div id="faqList">
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Ai-je le droit de prescrire des plans nutritionnels ?</span><span>+</span></div><div class="faq-a">Oui. En tant que professionnel déclaré (SIRET), vous pouvez prescrire un bilan nutritionnel à vos clients. C'est le diét. certifié RPPS qui élabore et signe le plan — vous n'exercez pas d'acte nutritionnel. Cela s'apparente à une orientation vers un spécialiste.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Je suis coach sportif salarié — puis-je m'inscrire ?</span><span>+</span></div><div class="faq-a">Oui, à condition d'avoir un SIRET personnel (micro-entreprise ou autre statut libéral). Si vous n'en avez pas encore, vous pouvez créer une micro-entreprise en 24h sur autoentrepreneur.urssaf.fr. Votre employeur n'a pas à être informé si vous agissez en dehors de vos heures de travail.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Combien puis-je facturer le plan à mon client ?</span><span>+</span></div><div class="faq-a">Vous êtes libre de fixer votre prix. NutriDoc vous fournit le plan au coût du crédit (10 à 18€ selon le pack). Vous pouvez le revendre à votre client au tarif de votre choix — par exemple 30 à 50€ dans le cadre d'un accompagnement global. Votre marge est libre.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Combien puis-je facturer le plan à mon client ?</span><span>+</span></div><div class="faq-a">Vous êtes libre de fixer votre prix. NutriDoc vous fournit le plan au coût du crédit (10 à 24,90€ selon le pack). Vous pouvez le revendre à votre client au tarif de votre choix — par exemple 30 à 55€ dans le cadre d'un accompagnement global. Votre marge est libre.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Que se passe-t-il si mon client a une pathologie ?</span><span>+</span></div><div class="faq-a">Le système détecte automatiquement les cas sensibles (diabète, grossesse, TCA, insuffisance rénale…). Un diét. spécialisé prend alors en charge le dossier. Vous êtes notifié. Le crédit reste disponible si le cas est redirigé vers un suivi médical.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Le plan est-il importable dans mon logiciel médical (Doctolib, Medimail…) ?</span><span>+</span></div><div class="faq-a">Le plan est livré en PDF téléchargeable. Vous pouvez l'importer en pièce jointe dans n'importe quel dossier patient numérique (Doctolib, Medimail, Lifen, HelloDoc…). Nous travaillons sur une API de connexion directe pour les principaux logiciels — disponible prochainement.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Est-ce conforme aux obligations déontologiques du Conseil de l'Ordre ?</span><span>+</span></div><div class="faq-a">NutriDoc n'est pas une téléconsultation médicale — c'est un service nutritionnel complémentaire, comme orienter un patient vers un laboratoire ou un kiné partenaire. Vous prescrivez, un diét. certifié RPPS exécute. Cela ne constitue pas un acte médical de votre part et ne nécessite pas de mention spécifique dans votre activité CNOM.</div></div>
@@ -372,14 +373,14 @@
             </label>
             <input type="range" class="sim-range" id="p_sim_tarif" min="10" max="18" step="1" value="13"
               oninput="pUpdateDisp('tarif','€');pCompute()"/>
-            <div class="sim-range-labels"><span>10€ (pack 50)</span><span>18€ (solo)</span></div>
+            <div class="sim-range-labels"><span>10€ (pack 50)</span><span>24,90€ (solo)</span></div>
           </div>
         </div>
 
         <div class="sim-bloc">
           <div class="sim-bloc-title">Votre pack crédits</div>
           <div class="sim-chips" id="pPackChips">
-            <button class="sim-chip" onclick="pSetPack(1,18,this)">1 crédit · 18€</button>
+            <button class="sim-chip" onclick="pSetPack(1,18,this)">1 crédit · 24,90€</button>
             <button class="sim-chip" onclick="pSetPack(5,75,this)">5 crédits · 75€</button>
             <button class="sim-chip active" onclick="pSetPack(10,130,this)">10 crédits · 130€</button>
             <button class="sim-chip" onclick="pSetPack(20,240,this)">20 crédits · 240€</button>
@@ -507,7 +508,7 @@ var pMetierNotes = {
 };
 
 var pPackNotes = {
-  1:  '1 crédit : 18€/plan · idéal pour tester avant de s\'engager.',
+  1:  '1 crédit : 24,90€/plan · idéal pour tester avant de s\'engager.',
   5:  '5 crédits : 15€/plan · économisez 15€ vs tarif solo.',
   10: 'Pack 10 crédits : 13€/plan · valables 12 mois · recommandé.',
   20: 'Pack 20 crédits : 12€/plan · économisez 120€ vs tarif solo.',

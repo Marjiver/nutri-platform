@@ -276,6 +276,7 @@
       <a href="index.html" style="color:rgba(255,255,255,.35);font-size:.78rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.2rem .75rem;">← Espace patient</a>
     </div>
     <div>
+      <a href="partenaire-crm.html">CRM commandes</a>
       <a href="compta-partenaire.html" class="btn-ghost">Mon espace</a>
       <a href="#contact" class="btn-main">Nous contacter →</a>
     </div>
@@ -404,9 +405,9 @@
 
     <div class="offres">
       <div class="offre">
-        <div class="offre-tier">Starter</div>
-        <div class="offre-price">99 € <span>HT/mois</span></div>
-        <div class="offre-unit">jusqu'à 10 plans/mois</div>
+        <div class="offre-tier">Team</div>
+        <div class="offre-price">149 € <span>HT/mois</span></div>
+        <div class="offre-unit">jusqu'à 5 utilisateurs</div>
         <div class="offre-desc">Pour tester avec vos premiers membres. Idéal petite salle ou cabinet pluridisciplinaire.</div>
         <ul class="offre-list">
           <li>Accès plateforme NutriDoc</li>
@@ -421,7 +422,7 @@
       <div class="offre featured">
         <div class="offre-badge">⭐ Le plus populaire</div>
         <div class="offre-tier" style="color:var(--green);">Pro</div>
-        <div class="offre-price">299 € <span>HT/mois</span></div>
+        <div class="offre-price">2149 € <span>HT/mois</span></div>
         <div class="offre-unit">jusqu'à 50 plans/mois</div>
         <div class="offre-desc">Idéal salle 200–800 membres, clinique, centre de rééducation.</div>
         <ul class="offre-list">
@@ -436,9 +437,9 @@
       </div>
 
       <div class="offre">
-        <div class="offre-tier" style="color:var(--blue);">Volume</div>
-        <div class="offre-price">699 € <span>HT/mois</span></div>
-        <div class="offre-unit">jusqu'à 150 plans/mois</div>
+        <div class="offre-tier" style="color:var(--blue);">Enterprise</div>
+        <div class="offre-price">6149 € <span>HT/mois</span></div>
+        <div class="offre-unit">utilisateurs sur mesure</div>
         <div class="offre-desc">Réseaux de salles, mutuelles régionales, cliniques multi-services, programmes QVT entreprise.</div>
         <ul class="offre-list">
           <li>Tout Pro, plus :</li>
@@ -622,9 +623,9 @@
         <div class="sim-bloc">
           <div class="sim-bloc-title">🔧 Offre NutriDoc choisie</div>
           <div class="sim-chips" id="simOffreChips">
-            <button class="sim-chip" data-val="99" onclick="setChip('simOffre','99',this)">Starter 99€/m</button>
-            <button class="sim-chip active" data-val="299" onclick="setChip('simOffre','299',this)">Pro 299€/m</button>
-            <button class="sim-chip" data-val="699" onclick="setChip('simOffre','699',this)">Volume 699€/m</button>
+            <button class="sim-chip" data-val="149" onclick="setChip('simOffre','149',this)">Team 149€/m</button>
+            <button class="sim-chip active" data-val="249" onclick="setChip('simOffre','249',this)">Pro 249€/m</button>
+            <button class="sim-chip" data-val="499" onclick="setChip('simOffre','499',this)">Volume 499€/m</button>
             <button class="sim-chip" data-val="1200" onclick="setChip('simOffre','1200',this)">Grand compte</button>
           </div>
           <div class="sim-offre-note" id="simOffreNote">Pack Pro : jusqu'à 50 plans/mois · marque blanche incluse</div>
@@ -822,7 +823,7 @@
           <div class="form-group" style="flex-direction:row;align-items:flex-start;gap:.5rem;">
             <input type="checkbox" id="cp_cgu" style="margin-top:3px;accent-color:var(--green);flex-shrink:0;" required/>
             <label for="cp_cgu" style="font-size:.78rem;color:var(--gray);line-height:1.5;cursor:pointer;">
-              J'accepte la <a href="politique-confidentialite.html" style="color:var(--green);">politique de confidentialité</a> de CaliDoc Santé. <span class="req">*</span>
+              J'accepte la <a href="politique-confidentialite.html" style="color:var(--green);">politique de confidentialité</a> et les <a href="cgu-partenaires.html" style="color:var(--green);">CGU Partenaires</a> de CaliDoc Santé. <span class="req">*</span>
             </label>
           </div>
           <button type="button" class="form-submit" onclick="envoyerContact()">
@@ -984,7 +985,7 @@ async function envoyerContact() {
 // ══════════════════════════════════════════════════════════════
 
 var simType  = 'salle';
-var simOffre = 299;
+var simOffre = 249;
 
 function setChip(key, val, btn) {
   var group = btn.parentElement;
@@ -997,9 +998,9 @@ function setChip(key, val, btn) {
 
 function updateOffreNote() {
   var notes = {
-    99:   'Pack Starter : jusqu\'à 10 plans/mois · idéal pour démarrer',
-    299:  'Pack Pro : jusqu\'à 50 plans/mois · marque blanche incluse',
-    699:  'Pack Volume : jusqu\'à 150 plans/mois · API + account manager',
+    149:  'Pack Team : jusqu\'à 5 utilisateurs · CRM multi-utilisateurs · idéal pour démarrer',
+    299:  'Pack Pro : jusqu\'à 10 utilisateurs · marque blanche · 249€/mois',
+    699:  'Enterprise : utilisateurs illimités · API + SLA contractuel · 499€/mois',
     1200: 'Grand compte : volume illimité · contrat-cadre sur mesure'
   };
   document.getElementById('simOffreNote').textContent = notes[simOffre] || '';

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Gestion forfait diét. · CaliDoc Santé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--dark:#0d2018;--green:#1D9E75;--green-d:#0F6E56;--green-l:#E1F5EE;--gray:#6b7b74;--border:#e8edeb;--cream:#f7f9f7;--blue:#185FA5;--amber:#FAEEDA;--amber-d:#633806;--font-d:'DM Serif Display',Georgia,serif;--font-b:'DM Sans',system-ui,sans-serif;}
+    body{font-family:var(--font-b);background:var(--cream);color:var(--dark);min-height:100vh;}
+    a{text-decoration:none;}
+    .nav{background:var(--dark);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:var(--font-d);font-size:1.2rem;color:#fff;}
+    .nav-logo em{color:var(--green);font-style:italic;}
+    .nav-links{display:flex;gap:1.25rem;}
+    .nav-links a{font-size:.82rem;color:rgba(255,255,255,.55);transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:#fff;}
+    .nav-right{display:flex;align-items:center;gap:.75rem;}
+    .nav-user{font-size:.8rem;color:rgba(255,255,255,.45);}
+    .btn-sm{font-size:.78rem;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.3rem .875rem;font-family:var(--font-b);transition:all .2s;}
+    .btn-sm:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+    .page{max-width:1000px;margin:0 auto;padding:2rem 1.5rem;}
+    .page-title{font-family:var(--font-d);font-size:1.75rem;color:var(--dark);margin-bottom:.3rem;}
+    .page-sub{font-size:.875rem;color:var(--gray);margin-bottom:2rem;}
+    /* KPIs */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:2rem;}
+    .kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;}
+    .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);margin-bottom:.4rem;}
+    .kpi-val{font-family:var(--font-d);font-size:2rem;color:var(--dark);line-height:1;}
+    .kpi-sub{font-size:.75rem;color:var(--gray);margin-top:.2rem;}
+    .kpi-green .kpi-val{color:var(--green);}
+    .kpi-blue .kpi-val{color:var(--blue);}
+    .kpi-amber .kpi-val{color:var(--amber-d);}
+    /* Bannière plan gratuit */
+    .gratuit-banner{background:var(--green-l);border:1.5px solid var(--green);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+    .gratuit-icon{font-size:1.5rem;flex-shrink:0;}
+    .gratuit-text strong{font-size:.9rem;color:var(--green-d);}
+    .gratuit-text p{font-size:.8rem;color:var(--green-d);margin-top:.2rem;line-height:1.5;}
+    /* Forfaits */
+    .forfaits{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.25rem;margin-bottom:2rem;}
+    .forfait{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.75rem;display:flex;flex-direction:column;position:relative;transition:box-shadow .2s,transform .2s;}
+    .forfait:hover{box-shadow:0 6px 20px rgba(13,32,24,.08);transform:translateY(-2px);}
+    .forfait.current{border:2px solid var(--green);box-shadow:0 0 0 4px rgba(29,158,117,.08);}
+    .forfait.recommended{border:2px solid var(--blue);}
+    .badge-current{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.68rem;font-weight:600;border-radius:999px;padding:.2rem .8rem;white-space:nowrap;}
+    .badge-reco{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:.68rem;font-weight:600;border-radius:999px;padding:.2rem .8rem;white-space:nowrap;}
+    .forfait-tier{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);margin-bottom:.4rem;}
+    .forfait-price{font-family:var(--font-d);font-size:2.2rem;color:var(--dark);line-height:1;margin-bottom:.2rem;}
+    .forfait-price span{font-size:.85rem;font-family:var(--font-b);color:var(--gray);}
+    .forfait-quota{font-size:.82rem;color:var(--green);font-weight:500;margin-bottom:.3rem;}
+    .forfait-desc{font-size:.78rem;color:var(--gray);margin-bottom:1rem;line-height:1.5;}
+    .forfait-list{list-style:none;flex:1;margin-bottom:1.5rem;}
+    .forfait-list li{font-size:.8rem;display:flex;align-items:flex-start;gap:.35rem;padding:.25rem 0;border-bottom:1px solid var(--border);color:var(--dark);}
+    .forfait-list li:last-child{border-bottom:none;}
+    .forfait-list li::before{content:"✓";color:var(--green);font-weight:700;flex-shrink:0;}
+    .btn-changer{display:block;text-align:center;border-radius:999px;padding:.7rem;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s;border:none;font-family:var(--font-b);}
+    .btn-main{background:var(--green);color:#fff;}
+    .btn-main:hover{background:var(--green-d);}
+    .btn-outline{border:1.5px solid var(--border);background:transparent;color:var(--dark);}
+    .btn-outline:hover{border-color:var(--green);color:var(--green);}
+    .btn-blue{background:var(--blue);color:#fff;}
+    .btn-blue:hover{background:#134A5C;}
+    .btn-disabled{background:var(--cream);color:var(--gray);cursor:default;}
+    /* Recommandation */
+    .reco-card{background:#fff;border:1.5px solid var(--blue);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:2rem;display:none;}
+    .reco-title{font-weight:600;font-size:.95rem;color:var(--blue);margin-bottom:.5rem;}
+    .reco-desc{font-size:.82rem;color:var(--gray);line-height:1.6;}
+    /* Historique */
+    .histo{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:2rem;}
+    .histo-title{font-weight:600;font-size:.9rem;color:var(--dark);margin-bottom:1rem;}
+    .histo-row{display:flex;align-items:center;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+    .histo-row:last-child{border-bottom:none;}
+    .histo-date{color:var(--gray);min-width:80px;}
+    .histo-desc{flex:1;color:var(--dark);}
+    .histo-montant{font-weight:600;min-width:60px;text-align:right;}
+    .histo-montant.green{color:var(--green);}
+    .histo-montant.red{color:#A32D2D;}
+    /* Confirmation modale */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,32,24,.5);z-index:200;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:20px;padding:2rem;max-width:460px;width:90%;}
+    .modal-title{font-family:var(--font-d);font-size:1.4rem;color:var(--dark);margin-bottom:.75rem;}
+    .modal-desc{font-size:.875rem;color:var(--gray);line-height:1.65;margin-bottom:1.5rem;}
+    .modal-btns{display:flex;gap:.75rem;justify-content:flex-end;}
+    .btn-cancel{background:var(--cream);border:1px solid var(--border);color:var(--dark);border-radius:999px;padding:.6rem 1.5rem;font-size:.875rem;cursor:pointer;font-family:var(--font-b);}
+    .btn-confirm{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.6rem 1.5rem;font-size:.875rem;font-weight:500;cursor:pointer;font-family:var(--font-b);}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .page-title,.kpi-grid,.forfaits{animation:fadeUp .4s ease both;}
+    .kpi:nth-child(1){animation-delay:.05s;}
+    .kpi:nth-child(2){animation-delay:.1s;}
+    .kpi:nth-child(3){animation-delay:.15s;}
+    .kpi:nth-child(4){animation-delay:.2s;}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="dietitian.html" class="nav-logo">Nutri<em>Doc</em></a>
+  <div class="nav-links">
+    <a href="dietitian.html">Mon espace</a>
+    <a href="compta-dieteticien.html">Comptabilité</a>
+    <a href="agenda-dieteticien.html">Agenda</a>
+    <a href="gestion-forfait-dieteticien.html" class="active" style="color:#fff;">Forfait</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser">Chargement…</span>
+    <button class="btn-sm" onclick="deconnecter()">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Gestion du forfait</h1>
+  <p class="page-sub">Consultez votre consommation, votre plan gratuit mensuel et changez d'offre à tout moment.</p>
+
+  <!-- Bannière plan gratuit -->
+  <div class="gratuit-banner" id="gratuitBanner">
+    <span class="gratuit-icon" id="gratuitIcon">🎁</span>
+    <div class="gratuit-text">
+      <strong id="gratuitTitre">Plan gratuit du mois — Non utilisé</strong>
+      <p id="gratuitDesc">Chaque mois, un plan est reversé intégralement au diét. (24,90€) sans aucun fee NutriDoc. Utilisez-le pour n'importe quel patient.</p>
+    </div>
+  </div>
+
+  <!-- Recommandation forfait -->
+  <div class="reco-card" id="recoCard">
+    <div class="reco-title" id="recoTitle">💡 Recommandation</div>
+    <div class="reco-desc" id="recoDesc"></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi kpi-green">
+      <div class="kpi-label">Forfait actuel</div>
+      <div class="kpi-val" id="kForfait">—</div>
+      <div class="kpi-sub" id="kPrix">0€/mois</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Plans ce mois</div>
+      <div class="kpi-val" id="kPlans">—</div>
+      <div class="kpi-sub" id="kQuota">/ — quota</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-label">Plans hors quota</div>
+      <div class="kpi-val" id="kHQ">0</div>
+      <div class="kpi-sub" id="kFee">0€ fee ce mois</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="kpi-label">Net perçu / mois</div>
+      <div class="kpi-val" id="kNet">—€</div>
+      <div class="kpi-sub">après fees NutriDoc</div>
+    </div>
+  </div>
+
+  <!-- Choisir un forfait -->
+  <h2 style="font-family:var(--font-d);font-size:1.3rem;color:var(--dark);margin-bottom:1.25rem;">Choisir un forfait</h2>
+  <div class="forfaits">
+
+    <div class="forfait" id="card-essentiel">
+      <div class="forfait-tier">Essentiel</div>
+      <div class="forfait-price">0€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 plan gratuit + 0 dans le quota</div>
+      <div class="forfait-desc">Phase pilote, démarrage, très petit volume.</div>
+      <ul class="forfait-list">
+        <li>1 plan gratuit mensuel</li>
+        <li>Fee : 3,00€/plan au-delà</li>
+        <li>Fee visio : 8€</li>
+        <li>Accès plateforme complet</li>
+      </ul>
+      <button class="btn-changer btn-outline" onclick="ouvrirModal('essentiel', 0)">Choisir Essentiel</button>
+    </div>
+
+    <div class="forfait" id="card-starter">
+      <div class="forfait-tier">Starter</div>
+      <div class="forfait-price">9€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 10 dans le quota</div>
+      <div class="forfait-desc">Diét. libéral débutant — 5 à 15 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>1 plan gratuit mensuel</li>
+        <li>10 plans inclus (quota)</li>
+        <li>Fee : 2,50€/plan au-delà</li>
+        <li>Fee visio : 8€</li>
+      </ul>
+      <button class="btn-changer btn-outline" onclick="ouvrirModal('starter', 9)">Choisir Starter</button>
+    </div>
+
+    <div class="forfait" id="card-pro">
+      <div class="forfait-tier" style="color:var(--green);">Pro</div>
+      <div class="forfait-price">29€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 30 dans le quota</div>
+      <div class="forfait-desc">Diét. installé — 20 à 50 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>1 plan gratuit mensuel</li>
+        <li>30 plans inclus (quota)</li>
+        <li>Fee : 2,00€/plan au-delà</li>
+        <li>Fee visio : 8€</li>
+        <li>Support prioritaire</li>
+      </ul>
+      <button class="btn-changer btn-main" onclick="ouvrirModal('pro', 29)">Choisir Pro</button>
+    </div>
+
+    <div class="forfait" id="card-expert">
+      <div class="forfait-tier" style="color:var(--blue);">Expert</div>
+      <div class="forfait-price">59€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 100 dans le quota</div>
+      <div class="forfait-desc">Gros volume, cabinet structuré — + 50 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>1 plan gratuit mensuel</li>
+        <li>100 plans inclus (quota)</li>
+        <li>Fee : 1,50€/plan au-delà</li>
+        <li>Fee visio : 8€</li>
+        <li>Analytics avancés</li>
+      </ul>
+      <button class="btn-changer btn-blue" onclick="ouvrirModal('expert', 59)">Choisir Expert</button>
+    </div>
+  </div>
+
+  <!-- Seuils de basculement -->
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem;">
+    <h3 style="font-weight:600;font-size:.875rem;color:var(--dark);margin-bottom:.875rem;">📈 Seuils de basculement recommandés</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;">
+      <div style="font-size:.82rem;color:var(--gray);padding:.5rem;background:var(--cream);border-radius:8px;">
+        <strong style="color:var(--dark);">Essentiel → Starter</strong><br/>à partir de 11 plans/mois
+      </div>
+      <div style="font-size:.82rem;color:var(--gray);padding:.5rem;background:var(--cream);border-radius:8px;">
+        <strong style="color:var(--dark);">Starter → Pro</strong><br/>à partir de 36 plans/mois
+      </div>
+      <div style="font-size:.82rem;color:var(--gray);padding:.5rem;background:var(--cream);border-radius:8px;">
+        <strong style="color:var(--dark);">Pro → Expert</strong><br/>à partir de 101 plans/mois
+      </div>
+    </div>
+    <p style="font-size:.75rem;color:var(--gray);margin-top:.75rem;">La plateforme vous notifie automatiquement lorsqu'un changement de forfait serait plus économique.</p>
+  </div>
+
+  <!-- Historique facturation -->
+  <div class="histo">
+    <div class="histo-title">📄 Historique de facturation</div>
+    <div id="histoList">
+      <div style="font-size:.82rem;color:var(--gray);text-align:center;padding:1.5rem;">Chargement…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirmation -->
+<div class="modal-overlay" id="modalOverlay" onclick="fermerModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modalTitre">Changer de forfait</div>
+    <div class="modal-desc" id="modalDesc">Êtes-vous sûr de vouloir changer votre forfait ?</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmerChangement()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window._skipUniversalNav = true;
+
+// ── Données mock ────────────────────────────────────────────────
+var MOCK = {
+  prenom: 'Grégoire', nom: 'Martin', forfait: 'pro', forfait_label: 'Pro',
+  prix_mois: 29, quota: 30, plans_mois: 14, hors_quota: 0,
+  plan_gratuit_utilise: false, fee_mois: 0,
+  histo: [
+    { date: 'Avr. 2026', desc: 'Abonnement Pro', montant: '-29€', type: 'debit' },
+    { date: 'Mar. 2026', desc: 'Abonnement Pro', montant: '-29€', type: 'debit' },
+    { date: 'Mar. 2026', desc: 'Fee plan B2C (1 plan hors quota)', montant: '-2€', type: 'debit' },
+    { date: 'Fév. 2026', desc: 'Abonnement Pro', montant: '-29€', type: 'debit' },
+  ]
+};
+
+var pendingForfait = null;
+var pendingPrix = null;
+
+var FEES = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+var QUOTAS = { essentiel: 0, starter: 10, pro: 30, expert: 100 };
+var PRIX = { essentiel: 0, starter: 9, pro: 29, expert: 59 };
+
+function init() {
+  var d = MOCK;
+  document.getElementById('navUser').textContent = d.prenom + ' ' + d.nom;
+
+  // KPIs
+  document.getElementById('kForfait').textContent = d.forfait_label;
+  document.getElementById('kPrix').textContent = d.prix_mois + '€/mois';
+  animateCount('kPlans', d.plans_mois);
+  document.getElementById('kQuota').textContent = '/ ' + d.quota + ' quota';
+  animateCount('kHQ', d.hors_quota);
+  document.getElementById('kFee').textContent = d.fee_mois + '€ fee ce mois';
+  var net = d.plans_mois * 24.90 - d.fee_mois - d.prix_mois;
+  document.getElementById('kNet').textContent = Math.round(net) + '€';
+
+  // Plan gratuit
+  if (d.plan_gratuit_utilise) {
+    document.getElementById('gratuitIcon').textContent = '✅';
+    document.getElementById('gratuitTitre').textContent = 'Plan gratuit du mois — Utilisé';
+    document.getElementById('gratuitDesc').textContent = 'Votre plan gratuit de ce mois a déjà été utilisé. Le prochain sera disponible le 1er du mois prochain.';
+    document.getElementById('gratuitBanner').style.background = 'var(--cream)';
+    document.getElementById('gratuitBanner').style.borderColor = 'var(--border)';
+  }
+
+  // Marquer le forfait actuel
+  var card = document.getElementById('card-' + d.forfait);
+  if (card) {
+    card.classList.add('current');
+    var badge = document.createElement('div');
+    badge.className = 'badge-current';
+    badge.textContent = '✓ Forfait actuel';
+    card.appendChild(badge);
+    var btn = card.querySelector('.btn-changer');
+    btn.textContent = 'Forfait actuel';
+    btn.className = 'btn-changer btn-disabled';
+    btn.disabled = true;
+  }
+
+  // Recommandation
+  var seuils = { essentiel: 11, starter: 36, pro: 101 };
+  var reco = null;
+  if (d.forfait === 'essentiel' && d.plans_mois >= 11) reco = { vers: 'Starter (9€/mois)', raison: 'Vous avez validé ' + d.plans_mois + ' plans ce mois. Le forfait Starter serait plus économique dès 11 plans (quota 10 inclus, fee 2,50€ au lieu de 3,00€).' };
+  else if (d.forfait === 'starter' && d.plans_mois >= 36) reco = { vers: 'Pro (29€/mois)', raison: 'Vous avez validé ' + d.plans_mois + ' plans ce mois. Le forfait Pro serait plus économique dès 36 plans.' };
+  else if (d.forfait === 'pro' && d.plans_mois >= 101) reco = { vers: 'Expert (59€/mois)', raison: 'Vous avez validé ' + d.plans_mois + ' plans ce mois. Le forfait Expert serait plus économique dès 101 plans.' };
+
+  if (reco) {
+    document.getElementById('recoCard').style.display = 'block';
+    document.getElementById('recoTitle').textContent = '💡 Passer au forfait ' + reco.vers;
+    document.getElementById('recoDesc').textContent = reco.raison;
+    var recoForfait = reco.vers.split(' ')[0].toLowerCase();
+    var recoCard = document.getElementById('card-' + recoForfait);
+    if (recoCard) { recoCard.classList.add('recommended'); var b2 = document.createElement('div'); b2.className = 'badge-reco'; b2.textContent = '💡 Recommandé'; recoCard.appendChild(b2); }
+  }
+
+  // Historique
+  document.getElementById('histoList').innerHTML = d.histo.map(function(h) {
+    return '<div class="histo-row"><span class="histo-date">' + h.date + '</span><span class="histo-desc">' + h.desc + '</span><span class="histo-montant red">' + h.montant + '</span></div>';
+  }).join('');
+}
+
+function animateCount(id, target) {
+  var el = document.getElementById(id);
+  var step = Math.ceil(target / 20), cur = 0;
+  var t = setInterval(function() { cur = Math.min(cur + step, target); el.textContent = cur; if (cur >= target) clearInterval(t); }, 25);
+}
+
+function ouvrirModal(forfait, prix) {
+  if (forfait === MOCK.forfait) return;
+  pendingForfait = forfait; pendingPrix = prix;
+  var labels = { essentiel: 'Essentiel (0€/mois)', starter: 'Starter (9€/mois)', pro: 'Pro (29€/mois)', expert: 'Expert (59€/mois)' };
+  document.getElementById('modalTitre').textContent = 'Passer au forfait ' + labels[forfait];
+  document.getElementById('modalDesc').textContent = 'Votre forfait passera à ' + labels[forfait] + ' à compter du prochain cycle de facturation. Le nouveau fee par plan sera de ' + FEES[forfait].toFixed(2) + '€ (au-delà du quota de ' + QUOTAS[forfait] + ' plans).';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function fermerModal(e) { if (!e || e.target === document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+
+function confirmerChangement() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  // TODO : appel Supabase pour changer le forfait
+  alert('Forfait mis à jour en ' + pendingForfait + ' ! (En production : mise à jour Supabase + Stripe)');
+}
+
+function deconnecter() { window.location.href = 'login.html'; }
+
+init();
+</script>
+</body>
+</html>

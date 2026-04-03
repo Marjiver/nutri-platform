@@ -355,7 +355,7 @@ tbody tr:hover td{background:#fafcfa}
           <div class="kpi-icon" style="background:#e1f5ee">📅</div>
           <div class="kpi-label">Visios réalisées</div>
           <div class="kpi-value" id="kpiVisios">23</div>
-          <div class="kpi-delta up">× 50 € = 1 265 €</div>
+          <div class="kpi-delta up">× 55€ = 1 265 €</div>
         </div>
       </div>
 
@@ -444,7 +444,7 @@ tbody tr:hover td{background:#fafcfa}
           <div class="chart-wrap" style="height:150px"><canvas id="chartPlansRev"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-header"><div class="chart-title">Visios 50 €</div></div>
+          <div class="chart-header"><div class="chart-title">Visios 55€</div></div>
           <div class="chart-wrap" style="height:150px"><canvas id="chartVisiosRev"></canvas></div>
         </div>
         <div class="chart-card">
@@ -737,7 +737,7 @@ tbody tr:hover td{background:#fafcfa}
                 <th>Trimestre</th>
                 <th>Période</th>
                 <th>CA Plans (24,90€)</th>
-                <th>CA Visios (50€)</th>
+                <th>CA Visios (55€)</th>
                 <th>CA Abonnements diét.</th>
                 <th>CA Crédits pro</th>
                 <th style="color:var(--green)">CA Total</th>
@@ -918,10 +918,10 @@ tbody tr:hover td{background:#fafcfa}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
         <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:1rem;font-size:.82rem">
           <div style="font-weight:600;color:#dc2626;margin-bottom:.5rem">⚠ Modèle "en nom propre" — Implications TVA</div>
-          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 50€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
+          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 55€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
           <div style="background:#fee2e2;border-radius:6px;padding:.6rem .8rem;margin-top:.5rem">
             <div>Plan 24,90€ TTC → base HT : <strong>20,75€</strong> · TVA : <strong>4,15€</strong></div>
-            <div>Visio 50€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
+            <div>Visio 55€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
           </div>
         </div>
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:1rem;font-size:.82rem">
@@ -964,7 +964,7 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Formule Expert (39€/mois annuel)</span>
+              <span>Formule Expert (59€/mois annuel)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
                 <input type="number" value="20" min="0" max="25" id="commExpert"
                   style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
@@ -973,7 +973,7 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Reversement visio (patient paie 50€)</span>
+              <span>Reversement visio (patient paie 55€)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
                 <input type="number" value="49" min="0" max="55" id="commVisio"
                   style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
@@ -1016,8 +1016,8 @@ tbody tr:hover td{background:#fafcfa}
           </div>
           <div class="chart-header" style="margin-top:1.25rem;"><div class="chart-title">Packs plans prescripteurs</div></div>
         <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.75rem;">
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>18 €</strong></div>
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Équipe — 10 plans</span><strong>180 € (18€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>24,90€</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Équipe — 10 plans</span><strong>180 € (24,90€/plan)</strong></div>
           <div class="inline-stat" style="justify-content:space-between;"><span>Pack Clinique — 20 plans</span><strong>340 € (12€/plan)</strong></div>
           <div class="inline-stat" style="justify-content:space-between;"><span>Pack Volume — 50 plans</span><strong>840 € (10€/plan)</strong></div>
         </div>
@@ -1180,8 +1180,8 @@ const PATIENTS_DATA = [
   { nom:'Julie Morin',   ville:'Angoulême', objectif:'Énergie',       plan:'Gratuit', date:'22/02/2025', statut:'inactif'},
 ];
 const DIETS_DATA = [
-  { nom:'Dr. A. Lemaire', rpps:'10 003 456 789', formule:'Pro 29€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
-  { nom:'Dr. B. Mercier', rpps:'10 008 123 456', formule:'Expert 39€', zone:'Bordeaux 80km',  plans:24, reversement:'480 €', statut:'actif'    },
+  { nom:'Dr. A. Lemaire', rpps:'10 008 019 381', formule:'Pro 29€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
+  { nom:'Dr. B. Mercier', rpps:'10 008 123 456', formule:'Expert 59€', zone:'Bordeaux 80km',  plans:24, reversement:'480 €', statut:'actif'    },
   { nom:'C. Fontaine',    rpps:'10 012 987 654', formule:'Essentiel',  zone:'Poitiers 80km',  plans:18, reversement:'288 €', statut:'actif'    },
   { nom:'Dr. D. Simon',   rpps:'10 007 654 321', formule:'Pro 29€',    zone:'La Rochelle',    plans:16, reversement:'288 €', statut:'actif'    },
   { nom:'E. Blanc',       rpps:'10 015 222 333', formule:'Essentiel',  zone:'Périgueux',      plans:0,  reversement:'0 €',   statut:'en attente'},
@@ -1190,18 +1190,18 @@ const DIETS_DATA = [
 const PRESC_DATA = [
   { nom:'Dr. G. Rolland',  prof:'Médecin généraliste', siret:'123 456 789 00012', pack:'Pro 20cr',    credits:6,  ca:'89 €'  },
   { nom:'K. Moreau',       prof:'Kinésithérapeute',    siret:'234 567 890 00034', pack:'Volume 50cr', credits:34, ca:'219 €' },
-  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'50 €'  },
+  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'55€'  },
   { nom:'Dr. M. Perret',   prof:'Médecin du sport',    siret:'456 789 012 00078', pack:'Pro 20cr',    credits:14, ca:'89 €'  },
 ];
 const PLANS_DATA = [
-  { id:'PLN-001', patient:'Marie D.',  objectif:'Perte de gras', diet:'Dr. Lemaire', cree:'15/03', livre:'16/03', delai:'22h', statut:'livré'   },
+  { id:'PLN-001', patient:'Marie D.',  objectif:'Perte de gras', diet:'Grégoire Martin', cree:'15/03', livre:'16/03', delai:'22h', statut:'livré'   },
   { id:'PLN-002', patient:'Thomas K.', objectif:'Prise de masse', diet:'Dr. Mercier', cree:'18/03', livre:'19/03', delai:'18h', statut:'livré'   },
-  { id:'PLN-003', patient:'Sophie M.', objectif:'Équilibre',      diet:'Dr. Lemaire', cree:'20/03', livre:null,    delai:'—',   statut:'en cours' },
+  { id:'PLN-003', patient:'Sophie M.', objectif:'Équilibre',      diet:'Grégoire Martin', cree:'20/03', livre:null,    delai:'—',   statut:'en cours' },
   { id:'PLN-004', patient:'Lucas B.',  objectif:'Sport & perf.',  diet:'C. Fontaine', cree:'21/03', livre:null,    delai:'—',   statut:'en attente'},
   { id:'PLN-005', patient:'Emma R.',   objectif:'Perte de gras', diet:'Dr. Simon',   cree:'22/03', livre:'22/03', delai:'9h',  statut:'livré'   },
 ];
 const QUEUE_DATA = [
-  { id:'Q-031', patient:'Noah R.',   ville:'Angoulême',  objectif:'Perte de gras', soumis:'27/03 09:14', diet:'Dr. Lemaire', statut:'accepted'  },
+  { id:'Q-031', patient:'Noah R.',   ville:'Angoulême',  objectif:'Perte de gras', soumis:'27/03 09:14', diet:'Grégoire Martin', statut:'accepted'  },
   { id:'Q-032', patient:'Léa M.',    ville:'Bordeaux',   objectif:'Équilibre',     soumis:'27/03 08:55', diet:'Dr. Mercier', statut:'in_progress'},
   { id:'Q-033', patient:'Hugo L.',   ville:'Poitiers',   objectif:'Prise de masse',soumis:'27/03 07:30', diet:'—',           statut:'pending'   },
   { id:'Q-034', patient:'Clara D.',  ville:'Niort',      objectif:'Sport & perf.', soumis:'27/03 06:45', diet:'—',           statut:'pending'   },
@@ -1219,7 +1219,7 @@ const TRANSACTIONS_DATA = [
   { date:'27/03', type:'Visio',          montant:'50,00 €', de:'Thomas K.',  reverse:'50,00 €', net:'6,00 €',  statut:'payé'    },
   { date:'26/03', type:'Pack Pro',       montant:'89,00 €', de:'Dr. Rolland',reverse:'—',       net:'89,00 €', statut:'payé'    },
   { date:'26/03', type:'Plan premium',   montant:'24,90 €', de:'Sophie M.',  reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
-  { date:'25/03', type:'Abonnement Pro', montant:'50,00 €', de:'Dr. Lemaire',reverse:'—',       net:'50,00 €', statut:'payé'    },
+  { date:'25/03', type:'Abonnement Pro', montant:'50,00 €', de:'Grégoire Martin',reverse:'—',       net:'50,00 €', statut:'payé'    },
   { date:'24/03', type:'Plan premium',   montant:'24,90 €', de:'Lucas B.',   reverse:'16,00 €', net:'8,90 €',  statut:'payé'    },
 ];
 
@@ -1438,7 +1438,7 @@ function renderTables() {
 function renderActivity() {
   const events = [
     { color:'#1D9E75', text:'<strong>Marie Dupont</strong> a reçu son plan alimentaire (perte de gras)', time:'Il y a 12 min' },
-    { color:'#8b5cf6', text:'<strong>Dr. Lemaire</strong> a validé 2 plans ce matin', time:'Il y a 45 min' },
+    { color:'#8b5cf6', text:'<strong>Grégoire Martin</strong> a validé 2 plans ce matin', time:'Il y a 45 min' },
     { color:'#f59e0b', text:'Nouvelle demande de plan — <strong>Hugo Laurent</strong> · Poitiers (en attente)', time:'Il y a 1h20' },
     { color:'#3b82f6', text:'<strong>K. Moreau</strong> (kiné) a rechargé 50 crédits — Pack Volume', time:'Il y a 2h' },
     { color:'#ef4444', text:'Alerte santé détecté — <strong>Emma R.</strong> · Grossesse déclarée → redirigée', time:'Il y a 3h' },
@@ -1505,8 +1505,8 @@ function filterTable(type)    { /* à brancher sur Supabase */ }
 // ── Données CA mensuel 2025 ───────────────────────────────────
 const CA_MENSUEL = {
   // CA réel ou estimé par mois (HT = prix TTC / 1.20)
-  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 50€ TTC → 45,83€ HT
-  // Abonnements diét. : 50€ TTC → 40,83€ HT · Crédits pro : prix HT
+  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 55€ TTC → 45,83€ HT
+  // Abonnements diét. : 55€ TTC → 40,83€ HT · Crédits pro : prix HT
   Jan: { plans: 890,  visios: 330, abo: 540, credits: 120 },
   Fév: { plans: 1020, visios: 495, abo: 540, credits: 160 },
   Mar: { plans: 1340, visios: 550, abo: 590, credits: 240 },
