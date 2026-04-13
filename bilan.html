@@ -5,12 +5,53 @@
   <meta name="description" content="Bilan nutritionnel gratuit · Créez votre compte et recevez des recommandations personnalisées."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Bilan nutritionnel — NutriDoc</title>
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
   <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+  
+  <!-- ==================== MASQUE POUR ANDROID ==================== -->
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
+  
+  <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
+  <meta name="msapplication-TileColor" content="#0d2018">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="/css/dark-mode.css">
+  <link rel="stylesheet" href="/css/dark-mode-variables.css">
+  
+  <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
   <script src="js/cookies.js"></script>
+  
+  <!-- ==================== PERFORMANCE MONITORING ==================== -->
+  <script src="/js/utils/performance.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script src="/js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== AUTO-SAVE JS ==================== -->
+  <script src="/js/utils/auto-save.js"></script>
 
   <style>
     /* Tous les styles identiques à la version précédente */
@@ -387,6 +428,7 @@
       display: flex;
       gap: 1rem;
       margin-top: 1.5rem;
+      flex-wrap: wrap;
     }
     .btn-next, .btn-back, .btn-submit {
       padding: 0.7rem 1.5rem;
@@ -481,6 +523,32 @@
       margin-top: 1rem;
     }
     .btn-hero:hover { background: #0f6e56; }
+
+    /* Draft actions styles */
+    .draft-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .draft-actions button {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+
+    /* Theme selector wrapper */
+    .theme-selector-wrapper {
+      position: fixed;
+      bottom: 80px;
+      right: 24px;
+      z-index: 9997;
+    }
+    @media (max-width: 768px) {
+      .theme-selector-wrapper {
+        bottom: 90px;
+        right: 16px;
+      }
+    }
 
     .nd-footer {
       background: #080f0b;
@@ -596,6 +664,9 @@
 
 <main class="bilan-container">
   
+  <!-- ==================== THÈME SELECTOR ==================== -->
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  
   <div class="progress-container">
     <div class="progress-steps">
       <div class="progress-step" data-step="1">1. Profil</div>
@@ -610,6 +681,19 @@
   </div>
 
   <form id="bilanForm" novalidate>
+    
+    <!-- ==================== BOUTONS DE SAUVEGARDE AUTO ==================== -->
+    <div class="draft-actions">
+      <button type="button" onclick="manualSave('bilanForm')" style="background: #1D9E75; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        💾 Sauvegarder maintenant
+      </button>
+      <button type="button" onclick="restoreLastDraft('bilanForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🔄 Restaurer brouillon
+      </button>
+      <button type="button" onclick="clearCurrentDraft('bilanForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🗑️ Effacer brouillon
+      </button>
+    </div>
 
     <!-- ÉTAPE 1 : Profil -->
     <div class="step active" data-step="1">
@@ -874,6 +958,20 @@
 <div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- ==================== PWA SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<!-- ==================== PWA MANAGER ==================== -->
+<script src="/js/utils/pwa.js"></script>
+
 <script>
 // ===== PROFIL SYSTEM (corrigé pour la page bilan) =====
 const PROFIL_KEY = 'nutridoc_profil';
@@ -957,17 +1055,12 @@ function selectProfil(profilKey) {
 
 // Version corrigée : on force l'affichage du profil Patient sur cette page
 function initProfilSystem() {
-  // Sur la page bilan, on force l'affichage du profil Patient
-  // car c'est une page d'inscription patient
   const bar = document.getElementById('dynamicProfilBar');
   if (bar) {
     bar.style.display = 'block';
     document.getElementById('profilIcon').textContent = '🧑';
     document.getElementById('profilName').textContent = 'Patient';
   }
-  
-  // La pop-up de sélection de profil n'est pas nécessaire sur cette page
-  // car l'utilisateur est déjà en train de s'inscrire en tant que patient
 }
 
 window.selectProfil = selectProfil;
@@ -1094,6 +1187,31 @@ function toggleNiveauPratique(objectif) {
   }
 }
 
+// ===== SAUVEGARDE AUTO =====
+// Initialiser la sauvegarde auto après le chargement
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialiser la sauvegarde auto
+  if (typeof initAutoSave === 'function') {
+    initAutoSave();
+  }
+  
+  // Ajouter un bouton de restauration supplémentaire si besoin
+  const restoreBtn = document.createElement('button');
+  restoreBtn.textContent = '🔄 Restaurer brouillon';
+  restoreBtn.onclick = () => {
+    if (typeof restoreLastDraft === 'function') {
+      restoreLastDraft('bilanForm');
+    }
+  };
+  restoreBtn.style.cssText = 'margin-left: 10px; padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 999px; cursor: pointer;';
+  const btnRow = document.querySelector('.step[data-step="5"] .btn-row');
+  if (btnRow && !btnRow.querySelector('.restore-manual')) {
+    restoreBtn.classList.add('restore-manual');
+    btnRow.insertBefore(restoreBtn, btnRow.querySelector('.btn-submit'));
+  }
+});
+
+// Gestion des red flags
 document.addEventListener('DOMContentLoaded', () => {
   const aucunCheckbox = document.getElementById('redFlagAucun');
   if (aucunCheckbox) {
@@ -1112,6 +1230,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProgress();
 });
 
+// Soumission du formulaire
 document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   
@@ -1157,6 +1276,11 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   localStorage.setItem('nutridoc_bilan', JSON.stringify(bilanData));
   localStorage.setItem('nutridoc_user_email', email);
   localStorage.setItem('nutridoc_user_prenom', bilanData.prenom);
+  
+  // Nettoyer le brouillon après soumission
+  if (typeof clearCurrentDraft === 'function') {
+    clearCurrentDraft('bilanForm');
+  }
   
   if (hasRedFlags) {
     const displayDiv = document.getElementById('redFlagDisplay');
