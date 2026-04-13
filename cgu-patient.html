@@ -2,27 +2,485 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="description" content="Conditions Générales d'Utilisation patient NutriDoc — CaliDoc Santé."/>
+  <meta name="description" content="Conditions Générales d'Utilisation patient NutriDoc — CaliDoc Santé. Bilan gratuit, plan alimentaire 24,90€, visio 55€."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CGU — Patient · NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="js/nav.js" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
   <script src="js/cookies.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL */
+    .dynamic-profil-bar {
+      background: #080f0b;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.4rem 2rem;
+      position: sticky;
+      top: 60px;
+      z-index: 98;
+      margin-top: 0;
+    }
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .profil-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
+      border-radius: 999px; padding: 0.2rem 0.9rem;
+      font-size: 0.75rem; color: #fff; font-weight: 500;
+    }
+    .profil-switch {
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px; padding: 0.2rem 0.8rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+
+    /* MAIN */
+    .legal-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 7rem 2rem 3rem;
+    }
+    .legal-header {
+      margin-bottom: 2rem;
+    }
+    .legal-profile-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .patient-badge {
+      background: #E1F5EE;
+      color: #1D9E75;
+    }
+    .legal-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      color: #0d2018;
+      margin-bottom: 0.5rem;
+    }
+    .legal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: #6b7b74;
+    }
+
+    /* SOMMAIRE */
+    .legal-toc {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .legal-toc-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7b74;
+      margin-bottom: 0.75rem;
+    }
+    .legal-toc ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .legal-toc li {
+      font-size: 0.8rem;
+    }
+    .legal-toc a {
+      color: #0d2018;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .legal-toc a:hover { color: #1D9E75; }
+
+    /* CORPS DU TEXTE */
+    .legal-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      margin: 2rem 0 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eef4ee;
+      scroll-margin-top: 100px;
+    }
+    .legal-body h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .legal-body h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.5rem;
+      color: #0d2018;
+    }
+    .legal-body p {
+      font-size: 0.85rem;
+      color: #0d2018;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .legal-body ul, .legal-body ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .legal-body li {
+      font-size: 0.82rem;
+      color: #0d2018;
+      line-height: 1.6;
+    }
+    .legal-body a {
+      color: #1D9E75;
+      text-decoration: none;
+    }
+    .legal-body a:hover { text-decoration: underline; }
+
+    /* ALERTE */
+    .legal-alert {
+      background: #fff8e6;
+      border: 1px solid #fcd34d;
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.8rem;
+      color: #633806;
+      line-height: 1.6;
+    }
+    .legal-alert strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* TABLEAU */
+    .legal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 1rem 0 1.5rem;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .legal-table th {
+      background: #f7f9f7;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .legal-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eef4ee;
+      vertical-align: top;
+    }
+    .legal-table tr:last-child td { border-bottom: none; }
+
+    /* CONTACT */
+    .legal-contact {
+      background: #e1f5ee;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+    .legal-contact a { color: #0f6e56; font-weight: 500; }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .legal-container { padding: 6rem 1rem 2rem; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
 </head>
 <body>
-<header class="header">
-  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-  <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html" class="nd-navlink">Accueil</a>
+        <a href="bilan.html" class="nd-navlink">Faire mon bilan</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="login.html?role=patient" class="nd-conn-item">👤 Patient</a>
+          <a href="login.html?role=dietitian" class="nd-conn-item">🥗 Diététicien</a>
+          <a href="login.html?role=prescriber" class="nd-conn-item">🏢 Prescripteur</a>
+        </div>
+      </div>
+      <a href="bilan.html" class="nd-btn-ghost">Commencer mon bilan</a>
+    </div>
+  </div>
 </header>
+
+<!-- BARRE PROFIL -->
+<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
+  <div class="dynamic-profil-inner">
+    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
+    <span class="profil-badge" id="currentProfilBadge">
+      <span id="profilIcon">🧑</span>
+      <span id="profilName">Patient</span>
+    </span>
+    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
+  </div>
+</div>
+
+<!-- MAIN -->
 <main class="legal-container">
   <div class="legal-header">
     <div class="legal-profile-badge patient-badge">Profil Patient</div>
     <h1>Conditions Générales d'Utilisation</h1>
     <div class="legal-meta">
       <span>NutriDoc by CaliDoc Santé</span>
-      <span>Version 1.0 — Mars 2025</span>
-      <span>Applicables à compter du 1er avril 2025</span>
+      <span>Version 2.0 — Avril 2026</span>
+      <span>Applicables à compter du 1er mai 2026</span>
     </div>
   </div>
 
@@ -34,9 +492,9 @@
       <li><a href="#art3">Inscription et compte</a></li>
       <li><a href="#art4">Caractère non médical</a></li>
       <li><a href="#art5">Alerte santé et situations médicales</a></li>
-      <li><a href="#art6">Niveau Découverte (gratuit)</a></li>
-      <li><a href="#art7">Niveaux payants — plan alimentaire</a></li>
-      <li><a href="#art8">Visio avec le diététicien</a></li>
+      <li><a href="#art6">Service gratuit — recommandations et menus</a></li>
+      <li><a href="#art7">Plan alimentaire complet — 24,90€</a></li>
+      <li><a href="#art8">Consultation visio — 55€</a></li>
       <li><a href="#art9">Responsabilités</a></li>
       <li><a href="#art10">Données personnelles</a></li>
       <li><a href="#art11">Propriété intellectuelle</a></li>
@@ -48,25 +506,25 @@
   <div class="legal-body">
 
     <h2 id="art1">Article 1 — Objet et acceptation</h2>
-    <p>Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») régissent l'accès et l'utilisation de la plateforme NutriDoc (ci-après « la Plateforme »), éditée par CaliDoc Santé, par toute personne physique souhaitant bénéficier d'un pré-bilan nutritionnel et/ou d'un plan alimentaire personnalisé (ci-après « l'Utilisateur » ou « le Patient »).</p>
+    <p>Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») régissent l'accès et l'utilisation de la plateforme NutriDoc (ci-après « la Plateforme »), éditée par CaliDoc Santé (SIRET 939 166 690 00019), par toute personne physique souhaitant bénéficier d'un bilan nutritionnel et/ou d'un plan alimentaire personnalisé (ci-après « l'Utilisateur » ou « le Patient »).</p>
     <p>L'accès à la Plateforme implique l'acceptation pleine et entière des présentes CGU. En cochant la case « J'accepte les CGU » lors de l'inscription ou de la soumission d'un bilan, l'Utilisateur reconnaît avoir lu, compris et accepté les présentes conditions sans réserve.</p>
     <p>CaliDoc Santé se réserve le droit de modifier les présentes CGU à tout moment. Les modifications entrent en vigueur dès leur publication. L'Utilisateur sera informé de toute modification substantielle par email.</p>
 
     <div class="legal-alert">
-      <strong>Important :</strong> NutriDoc est une plateforme d'accompagnement nutritionnel et non un dispositif médical. Le service ne remplace en aucun cas un suivi médical, une consultation auprès d'un médecin ou d'un professionnel de santé habilité à établir un diagnostic.
+      <strong>⚠️ Important :</strong> NutriDoc est une plateforme d'accompagnement nutritionnel et non un dispositif médical. Le service ne remplace en aucun cas un suivi médical, une consultation auprès d'un médecin ou d'un professionnel de santé habilité à établir un diagnostic.
     </div>
 
     <h2 id="art2">Article 2 — Description du service</h2>
     <p>NutriDoc propose aux Utilisateurs les services suivants :</p>
     <ul>
-      <li><strong>Service gratuit :</strong> formulaire de pré-bilan nutritionnel, recommandations alimentaires personnalisées générées par outils d'analyse nutritionnelle, propositions de menus adaptés au profil de l'Utilisateur.</li>
-      <li><strong>Service payant :</strong> plan alimentaire détaillé avec grammages précis par repas, répartition des macronutriments et micronutriments, établi et validé par un diététicien certifié inscrit sur la Plateforme.</li>
-      <li><strong>Service complémentaire (selon disponibilité) :</strong> consultation visio avec un diététicien inscrit sur la Plateforme.</li>
+      <li><strong>Service gratuit :</strong> formulaire de bilan nutritionnel, recommandations alimentaires personnalisées, propositions de menus hebdomadaires adaptés au profil de l'Utilisateur, accès aux outils libres (calculatrice de conversion, quiz nutrition, suivi de poids).</li>
+      <li><strong>Service payant :</strong> plan alimentaire détaillé avec grammages précis par repas (24,90€ TTC), répartition des macronutriments (protéines/glucides/lipides), établi et validé par un diététicien certifié RPPS inscrit sur la Plateforme.</li>
+      <li><strong>Service complémentaire :</strong> consultation visio avec un diététicien (55€ TTC pour 45 minutes).</li>
     </ul>
-    <p>La génération des recommandations gratuites est réalisée par un système d'outils d'analyse nutritionnelle et n'a pas valeur de prescription médicale ou diététique certifiée. Le plan alimentaire payant est, quant à lui, établi et signé par un diététicien diplômé, titulaire d'un numéro RPPS vérifié par la Plateforme.</p>
+    <p>Le plan alimentaire payant est établi et signé par un diététicien diplômé, titulaire d'un numéro RPPS vérifié par la Plateforme. Son nom, son titre et son numéro RPPS figurent sur le document remis au patient.</p>
 
     <h2 id="art3">Article 3 — Inscription et compte</h2>
-    <p>L'accès au service gratuit (recommandations et menus) ne nécessite pas la création d'un compte. L'accès au abonnement mensuel requiert la création d'un compte Utilisateur avec un email valide et un mot de passe.</p>
+    <p>L'accès au service gratuit nécessite la création d'un compte Utilisateur avec un email valide et un mot de passe.</p>
     <p>L'Utilisateur s'engage à :</p>
     <ul>
       <li>Fournir des informations exactes, complètes et à jour lors du formulaire de bilan ;</li>
@@ -74,52 +532,59 @@
       <li>Maintenir la confidentialité de ses identifiants de connexion ;</li>
       <li>Informer immédiatement CaliDoc Santé de tout accès non autorisé à son compte.</li>
     </ul>
-    <p>CaliDoc Santé ne pourra être tenu responsable des conséquences liées à des informations inexactes fournies par l'Utilisateur, notamment en ce qui concerne son état de santé.</p>
 
     <h2 id="art4">Article 4 — Caractère non médical du service</h2>
-    <p>NutriDoc est un outil d'accompagnement nutritionnel dans le cadre d'objectifs de bien-être (rééquilibrage alimentaire, prise de masse musculaire, perte de gras). La Plateforme ne réalise aucun diagnostic médical et ne constitue pas un acte de soin au sens du Code de la santé publique.</p>
+    <p>NutriDoc est un outil d'accompagnement nutritionnel dans le cadre d'objectifs de bien-être (rééquilibrage alimentaire, prise de masse musculaire, perte de poids). La Plateforme ne réalise aucun diagnostic médical et ne constitue pas un acte de soin au sens du Code de la santé publique.</p>
     <p>L'Utilisateur reconnaît expressément que :</p>
     <ul>
-      <li>Les recommandations gratuites sont générées algorithmiquement et ont valeur indicative uniquement ;</li>
-      <li>Le plan alimentaire payant, bien que validé par un diététicien, ne constitue pas une prescription médicale ;</li>
+      <li>Les recommandations gratuites ont valeur indicative uniquement ;</li>
+      <li>Le plan alimentaire payant, bien que validé par un diététicien RPPS, ne constitue pas une prescription médicale ;</li>
       <li>Toute question relative à un état de santé particulier doit être adressée à un médecin ou spécialiste compétent.</li>
     </ul>
 
     <h2 id="art5">Article 5 — Alerte santé et situations médicales particulières</h2>
     <p>Lors du formulaire de bilan, l'Utilisateur est invité à déclarer certaines situations médicales (grossesse, troubles du comportement alimentaire, diabète sous traitement, insuffisance rénale, chirurgie bariatrique, allergies multiples sévères, prise de médicaments impactant le poids ou l'appétit, antécédents médicaux lourds).</p>
-    <p>En présence d'une ou plusieurs de ces situations (ci-après « alerte santé »), la Plateforme <strong>bloque automatiquement la génération d'un plan alimentaire automatique</strong> et redirige le dossier vers un diététicien pour une prise en charge personnalisée. L'Utilisateur est invité à consulter un professionnel de santé qualifié avant tout programme nutritionnel.</p>
-    <p>L'Utilisateur s'engage à déclarer honnêtement ces situations. CaliDoc Santé ne saurait être tenu responsable des conséquences d'une fausse déclaration.</p>
+    <p>En présence d'une ou plusieurs de ces situations (ci-après « alerte santé »), la Plateforme <strong>bloque automatiquement la génération d'un plan alimentaire automatique</strong> et redirige le dossier vers un diététicien spécialisé pour une prise en charge personnalisée. L'Utilisateur est invité à consulter un professionnel de santé qualifié avant tout programme nutritionnel.</p>
 
-    <h2 id="art6">Article 6 — Niveau Découverte (gratuit)</h2>
+    <h2 id="art6">Article 6 — Service gratuit — recommandations et menus</h2>
     <p>L'offre gratuite comprend :</p>
     <ul>
-      <li>La réalisation du formulaire de pré-bilan nutritionnel ;</li>
+      <li>La réalisation du formulaire de bilan nutritionnel ;</li>
       <li>L'accès aux recommandations alimentaires personnalisées ;</li>
       <li>Les propositions de menus hebdomadaires adaptés au profil ;</li>
-      <li>L'accès au tableau de bord personnel.</li>
+      <li>L'accès aux outils libres (calculatrice de conversion, quiz nutrition, suivi de poids).</li>
     </ul>
-    <p>Ces services sont fournis sans garantie de résultat. CaliDoc Santé se réserve le droit de modifier ou d'interrompre l'offre gratuite à tout moment, sans préavis, sous réserve d'en informer les Utilisateurs.</p>
+    <p>Ces services sont fournis sans garantie de résultat. CaliDoc Santé se réserve le droit de modifier ou d'interrompre l'offre gratuite à tout moment, sous réserve d'en informer les Utilisateurs.</p>
 
-    <h2 id="art7">Article 7 — Niveaux payants — plan alimentaire avec grammages</h2>
+    <h2 id="art7">Article 7 — Plan alimentaire complet — 24,90€</h2>
 
     <h3>7.1 Prix et modalités de paiement</h3>
-    <p>Le prix du plan alimentaire personnalisé avec grammages est de <strong>24,90 € TTC</strong>, paiement unique. Ce tarif peut être modifié par CaliDoc Santé, les nouvelles conditions s'appliquant aux commandes passées après la date de modification.</p>
+    <p>Le prix du plan alimentaire personnalisé avec grammages est de <strong>24,90 € TTC</strong> (paiement unique). Ce tarif peut être modifié par CaliDoc Santé, les nouvelles conditions s'appliquant aux commandes passées après la date de modification.</p>
     <p>Le paiement est sécurisé via la solution Stripe (PCI DSS). CaliDoc Santé ne stocke aucune donnée bancaire de l'Utilisateur.</p>
 
-    <h3>7.2 Délai de livraison</h3>
-    <p>Le plan alimentaire est livré dans un délai maximum de <strong>48 heures ouvrées</strong> à compter de la confirmation du paiement, sous réserve de la disponibilité d'un diététicien partenaire. En cas de dépassement de ce délai, l'Utilisateur peut contacter le support à l'adresse <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a>.</p>
+    <h3>7.2 Contenu du plan</h3>
+    <p>Le plan alimentaire comprend :</p>
+    <ul>
+      <li>Un plan sur 4 semaines avec grammages précis par repas ;</li>
+      <li>La répartition des macronutriments (protéines/glucides/lipides) par repas ;</li>
+      <li>La signature électronique du diététicien certifié RPPS ;</li>
+      <li>L'accès à une messagerie avec le diététicien pendant 30 jours (échanges limités).</li>
+    </ul>
 
-    <h3>7.3 Droit de rétractation</h3>
+    <h3>7.3 Délai de livraison</h3>
+    <p>Le plan alimentaire est livré dans un délai maximum de <strong>48 heures ouvrées</strong> à compter de la confirmation du paiement, sous réserve de la disponibilité d'un diététicien partenaire. En cas de dépassement de ce délai, l'Utilisateur peut contacter le support à <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>.</p>
+
+    <h3>7.4 Droit de rétractation</h3>
     <p>Conformément à l'article L221-18 du Code de la consommation, l'Utilisateur dispose d'un délai de <strong>14 jours calendaires</strong> pour exercer son droit de rétractation, sans avoir à justifier de motif.</p>
-    <p>Toutefois, en application de l'article L221-28 du Code de la consommation, ce droit de rétractation ne peut être exercé dès lors que le plan alimentaire a été livré et que l'Utilisateur a expressément consenti à la fourniture du service avant l'expiration du délai de rétractation. En pratique, si le plan vous est livré dans les 48h, CaliDoc Santé vous demandera votre accord exprès pour débuter la prestation avant l'expiration du délai légal.</p>
+    <p>Toutefois, en application de l'article L221-28 du Code de la consommation, ce droit de rétractation ne peut être exercé dès lors que le plan alimentaire a été livré et que l'Utilisateur a expressément consenti à la fourniture du service avant l'expiration du délai de rétractation.</p>
 
-    <h3>7.4 Remboursement</h3>
+    <h3>7.5 Remboursement</h3>
     <p>En cas de non-livraison du plan dans un délai de 5 jours ouvrés, CaliDoc Santé procèdera au remboursement intégral du paiement sous 14 jours.</p>
 
-    <h2 id="art8">Article 8 — Consultation visio avec le diététicien</h2>
-    <p>Lorsque cette option est disponible, l'Utilisateur peut réserver une consultation visio avec un diététicien inscrit sur la Plateforme, au tarif de <strong>55€ TTC</strong> par séance de 45 minutes.</p>
-    <p><strong>Remboursement par la mutuelle :</strong> selon votre contrat de complémentaire santé, cette consultation peut être partiellement prise en charge au titre de la prévention ou de la diététique (généralement entre 20 € et 55€ par séance, dans la limite de 2 à 4 séances annuelles). NutriDoc génère automatiquement une attestation de consultation téléchargeable pour vous permettre de demander ce remboursement. Nous vous invitons à vérifier les conditions de votre contrat mutuelle.</p>
-    <p>La consultation visio constitue un acte de conseil diététique et non un acte médical. Le montant de 55€ est intégralement reversé au diététicien — CaliDoc Santé ne perçoit aucune commission sur les consultations visio. Elle ne peut donner lieu à aucune prescription médicale.</p>
+    <h2 id="art8">Article 8 — Consultation visio — 55€</h2>
+    <p>L'Utilisateur peut réserver une consultation visio avec un diététicien inscrit sur la Plateforme, au tarif de <strong>55€ TTC</strong> par séance de 45 minutes.</p>
+    <p><strong>Remboursement par la mutuelle :</strong> selon votre contrat de complémentaire santé, cette consultation peut être partiellement prise en charge au titre de la prévention ou de la diététique. NutriDoc génère automatiquement une attestation de consultation téléchargeable pour vous permettre de demander ce remboursement. Nous vous invitons à vérifier les conditions de votre contrat mutuelle.</p>
+    <p>La consultation visio constitue un acte de conseil diététique et non un acte médical. Elle ne peut donner lieu à aucune prescription médicale.</p>
 
     <h2 id="art9">Article 9 — Responsabilités</h2>
 
@@ -146,7 +611,7 @@
     <p>Le plan alimentaire livré à l'Utilisateur est destiné à son usage personnel exclusivement et ne peut être reproduit, diffusé ou commercialisé.</p>
 
     <h2 id="art12">Article 12 — Résiliation et suspension</h2>
-    <p>L'Utilisateur peut supprimer son compte à tout moment depuis les paramètres de son espace personnel ou en contactant <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a>. La suppression entraîne la suppression des données personnelles dans les conditions prévues par la Politique de Confidentialité.</p>
+    <p>L'Utilisateur peut supprimer son compte à tout moment depuis les paramètres de son espace personnel ou en contactant <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>. La suppression entraîne la suppression des données personnelles dans les conditions prévues par la Politique de Confidentialité.</p>
     <p>CaliDoc Santé peut suspendre ou résilier l'accès d'un Utilisateur en cas de violation des présentes CGU, de comportement abusif ou frauduleux.</p>
 
     <h2 id="art13">Article 13 — Droit applicable et juridiction compétente</h2>
@@ -154,20 +619,7 @@
     <p>Conformément aux dispositions du Code de la consommation concernant le règlement amiable des litiges, l'Utilisateur peut recourir au service de médiation MEDICYS (www.medicys.fr) en cas de litige non résolu avec CaliDoc Santé.</p>
 
     <div class="legal-contact">
-      <strong>Contact</strong><br>
+      <strong>📧 Contact</strong><br>
       CaliDoc Santé — NutriDoc<br>
-      Email : <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a><br>
-      Support : <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a>
-    </div>
-
-  </div>
-</main>
-
-<footer class="footer-main">
-  <div class="footer-bottom" style="padding:1.5rem 2rem;">
-    <p>© 2025 NutriDoc by CaliDoc Santé · <a href="cgu-patient.html" style="color:rgba(255,255,255,.5);">CGU Patient</a> · <a href="cgu-dieteticien.html" style="color:rgba(255,255,255,.5);">CGU Diét.</a> · <a href="cgu-prescripteur.html" style="color:rgba(255,255,255,.5);">CGU Prescripteur</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,.5);">Confidentialité</a></p>
-  </div>
-</footer>
-  
-</body>
-</html>
+      Email : <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a><br>
+      Adresse : 4 rue Saint-And

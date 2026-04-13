@@ -1,0 +1,40 @@
+/* Pricing 4 colonnes */
+.pricing-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (max-width: 1000px) {
+  .pricing-4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .pricing-4col {
+    grid-template-columns: 1fr;
+  }
+}
+.price-quota {
+  font-size: 0.7rem;
+  color: #1D9E75;
+  font-weight: 500;
+  margin: 0.25rem 0 0.5rem;
+}
+.price-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1D9E75;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.price-card {
+  position: relative;
+}

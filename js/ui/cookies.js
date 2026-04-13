@@ -1,12 +1,8 @@
 /**
  * cookies.js — NutriDoc · Bandeau consentement RGPD
- * Affiché à chaque ouverture d'URL
- * Consentement stocké : sessionStorage (expire à fermeture onglet)
- * + localStorage (pour analytics/tracking uniquement si accepté)
  */
 
 (function() {
-  // Vérifier si déjà accepté dans cette session
   if (sessionStorage.getItem('nd_cookies_ok')) return;
 
   const banner = document.createElement('div');
@@ -19,12 +15,11 @@
         <a href="politique-confidentialite.html" target="_blank" style="color:var(--green3,#5DCAA5);font-size:.78rem;">En savoir plus →</a>
       </div>
       <div class="cookie-actions">
-        <button class="cookie-btn-refuse" onclick="cookieRefuse()">Refuser</button>
-        <button class="cookie-btn-accept" onclick="cookieAccept()">Accepter</button>
+        <button class="cookie-btn-refuse" onclick="window.cookieRefuse()">Refuser</button>
+        <button class="cookie-btn-accept" onclick="window.cookieAccept()">Accepter</button>
       </div>
     </div>`;
 
-  // CSS inline pour ne pas dépendre du chargement de style.css
   const style = document.createElement('style');
   style.textContent = `
     #cookieBanner {
@@ -66,7 +61,6 @@
 
 function cookieAccept() {
   sessionStorage.setItem('nd_cookies_ok', '1');
-  // Consentement complet → stocker en localStorage pour analytics
   localStorage.setItem('nd_consent', JSON.stringify({
     essential: true,
     analytics: true,
@@ -78,14 +72,12 @@ function cookieAccept() {
 
 function cookieRefuse() {
   sessionStorage.setItem('nd_cookies_ok', '1');
-  // Consentement minimal → essentiels seulement, pas d'analytics
   localStorage.setItem('nd_consent', JSON.stringify({
     essential: true,
     analytics: false,
     date: new Date().toISOString(),
     version: '1.0'
   }));
-  // Supprimer tout cookie non essentiel existant
   localStorage.removeItem('nd_analytics_id');
   hideCookieBanner();
 }
@@ -98,3 +90,7 @@ function hideCookieBanner() {
     setTimeout(() => b.remove(), 320);
   }
 }
+
+// ⭐ Exports globaux
+window.cookieAccept = cookieAccept;
+window.cookieRefuse = cookieRefuse;

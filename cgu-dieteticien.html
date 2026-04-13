@@ -2,27 +2,456 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="description" content="Conditions Générales d'Utilisation diététicien NutriDoc — CaliDoc Santé."/>
+  <meta name="description" content="Conditions Générales d'Utilisation diététicien NutriDoc — CaliDoc Santé. Tarifs, obligations, responsabilité professionnelle, RPPS."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CGU — Diététicien · NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="js/nav.js" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
   <script src="js/cookies.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL */
+    .dynamic-profil-bar {
+      background: #080f0b;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.4rem 2rem;
+      position: sticky;
+      top: 60px;
+      z-index: 98;
+      margin-top: 0;
+    }
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .profil-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
+      border-radius: 999px; padding: 0.2rem 0.9rem;
+      font-size: 0.75rem; color: #fff; font-weight: 500;
+    }
+    .profil-switch {
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px; padding: 0.2rem 0.8rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+
+    /* MAIN */
+    .legal-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 7rem 2rem 3rem;
+    }
+    .legal-header {
+      margin-bottom: 2rem;
+    }
+    .legal-profile-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .diet-badge {
+      background: #E1F5EE;
+      color: #1D9E75;
+    }
+    .legal-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      color: #0d2018;
+      margin-bottom: 0.5rem;
+    }
+    .legal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: #6b7b74;
+    }
+
+    /* SOMMAIRE */
+    .legal-toc {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .legal-toc-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7b74;
+      margin-bottom: 0.75rem;
+    }
+    .legal-toc ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .legal-toc li {
+      font-size: 0.8rem;
+    }
+    .legal-toc a {
+      color: #0d2018;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .legal-toc a:hover { color: #1D9E75; }
+
+    /* CORPS DU TEXTE */
+    .legal-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      margin: 2rem 0 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eef4ee;
+      scroll-margin-top: 100px;
+    }
+    .legal-body h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .legal-body h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.5rem;
+      color: #0d2018;
+    }
+    .legal-body p {
+      font-size: 0.85rem;
+      color: #0d2018;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .legal-body ul, .legal-body ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .legal-body li {
+      font-size: 0.82rem;
+      color: #0d2018;
+      line-height: 1.6;
+    }
+    .legal-body a {
+      color: #1D9E75;
+      text-decoration: none;
+    }
+    .legal-body a:hover { text-decoration: underline; }
+
+    /* ALERTE */
+    .legal-alert {
+      background: #fff8e6;
+      border: 1px solid #fcd34d;
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.8rem;
+      color: #633806;
+      line-height: 1.6;
+    }
+    .legal-alert strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* TABLEAU */
+    .legal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 1rem 0 1.5rem;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .legal-table th {
+      background: #f7f9f7;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .legal-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eef4ee;
+      vertical-align: top;
+    }
+    .legal-table tr:last-child td { border-bottom: none; }
+
+    /* CONTACT */
+    .legal-contact {
+      background: #e1f5ee;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+    .legal-contact a { color: #0f6e56; font-weight: 500; }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .legal-container { padding: 6rem 1rem 2rem; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
 </head>
 <body>
-<header class="header">
-  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-  <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html" class="nd-navlink">Accueil</a>
+        <a href="accueil-dieteticien.html" class="nd-navlink">Espace Diététicien</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <a href="inscription-dieteticien.html" class="nd-btn-ghost">S'inscrire</a>
+      <a href="login.html?role=dietitian" class="nd-btn-ghost">Se connecter</a>
+    </div>
+  </div>
 </header>
+
+<!-- BARRE PROFIL -->
+<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
+  <div class="dynamic-profil-inner">
+    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
+    <span class="profil-badge" id="currentProfilBadge">
+      <span id="profilIcon">🥗</span>
+      <span id="profilName">Diététicien</span>
+    </span>
+    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
+  </div>
+</div>
+
+<!-- MAIN -->
 <main class="legal-container">
   <div class="legal-header">
     <div class="legal-profile-badge diet-badge">Profil Diététicien</div>
     <h1>Conditions Générales d'Utilisation</h1>
     <div class="legal-meta">
       <span>NutriDoc by CaliDoc Santé</span>
-      <span>Version 1.0 — Mars 2025</span>
-      <span>Applicables à compter du 1er avril 2025</span>
+      <span>Version 2.0 — Avril 2026</span>
+      <span>Applicables à compter du 1er mai 2026</span>
     </div>
   </div>
 
@@ -47,7 +476,7 @@
   <div class="legal-body">
 
     <h2 id="d1">Article 1 — Objet et acceptation</h2>
-    <p>Les présentes CGU régissent les conditions dans lesquelles un professionnel de la diététique (ci-après « le Diététicien ») accède à la Plateforme NutriDoc, éditée par CaliDoc Santé, pour valider des plans alimentaires destinés aux patients et, le cas échéant, proposer des consultations visio.</p>
+    <p>Les présentes CGU régissent les conditions dans lesquelles un professionnel de la diététique (ci-après « le Diététicien ») accède à la Plateforme NutriDoc, éditée par CaliDoc Santé (SIRET 939 166 690 00019), pour valider des plans alimentaires destinés aux patients et, le cas échéant, proposer des consultations visio.</p>
     <p>En cochant la case d'acceptation lors de l'inscription, le Diététicien reconnaît avoir pris connaissance des présentes CGU et les accepter sans réserve. Il reconnaît également être un professionnel de santé diplômé, exerçant légalement sur le territoire français.</p>
 
     <div class="legal-alert">
@@ -55,7 +484,7 @@
     </div>
 
     <h2 id="d2">Article 2 — Conditions d'inscription — numéro RPPS obligatoire</h2>
-    <p>L'inscription sur NutriDoc est réservée aux professionnels titulaires d'un <strong>numéro RPPS (Répertoire Partagé des Professionnels de Santé) à 11 chiffres valide</strong>, attribué par l'Agence du Numérique en Santé (ANS) ou par l'Ordre compétent.</p>
+    <p>L'inscription sur NutriDoc est réservée aux professionnels titulaires d'un <strong>numéro RPPS (Répertoire Partagé des Professionnels de Santé) à 11 chiffres valide</strong>, attribué par l'Agence du Numérique en Santé (ANS).</p>
     <p>Sont éligibles :</p>
     <ul>
       <li>Les diététiciens-nutritionnistes diplômés (BTS diététique ou équivalent) ;</li>
@@ -68,53 +497,65 @@
     <p>En utilisant la Plateforme, le Diététicien s'engage à :</p>
     <ul>
       <li>Analyser sérieusement chaque dossier patient qui lui est soumis avant validation ;</li>
-      <li>Valider ou modifier le plan alimentaire élaboré par votre diététicien dans un délai maximum de <strong>48 heures ouvrées</strong> ;</li>
-      <li>Ne valider aucun plan pour un patient dont le dossier comporte un alerte santé non géré ;</li>
+      <li>Valider ou modifier le plan alimentaire élaboré par vos outils dans un délai maximum de <strong>48 heures ouvrées</strong> ;</li>
+      <li>Ne valider aucun plan pour un patient dont le dossier comporte une alerte santé non gérée ;</li>
       <li>Personnaliser le plan en tenant compte des informations du bilan patient ;</li>
-      <li>Ne jamais valider un plan pour un patient qu'il n'a pas eu l'occasion d'analyser (validation systématique sans lecture est prohibée) ;</li>
+      <li>Ne jamais valider un plan pour un patient qu'il n'a pas eu l'occasion d'analyser ;</li>
       <li>Maintenir à jour ses informations professionnelles sur la Plateforme ;</li>
       <li>Respecter le secret professionnel applicable aux données patients.</li>
     </ul>
-    <p>CaliDoc Santé se réserve le droit de contrôler la qualité des plans validés et de suspendre tout compte en cas de manquements répétés.</p>
 
     <h2 id="d4">Article 4 — Formules d'abonnement et rémunération</h2>
 
     <h3>4.1 Formules disponibles</h3>
     <table class="legal-table">
-      <thead><tr><th>Formule</th><th>Tarif</th><th>Engagement</th><th>Rémunération / plan</th></tr></thead>
+      <thead>
+        <tr><th>Formule</th><th>Tarif HT/mois</th><th>Quota inclus</th><th>Commission par plan (au-delà du quota)</th><th>Commission visio</th></tr>
+      </thead>
       <tbody>
-        <tr><td>Essentiel</td><td>Commission uniquement</td><td>Aucun</td><td>75 € HT (5 crédits) net / plan validé</td></tr>
-        <tr><td>Pro</td><td>55€ HT / mois</td><td>Mensuel résiliable</td><td>24,90€ net / plan validé</td></tr>
-        <tr><td>Expert</td><td>55€ HT / mois</td><td>Annuel (−20%)</td><td>20 € net / plan validé</td></tr>
+        <tr><td>Essentiel</td><td>0 €</td><td>1 gratuit + 0 quota</td><td>3,00 €</td><td>8 €</td></tr>
+        <tr><td>Starter</td><td>9 €</td><td>1 gratuit + 10 quota</td><td>2,50 €</td><td>8 €</td></tr>
+        <tr><td>Pro</td><td>29 €</td><td>1 gratuit + 30 quota</td><td>2,00 €</td><td>8 €</td></tr>
+        <tr><td>Expert</td><td>59 €</td><td>1 gratuit + 100 quota</td><td>1,50 €</td><td>8 €</td></tr>
       </tbody>
     </table>
+    <p><strong>1 plan gratuit par mois</strong> : quel que soit le forfait, un plan par mois ne génère aucune commission NutriDoc et est reversé intégralement (24,90€) au diététicien.</p>
 
-    <h3>4.2 Modalités de paiement et de versement</h3>
-    <p>L'abonnement mensuel ou annuel est prélevé automatiquement par Stripe à la date anniversaire de l'inscription. Les reversements des commissions sur plans validés sont effectués mensuellement, sous 30 jours suivant la fin du mois de référence, par virement bancaire sur le compte déclaré.</p>
-    <p>Un relevé détaillé des actes validés et des montants reversés est accessible dans l'espace diététicien. Une <strong>facture électronique conforme</strong> est générée automatiquement chaque mois et téléchargeable au format PDF depuis l'espace professionnel.</p>
+    <h3>4.2 Rémunération du diététicien</h3>
+    <p>Le patient paye directement le diététicien via Stripe. NutriDoc ne prélève aucune commission sur les paiements patients, mais facture au diététicien :</p>
+    <ul>
+      <li>L'abonnement mensuel selon la formule choisie ;</li>
+      <li>Une commission par plan validé au-delà du quota inclus (tarif dégressif selon forfait) ;</li>
+      <li>Une commission de 8€ par visio réalisée.</li>
+    </ul>
+    <p><strong>Exemple de rémunération nette pour un forfait Pro :</strong> 24,90€ encaissés − 0€ (dans quota) = 24,90€ net par plan. Pour un plan hors quota : 24,90€ − 2,00€ = 22,90€ net.</p>
 
-    <h3>4.3 Statut fiscal</h3>
-    <p>Le Diététicien exerce en qualité de professionnel indépendant. Les sommes reversées par CaliDoc Santé constituent des honoraires soumis aux règles fiscales et sociales applicables à son régime d'imposition. CaliDoc Santé n'a pas la qualité d'employeur du Diététicien.</p>
+    <h3>4.3 Modalités de paiement et de versement</h3>
+    <p>L'abonnement mensuel est prélevé automatiquement par Stripe à la date anniversaire de l'inscription. Les commissions sur plans validés sont prélevées automatiquement au moment de la validation du plan. Les paiements des patients sont crédités directement sur le compte Stripe du diététicien.</p>
+    <p>Une <strong>facture électronique conforme</strong> est générée automatiquement chaque mois et téléchargeable au format PDF depuis l'espace professionnel.</p>
+
+    <h3>4.4 Statut fiscal</h3>
+    <p>Le Diététicien exerce en qualité de professionnel indépendant. Les sommes reversées par les patients constituent des honoraires soumis aux règles fiscales et sociales applicables à son régime d'imposition. CaliDoc Santé n'a pas la qualité d'employeur du Diététicien.</p>
 
     <h2 id="d5">Article 5 — Plan alimentaire — validation et responsabilité professionnelle</h2>
     <p>En validant un plan alimentaire sur NutriDoc, le Diététicien engage sa responsabilité professionnelle. Il certifie avoir analysé le dossier du patient et considère que le plan est adapté à son profil déclaré.</p>
-    <p>Le Diététicien est seul responsable du contenu du plan qu'il valide. CaliDoc Santé fournit un outil d'aide à la rédaction (génération IA) mais ne peut être tenu responsable du contenu des plans validés par les professionnels inscrits.</p>
+    <p>Le Diététicien est seul responsable du contenu du plan qu'il valide. CaliDoc Santé fournit un outil d'aide à la rédaction mais ne peut être tenu responsable du contenu des plans validés par les professionnels inscrits.</p>
     <p>Le Diététicien est invité à souscrire une assurance responsabilité civile professionnelle adaptée à son activité, couvrant notamment les actes réalisés dans le cadre de plateformes numériques de téléconseil diététique.</p>
-    <p>Ses coordonnées professionnelles (nom, titre, numéro RPPS) figurent sur chaque plan validé. Il consente expressément à cette publication en acceptant les présentes CGU.</p>
+    <p>Ses coordonnées professionnelles (nom, titre, numéro RPPS) figurent sur chaque plan validé. Il consent expressément à cette publication en acceptant les présentes CGU.</p>
 
     <h2 id="d6">Article 6 — Alerte santé — dossiers à risque</h2>
-    <p>Lorsqu'un dossier patient comporte un ou plusieurs alerte santé (grossesse, TCA, diabète sous traitement, insuffisance rénale, chirurgie bariatrique, allergies sévères, médicaments impactant le poids, antécédents lourds), la Plateforme le signale au Diététicien par une alerte visuelle prioritaire.</p>
+    <p>Lorsqu'un dossier patient comporte un ou plusieurs alertes santé (grossesse, TCA, diabète sous traitement, insuffisance rénale, allergies sévères, médicaments impactant le poids), la Plateforme le signale au Diététicien par une alerte visuelle prioritaire.</p>
     <p>Dans ce cas, le Diététicien doit :</p>
     <ul>
       <li>Analyser le dossier avec une attention renforcée ;</li>
       <li>Contacter le patient si nécessaire pour un complément d'information ;</li>
-      <li>Orienter le patient vers une consultation médicale appropriée si le alerte santé le justifie ;</li>
+      <li>Orienter le patient vers une consultation médicale appropriée si l'alerte santé le justifie ;</li>
       <li>Ne valider le plan que s'il estime, en tant que professionnel, que c'est cliniquement approprié.</li>
     </ul>
-    <p>Il lui est formellement interdit de valider un plan alimentaire pour un patient en cours de traitement médical pour une pathologie grave sans avoir pris les précautions diététiques adaptées.</p>
 
     <h2 id="d7">Article 7 — Consultations visio</h2>
-    <p>Les formules Pro et Expert permettent au Diététicien de proposer des consultations visio aux patients via la Plateforme. Le tarif appliqué est de <strong>55€ TTC</strong> par séance (45 min), dont <strong>28 € nets</strong> reversés au Diététicien, soit 11 € conservés par CaliDoc Santé au titre de la mise en relation et de la gestion administrative.</p>
+    <p>Toutes les formules permettent au Diététicien de proposer des consultations visio aux patients via la Plateforme. Le tarif appliqué est de <strong>55€ TTC</strong> par séance (45 min).</p>
+    <p>Le patient paye directement le diététicien. NutriDoc prélève une commission de <strong>8€ par visio</strong>. Le diététicien perçoit donc <strong>47€ nets</strong> par visio.</p>
     <p>La consultation visio constitue un acte de conseil diététique. Elle doit être conduite dans le respect des règles déontologiques de la profession. Le Diététicien s'engage à informer le patient que cette consultation peut être partiellement remboursée par sa mutuelle complémentaire, et à lui remettre une attestation de consultation via la Plateforme.</p>
 
     <h2 id="d8">Article 8 — Facturation électronique</h2>
@@ -142,18 +583,152 @@
     <p>Les présentes CGU sont soumises au droit français. Tout litige sera soumis à la juridiction compétente dans le ressort de la Cour d'appel d'Angoulême, après tentative de règlement amiable.</p>
 
     <div class="legal-contact">
-      <strong>Contact professionnel</strong><br>
+      <strong>📧 Contact professionnel</strong><br>
       CaliDoc Santé — NutriDoc<br>
-      Email : <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a>
+      Email : <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a><br>
+      Adresse : 4 rue Saint-André, 16000 Angoulême<br>
+      SIRET : 939 166 690 00019
     </div>
 
   </div>
 </main>
-<footer class="footer-main">
-  <div class="footer-bottom" style="padding:1.5rem 2rem;">
-    <p>© 2025 NutriDoc by CaliDoc Santé · <a href="cgu-patient.html" style="color:rgba(255,255,255,.5);">CGU Patient</a> · <a href="cgu-dieteticien.html" style="color:rgba(255,255,255,.5);">CGU Diét.</a> · <a href="cgu-prescripteur.html" style="color:rgba(255,255,255,.5);">CGU Prescripteur</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,.5);">Confidentialité</a></p>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
   </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
 </footer>
-  
+
+<div id="profilModalContainer"></div>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== PROFIL SYSTEM =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {
+  const profil = PROFILS[profilKey];
+  if (!profil) return;
+  const bar = document.getElementById('dynamicProfilBar');
+  if (bar) {
+    bar.style.display = 'block';
+    document.getElementById('profilIcon').textContent = profil.icon;
+    document.getElementById('profilName').textContent = profil.name;
+  }
+}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button onclick="dismissProfilForever()">Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  updateUIForProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (stored && PROFILS[stored]) updateUIForProfil(stored);
+  else if (!dismissed) setTimeout(openProfilModal, 500);
+  else document.getElementById('dynamicProfilBar').style.display = 'block';
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+initProfilSystem();
+</script>
+
 </body>
 </html>

@@ -2,45 +2,620 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-    <meta name="description" content="Démarrez votre bilan nutritionnel gratuit. 5 minutes suffisent pour recevoir des recommandations personnalisées et accéder à un plan alimentaire certifié RPPS."/>
+  <meta name="description" content="Bilan nutritionnel gratuit · Créez votre compte et recevez des recommandations personnalisées."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Mon bilan — NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-function toggleNiveauPratique(val) {
-  var el = document.getElementById('niveauPratiqueGroup');
-  if (!el) return;
-  var showFor = ['prise_masse','performance','endurance'];
-  el.style.display = showFor.indexOf(val) > -1 ? 'block' : 'none';
-  // Animer l'apparition
-  if (el.style.display === 'block') {
-    el.style.opacity = '0';
-    el.style.transition = 'opacity .3s';
-    setTimeout(function(){ el.style.opacity = '1'; }, 10);
-  }
-}
-</script>
+  <title>Bilan nutritionnel — NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
-  <script src="js/nav.js" defer></script>
-  <script src="js/email.js" defer></script>
   <script src="js/cookies.js"></script>
-</head>
-<body class="page-bilan">
 
-<header class="header">
-  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <style>
+    /* Tous les styles identiques à la version précédente */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    .dynamic-profil-bar {
+      background: #080f0b;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.4rem 2rem;
+      position: sticky;
+      top: 60px;
+      z-index: 98;
+      margin-top: 0;
+    }
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .profil-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
+      border-radius: 999px; padding: 0.2rem 0.9rem;
+      font-size: 0.75rem; color: #fff; font-weight: 500;
+    }
+    .profil-switch {
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px; padding: 0.2rem 0.8rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+
+    .bilan-container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 7rem 1.5rem 4rem;
+    }
+
+    .progress-container {
+      margin-bottom: 2rem;
+    }
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .progress-step {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #6b7b74;
+      flex: 1;
+    }
+    .progress-step.active { color: #1D9E75; font-weight: 500; }
+    .progress-step.done { color: #1D9E75; }
+    .progress-bar {
+      height: 4px;
+      background: #eef4ee;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #1D9E75;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .step {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 24px;
+      padding: 1.75rem;
+      margin-bottom: 1rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .step.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    .step-header { margin-bottom: 1.5rem; }
+    .step-num-pill {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #1D9E75;
+      background: rgba(29,158,117,0.1);
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+    .step-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #0d2018;
+    }
+    .step-intro {
+      font-size: 0.8rem;
+      color: #6b7b74;
+      margin-bottom: 1rem;
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #1D9E75;
+      outline: none;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+    .field-hint {
+      font-size: 0.7rem;
+      color: #6b7b74;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #eef4ee;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .radio-option:has(input:checked) {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,0.1);
+      color: #1D9E75;
+    }
+    .radio-option input { display: none; }
+
+    .checkbox-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .checkbox-option:has(input:checked) {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,0.05);
+    }
+    .checkbox-option input { width: 18px; height: 18px; accent-color: #1D9E75; }
+    .checkbox-none { border-style: dashed; background: #f7f9f7; }
+
+    .alerte_sante-notice {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #fff8e6;
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: #633806;
+    }
+    .alerte_sante-icon {
+      width: 24px;
+      height: 24px;
+      background: #f59e0b;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .pwd-wrap { position: relative; }
+    .pwd-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 0.7rem;
+      color: #6b7b74;
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .btn-next, .btn-back, .btn-submit {
+      padding: 0.7rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-next, .btn-submit {
+      background: #1D9E75;
+      color: #fff;
+    }
+    .btn-next:hover, .btn-submit:hover {
+      background: #0f6e56;
+      transform: translateY(-1px);
+    }
+    .btn-back {
+      background: transparent;
+      border: 1px solid #eef4ee;
+      color: #0d2018;
+    }
+    .btn-back:hover { background: #f7f9f7; }
+
+    .step-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      border-radius: 12px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+    }
+    .hidden { display: none; }
+
+    .resultat {
+      text-align: center;
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 24px;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .check-icon {
+      width: 64px;
+      height: 64px;
+      background: #e1f5ee;
+      color: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1rem;
+    }
+    .resultat h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .resultat p {
+      font-size: 0.85rem;
+      color: #6b7b74;
+      margin-bottom: 1rem;
+    }
+    .alerte_sante-flags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .alerte_sante-tag {
+      background: #fff8e6;
+      color: #633806;
+      border: 1px solid #fcd34d;
+      border-radius: 999px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.7rem;
+    }
+    .btn-hero {
+      display: inline-block;
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    .btn-hero:hover { background: #0f6e56; }
+
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .bilan-container { padding: 6rem 1rem 2rem; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html#comment" class="nd-navlink">Comment ça marche</a>
+        <a href="index.html#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="login.html?role=patient" class="nd-conn-item">👤 Patient</a>
+          <a href="login.html?role=dietitian" class="nd-conn-item">🥗 Diététicien</a>
+          <a href="login.html?role=prescriber" class="nd-conn-item">🏢 Prescripteur</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
+<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
+  <div class="dynamic-profil-inner">
+    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
+    <span class="profil-badge" id="currentProfilBadge">
+      <span id="profilIcon">🧑</span>
+      <span id="profilName">Patient</span>
+    </span>
+    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
+  </div>
+</div>
+
 <main class="bilan-container">
+  
+  <div class="progress-container">
+    <div class="progress-steps">
+      <div class="progress-step" data-step="1">1. Profil</div>
+      <div class="progress-step" data-step="2">2. Morphologie</div>
+      <div class="progress-step" data-step="3">3. Activité</div>
+      <div class="progress-step" data-step="4">4. Santé</div>
+      <div class="progress-step" data-step="5">5. Compte</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
   <form id="bilanForm" novalidate>
 
-    <!-- ─── ÉTAPE 1 : Identité ─────────────────────────── -->
+    <!-- ÉTAPE 1 : Profil -->
     <div class="step active" data-step="1">
       <div class="step-header">
         <div class="step-num-pill">1 / 5</div>
-        <h2>Informations générales</h2>
+        <h2>Votre profil</h2>
       </div>
       <div class="form-group">
         <label>Prénom <span class="req">*</span></label>
@@ -49,7 +624,7 @@ function toggleNiveauPratique(val) {
       <div class="form-row">
         <div class="form-group">
           <label>Âge <span class="req">*</span></label>
-          <input type="number" name="age" placeholder="Ex : 34" min="16" max="100" required/>
+          <input type="number" name="age" placeholder="Ex : 34" min="16" max="120" required/>
         </div>
         <div class="form-group">
           <label>Sexe <span class="req">*</span></label>
@@ -66,10 +641,10 @@ function toggleNiveauPratique(val) {
         <input type="text" name="ville" placeholder="Ex : Angoulême" required/>
         <span class="field-hint">Permet d'assigner un diététicien proche de chez vous</span>
       </div>
-      <button type="button" class="btn-next" onclick="goToStep(2)">Continuer →</button>
+      <button type="button" class="btn-next" data-next="2">Continuer →</button>
     </div>
 
-    <!-- ─── ÉTAPE 2 : Morphologie ──────────────────────── -->
+    <!-- ÉTAPE 2 : Morphologie -->
     <div class="step" data-step="2">
       <div class="step-header">
         <div class="step-num-pill">2 / 5</div>
@@ -78,7 +653,7 @@ function toggleNiveauPratique(val) {
       <div class="form-row">
         <div class="form-group">
           <label>Taille (cm) <span class="req">*</span></label>
-          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="230" required/>
+          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="250" required/>
         </div>
         <div class="form-group">
           <label>Poids actuel (kg) <span class="req">*</span></label>
@@ -86,16 +661,16 @@ function toggleNiveauPratique(val) {
         </div>
       </div>
       <div class="form-group">
-        <label>Poids objectif (kg) <span style="color:var(--gray);font-weight:400">optionnel</span></label>
+        <label>Poids objectif (kg) <span style="color:#6b7b74;font-weight:400">optionnel</span></label>
         <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300"/>
       </div>
       <div class="btn-row">
-        <button type="button" class="btn-back" onclick="goToStep(1)">← Retour</button>
-        <button type="button" class="btn-next" onclick="goToStep(3)">Continuer →</button>
+        <button type="button" class="btn-back" data-prev="1">← Retour</button>
+        <button type="button" class="btn-next" data-next="3">Continuer →</button>
       </div>
     </div>
 
-    <!-- ─── ÉTAPE 3 : Activité & objectif ──────────────── -->
+    <!-- ÉTAPE 3 : Activité & objectif -->
     <div class="step" data-step="3">
       <div class="step-header">
         <div class="step-num-pill">3 / 5</div>
@@ -106,9 +681,9 @@ function toggleNiveauPratique(val) {
         <select name="activite" required>
           <option value="">— Choisir —</option>
           <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
-          <option value="leger">Légèrement actif (1-2 fois/semaine)</option>
-          <option value="modere">Modérément actif (3-4 fois/semaine)</option>
-          <option value="actif">Très actif (5+ fois/semaine)</option>
+          <option value="leger">Légèrement actif (1-2x/semaine)</option>
+          <option value="modere">Modérément actif (3-4x/semaine)</option>
+          <option value="actif">Très actif (5+x/semaine)</option>
         </select>
       </div>
       <div class="form-group">
@@ -123,6 +698,15 @@ function toggleNiveauPratique(val) {
           <option value="sport_perf">Performance sportive</option>
         </select>
       </div>
+      <div class="form-group" id="niveauPratiqueGroup" style="display:none;">
+        <label>Depuis combien de temps pratiquez-vous ?</label>
+        <select name="niveau_pratique">
+          <option value="">— Choisir —</option>
+          <option value="debutant">Débutant (moins de 2 ans)</option>
+          <option value="intermediaire">Intermédiaire (2-6 ans)</option>
+          <option value="confirme">Confirmé (7 ans et plus)</option>
+        </select>
+      </div>
       <div class="form-group">
         <label>Nombre de repas par jour</label>
         <div class="radio-group">
@@ -132,59 +716,18 @@ function toggleNiveauPratique(val) {
         </div>
       </div>
       <div class="btn-row">
-        <button type="button" class="btn-back" onclick="goToStep(2)">← Retour</button>
-        <button type="button" class="btn-next" onclick="goToStep(4)">Continuer →</button>
+        <button type="button" class="btn-back" data-prev="2">← Retour</button>
+        <button type="button" class="btn-next" data-next="4">Continuer →</button>
       </div>
     </div>
 
-    <!-- ─── ÉTAPE 4 : Restrictions ─────────────────────── -->
+    <!-- ÉTAPE 4 : Santé & habitudes -->
     <div class="step" data-step="4">
       <div class="step-header">
         <div class="step-num-pill">4 / 5</div>
-        <h2>Restrictions &amp; habitudes</h2>
+        <h2>Santé &amp; habitudes</h2>
       </div>
-      <div class="form-group">
-        <label>Régime alimentaire</label>
-        <select name="regime">
-          <option value="">— Aucune restriction —</option>
-          <option value="vegetarien">Végétarien</option>
-          <option value="vegan">Vegan</option>
-          <option value="sans_gluten">Sans gluten</option>
-          <option value="sans_lactose">Sans lactose</option>
-          <option value="halal">Halal</option>
-          <option value="kasher">Kasher</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Allergies ou intolérances</label>
-        <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Aliments que vous n'aimez pas</label>
-        <textarea name="aversions" placeholder="Ex : je ne mange pas de poisson, ni de champignons..." rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Budget alimentaire hebdomadaire (pour adapter les aliments suggérés)</label>
-        <select name="budget">
-          <option value="">— Pas de contrainte —</option>
-          <option value="faible">Serré — moins de 40 €/semaine</option>
-          <option value="moyen">Moyen — 40 à 70 €/semaine</option>
-          <option value="confort">Confort — 70 €+ / semaine</option>
-        </select>
-      </div>
-      <div class="btn-row">
-        <button type="button" class="btn-back" onclick="goToStep(3)">← Retour</button>
-        <button type="button" class="btn-next" onclick="goToStep(5)">Continuer →</button>
-      </div>
-    </div>
-
-    <!-- ─── ÉTAPE 5 : Alerte santé ─────────────────────────── -->
-    <div class="step" data-step="5">
-      <div class="step-header">
-        <div class="step-num-pill">5 / 5</div>
-        <h2>Informations médicales — Étape 5/5</h2>
-      </div>
-      <p class="step-intro">Confidentielles, jamais partagées. Permettent au diét. de sécuriser votre plan. Cette étape prend 30 secondes. Cochez tout ce qui vous concerne.</p>
+      <p class="step-intro">Confidentielles, jamais partagées. Permettent au diététicien de sécuriser votre plan.</p>
       <div class="alerte_sante-notice">
         <span class="alerte_sante-icon">!</span>
         Certaines situations nécessitent un suivi médical spécialisé avant tout plan nutritionnel.
@@ -202,47 +745,437 @@ function toggleNiveauPratique(val) {
           <label class="checkbox-option checkbox-none"><input type="checkbox" id="redFlagAucun"/><span>Aucune de ces situations ne me concerne</span></label>
         </div>
       </div>
-      <div id="stepError5" class="step-error hidden">Veuillez cocher au moins une case (ou "aucune de ces situations").</div>
+      <div class="form-group">
+        <label>Régime alimentaire</label>
+        <select name="regime">
+          <option value="">— Aucune restriction —</option>
+          <option value="vegetarien">Végétarien</option>
+          <option value="vegan">Vegan</option>
+          <option value="sans_gluten">Sans gluten</option>
+          <option value="sans_lactose">Sans lactose</option>
+          <option value="halal">Halal</option>
+          <option value="kasher">Kasher</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Allergies ou intolérances</label>
+        <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2"></textarea>
+      </div>
       <div class="btn-row">
-        <button type="button" class="btn-back" onclick="goToStep(4)">← Retour</button>
-        <button type="submit" class="btn-submit" id="btnSubmit">Payer 24,90€ et envoyer mon bilan →</button>
+        <button type="button" class="btn-back" data-prev="3">← Retour</button>
+        <button type="button" class="btn-next" data-next="5">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 5 : Création compte -->
+    <div class="step" data-step="5">
+      <div class="step-header">
+        <div class="step-num-pill">5 / 5</div>
+        <h2>Créez votre compte</h2>
+      </div>
+      <p class="step-intro">Un email vous sera envoyé pour confirmer votre compte.</p>
+      
+      <div class="form-group">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="votre@email.fr" required/>
+      </div>
+      
+      <div class="form-group">
+        <label>Mot de passe <span class="req">*</span></label>
+        <div class="pwd-wrap">
+          <input type="password" id="password" name="password" placeholder="Minimum 8 caractères" required/>
+          <button type="button" class="pwd-toggle" onclick="togglePassword()">Voir</button>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Confirmer le mot de passe <span class="req">*</span></label>
+        <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required/>
+      </div>
+      
+      <label class="checkbox-option" style="margin: 1rem 0; flex-wrap: wrap;">
+        <input type="checkbox" id="cgu" required style="flex-shrink: 0;"/>
+        <span>J'accepte les <a href="cgu-patient.html" target="_blank" style="color:#1D9E75; text-decoration:underline;">Conditions Générales d'Utilisation</a> et la <a href="politique-confidentialite.html" target="_blank" style="color:#1D9E75; text-decoration:underline;">politique de confidentialité</a> <span class="req">*</span></span>
+      </label>
+      
+      <div id="stepError5" class="step-error hidden"></div>
+      
+      <div class="btn-row">
+        <button type="button" class="btn-back" data-prev="4">← Retour</button>
+        <button type="submit" class="btn-submit">Créer mon compte →</button>
       </div>
     </div>
 
   </form>
 
-  <!-- Résultat succès -->
+  <!-- RÉSULTAT SUCCÈS -->
   <div id="resultat" class="resultat hidden">
     <div class="check-icon">✓</div>
     <h2>Bilan envoyé !</h2>
-    <p>Votre plan nutritionnel est en cours de génération. Un diététicien le validera sous 48h max jours ouvrés.</p>
-    <div class="delai-banner" style="margin:1rem 0 1.5rem;">
-      <div class="delai-icon">⏱</div>
-      <div><div class="delai-title">Plan livré sous 48h max jours ouvrés</div><div class="delai-sub">Dès validation de votre bilan par le diététicien assigné</div></div>
+    <p>Votre compte a été créé. Des recommandations nutritionnelles sont déjà disponibles dans votre espace.</p>
+    <div style="background:#e1f5ee; border-radius:12px; padding:0.75rem 1rem; margin:1rem 0;">
+      <div style="font-weight:500;">📧 Un email de confirmation vous a été envoyé</div>
+      <div style="font-size:0.7rem;">Vous pouvez dès à présent accéder à votre espace personnel</div>
     </div>
-    <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+    <a href="dashboard.html" class="btn-hero">Accéder à mon espace →</a>
   </div>
 
-  <!-- Résultat alerte santé -->
+  <!-- RÉSULTAT ALERTE SANTÉ -->
   <div id="resultat-alerte_sante" class="resultat alerte_sante-blocked hidden">
     <div class="alerte_sante-block-icon">🚨</div>
     <h2>Votre dossier nécessite un suivi spécialisé</h2>
-    <p>Votre situation nécessite l'expertise d'un diététicien spécialisé (suivi métabolique, pathologie chronique, grossesse…). Un professionnel dédié vous est assigné — c'est une bonne nouvelle.</p>
+    <p>Votre situation nécessite l'expertise d'un diététicien spécialisé. Un professionnel dédié vous est assigné.</p>
     <div class="alerte_sante-flags" id="redFlagDisplay"></div>
-    <div class="alerte_sante-next">
-      <p class="alerte_sante-next-title">Ce qui se passe maintenant :</p>
-      <ul>
+    <div class="alerte_sante-next" style="background:#f7f9f7; border-radius:12px; padding:1rem; margin:1rem 0; text-align:left;">
+      <p style="font-weight:600; margin-bottom:0.5rem;">Ce qui se passe maintenant :</p>
+      <ul style="padding-left:1.2rem; font-size:0.8rem;">
         <li>Votre dossier a été transmis à un diététicien qualifié.</li>
         <li>Il vous contactera pour un suivi personnalisé adapté à votre situation.</li>
         <li>Aucun plan automatique ne sera généré sans validation médicale.</li>
       </ul>
     </div>
-    <a href="dashboard.html" class="btn-hero">Voir mon tableau de bord →</a>
+    <a href="dashboard.html" class="btn-hero">Accéder à mon espace →</a>
   </div>
 
 </main>
 
-<script src="js/bilan.js"></script>
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<div id="profilModalContainer"></div>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== PROFIL SYSTEM (corrigé pour la page bilan) =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {
+  const profil = PROFILS[profilKey];
+  if (!profil) return;
+  const bar = document.getElementById('dynamicProfilBar');
+  if (bar) {
+    bar.style.display = 'block';
+    document.getElementById('profilIcon').textContent = profil.icon;
+    document.getElementById('profilName').textContent = profil.name;
+  }
+}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button onclick="dismissProfilForever()">Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  updateUIForProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+// Version corrigée : on force l'affichage du profil Patient sur cette page
+function initProfilSystem() {
+  // Sur la page bilan, on force l'affichage du profil Patient
+  // car c'est une page d'inscription patient
+  const bar = document.getElementById('dynamicProfilBar');
+  if (bar) {
+    bar.style.display = 'block';
+    document.getElementById('profilIcon').textContent = '🧑';
+    document.getElementById('profilName').textContent = 'Patient';
+  }
   
+  // La pop-up de sélection de profil n'est pas nécessaire sur cette page
+  // car l'utilisateur est déjà en train de s'inscrire en tant que patient
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+function toggleConn() {
+  document.getElementById('ndConnMenu').classList.toggle('open');
+}
+window.toggleConn = toggleConn;
+
+function togglePassword() {
+  const pwd = document.getElementById('password');
+  const btn = event.target;
+  if (pwd.type === 'password') {
+    pwd.type = 'text';
+    btn.textContent = 'Masquer';
+  } else {
+    pwd.type = 'password';
+    btn.textContent = 'Voir';
+  }
+}
+window.togglePassword = togglePassword;
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('ndConnWrap');
+  const menu = document.getElementById('ndConnMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ===== NAVIGATION =====
+let currentStep = 1;
+const totalSteps = 5;
+
+function updateProgress() {
+  const percent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+  const progressFill = document.getElementById('progressFill');
+  if (progressFill) progressFill.style.width = percent + '%';
+  
+  document.querySelectorAll('.progress-step').forEach(el => {
+    const step = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if (step === currentStep) el.classList.add('active');
+    if (step < currentStep) el.classList.add('done');
+  });
+}
+
+function goToStep(step) {
+  if (step < 1 || step > totalSteps) return;
+  
+  const currentStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+  if (currentStepEl) {
+    const requiredInputs = currentStepEl.querySelectorAll('[required]');
+    let isValid = true;
+    requiredInputs.forEach(input => {
+      if (!input.value.trim()) {
+        isValid = false;
+        input.style.borderColor = '#ef4444';
+      } else {
+        input.style.borderColor = '#eef4ee';
+      }
+    });
+    if (!isValid && step > currentStep) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+  }
+  
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  const targetStep = document.querySelector(`.step[data-step="${step}"]`);
+  if (targetStep) {
+    targetStep.classList.add('active');
+    currentStep = step;
+    updateProgress();
+  }
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    goToStep(currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    goToStep(currentStep - 1);
+  }
+}
+
+document.querySelectorAll('.btn-next').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const next = parseInt(btn.getAttribute('data-next'));
+    if (next && next <= totalSteps) {
+      goToStep(next);
+    } else {
+      nextStep();
+    }
+  });
+});
+
+document.querySelectorAll('.btn-back').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const prev = parseInt(btn.getAttribute('data-prev'));
+    if (prev && prev >= 1) {
+      goToStep(prev);
+    } else {
+      prevStep();
+    }
+  });
+});
+
+function toggleNiveauPratique(objectif) {
+  const el = document.getElementById('niveauPratiqueGroup');
+  const showFor = ['prise_masse', 'sport_perf'];
+  if (el) {
+    el.style.display = showFor.includes(objectif) ? 'block' : 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const aucunCheckbox = document.getElementById('redFlagAucun');
+  if (aucunCheckbox) {
+    aucunCheckbox.addEventListener('change', function() {
+      const allCheckboxes = document.querySelectorAll('#redFlagList input[type="checkbox"]:not(#redFlagAucun)');
+      if (this.checked) {
+        allCheckboxes.forEach(cb => {
+          cb.checked = false;
+          cb.disabled = true;
+        });
+      } else {
+        allCheckboxes.forEach(cb => cb.disabled = false);
+      }
+    });
+  }
+  updateProgress();
+});
+
+document.getElementById('bilanForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const anyChecked = document.querySelectorAll('#redFlagList input[type="checkbox"]:checked').length > 0;
+  if (!anyChecked) {
+    document.getElementById('stepError5').innerHTML = 'Veuillez cocher au moins une case (ou "aucune de ces situations").';
+    document.getElementById('stepError5').classList.remove('hidden');
+    return;
+  }
+  
+  const password = document.getElementById('password').value;
+  const passwordConfirm = document.getElementById('passwordConfirm').value;
+  const email = document.getElementById('email').value;
+  const cgu = document.getElementById('cgu').checked;
+  
+  if (password !== passwordConfirm) {
+    document.getElementById('stepError5').innerHTML = 'Les mots de passe ne correspondent pas.';
+    document.getElementById('stepError5').classList.remove('hidden');
+    return;
+  }
+  if (password.length < 8) {
+    document.getElementById('stepError5').innerHTML = 'Le mot de passe doit contenir au moins 8 caractères.';
+    document.getElementById('stepError5').classList.remove('hidden');
+    return;
+  }
+  if (!cgu) {
+    document.getElementById('stepError5').innerHTML = 'Vous devez accepter les CGU pour continuer.';
+    document.getElementById('stepError5').classList.remove('hidden');
+    return;
+  }
+  
+  document.getElementById('stepError5').classList.add('hidden');
+  
+  const formData = new FormData(e.target);
+  const bilanData = {};
+  formData.forEach((value, key) => { bilanData[key] = value; });
+  
+  const redFlags = Array.from(document.querySelectorAll('input[name="alerte_sante"]:checked')).map(cb => cb.value);
+  const hasRedFlags = redFlags.length > 0 && !document.getElementById('redFlagAucun')?.checked;
+  bilanData.redFlags = redFlags;
+  bilanData.email = email;
+  
+  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilanData));
+  localStorage.setItem('nutridoc_user_email', email);
+  localStorage.setItem('nutridoc_user_prenom', bilanData.prenom);
+  
+  if (hasRedFlags) {
+    const displayDiv = document.getElementById('redFlagDisplay');
+    displayDiv.innerHTML = redFlags.map(f => `<span class="alerte_sante-tag">${f}</span>`).join('');
+    document.getElementById('bilanForm').style.display = 'none';
+    document.getElementById('resultat-alerte_sante').classList.remove('hidden');
+  } else {
+    document.getElementById('bilanForm').style.display = 'none';
+    document.getElementById('resultat').classList.remove('hidden');
+  }
+});
+
+window.toggleNiveauPratique = toggleNiveauPratique;
+window.goToStep = goToStep;
+window.prevStep = prevStep;
+window.nextStep = nextStep;
+
+initProfilSystem();
+</script>
+
 </body>
 </html>

@@ -57,6 +57,17 @@ function buildUniversalNav() {
   const config = NAV_CONFIG[role] || NAV_CONFIG.public;
   const page   = window.location.pathname.split('/').pop() || 'index.html';
 
+  // Ne pas injecter si une nav existe déjà dans la page (header personnalisé)
+  if (document.querySelector('.nd-header')) {
+    // Sur les pages avec header personnalisé, on ne fait qu'ajouter le scroll-top
+    addScrollTopButton();
+    return;
+  }
+  
+  // Ne pas injecter si déjà présent
+  if (document.getElementById('universalNav')) return;
+  if (window._skipUniversalNav) return;
+
   // Sélecteur de vue pour publics non connectés
   const publicMenu = role === 'public' ? `
     <div class="unav-conn-wrap" id="unavConnWrap">
@@ -118,17 +129,18 @@ function buildUniversalNav() {
   </div>
 </nav>`;
 
-  // Sur les pages avec leur propre nav → ne pas doubler
-  if (document.querySelector('.nd-header')) return;
-  if (window._skipUniversalNav) return;
   // Injecter en haut du body si pas déjà fait
   if (!document.getElementById('universalNav')) {
     document.body.insertAdjacentHTML('afterbegin', navHtml);
     document.body.style.paddingTop = '60px';
   }
 
-  // Barre profil sous la nav universelle
-  if (!document.getElementById('unavProfilBar')) {
+  // Barre profil sous la nav universelle (seulement si pas déjà présente)
+  const hasDynamicProfilBar = document.querySelector('.dynamic-profil-bar') || 
+                              document.querySelector('#dynamicProfilBar') ||
+                              document.querySelector('.profil-selector');
+  
+  if (!document.getElementById('unavProfilBar') && !hasDynamicProfilBar) {
     var page = window.location.pathname.split('/').pop() || 'index.html';
     var isDiet  = page.includes('dieteticien') || page.includes('dietitian') || page.includes('agenda-diet') || page.includes('compta-diet');
     var isPresc = page.includes('prescripteur');
@@ -143,20 +155,7 @@ function buildUniversalNav() {
     document.body.style.paddingTop = '98px';
   }
 
-
-  // Bouton scroll-to-top (toutes pages)
-  if (!document.querySelector('.scroll-top-btn')) {
-    const btn = document.createElement('button');
-    btn.className = 'scroll-top-btn';
-    btn.innerHTML = '↑';
-    btn.title = 'Retour en haut';
-    btn.setAttribute('aria-label', 'Retour en haut de page');
-    btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.body.appendChild(btn);
-    window.addEventListener('scroll', () => {
-      btn.classList.toggle('visible', window.scrollY > 300);
-    }, { passive: true });
-  }
+  addScrollTopButton();
 
   // Fermer dropdowns au clic extérieur
   document.addEventListener('click', e => {
@@ -176,17 +175,49 @@ function buildUniversalNav() {
   }, { passive: true });
 }
 
+function addScrollTopButton() {
+  // Bouton scroll-to-top (toutes pages) - éviter les doublons
+  if (!document.querySelector('.scroll-top-btn')) {
+    const btn = document.createElement('button');
+    btn.className = 'scroll-top-btn';
+    btn.innerHTML = '↑';
+    btn.title = 'Retour en haut';
+    btn.setAttribute('aria-label', 'Retour en haut de page');
+    btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.appendChild(btn);
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('visible', window.scrollY > 300);
+    }, { passive: true });
+  }
+}
+
 function unavToggleConn() {
-  document.getElementById('unavConnDropdown')?.classList.toggle('open');
-  document.getElementById('unavToolsDropdown')?.classList.remove('open');
+  const dropdown = document.getElementById('unavConnDropdown');
+  const toolsDropdown = document.getElementById('unavToolsDropdown');
+  if (dropdown) dropdown.classList.toggle('open');
+  if (toolsDropdown) toolsDropdown.classList.remove('open');
 }
+
 function unavToggleTools() {
-  document.getElementById('unavToolsDropdown')?.classList.toggle('open');
-  document.getElementById('unavConnDropdown')?.classList.remove('open');
+  const dropdown = document.getElementById('unavToolsDropdown');
+  const connDropdown = document.getElementById('unavConnDropdown');
+  if (dropdown) dropdown.classList.toggle('open');
+  if (connDropdown) connDropdown.classList.remove('open');
 }
+
 function unavDeconnect() {
-  ['nutridoc_bilan','nutridoc_dieteticien','nutridoc_prescripteur'].forEach(k => localStorage.removeItem(k));
+  ['nutridoc_bilan', 'nutridoc_dieteticien', 'nutridoc_prescripteur', 'nutridoc_current_user'].forEach(k => localStorage.removeItem(k));
   window.location.href = 'index.html';
 }
 
-document.addEventListener('DOMContentLoaded', buildUniversalNav);
+// Exposer les fonctions globales nécessaires
+window.unavToggleConn = unavToggleConn;
+window.unavToggleTools = unavToggleTools;
+window.unavDeconnect = unavDeconnect;
+
+// Attendre que le DOM soit chargé
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', buildUniversalNav);
+} else {
+  buildUniversalNav();
+}

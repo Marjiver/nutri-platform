@@ -2,351 +2,986 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-    <meta name="description" content="Inscrivez-vous gratuitement sur NutriDoc. Accédez aux dossiers patients, validez des plans et encaissez directement. RPPS requis."/>
+  <meta name="description" content="Inscrivez-vous gratuitement sur NutriDoc. Accédez aux dossiers patients, validez des plans et encaissez directement. RPPS requis. 1 plan offert par mois."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inscription diététicien — NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/auth.js"></script>
-  
-  <script src="js/email.js" defer></script>
   <script src="js/cookies.js"></script>
-</head>
-<body class="page-inscription-diet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
 
-<header style="position:sticky;top:0;z-index:100;background:rgba(13,32,24,.98);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;">
-  <a href="index.html" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:#fff;text-decoration:none;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em><span style="font-size:.6rem;background:#1D9E75;color:#fff;border-radius:999px;padding:2px 8px;margin-left:.35rem;vertical-align:middle;text-transform:uppercase;letter-spacing:.07em;">Diét.</span></a>
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <a href="index.html" style="font-size:.82rem;color:rgba(255,255,255,.55);text-decoration:none;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.55)'">← Accueil</a>
-    <a href="login.html?role=dietitian" style="font-size:.82rem;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.35rem .9rem;text-decoration:none;">Déjà inscrit ? Se connecter</a>
+    /* HEADER (identique à index.html) */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+
+    /* Tooltip Grégoire (identique) */
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL DYNAMIQUE (identique) */
+    .dynamic-profil-bar {
+      background: #080f0b;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.4rem 2rem;
+      position: sticky;
+      top: 60px;
+      z-index: 98;
+      margin-top: 0;
+    }
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .profil-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
+      border-radius: 999px; padding: 0.2rem 0.9rem;
+      font-size: 0.75rem; color: #fff; font-weight: 500;
+    }
+    .profil-switch {
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px; padding: 0.2rem 0.8rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+
+    /* SPLIT SCREEN MAIN */
+    .split-container {
+      display: flex;
+      min-height: calc(100vh - 110px);
+      margin-top: 110px;
+    }
+    /* Colonne gauche - Tarifs */
+    .pricing-col {
+      flex: 1;
+      background: #f7f9f7;
+      padding: 2rem;
+      overflow-y: auto;
+      border-right: 1px solid #eef4ee;
+    }
+    .pricing-col h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: #0d2018;
+      margin-bottom: 0.5rem;
+    }
+    .pricing-col .hero-sub {
+      font-size: 0.85rem;
+      color: #6b7b74;
+      margin-bottom: 1.5rem;
+    }
+    .pricing-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .price-row {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1rem 1.25rem;
+      border: 1px solid #eef4ee;
+      transition: all 0.2s;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .price-row:hover { transform: translateX(4px); border-color: #1D9E75; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .price-row.selected { border: 2px solid #1D9E75; background: linear-gradient(135deg, #fff, #f0f9f5); }
+    .price-row.featured { background: linear-gradient(135deg, #0d2018 0%, #142c1f 100%); border: 2px solid #1D9E75; color: #fff; }
+    .price-row.featured.selected { border: 2px solid #5DCAA5; }
+    .price-badge {
+      background: #1D9E75;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+    }
+    .price-info { flex: 1; }
+    .price-name { font-weight: 700; font-size: 1rem; }
+    .price-row.featured .price-name { color: #5DCAA5; }
+    .price-value { font-size: 1.3rem; font-weight: 800; color: #1D9E75; }
+    .price-row.featured .price-value { color: #5DCAA5; }
+    .price-desc { font-size: 0.7rem; color: #6b7b74; margin-top: 0.2rem; }
+    .price-row.featured .price-desc { color: rgba(255,255,255,0.6); }
+    .price-features { font-size: 0.7rem; color: #6b7b74; margin-top: 0.2rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .price-features span { background: #eef4ee; padding: 0.1rem 0.4rem; border-radius: 999px; }
+    .price-row.featured .price-features span { background: rgba(93,202,165,0.15); color: #5DCAA5; }
+    .price-check {
+      width: 24px;
+      height: 24px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+    .price-row.featured .price-check { background: #5DCAA5; }
+
+    @media (max-width: 900px) {
+      .split-container { flex-direction: column; }
+      .pricing-col { border-right: none; border-bottom: 1px solid #eef4ee; }
+    }
+
+    /* Colonne droite - Formulaire */
+    .form-col {
+      flex: 1;
+      background: #fff;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    .form-col h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+    }
+    .form-col .form-sub {
+      font-size: 0.8rem;
+      color: #6b7b74;
+      margin-bottom: 1.5rem;
+    }
+    .insc-progress-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .insc-progress-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .insc-prog-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #eef4ee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #6b7b74;
+    }
+    .insc-progress-step.active .insc-prog-dot { background: #1D9E75; color: #fff; }
+    .insc-progress-step.done .insc-prog-dot { background: #e1f5ee; color: #1D9E75; }
+    .insc-progress-step span { font-size: 0.75rem; color: #6b7b74; }
+    .insc-progress-step.active span { color: #0d2018; font-weight: 500; }
+    .insc-progress-line {
+      flex: 1;
+      height: 2px;
+      background: #eef4ee;
+      margin: 0 0.5rem;
+    }
+    .insc-step { display: none; animation: fadeIn 0.3s ease; }
+    .insc-step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.4rem; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #1D9E75; outline: none; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .btn-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .btn-next, .btn-back, .btn-submit {
+      padding: 0.7rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn-next, .btn-submit { background: #1D9E75; color: #fff; }
+    .btn-next:hover, .btn-submit:hover { background: #0f6e56; }
+    .btn-back { background: transparent; border: 1px solid #eef4ee; color: #0d2018; }
+    .btn-back:hover { background: #f7f9f7; }
+    .formule-recap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #e1f5ee;
+      border: 1px solid #1D9E75;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .formule-recap-name { font-weight: 600; color: #0f6e56; }
+    .formule-change { background: none; border: none; color: #1D9E75; font-size: 0.75rem; cursor: pointer; text-decoration: underline; }
+    .rpps-explainer {
+      display: flex;
+      gap: 0.75rem;
+      background: #e1f5ee;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .rpps-explainer-icon {
+      width: 28px;
+      height: 28px;
+      background: #1D9E75;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      margin: 1rem 0;
+    }
+    .inscription-confirmation {
+      text-align: center;
+      padding: 2rem;
+    }
+    .confirm-icon {
+      width: 60px;
+      height: 60px;
+      background: #e1f5ee;
+      color: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1rem;
+    }
+    .confirm-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.5rem auto;
+      max-width: 280px;
+    }
+    .confirm-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+    }
+    .conf-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #eef4ee;
+    }
+    .conf-dot.done { background: #1D9E75; }
+    .conf-dot.pending { background: #f59e0b; animation: pulse 1.8s infinite; }
+    .hidden { display: none; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* FOOTER (identique à index.html) */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 0;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER (identique aux autres pages) -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html#comment" class="nd-navlink">Comment ça marche</a>
+        <a href="index.html#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <!-- Carte Grégoire avec tooltip -->
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu" style="display:none; position:absolute; top:100%; right:0; background:#0d2018; border:1px solid rgba(29,158,117,0.2); border-radius:12px; width:180px; margin-top:0.5rem; z-index:101;">
+          <a href="login.html?role=dietitian" class="nd-conn-item" style="display:block; padding:0.5rem 1rem; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.75rem;">🥗 Diététicien</a>
+          <a href="login.html?role=patient" class="nd-conn-item" style="display:block; padding:0.5rem 1rem; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.75rem;">👤 Patient</a>
+          <a href="login.html?role=prescriber" class="nd-conn-item" style="display:block; padding:0.5rem 1rem; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.75rem;">🏢 Prescripteur</a>
+        </div>
+      </div>
+      <a href="bilan.html" class="nd-btn-primary" style="background:#1D9E75; color:#fff; padding:0.4rem 1.2rem; border-radius:999px; font-size:0.75rem; font-weight:500; text-decoration:none;">Commencer gratuit →</a>
+    </div>
   </div>
 </header>
 
-<div style="background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.38rem 2rem;position:sticky;top:68px;z-index:99;">
-  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
-    <span style="font-size:.7rem;color:rgba(255,255,255,.3);">Vous êtes :</span>
-    <a href="index.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🧑 Patient</a>
-    <a href="accueil-dieteticien.html" style="font-size:.72rem;font-weight:500;color:#fff;background:rgba(29,158,117,.18);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🥗 Diététicien</a>
-    <a href="inscription-prescripteur.html" style="font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.18rem .8rem;text-decoration:none;">🏢 Entreprise / Experts</a>
+<!-- BARRE PROFIL DYNAMIQUE -->
+<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
+  <div class="dynamic-profil-inner">
+    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
+    <span class="profil-badge" id="currentProfilBadge">
+      <span id="profilIcon">🥗</span>
+      <span id="profilName">Diététicien</span>
+    </span>
+    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
   </div>
 </div>
 
-<main>
-
-  <!-- ══ HERO INSCRIPTION ══ -->
-  <section class="insc-hero">
-    <div class="insc-hero-inner">
-      <div class="insc-hero-text">
-        <span class="hero-tag-pill">Espace professionnel</span>
-        <h1>Rejoignez le réseau<br><em>NutriDoc</em></h1>
-        <p class="hero-sub">Validez des plans alimentaires depuis chez vous. Vos coordonnées et numéro RPPS figurent sur chaque plan que vous signez. Compatible avec l'exercice libéral conventionné — chaque diét. reste seul responsable de ses actes professionnels.</p>
-        <div class="insc-hero-avantages">
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Nom, titre et RPPS imprimés sur chaque plan</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Dossiers patients pré-remplis et structurés</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Alertes santé automatiques</div>
-          <div class="insc-avantage"><span class="insc-av-dot"></span>Visio intégrée selon votre formule</div>
-        </div>
-      </div>
-      <div class="insc-hero-stats">
-        <div class="insc-stat"><div class="insc-stat-val">16 à 20 €</div><div class="insc-stat-label">reversés par plan validé</div></div>
-        <div class="insc-stat"><div class="insc-stat-val">48h</div><div class="insc-stat-label">délai moyen de validation</div></div>
-        <div class="insc-stat"><div class="insc-stat-val">100%</div><div class="insc-stat-label">données sécurisées RGPD</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ TARIFS ══ -->
-  <section class="insc-pricing-section">
-    <div class="section-inner" style="padding-top:3rem;padding-bottom:3rem;">
-      <div class="section-tag">Tarifs transparents</div>
-      <h2>Choisissez votre formule</h2>
-      <p style="color:var(--gray);font-size:.95rem;margin-bottom:2.5rem;max-width:540px;">Démarrez sans engagement. Vous pouvez changer de formule à tout moment depuis votre espace.</p>
-
-      <div class="pricing-diet-grid">
-
-        <!-- Essentiel -->
-        <div class="pricing-diet-card" id="pricingEssentiel" onclick="selectFormule('essentiel')">
-          <div class="pdc-header">
-            <div class="pdc-name">Essentiel</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price">0 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">par plan validé</div>
-            </div>
-            <div class="pdc-engage">Sans engagement · Idéal pour démarrer</div>
-          </div>
-          <div class="pdc-divider"></div>
-          <ul class="pdc-features">
-            <li class="yes">Vos coordonnées sur chaque plan</li>
-            <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes santé automatiques</li>
-            <li class="yes">Accès à l'espace de validation</li>
-            <li class="no">Visio intégrée</li>
-            <li class="no">Tableau de bord & statistiques</li>
-            <li class="no">Support prioritaire</li>
-          </ul>
-          <div class="pdc-cta">Choisir Essentiel</div>
-        </div>
-
-        <!-- Pro -->
-        <div class="pricing-diet-card featured" id="pricingPro" onclick="selectFormule('pro')">
-          <div class="pdc-badge">Recommandé</div>
-          <div class="pdc-header">
-            <div class="pdc-name">Pro</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price">29 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">par mois · dossiers illimités</div>
-            </div>
-            <div class="pdc-engage">Sans engagement · Résiliable à tout moment</div>
-          </div>
-          <div class="pdc-divider"></div>
-          <ul class="pdc-features">
-            <li class="yes">Vos coordonnées sur chaque plan</li>
-            <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes santé automatiques</li>
-            <li class="yes">Accès à l'espace de validation</li>
-            <li class="yes">Visio intégrée (lien personnalisé)</li>
-            <li class="yes">Tableau de bord & statistiques</li>
-            <li class="no">Support prioritaire</li>
-          </ul>
-          <div class="pdc-cta featured-cta">Choisir Pro</div>
-        </div>
-
-        <!-- Expert -->
-        <div class="pricing-diet-card" id="pricingExpert" onclick="selectFormule('expert')">
-          <div class="pdc-header">
-            <div class="pdc-name">Expert</div>
-            <div class="pdc-price-wrap">
-              <div class="pdc-price">39 <span class="pdc-currency">€</span></div>
-              <div class="pdc-period">par mois · engagement annuel</div>
-            </div>
-            <div class="pdc-engage">
-              <span class="pdc-saving">Économisez 120 € / an</span>
-            </div>
-          </div>
-          <div class="pdc-divider"></div>
-          <ul class="pdc-features">
-            <li class="yes">Vos coordonnées sur chaque plan</li>
-            <li class="yes">Badge "Diét. vérifié RPPS"</li>
-            <li class="yes">Alertes santé automatiques</li>
-            <li class="yes">Accès à l'espace de validation</li>
-            <li class="yes">Visio intégrée (lien personnalisé)</li>
-            <li class="yes">Tableau de bord & statistiques</li>
-            <li class="yes">Support prioritaire sous 4h</li>
-          </ul>
-          <div class="pdc-cta">Choisir Expert</div>
-        </div>
-
-      </div>
-
-      <div class="insc-pricing-reassurance">
-        <span>✓ Aucune CB requise pour s'inscrire</span>
-        <span>✓ Paiement sécurisé via Stripe</span>
-        <span>✓ Facturation électronique automatique</span>
-        <span>✓ Résiliation en 1 clic</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ FORMULAIRE ══ -->
-  <section class="insc-form-section" id="formulaireSection">
-    <div class="section-inner" style="padding-top:2rem;padding-bottom:4rem;">
-      <div class="section-tag">Inscription</div>
-      <h2>Créer mon compte</h2>
-
-      <div class="insc-form-layout">
-
-        <!-- Barre de progression -->
-        <div class="insc-progress-bar">
-          <div class="insc-progress-step active" id="progStep1">
-            <div class="insc-prog-dot">1</div>
-            <span>Identité</span>
-          </div>
-          <div class="insc-progress-line"></div>
-          <div class="insc-progress-step" id="progStep2">
-            <div class="insc-prog-dot">2</div>
-            <span>RPPS</span>
-          </div>
-          <div class="insc-progress-line"></div>
-          <div class="insc-progress-step" id="progStep3">
-            <div class="insc-prog-dot">3</div>
-            <span>Formule</span>
-          </div>
-        </div>
-
-        <form id="inscriptionForm" novalidate>
-
-          <!-- Étape 1 -->
-          <div class="insc-step active" data-step="1">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Prénom <span class="req">*</span></label>
-                <input type="text" id="prenom" placeholder="Ex : Sophie" required/>
-              </div>
-              <div class="form-group">
-                <label>Nom <span class="req">*</span></label>
-                <input type="text" id="nom" placeholder="Ex : Martin" required/>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Email professionnel <span class="req">*</span></label>
-              <input type="email" id="email" placeholder="s.lemaire@cabinet.fr" required/>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Téléphone</label>
-                <input type="tel" id="tel" placeholder="06 xx xx xx xx"/>
-              </div>
-              <div class="form-group">
-                <label>Site web / Doctolib</label>
-                <input type="url" id="siteWeb" placeholder="https://..."/>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Cabinet / ville</label>
-              <input type="text" id="cabinet" placeholder="Ex : Cabinet Nutrition Paris 11"/>
-            </div>
-
-            <!-- Aperçu coordonnées -->
-            <div class="coordonnees-preview" id="coordPreview">
-              <div class="coordonnees-label">Aperçu — vos coordonnées sur le plan du patient</div>
-              <div class="coordonnees-card">
-                <div class="coord-name" id="prevNom">Prénom NOM</div>
-                <div class="coord-detail" id="prevTitre">Diététicien(ne) certifié(e) · RPPS vérifié</div>
-                <div class="coord-detail" id="prevCabinet"></div>
-                <div class="coord-detail" id="prevContact"></div>
-              </div>
-            </div>
-
-            <button type="button" class="btn-next" onclick="nextInscStep()">Continuer →</button>
-          </div>
-
-          <!-- Étape 2 : RPPS -->
-          <div class="insc-step" data-step="2">
-            <div class="rpps-explainer">
-              <div class="rpps-explainer-icon">?</div>
-              <div>
-                <strong>Numéro RPPS</strong>
-                <p>Identifiant national unique à <strong>11 chiffres</strong> attribué par l'Ordre ou l'ARS. Il figure sur votre carte CPS.</p>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Numéro RPPS <span class="req">*</span></label>
-              <div class="rpps-input-wrap">
-                <input type="text" id="rppsInput"
-                  placeholder="Ex : 10 008 019 381"
-                  maxlength="14"
-                  inputmode="numeric"
-                  oninput="formatRpps(this)" required/>
-                <div class="rpps-status" id="rppsStatus">
-                  <span class="rpps-hint">0 / 11 chiffres</span>
-                </div>
-              </div>
-              <div class="rpps-feedback" id="rppsFeedback"></div>
-            </div>
-            <div class="form-group">
-              <label>Spécialité <span class="req">*</span></label>
-              <select id="specialite" required>
-                <option value="">— Choisir —</option>
-                <option value="dieteticien">Diététicien(ne) diplômé(e)</option>
-                <option value="nutritionniste">Médecin nutritionniste</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Numéro ADELI <span style="font-weight:400;color:var(--gray);">(optionnel)</span></label>
-              <input type="text" id="adeli" placeholder="9 chiffres" maxlength="9" inputmode="numeric"/>
-              <span class="field-hint">Complément pour les paramédicaux</span>
-            </div>
-            <div class="btn-row">
-              <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
-              <button type="button" class="btn-next" id="btnVerifRpps" onclick="verifierRpps()">Vérifier &amp; continuer →</button>
-            </div>
-          </div>
-
-          <!-- Étape 3 : Formule + MDP -->
-          <div class="insc-step" data-step="3">
-            <div class="form-group">
-              <label>Formule choisie <span class="req">*</span></label>
-              <div class="formule-recap" id="formuleRecap">
-                <div class="formule-recap-name" id="formuleRecapName">Pro — 29€/mois / mois</div>
-                <button type="button" class="formule-change" onclick="scrollToPricing()">Modifier ↑</button>
-              </div>
-              <div id="ibanNote" style="display:none;background:var(--green-bg,#e1f5ee);border-left:3px solid var(--green,#1D9E75);border-radius:0 8px 8px 0;padding:.6rem .875rem;font-size:.8rem;color:var(--green-d,#0f6e56);margin-top:.5rem;">
-                ✅ Formule gratuite — aucune CB requise.<br/>
-                Vos coordonnées bancaires seront demandées depuis votre espace lorsque vous souhaiterez passer à une formule payante.
-              </div>
-              <input type="hidden" id="formuleHidden" name="formule" value="pro"/>
-            </div>
-            <div class="form-group">
-              <label>Mot de passe <span class="req">*</span></label>
-              <div class="pwd-wrap">
-                <input type="password" id="password" placeholder="Minimum 8 caractères" required oninput="checkPwd(this.value)"/>
-                <button type="button" class="pwd-toggle" onclick="togglePwd()">Voir</button>
-              </div>
-              <div class="pwd-strength" id="pwdStrength"></div>
-            </div>
-            <div class="form-group">
-              <label>Confirmer le mot de passe <span class="req">*</span></label>
-              <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required/>
-            </div>
-            <label class="checkbox-option" style="margin-bottom:1rem;">
-              <input type="checkbox" id="cgu" required/>
-              <span>J'accepte les <a href="cgu-dieteticien.html" style="color:var(--green);" target="_blank">CGU Diététicien</a> et la <a href="politique-confidentialite.html" style="color:var(--green);" target="_blank">politique de confidentialité</a> <span class="req">*</span></span>
-            </label>
-            <div class="btn-row">
-              <button type="button" class="btn-back" onclick="prevInscStep()">← Retour</button>
-              
-            <!-- Coordonnées bancaires -->
-            <div class="form-section" id="ibanSection" style="display:none;">
-              <h3 class="form-section-title">💳 Coordonnées bancaires <span style="font-size:.75rem;color:var(--gray);font-weight:400;">(pour le versement de vos rémunérations)</span></h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Titulaire du compte <span class="req">*</span></label>
-                  <input type="text" id="dietTitulaire" placeholder="Nom Prénom ou Raison sociale" required/>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>IBAN <span class="req">*</span></label>
-                  <input type="text" id="dietIBAN" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" required
-                    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()"/>
-                  <span class="form-hint">Optionnel à l'inscription · renseignez-le depuis votre espace une fois votre premier plan validé</span>
-                </div>
-                <div class="form-group" style="max-width:200px;">
-                  <label>BIC / SWIFT</label>
-                  <input type="text" id="dietBIC" placeholder="BNPAFRPP" maxlength="11"/>
-                </div>
-              </div>
-              <div style="background:#e1f5ee;border:1px solid var(--green-border);border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#0f6e56;margin-top:.5rem;">
-                🔒 Vos coordonnées bancaires sont chiffrées et uniquement accessibles par CaliDoc Santé pour les virements. Elles ne sont jamais partagées avec d'autres utilisateurs.
-              </div>
-            </div>
-            <button type="submit" class="btn-submit">Créer mon compte →</button>
-            </div>
-          </div>
-
-        </form>
-
-        <!-- Confirmation -->
-        <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
-          <div class="confirm-icon">✓</div>
-          <h3>Bienvenue dans NutriDoc !</h3>
-          <p>Votre RPPS a été vérifié. Compte en cours d'activation (~24h).</p>
-          <div class="confirm-steps">
-            <div class="confirm-step"><span class="conf-dot done"></span><span>RPPS vérifié</span></div>
-            <div class="confirm-step"><span class="conf-dot pending"></span><span>Validation par notre équipe</span></div>
-            <div class="confirm-step"><span class="conf-dot"></span><span>Email de confirmation envoyé</span></div>
-          </div>
-          <a href="dietitian.html" class="btn-hero" style="display:inline-block;margin-top:1.5rem;">Accéder à mon espace →</a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<script src="js/inscription-dieteticien.js"></script>
+<!-- SPLIT SCREEN -->
+<div class="split-container">
   
+  <!-- COLONNE GAUCHE : TARIFS -->
+  <div class="pricing-col">
+    <h1>Choisissez votre formule</h1>
+    <p class="hero-sub">1 plan offert par mois, toutes formules confondues. Sans engagement.</p>
+    
+    <div class="pricing-stack">
+      
+      <!-- ESSENTIEL -->
+      <div class="price-row" data-formule="essentiel" data-prix="0">
+        <div class="price-info">
+          <div class="price-name">Essentiel <span class="price-badge">Référencement seul</span></div>
+          <div class="price-value">0 € <span style="font-size:0.8rem;">/mois</span></div>
+          <div class="price-desc">Phase pilote, démarrage</div>
+          <div class="price-features">
+            <span>Profil RPPS</span>
+            <span>Badge vérifié</span>
+            <span>✗ Accès dossiers</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <!-- STARTER -->
+      <div class="price-row" data-formule="starter" data-prix="9">
+        <div class="price-info">
+          <div class="price-name">Starter</div>
+          <div class="price-value">9 € <span style="font-size:0.8rem;">/mois</span></div>
+          <div class="price-desc">1 gratuit + 10 quota · Commission 2,50€</div>
+          <div class="price-features">
+            <span>+ Accès dossiers</span>
+            <span>+ 10 plans inclus</span>
+            <span>+ Agenda visio</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <!-- PRO -->
+      <div class="price-row featured" data-formule="pro" data-prix="29">
+        <div class="price-info">
+          <div class="price-name">Pro <span class="price-badge">⭐ RECOMMANDÉ</span></div>
+          <div class="price-value">29 € <span style="font-size:0.8rem;">/mois</span></div>
+          <div class="price-desc">1 gratuit + 30 quota · Commission 2,00€</div>
+          <div class="price-features">
+            <span>+ 30 plans inclus</span>
+            <span>+ Commission réduite</span>
+            <span>+ Support prioritaire</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <!-- EXPERT -->
+      <div class="price-row" data-formule="expert" data-prix="59">
+        <div class="price-info">
+          <div class="price-name">Expert</div>
+          <div class="price-value">59 € <span style="font-size:0.8rem;">/mois</span></div>
+          <div class="price-desc">1 gratuit + 100 quota · Commission 1,50€</div>
+          <div class="price-features">
+            <span>+ 100 plans inclus</span>
+            <span>+ Commission 1,50€</span>
+            <span>+ Analytics avancés</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 2rem; padding: 1rem; background: #e1f5ee; border-radius: 16px; text-align: center;">
+      <p style="font-size:0.75rem; color:#0f6e56;">💚 Visio : 55€ encaissés directement · Commission visio : 8€</p>
+      <p style="font-size:0.7rem; color:#0f6e56; margin-top:0.25rem;">🎁 1 plan alimentaire offert par mois, toutes formules</p>
+    </div>
+  </div>
+
+  <!-- COLONNE DROITE : FORMULAIRE -->
+  <div class="form-col">
+    <h2>Créer mon compte</h2>
+    <p class="form-sub">Remplissez vos informations professionnelles</p>
+
+    <div class="insc-progress-bar">
+      <div class="insc-progress-step active" id="progStep1">
+        <div class="insc-prog-dot">1</div>
+        <span>Identité</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep2">
+        <div class="insc-prog-dot">2</div>
+        <span>RPPS + RCP</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep3">
+        <div class="insc-prog-dot">3</div>
+        <span>Formule</span>
+      </div>
+    </div>
+
+    <form id="inscriptionForm" novalidate>
+
+      <!-- Étape 1 : Identité -->
+      <div class="insc-step active" data-step="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom <span class="req">*</span></label>
+            <input type="text" id="prenom" placeholder="Ex : Sophie" required/>
+          </div>
+          <div class="form-group">
+            <label>Nom <span class="req">*</span></label>
+            <input type="text" id="nom" placeholder="Ex : Martin" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email professionnel <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="s.martin@cabinet.fr" required/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" id="tel" placeholder="06 xx xx xx xx"/>
+          </div>
+          <div class="form-group">
+            <label>Site web / Doctolib</label>
+            <input type="url" id="siteWeb" placeholder="https://..."/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cabinet / ville</label>
+          <input type="text" id="cabinet" placeholder="Ex : Cabinet Nutrition Paris 11"/>
+        </div>
+        <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+      </div>
+
+      <!-- Étape 2 : RPPS + RCP -->
+      <div class="insc-step" data-step="2">
+        <div class="rpps-explainer">
+          <div class="rpps-explainer-icon">?</div>
+          <div>
+            <strong>Numéro RPPS</strong>
+            <p>Identifiant national unique à <strong>11 chiffres</strong> attribué par l'Ordre ou l'ARS. Il figure sur votre carte CPS.</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Numéro RPPS <span class="req">*</span></label>
+          <input type="text" id="rppsInput" placeholder="Ex : 10008019381" maxlength="11" inputmode="numeric" required/>
+          <div class="rpps-feedback" id="rppsFeedback" style="font-size:0.75rem; margin-top:0.25rem;"></div>
+        </div>
+        <div class="form-group">
+          <label>Spécialité <span class="req">*</span></label>
+          <select id="specialite" required>
+            <option value="">— Choisir —</option>
+            <option value="dieteticien">Diététicien(ne) diplômé(e)</option>
+            <option value="nutritionniste">Médecin nutritionniste</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-option" style="margin: 0.5rem 0;">
+            <input type="checkbox" id="rcpCheckbox" required/>
+            <span>Je certifie disposer d'une attestation d'assurance <strong>Responsabilité Civile Professionnelle (RCP)</strong> couvrant la téléconsultation et les actes de nutrition en ligne <span class="req">*</span></span>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="validateRppsAndContinue()">Vérifier & continuer →</button>
+        </div>
+      </div>
+
+      <!-- Étape 3 : Formule + MDP -->
+      <div class="insc-step" data-step="3">
+        <div class="form-group">
+          <label>Formule choisie <span class="req">*</span></label>
+          <div class="formule-recap" id="formuleRecap">
+            <div class="formule-recap-name" id="formuleRecapName">Pro — 29€/mois</div>
+            <button type="button" class="formule-change" onclick="scrollToPricing()">Modifier ↑</button>
+          </div>
+          <input type="hidden" id="formuleHidden" name="formule" value="pro"/>
+        </div>
+        <div class="form-group">
+          <label>Mot de passe <span class="req">*</span></label>
+          <input type="password" id="password" placeholder="Minimum 8 caractères" required/>
+        </div>
+        <div class="form-group">
+          <label>Confirmer le mot de passe <span class="req">*</span></label>
+          <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required/>
+        </div>
+        <label class="checkbox-option">
+          <input type="checkbox" id="cgu" required/>
+          <span>J'accepte les <a href="cgu-dieteticien.html" target="_blank">CGU Diététicien</a> et la <a href="politique-confidentialite.html" target="_blank">politique de confidentialité</a> <span class="req">*</span></span>
+        </label>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="submit" class="btn-submit">Créer mon compte →</button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- Confirmation -->
+    <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
+      <div class="confirm-icon">✓</div>
+      <h3>Bienvenue dans NutriDoc !</h3>
+      <p>Votre RPPS a été vérifié. Compte en cours d'activation (~24h).</p>
+      <div class="confirm-steps">
+        <div class="confirm-step"><span class="conf-dot done"></span><span>RPPS vérifié</span></div>
+        <div class="confirm-step"><span class="conf-dot pending"></span><span>Validation par notre équipe</span></div>
+        <div class="confirm-step"><span class="conf-dot"></span><span>Email de confirmation envoyé</span></div>
+      </div>
+      <a href="dietitian.html" class="btn-next" style="display:inline-block; margin-top:1rem;">Accéder à mon espace →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER (identique aux autres pages) -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<div id="profilModalContainer"></div>
+
+<script>
+// ===== PROFIL SYSTEM =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {
+  const profil = PROFILS[profilKey];
+  if (!profil) return;
+  const bar = document.getElementById('dynamicProfilBar');
+  if (bar) {
+    bar.style.display = 'block';
+    document.getElementById('profilIcon').textContent = profil.icon;
+    document.getElementById('profilName').textContent = profil.name;
+  }
+}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button onclick="dismissProfilForever()">Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  updateUIForProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (stored && PROFILS[stored]) updateUIForProfil(stored);
+  else if (!dismissed) setTimeout(openProfilModal, 500);
+  else document.getElementById('dynamicProfilBar').style.display = 'block';
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+function toggleConn() {
+  const menu = document.getElementById('ndConnMenu');
+  if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+window.toggleConn = toggleConn;
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('ndConnWrap');
+  const menu = document.getElementById('ndConnMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.style.display = 'none';
+});
+
+// ===== FORMULAIRE INSCRIPTION =====
+let selectedFormule = 'pro';
+let selectedPrix = 29;
+
+// Sélection des cartes tarifs
+document.querySelectorAll('.price-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('.price-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    selectedFormule = row.dataset.formule;
+    selectedPrix = parseInt(row.dataset.prix);
+    document.getElementById('formuleHidden').value = selectedFormule;
+    const formuleNames = { essentiel: 'Essentiel (0€/mois)', starter: 'Starter (9€/mois)', pro: 'Pro (29€/mois)', expert: 'Expert (59€/mois)' };
+    document.getElementById('formuleRecapName').textContent = formuleNames[selectedFormule];
+  });
+});
+
+// Sélectionner Pro par défaut
+document.querySelector('.price-row.featured').classList.add('selected');
+
+function scrollToPricing() {
+  document.querySelector('.pricing-col').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Navigation étapes
+let currentStep = 1;
+const steps = document.querySelectorAll('.insc-step');
+const progSteps = document.querySelectorAll('.insc-progress-step');
+
+function updateProgress() {
+  steps.forEach((step, idx) => {
+    step.classList.toggle('active', idx + 1 === currentStep);
+  });
+  progSteps.forEach((step, idx) => {
+    if (idx + 1 === currentStep) step.classList.add('active');
+    else step.classList.remove('active');
+    if (idx + 1 < currentStep) step.classList.add('done');
+    else step.classList.remove('done');
+  });
+}
+
+function nextStep() {
+  if (currentStep < 3) {
+    currentStep++;
+    updateProgress();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateProgress();
+  }
+}
+
+function validateRppsAndContinue() {
+  const rpps = document.getElementById('rppsInput').value.replace(/\s/g, '');
+  if (!rpps || rpps.length !== 11) {
+    document.getElementById('rppsFeedback').innerHTML = '<span style="color:#ef4444;">Veuillez entrer un numéro RPPS valide (11 chiffres)</span>';
+    return;
+  }
+  const rcpCheckbox = document.getElementById('rcpCheckbox');
+  if (!rcpCheckbox.checked) {
+    alert('Vous devez certifier disposer d\'une assurance RCP pour continuer.');
+    return;
+  }
+  document.getElementById('rppsFeedback').innerHTML = '<span style="color:#1D9E75;">✓ RPPS valide</span>';
+  nextStep();
+}
+
+// Soumission
+document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const password = document.getElementById('password').value;
+  const passwordConfirm = document.getElementById('passwordConfirm').value;
+  
+  if (password !== passwordConfirm) {
+    alert('Les mots de passe ne correspondent pas.');
+    return;
+  }
+  if (password.length < 8) {
+    alert('Le mot de passe doit contenir au moins 8 caractères.');
+    return;
+  }
+  
+  const cgu = document.getElementById('cgu').checked;
+  if (!cgu) {
+    alert('Vous devez accepter les CGU pour continuer.');
+    return;
+  }
+  
+  const email = document.getElementById('email').value;
+  const prenom = document.getElementById('prenom').value;
+  const nom = document.getElementById('nom').value;
+  
+  // Simulation
+  document.getElementById('inscriptionForm').style.display = 'none';
+  document.getElementById('inscriptionConfirmation').classList.remove('hidden');
+  
+  localStorage.setItem('nutridoc_dieteticien', JSON.stringify({ email, prenom, nom, formule: selectedFormule }));
+});
+
+initProfilSystem();
+</script>
+
 </body>
 </html>

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   NutriDoc — Home CSS v19
+   NutriDoc — Home CSS v20
    Fond sombre #0d2018 (vert forêt profond) + Vert vif #1D9E75
    + Crème lumineuse #f7f9f7 — Playfair Display + Outfit
 ═══════════════════════════════════════════════════════════ */
@@ -101,7 +101,6 @@ a{text-decoration:none;color:inherit}
   display:flex;align-items:center;gap:4rem;padding:0 6vw;
   background:var(--dark);overflow:hidden;
 }
-/* Fond : dégradés verts organiques */
 .nd-hero-canvas{position:absolute;inset:0}
 .nd-hero-canvas::before{
   content:'';position:absolute;inset:0;
@@ -110,7 +109,6 @@ a{text-decoration:none;color:inherit}
     radial-gradient(ellipse 40% 70% at 5%  80%,rgba(15,110,86,.15) 0%,transparent 60%),
     radial-gradient(ellipse 50% 40% at 95% 10%,rgba(93,202,165,.08) 0%,transparent 55%);
 }
-/* Grille de points verts discrets */
 .nd-hero-canvas::after{
   content:'';position:absolute;inset:0;
   background-image:radial-gradient(rgba(29,158,117,.18) 1px,transparent 1px);
@@ -124,7 +122,6 @@ a{text-decoration:none;color:inherit}
 .nd-hero-content{
   position:relative;z-index:2;flex:1;min-width:0;
   padding:8rem 0 4rem;max-width:580px;
-  opacity:1;
 }
 .nd-hero-eyebrow{
   display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;
@@ -224,6 +221,213 @@ a{text-decoration:none;color:inherit}
 .nd-title-light{color:#fff}
 .nd-header-light .nd-title{color:#fff}
 
+/* ═══════════════════════════════════════════════════════════
+   TARIFS DIÉTÉTICIENS — 4 CARTES CLAIRES (CORRIGÉ)
+═══════════════════════════════════════════════════════════ */
+.pricing-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (max-width: 1000px) {
+  .pricing-4col { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .pricing-4col { grid-template-columns: 1fr; }
+}
+
+.price-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  border: 1px solid #eef4ee;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.price-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+.price-card.featured {
+  background: linear-gradient(135deg, #0d2018 0%, #142c1f 100%);
+  border: 2px solid #1D9E75;
+  color: #fff;
+}
+
+.price-tier {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7b74;
+  margin-bottom: 0.5rem;
+}
+.price-card.featured .price-tier { color: #5DCAA5; }
+
+.price-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1D9E75;
+  margin-bottom: 0.25rem;
+  line-height: 1.1;
+}
+.price-card.featured .price-amount { color: #5DCAA5; }
+
+.price-desc {
+  font-size: 0.7rem;
+  color: #6b7b74;
+  margin-bottom: 1rem;
+}
+
+.price-quota {
+  font-size: 0.75rem;
+  color: #1D9E75;
+  font-weight: 500;
+  margin: 0.5rem 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eef4ee;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.price-card.featured .price-quota {
+  border-bottom-color: rgba(93,202,165,0.2);
+  color: #5DCAA5;
+}
+
+.price-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1D9E75;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.price-list {
+  list-style: none;
+  margin: 0.75rem 0 1rem;
+  padding: 0;
+  flex: 1;
+}
+.price-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.4;
+}
+.price-list li.included {
+  color: #0d2018;
+}
+.price-card.featured .price-list li.included {
+  color: rgba(255,255,255,0.9);
+}
+.price-list li.excluded {
+  color: #b0bec5;
+  text-decoration: line-through;
+}
+.price-card.featured .price-list li.excluded {
+  color: rgba(255,255,255,0.35);
+}
+.price-list li.included::before {
+  content: "✓";
+  color: #1D9E75;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.price-card.featured .price-list li.included::before {
+  color: #5DCAA5;
+}
+.price-list li.excluded::before {
+  content: "✗";
+  color: #b0bec5;
+  font-size: 0.85rem;
+}
+
+.price-info-box {
+  background: #FAEEDA;
+  border-radius: 12px;
+  padding: 0.65rem;
+  font-size: 0.7rem;
+  color: #633806;
+  text-align: center;
+  margin: 0.5rem 0 1.25rem;
+  line-height: 1.5;
+}
+.price-card.featured .price-info-box {
+  background: rgba(93,202,165,0.12);
+  color: #5DCAA5;
+}
+
+.price-btn-outline {
+  display: block;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  border: 1.5px solid #1D9E75;
+  color: #1D9E75;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+.price-btn-outline:hover {
+  background: rgba(29,158,117,0.08);
+  transform: translateY(-2px);
+}
+
+.price-btn-primary {
+  display: block;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: #1D9E75;
+  color: #fff;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+.price-btn-primary:hover {
+  background: #0f6e56;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29,158,117,0.3);
+}
+
+.pricing-footer-note {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 0.85rem;
+  background: #eef4ee;
+  border-radius: 16px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pricing-footer-note p {
+  font-size: 0.75rem;
+  color: #0f6e56;
+}
+.pricing-footer-note p:first-child {
+  margin-bottom: 0.25rem;
+}
+
 /* ── ÉTAPES ──────────────────────────────────────────── */
 .nd-steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:start}
 .nd-step{
@@ -292,7 +496,7 @@ a{text-decoration:none;color:inherit}
   background:rgba(255,255,255,.06);border:1px solid rgba(29,158,117,.2);
   color:rgba(255,255,255,.75);padding:.7rem 1.5rem;border-radius:999px;
   font-size:.875rem;cursor:pointer;font-family:var(--font-b);
-  transition:background .2s,color .2s;margin:0 auto 2rem;display:flex;
+  transition:background .2s,color .2s;margin:0 auto 2rem;
 }
 .nd-pro-pricing-toggle:hover{background:rgba(29,158,117,.12);color:#fff}
 .nd-pro-pricing-toggle .nd-toggle-arrow{transition:transform .3s;display:inline-block}
@@ -372,6 +576,7 @@ a{text-decoration:none;color:inherit}
   .nd-hero{padding:0 1.5rem}
   .nd-diff-grid{grid-template-columns:1fr 1fr}
   .nd-pro-pricing-grid{grid-template-columns:1fr}
+  .pricing-4col { grid-template-columns: repeat(2, 1fr); }
 }
 @media(max-width:768px){
   .nd-header{padding:1rem 1.25rem}
@@ -384,6 +589,17 @@ a{text-decoration:none;color:inherit}
   .nd-footer-inner{grid-template-columns:1fr;gap:2rem}
   .nd-footer-links{grid-template-columns:1fr 1fr}
   .nd-hero-content{padding:7rem 0 3rem}
+  .pricing-4col { grid-template-columns: 1fr; }
+}
+@media(max-width:480px){
+  .nd-hero-title{font-size:clamp(1.8rem,8vw,2.5rem)}
+  .nd-hero-trust{flex-wrap:wrap;gap:.75rem}
+  .nd-hero-ctas{flex-direction:column;align-items:flex-start;gap:.75rem}
+  .nd-cta-main{width:100%;justify-content:center}
+  .nd-footer-links{grid-template-columns:1fr}
+  .nd-price-card{padding:1.5rem 1rem}
+  .nd-pro-card{padding:1.5rem 1rem}
+  .price-card { padding: 1.5rem 1.25rem; }
 }
 
 /* ── RESPONSIVE home.css ── */
@@ -426,3 +642,20 @@ a{text-decoration:none;color:inherit}
   .nd-price-card{ padding:1.5rem 1rem; }
   .nd-pro-card{ padding:1.5rem 1rem; }
 }
+
+/* ── BOUTON RETOUR HAUT ── */
+.scroll-top-btn {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 800;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--green, #1D9E75); color: #fff;
+  border: none; cursor: pointer; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(13,32,24,.2);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s, transform .25s, background .2s;
+  pointer-events: none;
+}
+.scroll-top-btn.visible {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
+}
+.scroll-top-btn:hover { background: var(--green2, #0f6e56); transform: translateY(-2px); }

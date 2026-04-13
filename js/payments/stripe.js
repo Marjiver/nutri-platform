@@ -82,20 +82,77 @@ const STRIPE_PRODUCTS = {
   },
 };
 
+// ── Récupérer l'utilisateur courant (synchrone pour localStorage) ──
+function getCurrentUserSync() {
+  try {
+    // Patient
+    const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
+    if (bilan.email) {
+      return { 
+        id: bilan.id || 'local_' + Date.now(),
+        email: bilan.email, 
+        prenom: bilan.prenom || '',
+        nom: bilan.nom || '',
+        role: 'patient',
+        niveau_abo: bilan.niveau_abo || 'gratuit'
+      };
+    }
+    
+    // Prescripteur
+    const presc = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
+    if (presc.email) {
+      return { 
+        id: presc.id || 'local_' + Date.now(),
+        email: presc.email, 
+        prenom: presc.prenom || '',
+        nom: presc.nom || '',
+        role: 'prescriber',
+        credits: presc.credits || 10
+      };
+    }
+    
+    // Diététicien
+    const diet = JSON.parse(localStorage.getItem('nutridoc_dieteticien') || '{}');
+    if (diet.email) {
+      return { 
+        id: diet.id || 'local_' + Date.now(),
+        email: diet.email, 
+        prenom: diet.prenom || '',
+        nom: diet.nom || '',
+        role: 'dietitian',
+        rpps: diet.rpps || ''
+      };
+    }
+  } catch (e) {
+    console.warn('getCurrentUserSync:', e);
+  }
+  return null;
+}
+
+// ── Récupérer l'utilisateur courant (async pour Supabase) ──
+async function getCurrentUserAsync() {
+  // Si auth.js est chargé et que MODE_SUPA est actif
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof getCurrentUser !== 'undefined') {
+    try {
+      const user = await getCurrentUser();
+      if (user) return user;
+    } catch (e) {
+      console.warn('getCurrentUserAsync Supabase:', e);
+    }
+  }
+  // Fallback synchrone
+  return getCurrentUserSync();
+}
+
 // ── API publique ──────────────────────────────────────────────
 const StripeCheckout = {
-
-  /**
-   * Patient — payer le plan alimentaire (24,90€)
-   * @param {Object} bilanData - données du bilan patient
-   */
 
   /**
    * Patient — s'abonner (5€ ou 9€/mois)
    * @param {'essentiel'|'premium'|'premium_an'} niveau
    */
   async abonnerPatient(niveau = 'essentiel') {
-    const user = getCurrentUser();
+    const user = await getCurrentUserAsync();
     const key  = 'abo_' + niveau;
     return this._checkout(key, {
       type:            'abonnement_patient',
@@ -107,12 +164,12 @@ const StripeCheckout = {
   },
 
   async payerPlan(bilanData = {}) {
-    const user = getCurrentUser();
+    const user = await getCurrentUserAsync();
     return this._checkout('plan', {
       type:            'plan',
       patient_id:      user?.id      ?? 'demo',
       patient_email:   user?.email   ?? bilanData.email ?? '',
-      patient_prenom:  bilanData.prenom   ?? '',
+      patient_prenom:  bilanData.prenom   ?? user?.prenom ?? '',
       bilan_id:        bilanData.id       ?? '',
       objectif:        bilanData.objectif ?? '',
       ville:           bilanData.ville    ?? '',
@@ -125,7 +182,7 @@ const StripeCheckout = {
    * @param {Object} slotData - { slot_key, diet_id, diet_nom, diet_email }
    */
   async payerVisio(slotData = {}) {
-    const user = getCurrentUser();
+    const user = await getCurrentUserAsync();
     return this._checkout('visio', {
       type:            'visio',
       patient_id:      user?.id    ?? 'demo',
@@ -143,7 +200,7 @@ const StripeCheckout = {
    * @param {'decouverte'|'pro'|'volume'} pack
    */
   async acheterPack(pack = 'pack_dix') {
-    const user = getCurrentUser();
+    const user = await getCurrentUserAsync();
     const PLANS_MAP = { pack_solo: 1, pack_dix: 10, pack_vingt: 20, pack_cinquante: 50 };
     return this._checkout(pack, {
       type:               'pack_plans',
@@ -158,19 +215,30 @@ const StripeCheckout = {
   // ── Interne : créer la session et rediriger ──────────────────
   async _checkout(productKey, metadata) {
     const product = STRIPE_PRODUCTS[productKey];
-    if (!product) { alert('Produit introuvable : ' + productKey); return; }
+    if (!product) { 
+      console.error('Produit introuvable :', productKey);
+      alert('Produit introuvable : ' + productKey); 
+      return;
+    }
 
     // Afficher un état de chargement
     const btn = document.activeElement;
     const originalText = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = 'Redirection…'; }
+    if (btn) { 
+      btn.disabled = true; 
+      btn.textContent = 'Redirection…'; 
+    }
 
     try {
       // Mode démo : pas de vraie session Stripe
-      if (STRIPE_CONFIG.publishableKey.includes('pk_live_REMPLACER_ICI')) {
+      if (STRIPE_CONFIG.publishableKey.includes('pk_live_REMPLACER_ICI') || 
+          STRIPE_CONFIG.publishableKey === 'pk_live_REMPLACER_ICI') {
         console.info('[Stripe DEMO] Checkout simulé :', productKey, metadata);
         this._simulerPaiement(productKey, metadata);
-        if (btn) { btn.disabled = false; btn.textContent = originalText; }
+        if (btn) { 
+          btn.disabled = false; 
+          btn.textContent = originalText; 
+        }
         return;
       }
 
@@ -199,7 +267,10 @@ const StripeCheckout = {
     } catch (err) {
       console.error('[Stripe] Erreur :', err);
       alert('Erreur lors de la création du paiement. Veuillez réessayer.');
-      if (btn) { btn.disabled = false; btn.textContent = originalText; }
+      if (btn) { 
+        btn.disabled = false; 
+        btn.textContent = originalText; 
+      }
     }
   },
 
@@ -224,8 +295,21 @@ const StripeCheckout = {
       bilan.plan_paid_at = new Date().toISOString();
       localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
     }
-    if (productKey.startsWith('credits_')) {
-      const map = { credits_decouverte:10, credits_pro:20, credits_volume:50 };
+    
+    if (productKey === 'abo_essentiel') {
+      const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
+      bilan.niveau_abo = 'essentiel';
+      localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
+    }
+    
+    if (productKey === 'abo_premium' || productKey === 'abo_premium_an') {
+      const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
+      bilan.niveau_abo = 'premium';
+      localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
+    }
+    
+    if (productKey.startsWith('pack_')) {
+      const map = { pack_solo: 1, pack_dix: 10, pack_vingt: 20, pack_cinquante: 50 };
       const presc = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
       presc.credits = (presc.credits || 0) + (map[productKey] || 10);
       localStorage.setItem('nutridoc_prescripteur', JSON.stringify(presc));
@@ -237,18 +321,13 @@ const StripeCheckout = {
     toast.innerHTML = LABELS[productKey] || '✓ Paiement simulé';
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3500);
+    
+    // Recharger la page si nécessaire pour mettre à jour l'interface
+    if (productKey.startsWith('abo_') && window.location.pathname.includes('dashboard.html')) {
+      setTimeout(() => window.location.reload(), 2000);
+    }
   },
 };
-
-// ── Récupérer l'utilisateur courant ──────────────────────────
-function getCurrentUser() {
-  try {
-    const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-    const presc = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
-    return bilan.email ? { ...bilan, role:'patient' } :
-           presc.email ? { ...presc, role:'prescriber' } : null;
-  } catch { return null; }
-}
 
 // ── Gérer le retour depuis Stripe ─────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -272,3 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.history.replaceState({}, '', window.location.pathname);
   }
 });
+
+// Exposer StripeCheckout globalement
+window.StripeCheckout = StripeCheckout;

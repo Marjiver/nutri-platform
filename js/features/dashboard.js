@@ -1,4 +1,3 @@
-
 // ── Niveaux abonnement patient ─────────────────────────────
 const NIVEAUX_PATIENT = {
   gratuit:   { label:'Découverte', color:'#6b7b74', badge:'Gratuit' },
@@ -52,7 +51,6 @@ function afficherBanniereUpgrade(niveau) {
 
 function masquerSectionsGratuit(niveau) {
   if (niveau === 'gratuit') {
-    // Masquer certaines sections avec un overlay "bloqué"
     const sections = ['sectionMacros', 'sectionPoids', 'quizSection'];
     sections.forEach(id => {
       const el = document.getElementById(id);
@@ -156,7 +154,6 @@ function genererPlan(bilan) {
   const activite = bilan.activite || 'modere';
   const sexe     = bilan.sexe     || 'autre';
 
-  // Besoins caloriques estimés (Mifflin-St Jeor)
   let bmr = sexe === 'homme'
     ? 10 * poids + 6.25 * taille - 5 * 30 + 5
     : 10 * poids + 6.25 * taille - 5 * 30 - 161;
@@ -165,7 +162,6 @@ function genererPlan(bilan) {
   if (objectif === 'perte_poids') tdee = Math.round(tdee * 0.85);
   if (objectif === 'prise_masse') tdee = Math.round(tdee * 1.1);
 
-  // Repas selon objectif & régime
   const vegan = regime === 'vegan';
   const vege  = regime === 'vegetarien' || vegan;
 
@@ -286,7 +282,6 @@ function genererPlan(bilan) {
     }
   };
 
-  // Objectifs non spécifiés → utilise perte_poids comme base équilibre
   const planData = plans[objectif] || plans.perte_poids;
 
   return { planData, tdee, objectif, prenom: bilan.prenom || '' };
@@ -313,175 +308,79 @@ function renderIdeesRepas(titre, idees) {
 }
 
 function afficherPlanDebloque(bilan) {
-  document.getElementById('planLocked').classList.add('hidden');
-  document.getElementById('planPending').classList.add('hidden');
-  document.getElementById('planUnlocked').classList.remove('hidden');
+  const planLocked = document.getElementById('planLocked');
+  const planPending = document.getElementById('planPending');
+  const planUnlocked = document.getElementById('planUnlocked');
+  
+  if (planLocked) planLocked.classList.add('hidden');
+  if (planPending) planPending.classList.add('hidden');
+  if (planUnlocked) planUnlocked.classList.remove('hidden');
 
   const { planData, tdee, objectif, prenom } = genererPlan(bilan);
 
   const content = document.getElementById('planContent');
-  content.innerHTML =
-    '<div class="plan-header-info">' +
-      '<div class="plan-patient">' + (prenom ? 'Plan de ' + prenom : 'Votre plan') + ' — ' + (OBJECTIF_LABELS[objectif] || objectif) + '</div>' +
-      '<div class="plan-kcal-total">Apport journalier estimé : <strong>' + tdee + ' kcal</strong></div>' +
-    '</div>' +
-    renderMealBlock('🍳', 'Petit déjeuner', planData.petitDej) +
-    renderIdeesRepas('Idées déjeuner (à alterner)', planData.ideesDejeuner) +
-    renderMealBlock('🍎', 'Collation 16h', planData.collation) +
-    renderIdeesRepas('Idées dîner (à alterner)', planData.ideesDiner) +
-    '<p class="plan-note">Les grammages sont exprimés en poids cuit sauf mention contraire. Ce plan a été validé et signé par votre diététicien.</p>';
+  if (content) {
+    content.innerHTML =
+      '<div class="plan-header-info">' +
+        '<div class="plan-patient">' + (prenom ? 'Plan de ' + prenom : 'Votre plan') + ' — ' + (OBJECTIF_LABELS[objectif] || objectif) + '</div>' +
+        '<div class="plan-kcal-total">Apport journalier estimé : <strong>' + tdee + ' kcal</strong></div>' +
+      '</div>' +
+      renderMealBlock('🍳', 'Petit déjeuner', planData.petitDej) +
+      renderIdeesRepas('Idées déjeuner (à alterner)', planData.ideesDejeuner) +
+      renderMealBlock('🍎', 'Collation 16h', planData.collation) +
+      renderIdeesRepas('Idées dîner (à alterner)', planData.ideesDiner) +
+      '<p class="plan-note">Les grammages sont exprimés en poids cuit sauf mention contraire. Ce plan a été validé et signé par votre diététicien.</p>';
+  }
 }
 
 // ── Paiement simulé ────────────────────────────────────────────────────────
 function simulerPaiement() {
-  document.getElementById('modalOverlay').classList.remove('hidden');
+  const modal = document.getElementById('modalOverlay');
+  if (modal) modal.classList.remove('hidden');
 }
+
 function fermerModal() {
-  document.getElementById('modalOverlay').classList.add('hidden');
+  const modal = document.getElementById('modalOverlay');
+  if (modal) modal.classList.add('hidden');
 }
+
+function simulerValidation(bilan) {
+  // Simulation de validation par le diététicien
+  console.log('Plan validé par le diététicien');
+  const planPending = document.getElementById('planPending');
+  const planUnlocked = document.getElementById('planUnlocked');
+  
+  if (planPending) planPending.classList.add('hidden');
+  if (planUnlocked) planUnlocked.classList.remove('hidden');
+  
+  // Met à jour le statut dans localStorage
+  bilan.statut = 'valide';
+  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
+  
+  // Affiche le plan débloqué
+  afficherPlanDebloque(bilan);
+}
+
 function confirmerPaiement() {
   const btn = document.getElementById('btnConfirm');
+  if (!btn) return;
+  
   btn.textContent = 'Traitement…';
   btn.disabled = true;
+  
   setTimeout(() => {
     fermerModal();
     const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
     bilan.paiement = 'confirme';
-    bilan.statut   = 'attente_validation';
+    bilan.statut = 'attente_validation';
     localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
-    document.getElementById('planLocked').classList.add('hidden');
-    document.getElementById('planPending').classList.remove('hidden');
+    
+    const planLocked = document.getElementById('planLocked');
+    const planPending = document.getElementById('planPending');
+    
+    if (planLocked) planLocked.classList.add('hidden');
+    if (planPending) planPending.classList.remove('hidden');
+    
     setTimeout(() => simulerValidation(bilan), 3000);
   }, 1800);
-}
-function simulerValidation(bilan) {
-  bilan.statut = 'valide';
-  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
-  afficherPlanDebloque(bilan);
-}
-
-// ── Init ───────────────────────────────────────────────────────────────────
-
-// ── Init avec Supabase ou localStorage ───────────────────────
-async function initDashboard() {
-  let bilan;
-  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
-    bilan = await getBilan();
-    if (!bilan) { window.location.href = 'login.html'; return; }
-  } else {
-    bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-  }
-  initWithBilan(bilan);
-}
-
-function initWithBilan(bilan) {
-  // bilan passé en paramètre
-
-  if (bilan.prenom) {
-    document.getElementById('greetingName').textContent = 'Bonjour ' + bilan.prenom + ' \uD83D\uDC4B';
-    document.getElementById('userTag').textContent = bilan.prenom;
-  }
-
-  if (bilan.objectif) document.getElementById('infoObjectif').textContent = OBJECTIF_LABELS[bilan.objectif] || bilan.objectif;
-  if (bilan.activite) document.getElementById('infoActivite').textContent = ACTIVITE_LABELS[bilan.activite] || bilan.activite;
-  document.getElementById('infoRegime').textContent = bilan.regime || 'Aucune restriction';
-  if (bilan.poids && bilan.taille) {
-    const h = bilan.taille / 100;
-    document.getElementById('infoImc').textContent = (bilan.poids / (h * h)).toFixed(1);
-  }
-
-  const statut = bilan.statut || 'nouveau';
-  const dot = document.getElementById('statusDot');
-  const val = document.getElementById('statusValue');
-  const eta = document.getElementById('statusEta');
-
-  if (statut === 'alerte_sante') {
-    dot.style.background = '#f97316';
-    val.textContent = 'Dossier transmis à un diététicien spécialisé';
-    eta.textContent = '';
-  } else if (statut === 'valide') {
-    dot.className = 'status-dot validated';
-    val.textContent = 'Plan complet validé et disponible';
-    eta.textContent = '✓';
-  } else {
-    dot.className = 'status-dot pending';
-    val.textContent = 'Recommandations disponibles';
-    eta.textContent = 'Gratuit';
-  }
-
-  afficherRecos(genererRecos(bilan));
-
-  if (statut === 'valide') afficherPlanDebloque(bilan);
-  else if (bilan.paiement === 'confirme') {
-    document.getElementById('planLocked').classList.add('hidden');
-    document.getElementById('planPending').classList.remove('hidden');
-  }
-});
-
-// ── Chat patient ──────────────────────────────────────────────────────────────
-function activerChat() {
-  const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-  // Simulation paiement instantané
-  bilan.chatActif = true;
-  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilan));
-  document.getElementById('chatLocked').classList.add('hidden');
-  document.getElementById('chatUnlocked').classList.remove('hidden');
-  // Afficher nom du diét si disponible
-  const profil = JSON.parse(localStorage.getItem('nutridoc_dieteticien') || '{}');
-  if (profil.prenom) {
-    document.getElementById('chatDietName').textContent = profil.prenom + ' ' + (profil.nom || '').toUpperCase();
-  }
-}
-
-function patientSendMsg() {
-  const inp = document.getElementById('patientChatInput');
-  const texte = inp.value.trim();
-  if (!texte) return;
-  const box = document.getElementById('patientChatMessages');
-  const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const div = document.createElement('div');
-  div.className = 'chat-msg patient';
-  div.innerHTML = '<div class="chat-bubble">' + texte + '</div><div class="chat-msg-time">' + heure + '</div>';
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  inp.value = '';
-  // Réponse automatique simulée
-  setTimeout(() => {
-    const rep = document.createElement('div');
-    rep.className = 'chat-msg diet';
-    rep.innerHTML = '<div class="chat-bubble">Merci pour votre message, je vous réponds dans les plus brefs délais !</div><div class="chat-msg-time">' + heure + '</div>';
-    box.appendChild(rep);
-    box.scrollTop = box.scrollHeight;
-  }, 1200);
-}
-
-// Restaurer état chat si déjà activé
-
-// ── Init avec Supabase ou localStorage ───────────────────────
-async function initDashboard() {
-  let bilan;
-  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
-    bilan = await getBilan();
-    if (!bilan) { window.location.href = 'login.html'; return; }
-  } else {
-    bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-  }
-  initWithBilan(bilan);
-}
-
-function initWithBilan(bilan) {
-  // bilan passé en paramètre
-  if (bilan.chatActif) {
-    document.getElementById('chatLocked')?.classList.add('hidden');
-    document.getElementById('chatUnlocked')?.classList.remove('hidden');
-  }
-}, true);
-
-
-document.addEventListener('DOMContentLoaded', initDashboard);
-
-function demanderChangementDiet() {
-  if (confirm("Voulez-vous demander un changement de diététicien ?\n\nVotre dossier sera transféré à un autre diét. disponible dans votre zone. Cela peut prendre 24h.")) {
-    alert("Demande enregistrée. Vous serez notifié par email dès qu'un nouveau diét. est assigné.");
-  }
 }
