@@ -3,314 +3,261 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NutriDoc — CRM Partenaire B2B · CaliDoc Santé</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Espace Partenaire — Bientôt disponible · NutriDoc</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--dark:#0d2018;--green:#1D9E75;--green-d:#0F6E56;--green-l:#E1F5EE;--gray:#6b7b74;--border:#e8edeb;--cream:#f7f9f7;--blue:#185FA5;--blue-l:#E6F1FB;--amber:#FAEEDA;--amber-d:#633806;--font-d:'DM Serif Display',Georgia,serif;--font-b:'DM Sans',system-ui,sans-serif;}
-    body{font-family:var(--font-b);background:var(--cream);color:var(--dark);min-height:100vh;}
-    a{text-decoration:none;}
-    .nav{background:var(--dark);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{font-family:var(--font-d);font-size:1.2rem;color:#fff;}
-    .nav-logo em{color:var(--green);font-style:italic;}
-    .nav-badge{font-size:.6rem;background:rgba(29,158,117,.2);color:var(--green);border-radius:999px;padding:2px 8px;margin-left:.35rem;vertical-align:middle;}
-    .nav-links{display:flex;gap:1.25rem;}
-    .nav-links a{font-size:.82rem;color:rgba(255,255,255,.55);transition:color .2s;}
-    .nav-links a.active,.nav-links a:hover{color:#fff;}
-    .nav-right{display:flex;align-items:center;gap:.75rem;}
-    .nav-user{font-size:.8rem;color:rgba(255,255,255,.45);}
-    .btn-sm{font-size:.78rem;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.3rem .875rem;font-family:var(--font-b);}
-    .page{max-width:1160px;margin:0 auto;padding:2rem 1.5rem;}
-    .page-header{margin-bottom:2rem;}
-    .page-title{font-family:var(--font-d);font-size:1.75rem;color:var(--dark);margin-bottom:.3rem;}
-    .page-sub{font-size:.875rem;color:var(--gray);}
-    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
-    .kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;transition:box-shadow .2s,transform .2s;}
-    .kpi:hover{box-shadow:0 4px 14px rgba(13,32,24,.07);transform:translateY(-2px);}
-    .kpi-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);margin-bottom:.4rem;}
-    .kpi-val{font-family:var(--font-d);font-size:2rem;color:var(--dark);line-height:1;}
-    .kpi-sub{font-size:.72rem;color:var(--gray);margin-top:.2rem;}
-    .kpi-green .kpi-val{color:var(--green);}
-    .kpi-blue .kpi-val{color:var(--blue);}
-    .two-col{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
-    .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;}
-    .section-title{font-weight:600;font-size:.95rem;color:var(--dark);margin-bottom:1rem;}
-    /* Utilisateurs */
-    .user-row{display:flex;align-items:center;gap:.875rem;padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.82rem;}
-    .user-row:last-child{border-bottom:none;}
-    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:600;color:var(--green-d);flex-shrink:0;}
-    .user-name{font-weight:500;color:var(--dark);}
-    .user-role{font-size:.7rem;background:var(--cream);border-radius:999px;padding:.15rem .55rem;color:var(--gray);flex-shrink:0;}
-    .user-role.admin{background:var(--green-l);color:var(--green-d);}
-    .user-plans{font-size:.75rem;color:var(--gray);margin-left:auto;}
-    .btn-add{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.5rem 1.1rem;font-size:.8rem;font-weight:500;cursor:pointer;font-family:var(--font-b);}
-    /* Tableau commandes */
-    .cmd-table{width:100%;border-collapse:collapse;font-size:.82rem;}
-    .cmd-table thead{background:var(--cream);}
-    .cmd-table th{padding:.55rem .875rem;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);font-weight:500;border-bottom:1px solid var(--border);}
-    .cmd-table td{padding:.7rem .875rem;border-bottom:1px solid var(--border);vertical-align:middle;}
-    .cmd-table tr:last-child td{border-bottom:none;}
-    .cmd-table tr:hover td{background:var(--cream);}
-    .status-pill{display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;padding:.2rem .65rem;font-size:.7rem;font-weight:500;}
-    .s-pending{background:var(--amber);color:var(--amber-d);}
-    .s-progress{background:var(--blue-l);color:var(--blue);}
-    .s-done{background:var(--green-l);color:var(--green-d);}
-    /* Formulaire commande */
-    .form-group{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.875rem;}
-    .form-label{font-size:.78rem;font-weight:500;color:var(--dark);}
-    .form-input,.form-select{border:1.5px solid var(--border);border-radius:9px;padding:.6rem .875rem;font-family:var(--font-b);font-size:.875rem;color:var(--dark);background:#fff;transition:border-color .2s;}
-    .form-input:focus,.form-select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.1);}
-    .btn-submit{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.75rem;font-size:.9rem;font-weight:500;cursor:pointer;font-family:var(--font-b);width:100%;transition:background .2s;}
-    .btn-submit:hover{background:var(--green-d);}
-    /* Alerte quota */
-    .quota-warn{background:var(--amber);border:1px solid #E5A640;border-radius:10px;padding:.875rem 1.25rem;font-size:.82rem;color:var(--amber-d);display:flex;gap:.75rem;margin-bottom:1.5rem;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-    .page-header,.kpi-grid,.card{animation:fadeUp .4s ease both;}
-    @media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0d2018;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo em { font-style: italic; color: #5DCAA5; }
+    .logo-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-left: 0.5rem;
+    }
+    .back-btn {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* ── CONTENU PRINCIPAL ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .card {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .icon-wrap {
+      width: 80px;
+      height: 80px;
+      background: rgba(29,158,117,0.12);
+      border: 1px solid rgba(29,158,117,0.25);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.75rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #5DCAA5;
+      background: rgba(29,158,117,0.12);
+      border: 1px solid rgba(29,158,117,0.25);
+      border-radius: 999px;
+      padding: 0.25rem 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    h1 em { font-style: italic; color: #5DCAA5; }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── LISTE FEATURES À VENIR ── */
+    .features {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+    .features-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 1rem;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(29,158,117,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* ── CTA ── */
+    .cta-group {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-main {
+      background: #1D9E75;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-main:hover { background: #17875f; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.2);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.75rem; }
+      .cta-group { flex-direction: column; align-items: stretch; }
+      .btn-main, .btn-ghost { text-align: center; }
+    }
   </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="partenariats.html" class="nav-logo">Nutri<em>Doc</em><span class="nav-badge">Partenaires</span></a>
-  <div class="nav-links">
-    <a href="partenariats.html">Accueil</a>
-    <a href="partenaire-crm.html" class="active">CRM commandes</a>
-    <a href="compta-partenaire.html">Comptabilité</a>
-  </div>
-  <div class="nav-right">
-    <span class="nav-user" id="navUser">Chargement…</span>
-    <button class="btn-sm" onclick="window.location.href='partenariats.html'">Déconnexion</button>
-  </div>
-</nav>
 
-<div class="page">
-  <div class="page-header">
-    <h1 class="page-title">CRM Partenaire</h1>
-    <p class="page-sub" id="pageSubTitle">Gérez vos utilisateurs, commandez des plans et suivez vos bénéficiaires.</p>
-  </div>
+<header>
+  <a href="partenariats.html" class="logo">
+    Nutri<em>Doc</em><span class="logo-badge">Partenaires</span>
+  </a>
+  <a href="partenariats.html" class="back-btn">← Retour</a>
+</header>
 
-  <!-- Alerte quota -->
-  <div class="quota-warn" id="quotaWarn" style="display:none;">
-    <span>⚠️</span>
-    <div>
-      <strong>Quota presque atteint</strong> — il reste <span id="quotaRestant">—</span> crédits ce mois.
-      <a href="compta-partenaire.html" style="color:var(--amber-d);text-decoration:underline;margin-left:.25rem;">Voir la compta →</a>
-    </div>
-  </div>
+<main>
+  <div class="card">
 
-  <!-- KPIs -->
-  <div class="kpi-grid">
-    <div class="kpi kpi-green">
-      <div class="kpi-label">Crédits restants</div>
-      <div class="kpi-val" id="kCredits">—</div>
-      <div class="kpi-sub" id="kCreditsSub">ce mois</div>
-    </div>
-    <div class="kpi kpi-blue">
-      <div class="kpi-label">Commandes ce mois</div>
-      <div class="kpi-val" id="kCommandes">—</div>
-      <div class="kpi-sub">plans commandés</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">En attente</div>
-      <div class="kpi-val" id="kAttente">—</div>
-      <div class="kpi-sub">dans la file</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Livrés</div>
-      <div class="kpi-val" id="kLivres">—</div>
-      <div class="kpi-sub">ce mois</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Utilisateurs</div>
-      <div class="kpi-val" id="kUsers">—</div>
-      <div class="kpi-sub" id="kOffer">Pack Pro</div>
-    </div>
-  </div>
+    <div class="icon-wrap">🏢</div>
 
-  <div class="two-col">
+    <span class="badge">Bientôt disponible</span>
 
-    <!-- Tableau des commandes -->
-    <div>
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-          <div class="section-title" style="margin-bottom:0;">📋 Commandes récentes</div>
-          <div style="display:flex;gap:.35rem;">
-            <button class="status-pill s-pending" style="cursor:pointer;" onclick="filtrerStatut('all')">Toutes</button>
-            <button class="status-pill s-progress" style="cursor:pointer;" onclick="filtrerStatut('progress')">En cours</button>
-            <button class="status-pill s-done" style="cursor:pointer;" onclick="filtrerStatut('done')">Livrées</button>
-          </div>
-        </div>
-        <table class="cmd-table" id="cmdTable">
-          <thead>
-            <tr>
-              <th>Bénéficiaire</th>
-              <th>Objectif</th>
-              <th>Commandé par</th>
-              <th>Statut</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="cmdBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--gray);padding:1.5rem;">Chargement…</td></tr>
-          </tbody>
-        </table>
-        <div style="display:flex;gap:.75rem;margin-top:1rem;justify-content:flex-end;">
-          <button class="btn-sm" style="color:var(--gray);border-color:var(--border);font-size:.78rem;background:#fff;border-radius:999px;padding:.4rem 1rem;cursor:pointer;font-family:var(--font-b);" onclick="exportCSV()">⬇️ Export CSV</button>
-        </div>
+    <h1>L'espace partenaire<br>est en <em>construction</em></h1>
+
+    <p class="subtitle">
+      Le CRM multi-praticien pour maisons de santé, salles de sport et structures de santé
+      est en cours de développement. Laissez-nous vos coordonnées pour être notifié en priorité.
+    </p>
+
+    <div class="features">
+      <div class="features-title">Ce qui arrive prochainement</div>
+      <div class="feature-item">
+        <div class="feature-icon">👥</div>
+        <span>Gestion multi-praticiens au sein d'une même structure</span>
       </div>
-
-      <!-- Gestion utilisateurs -->
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-          <div class="section-title" style="margin-bottom:0;">👥 Utilisateurs de la structure</div>
-          <button class="btn-add" onclick="ajouterUser()">+ Ajouter</button>
-        </div>
-        <div id="userList">
-          <!-- Rempli par JS -->
-        </div>
-        <p style="font-size:.73rem;color:var(--gray);margin-top:.75rem;">
-          Rôles : <strong>Admin</strong> — accès total · <strong>Utilisateur</strong> — commande + suivi · <strong>Lecteur</strong> — consultation uniquement
-        </p>
+      <div class="feature-item">
+        <div class="feature-icon">📦</div>
+        <span>Commandes groupées de plans alimentaires</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <span>Tableau de bord & statistiques structure</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💳</div>
+        <span>Facturation centralisée et export comptable</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <span>API dédiée pour intégration à vos outils métier</span>
       </div>
     </div>
 
-    <!-- Formulaire commande -->
-    <div>
-      <div class="card">
-        <div class="section-title">🛒 Commander un plan</div>
-        <div class="form-group">
-          <label class="form-label">Prénom du bénéficiaire</label>
-          <input type="text" id="cmd_prenom" class="form-input" placeholder="Marie"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Objectif principal</label>
-          <select id="cmd_objectif" class="form-select">
-            <option value="">— Choisir —</option>
-            <option value="perte_poids">Perte de poids</option>
-            <option value="prise_masse">Prise de masse musculaire</option>
-            <option value="equilibre">Équilibre alimentaire</option>
-            <option value="performance">Performance sportive</option>
-            <option value="diabete_hta">Diabète / HTA</option>
-            <option value="grossesse">Grossesse</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Commandé par</label>
-          <select id="cmd_user" class="form-select">
-            <option value="admin">Antoine D. (Admin)</option>
-            <option value="coach1">Sophie M. (Coach)</option>
-            <option value="coach2">Romain L. (Coach)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Priorité</label>
-          <select id="cmd_prio" class="form-select">
-            <option value="2">Standard (48h)</option>
-            <option value="3">Urgent (SLA 24h)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes médicales (optionnel)</label>
-          <input type="text" id="cmd_notes" class="form-input" placeholder="Allergie gluten, diabète T2…"/>
-        </div>
-        <button class="btn-submit" onclick="commanderPlan()">Commander — 1 crédit →</button>
-        <div id="cmdMsg" style="margin-top:.875rem;display:none;"></div>
-        <p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:.5rem;">
-          1 crédit = 24,90€ HT · Plan validé RPPS livré sous 48h ouvrées
-        </p>
-      </div>
+    <div class="cta-group">
+      <a href="partenariats.html#contact" class="btn-main">Être notifié en priorité →</a>
+      <a href="partenariats.html" class="btn-ghost">Découvrir l'offre partenaire</a>
     </div>
+
   </div>
-</div>
+</main>
 
-<script>
-window._skipUniversalNav = true;
+<footer>
+  NutriDoc by CaliDoc Santé · <a href="mentions-legales.html" style="color:inherit;">Mentions légales</a>
+</footer>
 
-var MOCK = {
-  raison: 'Basic-Fit Angoulême Centre', offre: 'Pro — 249€/mois',
-  credits_restants: 23, credits_total: 50,
-  commandes_mois: 27, en_attente: 3, livres: 24,
-  users: [
-    { nom: 'Antoine D.', role: 'admin', plans_mois: 15, initiale: 'A' },
-    { nom: 'Sophie M.', role: 'utilisateur', plans_mois: 7, initiale: 'S' },
-    { nom: 'Romain L.', role: 'utilisateur', plans_mois: 5, initiale: 'R' },
-  ],
-  commandes: [
-    { prenom: 'Marie D.', objectif: 'Perte de poids', user: 'Sophie M.', statut: 'progress', date: '2026-04-02' },
-    { prenom: 'Karim A.', objectif: 'Prise de masse', user: 'Romain L.', statut: 'done', date: '2026-04-01' },
-    { prenom: 'Lucie B.', objectif: 'Équilibre', user: 'Antoine D.', statut: 'done', date: '2026-03-31' },
-    { prenom: 'Thomas K.', objectif: 'Performance', user: 'Sophie M.', statut: 'done', date: '2026-03-30' },
-    { prenom: 'Camille R.', objectif: 'Grossesse', user: 'Antoine D.', statut: 'pending', date: '2026-04-02' },
-    { prenom: 'Pierre L.', objectif: 'Diabète / HTA', user: 'Romain L.', statut: 'pending', date: '2026-04-02' },
-  ]
-};
-
-function init() {
-  var d = MOCK;
-  document.getElementById('navUser').textContent = d.raison;
-  document.getElementById('pageSubTitle').textContent = d.offre + ' · ' + d.credits_restants + ' crédits restants';
-  document.getElementById('kCredits').textContent = d.credits_restants;
-  document.getElementById('kCreditsSub').textContent = 'sur ' + d.credits_total + ' achetés';
-  document.getElementById('kCommandes').textContent = d.commandes_mois;
-  document.getElementById('kAttente').textContent = d.en_attente;
-  document.getElementById('kLivres').textContent = d.livres;
-  document.getElementById('kUsers').textContent = d.users.length;
-  document.getElementById('kOffer').textContent = d.offre.split('—')[0].trim();
-
-  if (d.credits_restants / d.credits_total <= 0.2) {
-    document.getElementById('quotaWarn').style.display = 'flex';
-    document.getElementById('quotaRestant').textContent = d.credits_restants + ' crédits';
-  }
-
-  renderCommandes(d.commandes);
-  renderUsers(d.users);
-}
-
-function renderCommandes(cmds) {
-  var statPill = { pending: '<span class="status-pill s-pending">⏳ En attente</span>', progress: '<span class="status-pill s-progress">🔄 En cours</span>', done: '<span class="status-pill s-done">✅ Livré</span>' };
-  document.getElementById('cmdBody').innerHTML = cmds.map(function(c) {
-    return '<tr><td><strong>' + c.prenom + '</strong></td><td style="font-size:.8rem;color:var(--gray);">' + c.objectif + '</td><td style="font-size:.78rem;color:var(--gray);">' + c.user + '</td><td>' + (statPill[c.statut]||c.statut) + '</td><td style="font-size:.75rem;color:var(--gray);">' + c.date + '</td></tr>';
-  }).join('');
-}
-
-function renderUsers(users) {
-  document.getElementById('userList').innerHTML = users.map(function(u) {
-    return '<div class="user-row"><div class="user-avatar">' + u.initiale + '</div><div style="flex:1"><div class="user-name">' + u.nom + '</div><div style="font-size:.72rem;color:var(--gray);">' + u.plans_mois + ' plans ce mois</div></div><span class="user-role ' + (u.role==='admin'?'admin':'') + '">' + u.role + '</span></div>';
-  }).join('');
-}
-
-function filtrerStatut(s) {
-  if (s === 'all') renderCommandes(MOCK.commandes);
-  else renderCommandes(MOCK.commandes.filter(function(c){ return c.statut === s; }));
-}
-
-function commanderPlan() {
-  var prenom = document.getElementById('cmd_prenom').value.trim();
-  var obj = document.getElementById('cmd_objectif').value;
-  var msg = document.getElementById('cmdMsg');
-  if (!prenom || !obj) { msg.style.display='block'; msg.style.background='#FEF2F2'; msg.style.borderRadius='8px'; msg.style.padding='.6rem .875rem'; msg.style.color='#A32D2D'; msg.style.fontSize='.82rem'; msg.textContent='Veuillez remplir le prénom et l'objectif.'; return; }
-  MOCK.commandes.unshift({ prenom, objectif: obj.replace('_',' '), user: document.getElementById('cmd_user').options[document.getElementById('cmd_user').selectedIndex].text, statut: 'pending', date: new Date().toISOString().slice(0,10) });
-  MOCK.credits_restants--; MOCK.commandes_mois++; MOCK.en_attente++;
-  document.getElementById('kCredits').textContent = MOCK.credits_restants;
-  document.getElementById('kCommandes').textContent = MOCK.commandes_mois;
-  document.getElementById('kAttente').textContent = MOCK.en_attente;
-  renderCommandes(MOCK.commandes);
-  msg.style.display='block'; msg.style.background='var(--green-l)'; msg.style.borderRadius='8px'; msg.style.padding='.6rem .875rem'; msg.style.color='var(--green-d)'; msg.style.fontSize='.82rem';
-  msg.textContent='✅ Plan commandé pour ' + prenom + ' — 1 crédit débité. Livraison < 48h.';
-  document.getElementById('cmd_prenom').value=''; document.getElementById('cmd_objectif').value='';
-}
-
-function ajouterUser() { alert('Ajout d'un utilisateur : fonctionnalité disponible après connexion Supabase.'); }
-function exportCSV() {
-  var rows = [['Bénéficiaire','Objectif','Commandé par','Statut','Date']].concat(MOCK.commandes.map(function(c){ return [c.prenom,c.objectif,c.user,c.statut,c.date]; }));
-  var csv = rows.map(function(r){ return r.join(','); }).join('\n');
-  var a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='commandes-nutridoc.csv'; a.click();
-}
-
-init();
-</script>
 </body>
 </html>
