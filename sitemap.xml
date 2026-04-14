@@ -1,35 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://nutridoc.calidoc-sante.fr/index.html</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/accueil-dieteticien.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/bilan.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/inscription-dieteticien.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/inscription-prescripteur.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/faq.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/contact.html</loc><priority>0.6</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/mentions-legales.html</loc><priority>0.4</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/politique-confidentialite.html</loc><priority>0.4</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/cgu-patient.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/cgu-dieteticien.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://nutridoc.calidoc-sante.fr/cgu-prescripteur.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGES PRINCIPALES — priorité haute
+       ═══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/index.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/bilan.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LANDING PAGES PROFILS
+       ═══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/accueil-dieteticien.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/accueil-prescripteur.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <url>
     <loc>https://nutridoc.calidoc-sante.fr/partenariats.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════
+       INSCRIPTIONS
+       ═══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/inscription-dieteticien.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/inscription-prescripteur.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════
+       INFORMATIONS & SUPPORT
+       ═══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/faq.html</loc>
+    <lastmod>2026-04-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/contact.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGES LÉGALES
+       ═══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/mentions-legales.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/politique-confidentialite.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/cgu-patient.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/cgu-dieteticien.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://nutridoc.calidoc-sante.fr/cgu-prescripteur.html</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
   <url>
     <loc>https://nutridoc.calidoc-sante.fr/cgu-partenaires.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
-  <url>
-    <loc>https://nutridoc.calidoc-sante.fr/gestion-forfait-dieteticien.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://nutridoc.calidoc-sante.fr/partenaire-crm.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
+
 </urlset>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGES EXCLUES DU SITEMAP (non indexables) :
+     - Pages authentifiées : dashboard.html, dietitian.html,
+       profil-*.html, agenda-*.html, compta-*.html,
+       prescripteur-*.html, gestion-*.html
+     - Pages admin : admin.html, statistiques-admin.html,
+       api-documentation.html, backup-restore.html, webhooks.html
+     - Pages système : offline.html, chatbot.html, seo.html
+     - Pages coming soon : partenaire-crm.html, compta-partenaire.html
+     ═══════════════════════════════════════════════════════════ -->
