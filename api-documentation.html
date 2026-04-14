@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Documentation complète de l'API NutriDoc pour l'intégration des partenaires, prescripteurs et diététiciens."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API NutriDoc — Documentation technique</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="API NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== PERFORMANCE ==================== -->
+  <script src="js/utils/performance.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== PRISM.JS POUR SYNTAX HIGHLIGHTING ==================== -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .api-header {
+      background: #0d2018;
+      padding: 0.75rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .api-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .api-logo em { font-style: italic; color: #5DCAA5; }
+    .api-nav { display: flex; gap: 1.5rem; }
+    .api-nav a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .api-nav a:hover, .api-nav a.active { color: #fff; }
+    .api-version {
+      font-size: 0.7rem;
+      background: rgba(29,158,117,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      color: #5DCAA5;
+    }
+
+    /* THEME SELECTOR */
+    .theme-selector-wrapper {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9997;
+    }
+
+    /* MAIN CONTENT */
+    .api-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 3rem;
+    }
+
+    /* SIDEBAR + CONTENT */
+    .api-layout {
+      display: flex;
+      gap: 2rem;
+    }
+    .api-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+    }
+    .api-sidebar-nav {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .api-sidebar-category {
+      padding: 0.75rem 1rem;
+      background: #f7f9f7;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7b74;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .api-sidebar-item {
+      display: block;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      color: #0d2018;
+      text-decoration: none;
+      border-bottom: 1px solid #eef4ee;
+      transition: all 0.2s;
+    }
+    .api-sidebar-item:hover {
+      background: rgba(29,158,117,0.05);
+      color: #1D9E75;
+      padding-left: 1.5rem;
+    }
+    .api-sidebar-item.active {
+      background: rgba(29,158,117,0.1);
+      color: #1D9E75;
+      border-left: 3px solid #1D9E75;
+    }
+
+    .api-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* SECTION */
+    .api-section {
+      scroll-margin-top: 80px;
+      margin-bottom: 3rem;
+    }
+    .api-section h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #0d2018;
+      margin-bottom: 0.5rem;
+    }
+    .api-section h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #0d2018;
+      margin: 1.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #eef4ee;
+    }
+    .api-section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1D9E75;
+      margin: 1.25rem 0 0.75rem;
+    }
+    .api-section p {
+      font-size: 0.85rem;
+      color: #6b7b74;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* ENDPOINT CARD */
+    .endpoint-card {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .endpoint-header {
+      padding: 1rem 1.25rem;
+      background: #f7f9f7;
+      border-bottom: 1px solid #eef4ee;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .endpoint-method {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .method-get { background: #dbeafe; color: #1d4ed8; }
+    .method-post { background: #dcfce7; color: #166534; }
+    .method-put { background: #fef3c7; color: #92400e; }
+    .method-delete { background: #fee2e2; color: #b91c1c; }
+    .endpoint-url {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #0d2018;
+      flex: 1;
+    }
+    .endpoint-auth {
+      font-size: 0.65rem;
+      background: #eef4ee;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      color: #6b7b74;
+    }
+    .endpoint-body {
+      padding: 1.25rem;
+    }
+    .endpoint-body h4 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7b74;
+      margin-bottom: 0.5rem;
+    }
+
+    /* CODE BLOCKS */
+    pre {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+    }
+    .inline-code {
+      background: #eef4ee;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    /* PARAMETERS TABLE */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 0.75rem 0;
+    }
+    .params-table th {
+      text-align: left;
+      padding: 0.5rem;
+      background: #f7f9f7;
+      font-weight: 500;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .params-table td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .param-required { color: #ef4444; font-size: 0.7rem; }
+    .param-optional { color: #6b7b74; font-size: 0.7rem; }
+
+    /* RESPONSE EXAMPLE */
+    .response-example {
+      background: #f7f9f7;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    /* BADGES */
+    .badge-beta {
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+    }
+
+    /* TRY IT OUT */
+    .tryit-section {
+      background: #f7f9f7;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .tryit-input {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .tryit-input input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #eef4ee;
+      border-radius: 8px;
+      font-family: monospace;
+    }
+    .tryit-btn {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.7rem;
+    }
+    .tryit-result {
+      background: #1e1e1e;
+      color: #fff;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.7rem;
+      overflow-x: auto;
+    }
+
+    /* FOOTER */
+    .api-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+
+    @media (max-width: 900px) {
+      .api-layout {
+        flex-direction: column;
+      }
+      .api-sidebar {
+        width: 100%;
+        position: static;
+      }
+      .api-sidebar-nav {
+        display: flex;
+        overflow-x: auto;
+      }
+      .api-sidebar-item {
+        white-space: nowrap;
+        border-bottom: none;
+        border-right: 1px solid #eef4ee;
+      }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+<div id="theme-selector-container" class="theme-selector-wrapper"></div>
+
+<!-- HEADER -->
+<header class="api-header">
+  <div class="header-container">
+    <a href="index.html" class="api-logo">Nutri<em>Doc</em> API</a>
+    <nav class="api-nav">
+      <a href="#introduction" class="active">Introduction</a>
+      <a href="#authentification">Authentification</a>
+      <a href="#endpoints">Endpoints</a>
+      <a href="#webhooks">Webhooks</a>
+      <a href="#rate-limits">Rate Limits</a>
+    </nav>
+    <div class="api-version">v1.0.0 · Beta</div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="api-container">
+  
+  <div class="api-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="api-sidebar">
+      <div class="api-sidebar-nav">
+        <div class="api-sidebar-category">📖 Introduction</div>
+        <a href="#introduction" class="api-sidebar-item">Présentation</a>
+        <a href="#authentification" class="api-sidebar-item">Authentification</a>
+        <a href="#rate-limits" class="api-sidebar-item">Rate Limits</a>
+        
+        <div class="api-sidebar-category">📋 Endpoints</div>
+        <a href="#plans" class="api-sidebar-item">Plans nutritionnels</a>
+        <a href="#patients" class="api-sidebar-item">Patients</a>
+        <a href="#prescripteurs" class="api-sidebar-item">Prescripteurs</a>
+        <a href="#diets" class="api-sidebar-item">Diététiciens</a>
+        <a href="#credits" class="api-sidebar-item">Crédits</a>
+        <a href="#webhooks" class="api-sidebar-item">Webhooks</a>
+        
+        <div class="api-sidebar-category">🔧 Support</div>
+        <a href="#codes-erreur" class="api-sidebar-item">Codes d'erreur</a>
+        <a href="#sdk" class="api-sidebar-item">SDK & Bibliothèques</a>
+        <a href="#contact" class="api-sidebar-item">Support technique</a>
+      </div>
+    </aside>
+    
+    <!-- CONTENT -->
+    <div class="api-content">
+      
+      <!-- INTRODUCTION -->
+      <section id="introduction" class="api-section">
+        <h1>API NutriDoc</h1>
+        <p>L'API NutriDoc permet aux partenaires, prescripteurs et structures d'intégrer nativement les services nutritionnels certifiés RPPS dans leurs propres applications (CRM, logiciels de gestion, applications mobiles).</p>
+        <p>L'API suit les principes RESTful, retourne des réponses en JSON et utilise des tokens JWT pour l'authentification.</p>
+        
+        <h3>Base URL</h3>
+        <pre><code class="language-bash">https://api.nutridoc.calidoc-sante.fr/v1/</code></pre>
+        
+        <h3>Versioning</h3>
+        <p>L'API utilise le versioning dans l'URL (<code>/v1/</code>). Les versions majeures sont annoncées 6 mois à l'avance.</p>
+      </section>
+      
+      <!-- AUTHENTIFICATION -->
+      <section id="authentification" class="api-section">
+        <h2>Authentification</h2>
+        <p>Toutes les requêtes API doivent inclure un token JWT dans l'en-tête <code>Authorization</code>.</p>
+        
+        <h3>Obtenir un token</h3>
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-url">/auth/token</span>
+            <span class="endpoint-auth">🔒 Public</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Corps de la requête</h4>
+            <pre><code class="language-json">{
+  "api_key": "votre_api_key",
+  "api_secret": "votre_api_secret"
+}</code></pre>
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}</code></pre>
+          </div>
+        </div>
+        
+        <h3>Utiliser le token</h3>
+        <pre><code class="language-bash">curl -X GET "https://api.nutridoc.calidoc-sante.fr/v1/plans" \
+  -H "Authorization: Bearer votre_token_jwt"</code></pre>
+      </section>
+      
+      <!-- RATE LIMITS -->
+      <section id="rate-limits" class="api-section">
+        <h2>Rate Limits</h2>
+        <p>Les limites sont appliquées par token API :</p>
+        <ul>
+          <li><strong>Plan gratuit</strong> : 100 requêtes / heure</li>
+          <li><strong>Plan Pro</strong> : 1 000 requêtes / heure</li>
+          <li><strong>Plan Enterprise</strong> : 10 000 requêtes / heure</li>
+        </ul>
+        <p>En cas de dépassement, l'API retourne un code HTTP <code>429 Too Many Requests</code> avec l'en-tête <code>Retry-After</code>.</p>
+      </section>
+      
+      <!-- ENDPOINTS PLANS -->
+      <section id="plans" class="api-section">
+        <h2>📋 Plans nutritionnels</h2>
+        
+        <!-- GET /plans -->
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/plans</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Paramètres</h4>
+            <table class="params-table">
+              <thead><tr><th>Nom</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>page</td><td>integer</td><td>Numéro de page (défaut: 1)</td></tr>
+                <tr><td>limit</td><td>integer</td><td>Nombre d'éléments par page (max: 100)</td></tr>
+                <tr><td>statut</td><td>string</td><td>Filtrer par statut (pending, completed, failed)</td></tr>
+              </tbody>
+            </table>
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "data": [
+    {
+      "id": "plan_123",
+      "patient_id": "pat_456",
+      "objectif": "perte_poids",
+      "statut": "completed",
+      "created_at": "2026-04-01T10:00:00Z",
+      "pdf_url": "https://..."
+    }
+  ],
+  "meta": { "page": 1, "total": 45 }
+}</code></pre>
+            <div class="tryit-section">
+              <div class="tryit-input">
+                <input type="text" id="tryPlans" placeholder="Token JWT" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                <button class="tryit-btn" onclick="tryAPI('plans')">Essayer</button>
+              </div>
+              <div id="tryPlansResult" class="tryit-result" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- POST /plans -->
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-url">/plans</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Corps de la requête</h4>
+            <pre><code class="language-json">{
+  "patient": {
+    "prenom": "Marie",
+    "nom": "Dupont",
+    "email": "marie@email.fr",
+    "age": 34,
+    "taille": 165,
+    "poids": 64
+  },
+  "objectif": "perte_poids",
+  "activite": "modere",
+  "regime": "vegetarien"
+}</code></pre>
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "id": "plan_789",
+  "statut": "pending",
+  "delai_estime": "24h",
+  "created_at": "2026-04-13T10:00:00Z"
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- GET /plans/{id} -->
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/plans/{id}</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "id": "plan_789",
+  "patient": { ... },
+  "contenu": {
+    "petit_dej": [...],
+    "dejeuner": [...],
+    "diner": [...]
+  },
+  "dieteticien": {
+    "nom": "Grégoire Martin",
+    "rpps": "10008019381"
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ENDPOINTS PATIENTS -->
+      <section id="patients" class="api-section">
+        <h2>👥 Patients</h2>
+        
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/patients</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "data": [
+    {
+      "id": "pat_456",
+      "prenom": "Marie",
+      "nom": "Dupont",
+      "email": "marie@email.fr",
+      "objectif": "perte_poids",
+      "plans_count": 2
+    }
+  ]
+}</code></pre>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ENDPOINTS PRESCRIPTEURS -->
+      <section id="prescripteurs" class="api-section">
+        <h2>🏢 Prescripteurs</h2>
+        
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/prescripteurs/credits</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "credits": 25,
+  "pack": "standard",
+  "expiration": "2027-04-13T00:00:00Z"
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-url">/prescripteurs/commander</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Corps de la requête</h4>
+            <pre><code class="language-json">{
+  "patient_prenom": "Marie",
+  "objectif": "perte_poids",
+  "priorite": 2
+}</code></pre>
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "plan_id": "plan_789",
+  "credits_restants": 24,
+  "delai": "24h"
+}</code></pre>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ENDPOINTS DIÉTÉTICIENS -->
+      <section id="diets" class="api-section">
+        <h2>🥗 Diététiciens</h2>
+        
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/dieteticiens/stats</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "plans_valides_mois": 45,
+  "visios_mois": 12,
+  "revenus_mois": 1240,
+  "quota_restant": 18
+}</code></pre>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ENDPOINTS CRÉDITS -->
+      <section id="credits" class="api-section">
+        <h2>💰 Crédits</h2>
+        
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-url">/credits/balance</span>
+            <span class="endpoint-auth">🔒 Requiert auth</span>
+          </div>
+          <div class="endpoint-body">
+            <h4>Réponse</h4>
+            <pre><code class="language-json">{
+  "credits": 25,
+  "unite": "plans",
+  "expiration": "2027-04-13"
+}</code></pre>
+          </div>
+        </div>
+      </section>
+      
+      <!-- WEBHOOKS -->
+      <section id="webhooks" class="api-section">
+        <h2>🔔 Webhooks</h2>
+        <p>NutriDoc peut envoyer des notifications en temps réel sur vos endpoints configurés.</p>
+        
+        <h3>Événements disponibles</h3>
+        <table class="params-table">
+          <thead><tr><th>Événement</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>plan.completed</td><td>Plan alimentaire livré</td></tr>
+            <tr><td>plan.pending</td><td>Nouvelle commande de plan</td></tr>
+            <tr><td>patient.created</td><td>Nouveau patient créé</td></tr>
+            <tr><td>credits.low</td><td>Crédits inférieurs à 20%</td></tr>
+            <tr><td>visio.scheduled</td><td>Visio programmée</td></tr>
+          </tbody>
+        </table>
+        
+        <h3>Payload exemple</h3>
+        <pre><code class="language-json">{
+  "event": "plan.completed",
+  "timestamp": "2026-04-13T10:00:00Z",
+  "data": {
+    "plan_id": "plan_789",
+    "patient_id": "pat_456",
+    "pdf_url": "https://..."
+  }
+}</code></pre>
+        
+        <h3>Configuration</h3>
+        <pre><code class="language-bash">POST /webhooks/register
+{
+  "url": "https://votre-site.com/webhook",
+  "events": ["plan.completed", "plan.pending"]
+}</code></pre>
+      </section>
+      
+      <!-- CODES D'ERREUR -->
+      <section id="codes-erreur" class="api-section">
+        <h2>❌ Codes d'erreur</h2>
+        <table class="params-table">
+          <thead><tr><th>Code HTTP</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>200</td><td>Succès</td></tr>
+            <tr><td>400</td><td>Requête invalide</td></tr>
+            <tr><td>401</td><td>Non authentifié</td></tr>
+            <tr><td>403</td><td>Accès interdit</td></tr>
+            <tr><td>404</td><td>Ressource non trouvée</td></tr>
+            <tr><td>429</td><td>Trop de requêtes</td></tr>
+            <tr><td>500</td><td>Erreur serveur</td></tr>
+          </tbody>
+        </table>
+        
+        <h3>Format d'erreur</h3>
+        <pre><code class="language-json">{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Le paramètre 'objectif' est requis",
+    "details": {}
+  }
+}</code></pre>
+      </section>
+      
+      <!-- SDK -->
+      <section id="sdk" class="api-section">
+        <h2>📦 SDK & Bibliothèques</h2>
+        <p>Des SDK officiels sont disponibles pour faciliter l'intégration :</p>
+        <ul>
+          <li><strong>JavaScript/Node.js</strong> : <code>npm install nutridoc-api</code></li>
+          <li><strong>Python</strong> : <code>pip install nutridoc-api</code></li>
+          <li><strong>PHP</strong> : <code>composer require nutridoc/api</code></li>
+        </ul>
+        
+        <h3>Exemple JavaScript</h3>
+        <pre><code class="language-javascript">const NutriDoc = require('nutridoc-api');
+
+const client = new NutriDoc({
+  apiKey: 'votre_api_key',
+  apiSecret: 'votre_api_secret'
+});
+
+const plan = await client.plans.create({
+  patient: { prenom: 'Marie', email: 'marie@email.fr' },
+  objectif: 'perte_poids'
+});</code></pre>
+      </section>
+      
+      <!-- CONTACT -->
+      <section id="contact" class="api-section">
+        <h2>📧 Support technique</h2>
+        <p>Pour toute question technique ou demande d'accès API :</p>
+        <ul>
+          <li>Email : <a href="mailto:api@nutridoc.fr">api@nutridoc.fr</a></li>
+          <li>Documentation interactive : <a href="https://api.nutridoc.calidoc-sante.fr/docs">https://api.nutridoc.calidoc-sante.fr/docs</a></li>
+          <li>Statut des services : <a href="https://status.nutridoc.fr">status.nutridoc.fr</a></li>
+        </ul>
+        <div class="response-example">
+          <strong>📋 Besoin d'une clé API ?</strong><br>
+          Contactez notre équipe partenaire à <strong>partenaires@nutridoc.fr</strong> avec votre SIRET et vos besoins d'intégration.
+        </div>
+      </section>
+      
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="api-footer">
+  <div class="footer-inner">
+    <p>NutriDoc API v1.0.0 — Documentation technique · <a href="cgu-partenaires.html" style="color:rgba(255,255,255,0.5);">CGU Partenaires</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,0.5);">Confidentialité</a></p>
+    <p style="margin-top:0.5rem;">© 2025-2026 NutriDoc by CaliDoc Santé</p>
+  </div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Simulation de l'API pour le "Try it out"
+function tryAPI(endpoint) {
+  const resultDiv = document.getElementById(`try${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}Result`);
+  if (!resultDiv) return;
+  
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '⏳ Chargement...';
+  
+  setTimeout(() => {
+    const mockResponses = {
+      plans: {
+        data: [
+          { id: "plan_123", patient: "Marie D.", objectif: "perte_poids", statut: "completed", created_at: "2026-04-01" },
+          { id: "plan_124", patient: "Thomas K.", objectif: "prise_masse", statut: "pending", created_at: "2026-04-10" }
+        ],
+        meta: { page: 1, total: 2 }
+      }
+    };
+    resultDiv.innerHTML = JSON.stringify(mockResponses[endpoint] || { message: "Succès (mode démo)" }, null, 2);
+  }, 800);
+}
+
+// Smooth scroll pour les ancres
+document.querySelectorAll('.api-sidebar-item, .api-nav a').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('href').substring(1);
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Mettre à jour la classe active
+      document.querySelectorAll('.api-sidebar-item, .api-nav a').forEach(a => a.classList.remove('active'));
+      this.classList.add('active');
+    }
+  });
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+window.tryAPI = tryAPI;
+</script>
+
+</body>
+</html>

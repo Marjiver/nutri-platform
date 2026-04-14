@@ -2,25 +2,69 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="description" content="Diététicien certifié RPPS : générez des revenus complémentaires en validant des plans alimentaires depuis chez vous. 1 plan offert par mois. Revenus passifs grâce aux prescripteurs et partenaires."/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Diététicien certifié RPPS : générez des revenus complémentaires en validant des plans alimentaires depuis chez vous. 1 plan offert par mois."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>NutriDoc — Espace Diététicien · CaliDoc Santé</title>
+  
+  <meta name="theme-color" content="#0d2018">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/cookies.js"></script>
-
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* ===== VARIABLES ===== */
+    :root {
+      --green: #1D9E75;
+      --green2: #0f6e56;
+      --green3: #5DCAA5;
+      --green-light: #E1F5EE;
+      --cream: #f7f9f7;
+      --dark: #0d2018;
+      --gray: #6b7280;
+      --gray-light: #f3f4f6;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --radius-sm: 8px;
+      
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f9f7;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-tertiary: #eef4ee;
+      --text-primary: #0d2018;
+      --text-secondary: #4b5563;
+      --border-color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] {
+      --bg-primary: #0a0f0d;
+      --bg-secondary: #111816;
+      --bg-card: #141c19;
+      --bg-input: #1a221f;
+      --bg-tertiary: #1a221f;
+      --text-primary: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --border-color: #2a3430;
+      --cream: #111816;
+      --gray-light: #1a221f;
+      --border: #2a3430;
+      --dark: #e5e7eb;
+    }
+    
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       line-height: 1.5;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
-
+    
+    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+    
     /* Pop-up profil */
     .profil-modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -33,13 +77,13 @@
       to { opacity: 1; backdrop-filter: blur(8px); }
     }
     .profil-modal {
-      background: #0d2018; border: 1px solid rgba(29,158,117,0.3);
+      background: var(--bg-primary); border: 1px solid rgba(29,158,117,0.3);
       border-radius: 32px; padding: 2rem; max-width: 900px; width: 90%;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
     .profil-modal h2 {
       font-family: 'Playfair Display', serif; font-size: 1.8rem;
-      color: #fff; text-align: center; margin-bottom: 0.5rem;
+      color: var(--text-primary); text-align: center; margin-bottom: 0.5rem;
     }
     .profil-modal-sub {
       text-align: center; color: rgba(255,255,255,0.5);
@@ -54,10 +98,7 @@
       border-radius: 20px; padding: 1.5rem 1rem; text-align: center;
       cursor: pointer; transition: all 0.2s ease;
     }
-    .profil-card:hover {
-      background: rgba(29,158,117,0.15); border-color: #1D9E75;
-      transform: translateY(-4px);
-    }
+    .profil-card:hover { background: rgba(29,158,117,0.15); border-color: #1D9E75; transform: translateY(-4px); }
     .profil-icon { font-size: 3rem; margin-bottom: 0.75rem; }
     .profil-card h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
     .profil-card p { font-size: 0.75rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
@@ -72,8 +113,8 @@
     .profil-modal-footer button:hover { color: #fff; }
     @media (max-width: 700px) { .profil-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .profil-grid { grid-template-columns: 1fr; } .profil-modal { padding: 1.5rem; } }
-
-    /* Barre profil dynamique */
+    
+    /* Barre profil */
     .dynamic-profil-bar {
       background: #080f0b;
       border-bottom: 1px solid rgba(29,158,117,0.2);
@@ -81,7 +122,6 @@
       position: sticky;
       top: 60px;
       z-index: 98;
-      margin-top: 0;
     }
     .dynamic-profil-inner {
       max-width: 1400px;
@@ -102,11 +142,11 @@
       background: none; border: 1px solid rgba(255,255,255,0.15);
       border-radius: 999px; padding: 0.2rem 0.8rem;
       font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
+      cursor: pointer;
     }
     .profil-switch:hover { border-color: #1D9E75; color: #fff; }
-
-    /* HEADER */
+    
+    /* HEADER - identique à index */
     .nd-header {
       position: fixed;
       top: 0;
@@ -116,7 +156,10 @@
       background: #0d2018;
       border-bottom: 1px solid rgba(29,158,117,0.2);
       padding: 0.75rem 2rem;
+      transition: all 0.3s ease;
     }
+    [data-theme="dark"] .nd-header { background: #0a0f0d; }
+    .nd-header.scrolled { padding: 0.5rem 2rem; background: rgba(13,32,24,0.98); backdrop-filter: blur(10px); }
     .header-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -142,8 +185,7 @@
       transition: color 0.2s;
     }
     .nd-navlink:hover { color: #fff; }
-
-    /* Tooltip Grégoire */
+    
     .gregoire-mini {
       position: relative;
       display: flex;
@@ -155,15 +197,12 @@
       border: 1px solid rgba(29,158,117,0.2);
       cursor: help;
     }
-    .gregoire-mini:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
     .tooltip-text {
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color: var(--bg-primary);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -179,16 +218,6 @@
       transition: opacity 0.3s;
       pointer-events: none;
     }
-    .tooltip-text::after {
-      content: "";
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
     .gregoire-mini-avatar {
       width: 28px;
       height: 28px;
@@ -197,17 +226,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Playfair Display', serif;
       font-size: 0.7rem;
       font-weight: 700;
       color: #fff;
     }
-    .gregoire-mini-text {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.7);
-    }
+    .gregoire-mini-text { font-size: 0.65rem; color: rgba(255,255,255,0.7); }
     .gregoire-mini-text strong { color: #5DCAA5; }
-
+    
     .header-actions { display: flex; align-items: center; gap: 1rem; }
     .nd-btn-ghost {
       background: rgba(255,255,255,0.08);
@@ -233,7 +258,7 @@
       position: absolute;
       top: 100%;
       right: 0;
-      background: #0d2018;
+      background: var(--bg-primary);
       border: 1px solid rgba(29,158,117,0.2);
       border-radius: 12px;
       width: 180px;
@@ -254,21 +279,23 @@
       .nd-nav { display: none; }
       .gregoire-mini { display: none; }
     }
-
-    /* HERO */
+    
+    /* HERO - avec le même conteneur que l'index */
     .nd-hero {
       position: relative;
+      background: #0d2018;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+    [data-theme="dark"] .nd-hero { background: #0a0f0d; }
+    .nd-hero-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 3rem;
-      max-width: 100%;
-      margin: 0;
-      padding: 8rem 5rem 5rem;
-      min-height: auto;
-      width: 100%;
-      overflow: hidden;
-      background: #0d2018;
+      gap: 4rem;
     }
     .nd-hero-canvas {
       position: absolute;
@@ -277,58 +304,44 @@
       width: 100%;
       height: 100%;
       z-index: 0;
-    }
-    .nd-hero-canvas::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 65% 45%, rgba(29,158,117,0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 70% at 5% 80%, rgba(15,110,86,0.2) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 95% 10%, rgba(93,202,165,0.1) 0%, transparent 55%);
-    }
-    .nd-hero-canvas::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(rgba(29,158,117,0.2) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%);
+      background: radial-gradient(ellipse 70% 60% at 65% 45%, rgba(29,158,117,0.15) 0%, transparent 70%);
     }
     .nd-hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to right, rgba(13,32,24,0.7) 0%, rgba(13,32,24,0.2) 55%, transparent 100%);
+      background: linear-gradient(to right, rgba(13,32,24,0.8) 0%, rgba(13,32,24,0.3) 55%, transparent 100%);
       z-index: 0;
     }
     .nd-hero-content {
       position: relative;
       z-index: 2;
       flex: 1;
-      min-width: 0;
       max-width: 550px;
-      padding-right: 1rem;
     }
-    .nd-hero-tag {
-      display: inline-flex;
+    .nd-hero-eyebrow {
+      display: flex;
       align-items: center;
       gap: 0.5rem;
       font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
       color: #5DCAA5;
-      border: 1px solid rgba(29,158,117,0.3);
-      border-radius: 999px;
-      padding: 0.3rem 1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .nd-dot-pulse {
+      width: 6px; height: 6px;
+      background: #5DCAA5;
+      border-radius: 50%;
+      animation: pulseGreen 2s infinite;
+    }
+    @keyframes pulseGreen {
+      0%,100% { box-shadow: 0 0 0 0 rgba(93,202,165,0.5); }
+      50% { box-shadow: 0 0 0 6px rgba(93,202,165,0); }
     }
     .nd-hero-title {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.15;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      line-height: 1.1;
       color: #fff;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
     .nd-hero-title em { font-style: italic; color: #5DCAA5; }
     .nd-hero-sub {
@@ -337,10 +350,10 @@
       margin-bottom: 1.5rem;
       line-height: 1.6;
     }
-    .nd-hero-btns {
+    .nd-hero-ctas {
       display: flex;
       gap: 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       flex-wrap: wrap;
     }
     .nd-cta-main {
@@ -361,31 +374,34 @@
       border-bottom: 1px solid rgba(255,255,255,0.3);
       transition: color 0.2s;
     }
-    .nd-cta-ghost:hover { color: #fff; }
-    .nd-hero-note {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.35);
+    .nd-hero-trust {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
-
-    /* BLOCS STATS */
-    .nd-hero-stats {
+    .nd-trust-num { font-size: 1.1rem; font-weight: 700; color: #5DCAA5; }
+    .nd-trust-label { font-size: 0.6rem; color: rgba(255,255,255,0.5); }
+    .nd-trust-sep { width: 1px; height: 30px; background: rgba(255,255,255,0.2); }
+    
+    /* MOCKUP stats */
+    .nd-hero-mockup {
       position: relative;
       z-index: 2;
-      flex: 0 0 340px;
+      flex: 0 0 380px;
       height: 420px;
     }
-    .stat-block {
+    .mockup-block {
       position: absolute;
       background: rgba(13,32,24,0.9);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(29,158,117,0.3);
       border-radius: 20px;
       padding: 1rem;
+      text-align: center;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: floatBase 4s ease-in-out infinite;
-      text-align: center;
     }
-    .stat-block:hover {
+    .mockup-block:hover {
       transform: translateY(-6px);
       box-shadow: 0 12px 28px rgba(0,0,0,0.2);
       border-color: #1D9E75;
@@ -395,25 +411,16 @@
       50% { transform: translateY(-6px); }
     }
     .block-time { top: 0; left: 0; right: 0; animation-delay: 0s; }
-    .block-visio { top: 130px; left: 0; width: 140px; animation-delay: 0.5s; }
-    .block-delai { top: 130px; right: 0; width: 130px; animation-delay: 1s; }
-    .block-free { bottom: 20px; left: 0; right: 0; animation-delay: 1.5s; }
+    .block-visio { bottom: 20px; left: 0; width: 140px; animation-delay: 0.5s; }
+    .block-delai { bottom: 60px; right: 0; width: 130px; animation-delay: 1s; }
+    .block-free { top: 130px; right: 0; width: 130px; animation-delay: 1.5s; }
     .stat-val-large {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
       color: #5DCAA5;
       line-height: 1;
     }
-    .stat-label {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.2rem;
-    }
-    .stat-desc {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.6);
-      margin-top: 0.2rem;
-    }
+    .stat-label { font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 0.2rem; }
     .accent-badge {
       background: rgba(29,158,117,0.15);
       border: 1px solid rgba(29,158,117,0.3);
@@ -424,312 +431,44 @@
       display: inline-block;
       margin-bottom: 0.3rem;
     }
-
-    @media (max-width: 1200px) {
-      .nd-hero { padding: 7rem 3rem 4rem; gap: 2rem; }
-      .nd-hero-stats { flex: 0 0 320px; height: 400px; }
-      .block-visio { width: 130px; top: 120px; }
-      .block-delai { width: 120px; top: 120px; }
-    }
-    @media (max-width: 992px) {
-      .nd-hero { padding: 6rem 2.5rem 3rem; }
-    }
-    @media (max-width: 900px) {
-      .nd-hero { flex-direction: column; padding: 6rem 2rem 3rem; text-align: center; }
-      .nd-hero-content { max-width: 100%; text-align: center; padding-right: 0; }
-      .nd-hero-stats { width: 100%; max-width: 340px; margin: 2rem auto 0; height: auto; min-height: 380px; }
-      .nd-hero-tag { margin-left: auto; margin-right: auto; }
-      .nd-hero-btns { justify-content: center; }
-      .block-time, .block-free { position: relative; width: 100%; margin-bottom: 1rem; }
-      .block-visio, .block-delai { position: relative; width: calc(50% - 0.5rem); top: auto; left: auto; right: auto; display: inline-block; margin: 0.5rem 0.25rem; }
-      .nd-hero-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; height: auto; }
-      .stat-block { animation: none; position: relative; }
-    }
-    @media (max-width: 600px) {
-      .nd-hero { padding: 6rem 1.5rem 2.5rem; }
-      .block-visio, .block-delai { width: 100%; margin: 0.5rem 0; }
-    }
-    @media (max-width: 480px) {
-      .nd-hero { padding: 6rem 1rem 2rem; }
-    }
-
-    /* CARROUSEL PLEIN ÉCRAN DYNAMIQUE */
-    .fullscreen-carousel {
-      width: 100%;
-      background: linear-gradient(135deg, #0a1a14 0%, #0d2018 100%);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    }
-    .carousel-container {
-      position: relative;
-      width: 100%;
-      min-height: 500px;
-      display: flex;
-      align-items: center;
-    }
-    .carousel-slides {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-    .carousel-slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+    .livraison-icon {
+      width: 36px;
+      height: 36px;
+      background: #1D9E75;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 4rem 2rem;
-    }
-    .carousel-slide.active {
-      opacity: 1;
-      visibility: visible;
-      position: relative;
-    }
-    .slide-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4rem;
-      flex-wrap: wrap;
-    }
-    .slide-content {
-      flex: 1;
-      min-width: 280px;
-    }
-    .slide-badge {
-      display: inline-block;
-      background: rgba(93,202,165,0.2);
-      color: #5DCAA5;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.3rem 1rem;
-      border-radius: 999px;
-      margin-bottom: 1rem;
-      letter-spacing: 0.05em;
-      backdrop-filter: blur(4px);
-    }
-    .slide-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
       color: #fff;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-    .slide-title em {
-      font-style: italic;
-      color: #5DCAA5;
-      position: relative;
-      display: inline-block;
-    }
-    .slide-title em::after {
-      content: '';
-      position: absolute;
-      bottom: 5px;
-      left: 0;
-      width: 100%;
-      height: 8px;
-      background: rgba(93,202,165,0.3);
-      border-radius: 4px;
-      z-index: -1;
-    }
-    .slide-desc {
+      margin: 0 auto 0.5rem;
       font-size: 1rem;
-      color: rgba(255,255,255,0.75);
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
     }
-    .slide-stats {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
+    .livraison-text { font-size: 0.7rem; color: rgba(255,255,255,0.8); }
+    
+    @media (max-width: 1100px) {
+      .nd-hero-container { gap: 2rem; }
+      .nd-hero-mockup { flex: 0 0 340px; }
     }
-    .slide-stat {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(8px);
-      border-radius: 16px;
-      padding: 0.75rem 1.25rem;
-      text-align: center;
-      border: 1px solid rgba(93,202,165,0.2);
-      transition: transform 0.3s;
-    }
-    .slide-stat:hover {
-      transform: translateY(-4px);
-      border-color: #5DCAA5;
-    }
-    .slide-stat-value {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #5DCAA5;
-    }
-    .slide-stat-label {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.6);
-    }
-    .slide-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.8rem 2rem;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s;
-      border: none;
-      cursor: pointer;
-    }
-    .slide-cta:hover {
-      background: #0f6e56;
-      transform: translateX(5px);
-      gap: 0.8rem;
-    }
-    .slide-illustration {
-      flex: 0.8;
-      min-width: 280px;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
-      border-radius: 24px;
-      padding: 2rem;
-      text-align: center;
-      border: 1px solid rgba(93,202,165,0.2);
-      transition: all 0.3s;
-    }
-    .slide-illustration:hover {
-      transform: scale(1.02);
-      border-color: #5DCAA5;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    }
-    .illustration-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-    }
-    .illustration-flow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 1.2rem;
-      margin: 1rem 0;
-    }
-    .illustration-flow span {
-      background: rgba(93,202,165,0.2);
-      padding: 0.3rem 0.8rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-    }
-    .illustration-amount {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #5DCAA5;
-      margin: 0.5rem 0;
-    }
-    .illustration-note {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.5rem;
-    }
-    .coming-soon {
-      border-color: #8b5cf6;
-    }
-    .coming-soon .slide-stat-value {
-      color: #a78bfa;
-    }
-    .coming-soon .slide-illustration {
-      border-color: rgba(139,92,246,0.3);
-    }
-    .coming-soon .slide-badge {
-      background: rgba(139,92,246,0.2);
-      color: #a78bfa;
-    }
-
-    /* Navigation carrousel */
-    .carousel-nav {
-      position: absolute;
-      bottom: 30px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      z-index: 20;
-    }
-    .carousel-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .carousel-dot.active {
-      background: #5DCAA5;
-      width: 30px;
-      border-radius: 10px;
-    }
-    .carousel-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,0.1);
-      border: none;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      cursor: pointer;
-      color: #fff;
-      font-size: 1.2rem;
-      transition: all 0.3s;
-      z-index: 20;
-      backdrop-filter: blur(4px);
-    }
-    .carousel-arrow:hover {
-      background: #1D9E75;
-      transform: translateY(-50%) scale(1.1);
-    }
-    .carousel-arrow.prev {
-      left: 20px;
-    }
-    .carousel-arrow.next {
-      right: 20px;
-    }
-
     @media (max-width: 900px) {
-      .slide-inner {
-        flex-direction: column;
-        text-align: center;
-        gap: 2rem;
-      }
-      .slide-stats {
-        justify-content: center;
-      }
-      .carousel-arrow {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-      }
-      .carousel-container {
-        min-height: 650px;
-      }
+      .nd-hero-container { flex-direction: column; text-align: center; padding: 4rem 1.5rem; }
+      .nd-hero-content { max-width: 100%; text-align: center; }
+      .nd-hero-eyebrow { justify-content: center; }
+      .nd-hero-sub { margin-left: auto; margin-right: auto; }
+      .nd-hero-ctas { justify-content: center; }
+      .nd-hero-trust { justify-content: center; }
+      .nd-hero-mockup { display: none; }
     }
-
+    
     /* Sections communes */
     .nd-section { padding: 3rem 0; }
-    .nd-section-light { background: #f7f9f7; }
-    .nd-section-dark { background: #0d2018; color: #fff; }
-    .nd-section-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .nd-section-light { background: var(--bg-secondary); }
+    .nd-section-dark { background: #0d2018; }
+    [data-theme="dark"] .nd-section-dark { background: #0a0f0d; }
+    .nd-section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
     .nd-section-header { text-align: center; margin-bottom: 2rem; }
     .nd-tag {
       display: inline-block;
@@ -747,24 +486,19 @@
     .nd-title {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.6rem, 3vw, 2.2rem);
+      color: var(--text-primary);
     }
     .nd-title-light { color: #fff; }
-    .nd-sub {
-      font-size: 0.9rem;
-      color: #6b7b74;
-      max-width: 560px;
-      margin: 0.5rem auto 0;
-    }
-
+    
     /* Steps */
-    .steps-grid {
+    .nd-steps {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
       text-align: center;
     }
-    .step-num {
-      font-size: 2rem;
+    .nd-step-num {
+      font-size: 2.2rem;
       font-weight: 800;
       color: #1D9E75;
       background: rgba(29,158,117,0.12);
@@ -776,27 +510,18 @@
       line-height: 55px;
       margin-bottom: 0.75rem;
     }
-    .step h3 { font-size: 0.9rem; margin-bottom: 0.5rem; }
-    .step p { font-size: 0.75rem; color: #6b7b74; }
-    .step-btn {
-      display: inline-block;
-      margin-top: 0.75rem;
-      font-size: 0.7rem;
-      color: #1D9E75;
-      text-decoration: none;
-      font-weight: 500;
-      transition: transform 0.2s;
-    }
-    .step-btn:hover { transform: translateX(4px); }
-    @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; gap: 1.5rem; } }
-
-    /* Avantages */
-    .avantages-grid {
+    .nd-step h3 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .nd-step p { font-size: 0.75rem; color: var(--text-secondary); }
+    .nd-step-link { font-size: 0.75rem; color: #1D9E75; text-decoration: none; }
+    @media (max-width: 768px) { .nd-steps { grid-template-columns: 1fr; gap: 1.5rem; } }
+    
+    /* Diff grid */
+    .nd-diff-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
     }
-    .avantage-card {
+    .nd-diff-card {
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(29,158,117,0.15);
       border-radius: 16px;
@@ -804,161 +529,69 @@
       text-align: center;
       transition: transform 0.3s;
     }
-    .avantage-card:hover { transform: translateY(-4px); border-color: #1D9E75; }
-    .avantage-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
-    .avantage-card h3 { font-size: 0.85rem; margin-bottom: 0.5rem; color: #fff; }
-    .avantage-card p { font-size: 0.7rem; color: rgba(255,255,255,0.6); }
-    @media (max-width: 768px) { .avantages-grid { grid-template-columns: 1fr; } }
-
-    /* SIMULATEUR EN BULLE */
-    .sim-bubble {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      z-index: 300;
-    }
-    .sim-toggle {
-      width: 56px;
-      height: 56px;
+    .nd-diff-card:hover { transform: translateY(-4px); border-color: #1D9E75; }
+    .nd-diff-icon {
+      width: 44px;
+      height: 44px;
       background: #1D9E75;
-      border-radius: 50%;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      font-size: 1.5rem;
-      transition: transform 0.2s;
-    }
-    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
-    .sim-window {
-      display: none;
-      position: absolute;
-      bottom: 70px;
-      left: 0;
-      width: 360px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-      overflow: hidden;
-      border: 1px solid rgba(29,158,117,0.2);
-    }
-    .sim-window.open { display: block; }
-    .sim-header {
-      background: #1D9E75;
+      margin: 0 auto 0.75rem;
+      font-size: 1.2rem;
       color: #fff;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-    .sim-close {
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .sim-body { padding: 1rem; }
-    .sim-field { margin-bottom: 1rem; }
-    .sim-field-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.3rem;
-    }
-    .sim-field-label { font-size: 0.75rem; color: #6b7b74; font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color: #0d2018; }
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 999px;
-      background: #eef4ee;
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #1D9E75;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-    .sim-btns {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.3rem;
-      margin: 0.5rem 0 1rem;
-    }
-    .sim-abtn {
-      background: #f7f9f7;
-      border: 1px solid #eef4ee;
-      border-radius: 10px;
-      padding: 0.4rem 0.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.7rem;
-    }
-    .sim-abtn.active {
-      background: #e1f5ee;
-      border-color: #1D9E75;
-    }
-    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
-    .sim-results {
-      background: #f7f9f7;
-      border-radius: 12px;
-      padding: 0.75rem;
-      margin: 0.75rem 0;
-    }
-    .sim-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      margin-bottom: 0.3rem;
-    }
-    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color: #6b7b74; text-align: center; margin-top: 0.5rem; }
-
-    /* Pricing 4 colonnes */
+    .nd-diff-card h3 { font-size: 0.85rem; margin-bottom: 0.5rem; color: #fff; }
+    .nd-diff-card p { font-size: 0.7rem; color: rgba(255,255,255,0.6); }
+    @media (max-width: 768px) { .nd-diff-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .nd-diff-grid { grid-template-columns: 1fr; } }
+    
+    /* Pricing */
     .pricing-4col {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1.25rem;
-      max-width: 1200px;
-      margin: 0 auto;
     }
     @media (max-width: 1000px) { .pricing-4col { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px) { .pricing-4col { grid-template-columns: 1fr; } }
+    
     .price-card {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 20px;
       padding: 1.5rem;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-color);
       transition: transform 0.2s;
       position: relative;
     }
-    .price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.12); }
+    .price-card:hover { transform: translateY(-4px); }
     .price-card.featured {
-      background: linear-gradient(135deg, #0d2018 0%, #142c1f 100%);
+      background: linear-gradient(135deg, #0d2018 0%, #1a3a2a 100%);
       border: 2px solid #1D9E75;
-      color: #fff;
     }
-    .price-tier { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7b74; margin-bottom: 0.5rem; }
+    [data-theme="dark"] .price-card.featured {
+      background: linear-gradient(135deg, #0a0f0d 0%, #141c19 100%);
+    }
+    .price-tier { 
+      font-size: 0.7rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--text-secondary); 
+      margin-bottom: 0.5rem; 
+    }
     .price-card.featured .price-tier { color: #5DCAA5; }
-    .price-amount { font-size: 2rem; font-weight: 800; color: #1D9E75; margin-bottom: 0.25rem; }
+    .price-amount { 
+      font-size: 2rem; 
+      font-weight: 800; 
+      color: #1D9E75; 
+      margin-bottom: 0.25rem; 
+    }
     .price-card.featured .price-amount { color: #5DCAA5; }
-    .price-desc { font-size: 0.7rem; color: #6b7b74; margin-bottom: 1rem; }
-    .price-quota {
-      font-size: 0.7rem;
-      color: #1D9E75;
-      font-weight: 500;
-      margin: 0.25rem 0 0.5rem;
+    .price-desc { 
+      font-size: 0.7rem; 
+      color: var(--text-secondary); 
+      margin-bottom: 1rem; 
     }
     .price-badge {
       position: absolute;
@@ -980,39 +613,17 @@
       gap: 0.5rem;
       font-size: 0.75rem;
       margin-bottom: 0.5rem;
-      color: #0d2018;
+      color: var(--text-primary);
     }
     .price-card.featured .price-list li { color: rgba(255,255,255,0.9); }
-    .price-list li::before { content: "✓"; color: #1D9E75; font-weight: 600; }
+    .price-list li::before { 
+      content: "✓"; 
+      color: #1D9E75; 
+      font-weight: 600; 
+      flex-shrink: 0;
+    }
     .price-card.featured .price-list li::before { color: #5DCAA5; }
-    .plus-badge {
-      display: inline-block;
-      background: #1D9E75;
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 700;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 18px;
-      margin-right: 0.3rem;
-    }
-    .price-card.featured .plus-badge { background: #5DCAA5; }
-    .price-info-box {
-      background: #FAEEDA;
-      border-radius: 8px;
-      padding: 0.6rem;
-      font-size: 0.7rem;
-      color: #633806;
-      text-align: center;
-      margin: 0.5rem 0 1rem;
-      line-height: 1.5;
-    }
-    .price-card.featured .price-info-box {
-      background: rgba(93,202,165,0.15);
-      color: #5DCAA5;
-    }
+    
     .price-btn-outline {
       display: block;
       text-align: center;
@@ -1024,6 +635,7 @@
       background: transparent;
       border: 1.5px solid #1D9E75;
       color: #1D9E75;
+      transition: all 0.2s;
     }
     .price-btn-outline:hover { background: rgba(29,158,117,0.1); }
     .price-btn-primary {
@@ -1036,14 +648,156 @@
       text-decoration: none;
       background: #1D9E75;
       color: #fff;
+      transition: all 0.2s;
     }
     .price-btn-primary:hover { background: #0f6e56; transform: translateY(-2px); }
-
-    /* FAQ */
-    .faq-item {
-      border-bottom: 1px solid #eef4ee;
-      margin-bottom: 0.5rem;
+    
+    /* Carrousel */
+    .fullscreen-carousel {
+      width: 100%;
+      background: linear-gradient(135deg, #0a1a14 0%, #0d2018 100%);
+      position: relative;
+      overflow: hidden;
     }
+    .carousel-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+    .carousel-slides {
+      position: relative;
+      min-height: 450px;
+    }
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .carousel-slide.active {
+      opacity: 1;
+      visibility: visible;
+      position: relative;
+    }
+    .slide-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+    .slide-content { flex: 1; min-width: 280px; }
+    .slide-badge {
+      display: inline-block;
+      background: rgba(93,202,165,0.2);
+      color: #5DCAA5;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .slide-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: #fff;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    .slide-title em { font-style: italic; color: #5DCAA5; }
+    .slide-desc {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .slide-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .slide-stat {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 0.75rem 1.25rem;
+      text-align: center;
+      border: 1px solid rgba(93,202,165,0.2);
+    }
+    .slide-stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #5DCAA5;
+    }
+    .slide-stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); }
+    .slide-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.8rem 2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .slide-cta:hover { background: #0f6e56; transform: translateX(5px); }
+    .slide-illustration {
+      flex: 0.8;
+      min-width: 280px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid rgba(93,202,165,0.2);
+    }
+    .illustration-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .illustration-amount { font-size: 1.8rem; font-weight: 700; color: #5DCAA5; margin: 0.5rem 0; }
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.2rem;
+      z-index: 20;
+      transition: all 0.3s;
+    }
+    .carousel-arrow:hover { background: #1D9E75; transform: translateY(-50%) scale(1.1); }
+    .carousel-arrow.prev { left: 0; }
+    .carousel-arrow.next { right: 0; }
+    .carousel-nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      z-index: 20;
+    }
+    .carousel-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .carousel-dot.active { background: #5DCAA5; width: 30px; border-radius: 10px; }
+    @media (max-width: 900px) {
+      .slide-inner { flex-direction: column; text-align: center; gap: 2rem; }
+      .slide-stats { justify-content: center; }
+      .carousel-arrow { width: 36px; height: 36px; font-size: 0.9rem; }
+    }
+    
+    /* FAQ */
+    .faq-item { border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; }
     .faq-question {
       padding: 0.9rem 0;
       font-weight: 500;
@@ -1052,7 +806,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      color: #0d2018;
+      color: var(--text-primary);
     }
     .faq-question:hover { color: #1D9E75; }
     .faq-question .arrow { font-size: 0.7rem; transition: transform 0.2s; }
@@ -1061,20 +815,20 @@
       display: none;
       padding: 0 0 0.9rem 1rem;
       font-size: 0.8rem;
-      color: #6b7b74;
+      color: var(--text-secondary);
       line-height: 1.6;
     }
     .faq-answer.open { display: block; }
     .faq-contact-box {
       margin-top: 1.5rem;
-      background: #e1f5ee;
+      background: var(--green-light);
       border-radius: 12px;
       padding: 1rem 1.25rem;
       font-size: 0.8rem;
-      color: #0f6e56;
+      color: var(--green2);
       text-align: center;
     }
-
+    
     /* Footer */
     .nd-footer {
       background: #080f0b;
@@ -1129,7 +883,7 @@
       .nd-footer-inner { grid-template-columns: 1fr; }
       .nd-footer-links { grid-template-columns: 1fr 1fr; }
     }
-
+    
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
@@ -1140,6 +894,107 @@
       z-index: 200;
     }
     .scroll-top-btn.visible { opacity: 1; }
+    
+    /* Simulateur */
+    .sim-bubble {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 300;
+    }
+    .sim-toggle {
+      width: 56px;
+      height: 56px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
+    .sim-window {
+      display: none;
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      width: 360px;
+      background: var(--bg-card);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(29,158,117,0.2);
+    }
+    .sim-window.open { display: block; }
+    .sim-header {
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sim-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem; }
+    .sim-body { padding: 1rem; }
+    .sim-field { margin-bottom: 1rem; }
+    .sim-field-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+    .sim-field-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+    input[type=range] { width: 100%; height: 5px; border-radius: 999px; background: var(--border-color); }
+    .sim-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .sim-abtn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.4rem 0.2rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.7rem;
+      color: var(--text-primary);
+    }
+    .sim-abtn.active { background: var(--green-light); border-color: #1D9E75; color: var(--green2); }
+    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
+    .sim-results {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+    }
+    .sim-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.3rem;
+      color: var(--text-primary);
+    }
+    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
+    .sim-note { font-size: 0.65rem; color: var(--text-secondary); text-align: center; margin-top: 0.5rem; }
+    
+    /* Reveal animations */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    [data-reveal].revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -1162,10 +1017,15 @@
       <div class="gregoire-mini-text">
         <strong>Grégoire Martin</strong> · Diététicien RPPS
       </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral</span>
     </div>
 
     <div class="header-actions">
+      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Sombre</span>
+      </button>
+      
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -1175,12 +1035,12 @@
           <a href="inscription-dieteticien.html" class="nd-conn-item">Pas encore inscrit ? →</a>
         </div>
       </div>
-      <a href="inscription-dieteticien.html" class="nd-btn-primary" id="mainCtaBtn">S'inscrire gratuit →</a>
+      <a href="inscription-dieteticien.html" class="nd-btn-primary">S'inscrire gratuit →</a>
     </div>
   </div>
 </header>
 
-<!-- BARRE PROFIL DYNAMIQUE -->
+<!-- BARRE PROFIL -->
 <div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
   <div class="dynamic-profil-inner">
     <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
@@ -1196,288 +1056,260 @@
 <section class="nd-hero">
   <div class="nd-hero-canvas"></div>
   <div class="nd-hero-overlay"></div>
+  <div class="nd-hero-container">
+    <div class="nd-hero-content">
+      <div class="nd-hero-eyebrow">
+        <span class="nd-dot-pulse"></span>
+        Plateforme certifiée RPPS
+      </div>
+      <h1 class="nd-hero-title">
+        Générez des <em>revenus additionnels</em><br>
+        depuis chez vous,<br>
+        à votre rythme
+      </h1>
+      <p class="nd-hero-sub">
+        NutriDoc vous apporte les patients. Vous validez les plans en 15 min. Les paiements arrivent directement sur votre compte.
+      </p>
+      <div class="nd-hero-ctas">
+        <a href="inscription-dieteticien.html" class="nd-cta-main">Rejoindre — c'est gratuit →</a>
+        <a href="#comment" class="nd-cta-ghost">Voir comment ça marche</a>
+      </div>
+      <div class="nd-hero-trust">
+        <div class="nd-trust-item"><span class="nd-trust-num">0 €</span><span class="nd-trust-label">Inscription</span></div>
+        <div class="nd-trust-sep"></div>
+        <div class="nd-trust-item"><span class="nd-trust-num">15 min</span><span class="nd-trust-label">Par plan</span></div>
+        <div class="nd-trust-sep"></div>
+        <div class="nd-trust-item"><span class="nd-trust-num">RPPS</span><span class="nd-trust-label">Certifié</span></div>
+      </div>
+    </div>
 
-  <div class="nd-hero-content">
-    <div class="nd-hero-tag">✓ Plateforme certifiée RPPS</div>
-    <h1 class="nd-hero-title">Générez des <em>revenus additionnels</em><br>depuis chez vous,<br>à votre rythme</h1>
-    <p class="nd-hero-sub">NutriDoc vous apporte les patients. Vous validez les plans en 15 min. Les paiements arrivent directement sur votre compte.</p>
-    <div class="nd-hero-btns">
-      <a href="inscription-dieteticien.html" class="nd-cta-main">Rejoindre — c'est gratuit →</a>
-      <a href="#comment" class="nd-cta-ghost">Voir comment ça marche</a>
-    </div>
-    <p class="nd-hero-note">Référencement RPPS gratuit · 1 plan offert par mois · Livraison sous 48h</p>
-  </div>
-
-  <div class="nd-hero-stats">
-    <div class="stat-block block-time">
-      <div class="stat-val-large">15 min</div>
-      <div class="stat-label">Durée moyenne de validation</div>
-      <div class="stat-desc">Plan pré-rédigé avec nos outils</div>
-    </div>
-    <div class="stat-block block-visio">
-      <div class="stat-val-large">55€</div>
-      <div class="stat-label">Visio encaissée</div>
-      <div class="stat-desc">Paiement direct patient → vous</div>
-    </div>
-    <div class="stat-block block-delai">
-      <div class="stat-val-large">48h</div>
-      <div class="stat-label">Délai de livraison</div>
-      <div class="stat-desc">Au patient après validation</div>
-    </div>
-    <div class="stat-block block-free">
-      <div class="accent-badge">⭐ OFFERT</div>
-      <div class="stat-val-large">1 plan/mois</div>
-      <div class="stat-label">Gratuit · Toutes offres</div>
-      <div class="stat-desc">Validé et encaissé à 100%</div>
+    <div class="nd-hero-mockup">
+      <div class="mockup-block block-time">
+        <div class="stat-val-large">15 min</div>
+        <div class="stat-label">Temps de validation</div>
+      </div>
+      <div class="mockup-block block-visio">
+        <div class="livraison-icon">💬</div>
+        <div class="livraison-text">Visio<br><strong>55€ encaissés</strong></div>
+      </div>
+      <div class="mockup-block block-delai">
+        <div class="livraison-icon">📋</div>
+        <div class="livraison-text">PDF signé<br><strong>RPPS</strong></div>
+      </div>
+      <div class="mockup-block block-free">
+        <div class="accent-badge">⭐ OFFERT</div>
+        <div class="stat-val-large">1 plan/mois</div>
+        <div class="stat-label">validé à 100%</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- CARROUSEL PUBLICITAIRE PLEIN ÉCRAN DYNAMIQUE -->
+<!-- CARROUSEL -->
 <div class="fullscreen-carousel">
   <div class="carousel-container">
     <button class="carousel-arrow prev" onclick="prevSlide()">◀</button>
     <div class="carousel-slides" id="carouselSlides">
-      
-      <!-- SLIDE 1 : PATIENTS DIRECTS -->
       <div class="carousel-slide" data-slide="0">
         <div class="slide-inner">
           <div class="slide-content">
             <div class="slide-badge">🎯 REVENUS PRINCIPAUX</div>
             <div class="slide-title">Validez des plans pour <em>des patients directs</em></div>
-            <div class="slide-desc">Des milliers de patients remplissent leur bilan chaque jour. Vous validez les plans en 15 minutes, ils vous paient directement. Simple, rapide, sans démarchage.</div>
+            <div class="slide-desc">Des milliers de patients remplissent leur bilan chaque jour. Vous validez les plans en 15 minutes, ils vous paient directement.</div>
             <div class="slide-stats">
-              <div class="slide-stat">
-                <div class="slide-stat-value">24,90€</div>
-                <div class="slide-stat-label">par plan validé</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">55€</div>
-                <div class="slide-stat-label">par consultation visio</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">15 min</div>
-                <div class="slide-stat-label">temps moyen</div>
-              </div>
+              <div class="slide-stat"><div class="slide-stat-value">24,90€</div><div class="slide-stat-label">par plan validé</div></div>
+              <div class="slide-stat"><div class="slide-stat-value">55€</div><div class="slide-stat-label">par consultation visio</div></div>
             </div>
             <a href="inscription-dieteticien.html" class="slide-cta">Commencer →</a>
           </div>
           <div class="slide-illustration">
             <div class="illustration-icon">👤 ➜ 🥗</div>
-            <div class="illustration-flow">
-              <span>Bilan patient</span>
-              <span>→</span>
-              <span>Validation</span>
-              <span>→</span>
-              <span>💰</span>
-            </div>
             <div class="illustration-amount">24,90€</div>
             <div class="illustration-note">Paiement direct sur votre compte Stripe</div>
           </div>
         </div>
       </div>
 
-      <!-- SLIDE 2 : PRESCRIPTEURS B2B -->
       <div class="carousel-slide" data-slide="1">
         <div class="slide-inner">
           <div class="slide-content">
             <div class="slide-badge">🚀 LEVIER DE CROISSANCE</div>
             <div class="slide-title">Développez votre activité <em>avec les prescripteurs</em></div>
-            <div class="slide-desc">Médecins, kinés, coachs sportifs, ostéopathes… Ils achètent des packs de crédits et vous validez leurs plans. Des revenus réguliers et prévisibles, sans effort commercial.</div>
+            <div class="slide-desc">Médecins, kinés, coachs sportifs, ostéopathes… Ils achètent des packs de crédits et vous validez leurs plans. Des revenus réguliers et prévisibles.</div>
             <div class="slide-stats">
-              <div class="slide-stat">
-                <div class="slide-stat-value">130€</div>
-                <div class="slide-stat-label">pack Standard (10 plans)</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">500€</div>
-                <div class="slide-stat-label">pack Expert (50 plans)</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">104€</div>
-                <div class="slide-stat-label">nets pour vous (Standard)</div>
-              </div>
+              <div class="slide-stat"><div class="slide-stat-value">130€</div><div class="slide-stat-label">pack Standard (10 plans)</div></div>
+              <div class="slide-stat"><div class="slide-stat-value">500€</div><div class="slide-stat-label">pack Expert (50 plans)</div></div>
             </div>
             <a href="inscription-dieteticien.html" class="slide-cta">Devenir partenaire →</a>
           </div>
           <div class="slide-illustration">
             <div class="illustration-icon">🏢 ➜ 🥗</div>
-            <div class="illustration-flow">
-              <span>Pack 10 crédits</span>
-              <span>→</span>
-              <span>130€ HT</span>
-            </div>
             <div class="illustration-amount">+104€ nets</div>
             <div class="illustration-note">Commission NutriDoc : 26€</div>
           </div>
         </div>
       </div>
 
-      <!-- SLIDE 3 : PARTENAIRES (BIENTÔT) -->
-      <div class="carousel-slide coming-soon" data-slide="2">
+      <div class="carousel-slide" data-slide="2">
         <div class="slide-inner">
           <div class="slide-content">
             <div class="slide-badge">🔮 FUTUR PROCHAIN</div>
             <div class="slide-title">Préparez-vous au <em>programme Partenaires</em></div>
-            <div class="slide-desc">Salles de sport, entreprises, mutuelles, laboratoires… Un réseau de partenaires B2B qui vous apportera des volumes supplémentaires. Accès prioritaire aux premiers inscrits.</div>
+            <div class="slide-desc">Salles de sport, entreprises, mutuelles, laboratoires… Un réseau de partenaires B2B qui vous apportera des volumes supplémentaires.</div>
             <div class="slide-stats">
-              <div class="slide-stat">
-                <div class="slide-stat-value">📈 Volume</div>
-                <div class="slide-stat-label">garanti</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">🎯 Ciblage</div>
-                <div class="slide-stat-label">qualifié</div>
-              </div>
-              <div class="slide-stat">
-                <div class="slide-stat-value">⭐ Priorité</div>
-                <div class="slide-stat-label">aux premiers</div>
-              </div>
+              <div class="slide-stat"><div class="slide-stat-value">📈 Volume</div><div class="slide-stat-label">garanti</div></div>
+              <div class="slide-stat"><div class="slide-stat-value">🎯 Ciblage</div><div class="slide-stat-label">qualifié</div></div>
             </div>
             <a href="inscription-dieteticien.html" class="slide-cta">Pré-inscription →</a>
           </div>
           <div class="slide-illustration">
             <div class="illustration-icon">🤝 ➜ 🥗</div>
-            <div class="illustration-flow">
-              <span>Partenaires</span>
-              <span>→</span>
-              <span>Volume</span>
-              <span>→</span>
-              <span>💰💰</span>
-            </div>
             <div class="illustration-amount">Bientôt disponible</div>
             <div class="illustration-note">⭐ Rejoignez la liste d'attente</div>
           </div>
         </div>
       </div>
-
     </div>
     <button class="carousel-arrow next" onclick="nextSlide()">▶</button>
+    <div class="carousel-nav" id="carouselNav"></div>
   </div>
-  <div class="carousel-nav" id="carouselNav"></div>
 </div>
 
 <!-- COMMENT ÇA MARCHE -->
 <section class="nd-section nd-section-light" id="comment">
   <div class="nd-section-inner">
     <div class="nd-section-header">
-      <span class="nd-tag">Fonctionnement</span>
-      <h2 class="nd-title">Comment ça marche</h2>
-      <p class="nd-sub">En 4 étapes simples, de l'inscription à votre premier reversement.</p>
+      <span class="nd-tag">Simple & rapide</span>
+      <h2 class="nd-title">Comment ça marche ?</h2>
     </div>
-    <div class="steps-grid">
-      <div class="step"><div class="step-num">1</div><h3>Créez votre profil RPPS</h3><p>Inscription gratuite. Votre numéro RPPS est vérifié automatiquement.</p><a href="inscription-dieteticien.html" class="step-btn">S'inscrire →</a></div>
-      <div class="step"><div class="step-num">2</div><h3>NutriDoc vous apporte des dossiers</h3><p>Patients directs + prescriptions de pros. Notification à chaque nouveau dossier.</p></div>
-      <div class="step"><div class="step-num">3</div><h3>Validez le plan en 15 min</h3><p>Nos outils préparent le plan. Vous relisez, ajustez, signez.</p></div>
-      <div class="step"><div class="step-num">4</div><h3>Le patient vous paye directement</h3><p>Via Stripe sur votre compte. Livraison sous 48h.</p></div>
+    <div class="nd-steps">
+      <div class="nd-step" data-reveal>
+        <div class="nd-step-num">01</div>
+        <h3>Créez votre profil RPPS</h3>
+        <p>Inscription gratuite. Votre numéro RPPS est vérifié automatiquement.</p>
+        <a href="inscription-dieteticien.html" class="nd-step-link">S'inscrire →</a>
+      </div>
+      <div class="nd-step" data-reveal>
+        <div class="nd-step-num">02</div>
+        <h3>NutriDoc vous apporte des dossiers</h3>
+        <p>Patients directs + prescriptions de pros. Notification à chaque nouveau dossier.</p>
+      </div>
+      <div class="nd-step" data-reveal>
+        <div class="nd-step-num">03</div>
+        <h3>Validez le plan en 15 min</h3>
+        <p>Nos outils préparent le plan. Vous relisez, ajustez, signez.</p>
+      </div>
+      <div class="nd-step" data-reveal>
+        <div class="nd-step-num">04</div>
+        <h3>Le patient vous paye directement</h3>
+        <p>Via Stripe sur votre compte. Livraison sous 48h.</p>
+        <div style="display:inline-block; background:rgba(29,158,117,0.1); padding:0.2rem 0.6rem; border-radius:999px; font-size:0.65rem; margin-top:0.5rem;">⏱ Sous 48h max</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- AVANTAGES -->
+<!-- NOTRE DIFFÉRENCE -->
 <section class="nd-section nd-section-dark" id="avantages">
   <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag nd-tag-light">Pourquoi NutriDoc</span>
-      <h2 class="nd-title nd-title-light">Ce que NutriDoc vous apporte</h2>
-      <p class="nd-sub" style="color:rgba(255,255,255,0.45);">Comparé à une consultation classique en cabinet.</p>
+    <div class="nd-section-header nd-header-light">
+      <span class="nd-tag nd-tag-light">Nos avantages</span>
+      <h2 class="nd-title nd-title-light">Pourquoi rejoindre NutriDoc ?</h2>
     </div>
-    <div class="avantages-grid">
-      <div class="avantage-card"><div class="avantage-icon">🏠</div><h3>Depuis chez vous</h3><p>Aucun déplacement, aucune salle d'attente.</p></div>
-      <div class="avantage-card"><div class="avantage-icon">🎁</div><h3>1 plan offert / mois</h3><p>Quel que soit votre forfait, validez un plan sans frais chaque mois.</p></div>
-      <div class="avantage-card"><div class="avantage-icon">⏱</div><h3>15 min par plan</h3><p>Nos outils pré-rédigent le plan. Vous validez.</p></div>
-      <div class="avantage-card"><div class="avantage-icon">📋</div><h3>PDF signé automatique</h3><p>Plan avec votre RPPS, vos coordonnées, votre signature.</p></div>
-      <div class="avantage-card"><div class="avantage-icon">🔔</div><h3>Alertes santé intégrées</h3><p>Détection automatique des situations sensibles.</p></div>
-      <div class="avantage-card"><div class="avantage-icon">⏰</div><h3>Livraison sous 48h</h3><p>Engagement contractuel vis-à-vis des patients.</p></div>
+    <div class="nd-diff-grid">
+      <div class="nd-diff-card" data-reveal>
+        <div class="nd-diff-icon">🏠</div>
+        <h3>Depuis chez vous</h3>
+        <p>Aucun déplacement, aucune salle d'attente.</p>
+      </div>
+      <div class="nd-diff-card" data-reveal>
+        <div class="nd-diff-icon">🎁</div>
+        <h3>1 plan offert / mois</h3>
+        <p>Quel que soit votre forfait, validez un plan sans frais chaque mois.</p>
+      </div>
+      <div class="nd-diff-card" data-reveal>
+        <div class="nd-diff-icon">⏱</div>
+        <h3>15 min par plan</h3>
+        <p>Nos outils pré-rédigent le plan. Vous validez.</p>
+      </div>
+      <div class="nd-diff-card" data-reveal>
+        <div class="nd-diff-icon">📋</div>
+        <h3>PDF signé automatique</h3>
+        <p>Plan avec votre RPPS, vos coordonnées, votre signature.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- TARIFS DIÉTÉTICIENS (4 FORFAITS) -->
+<!-- TARIFS -->
 <section class="nd-section nd-section-light" id="tarifs">
   <div class="nd-section-inner">
     <div class="nd-section-header">
       <span class="nd-tag">Tarifs diététiciens</span>
       <h2 class="nd-title">Choisissez votre formule</h2>
-      <p class="nd-sub">Abonnement mensuel · 1 plan offert par mois · Sans engagement</p>
+      <p style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.5rem;">Abonnement mensuel · 1 plan offert par mois · Sans engagement</p>
     </div>
-
     <div class="pricing-4col">
-      <!-- ESSENTIEL -->
       <div class="price-card">
         <div class="price-tier">ESSENTIEL</div>
         <div class="price-amount">0 €</div>
-        <div class="price-desc">HT/mois · Phase pilote</div>
-        <div class="price-quota">1 plan gratuit + 0 dans le quota</div>
+        <div class="price-desc">HT/mois</div>
         <ul class="price-list">
           <li>Profil public dans l'annuaire RPPS</li>
           <li>Badge RPPS vérifié</li>
-          <li>✗ Accès aux dossiers patients</li>
-          <li>✗ Validation de plans (hors offert)</li>
-          <li>✗ Comptabilité / Agenda</li>
+          <li>Référencement seul</li>
         </ul>
-        <div class="price-info-box">📌 Référencement seul · Pour valider des plans, passez en formule Starter/Pro/Expert</div>
-        <a href="inscription-dieteticien.html?formule=essentiel" class="price-btn-outline">Me référencer gratuitement</a>
+        <a href="inscription-dieteticien.html?formule=essentiel" class="price-btn-outline">Se référencer gratuitement</a>
       </div>
 
-      <!-- STARTER -->
       <div class="price-card">
         <div class="price-tier">STARTER</div>
         <div class="price-amount">9 €</div>
         <div class="price-desc">HT/mois</div>
-        <div class="price-quota">1 gratuit + 10 dans le quota</div>
         <ul class="price-list">
-          <li><span class="plus-badge">+</span> Accès aux dossiers patients</li>
-          <li><span class="plus-badge">+</span> 10 plans inclus par mois (hors gratuit)</li>
-          <li><span class="plus-badge">+</span> Commission réduite à 2,50€/plan (au-delà)</li>
-          <li><span class="plus-badge">+</span> Agenda visio intégré</li>
+          <li>Accès aux dossiers patients</li>
+          <li>10 plans inclus par mois (hors gratuit)</li>
+          <li>Commission réduite à 2,50€/plan (au-delà)</li>
+          <li>Agenda visio intégré</li>
         </ul>
-        <div class="price-info-box">📌 Diét. libéral débutant — 5 à 15 plans/mois</div>
         <a href="inscription-dieteticien.html?formule=starter" class="price-btn-outline">Choisir Starter</a>
       </div>
 
-      <!-- PRO -->
       <div class="price-card featured">
         <div class="price-badge">⭐ RECOMMANDÉ</div>
         <div class="price-tier">PRO</div>
         <div class="price-amount">29 €</div>
         <div class="price-desc">HT/mois</div>
-        <div class="price-quota">1 gratuit + 30 dans le quota</div>
         <ul class="price-list">
-          <li><span class="plus-badge">+</span> 30 plans inclus par mois (au lieu de 10)</li>
-          <li><span class="plus-badge">+</span> Commission à 2,00€/plan (au-delà)</li>
-          <li><span class="plus-badge">+</span> Support prioritaire</li>
-          <li><span class="plus-badge">+</span> Statistiques avancées</li>
+          <li>30 plans inclus par mois (hors gratuit)</li>
+          <li>Commission à 2,00€/plan (au-delà)</li>
+          <li>Support prioritaire</li>
+          <li>Statistiques avancées</li>
         </ul>
-        <div class="price-info-box">💰 Rentabilisé dès <strong>2 plans / mois</strong> supplémentaires</div>
         <a href="inscription-dieteticien.html?formule=pro" class="price-btn-primary">S'inscrire — 29€/mois</a>
       </div>
 
-      <!-- EXPERT -->
       <div class="price-card">
         <div class="price-tier">EXPERT</div>
         <div class="price-amount">59 €</div>
         <div class="price-desc">HT/mois · Annuel</div>
-        <div class="price-quota">1 gratuit + 100 dans le quota</div>
         <ul class="price-list">
-          <li><span class="plus-badge">+</span> 100 plans inclus par mois</li>
-          <li><span class="plus-badge">+</span> Commission à 1,50€/plan (au-delà)</li>
-          <li><span class="plus-badge">+</span> Analytics avancés</li>
-          <li><span class="plus-badge">+</span> Accès API (sur demande)</li>
+          <li>100 plans inclus par mois (hors gratuit)</li>
+          <li>Commission à 1,50€/plan (au-delà)</li>
+          <li>Analytics avancés</li>
+          <li>Accès API (sur demande)</li>
         </ul>
-        <div class="price-info-box">💰 Économisez <strong>120€/an</strong> vs Pro mensuel</div>
         <a href="inscription-dieteticien.html?formule=expert" class="price-btn-outline">Choisir Expert</a>
       </div>
     </div>
-
-    <div style="text-align:center; margin-top:2rem; padding:0.75rem; background:#eef4ee; border-radius:12px; max-width:700px; margin-left:auto; margin-right:auto;">
-      <p style="font-size:0.75rem; color:#0f6e56;">💚 Visio de suivi : 55€ — intégralement reversée au diététicien · Commission visio : 8€</p>
-      <p style="font-size:0.7rem; color:#0f6e56; margin-top:0.25rem;">🎁 1 plan alimentaire offert par mois, quel que soit votre forfait · Livraison sous 48h</p>
+    <div style="text-align:center; margin-top:2rem; padding:0.75rem; background:var(--green-light); border-radius:12px; max-width:700px; margin-left:auto; margin-right:auto;">
+      <p style="font-size:0.75rem; color:var(--green2);">💚 Visio de suivi : 55€ — intégralement reversée au diététicien · Commission visio : 8€</p>
+      <p style="font-size:0.7rem; color:var(--green2); margin-top:0.25rem;">🎁 1 plan alimentaire offert par mois, quel que soit votre forfait · Livraison sous 48h</p>
     </div>
   </div>
 </section>
 
-<!-- FAQ DÉONTOLOGIE -->
+<!-- FAQ -->
 <section class="nd-section nd-section-light" id="faq">
   <div class="nd-section-inner" style="max-width: 800px;">
     <div class="nd-section-header">
@@ -1517,17 +1349,9 @@
       <div class="faq-answer">Directement sur votre compte Stripe lié à votre IBAN. Le patient paye via Stripe. Dès validation du plan, le montant vous est crédité (délai Stripe standard : 2–7 jours).</div>
     </div>
 
-    <div class="faq-item">
-      <div class="faq-question" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open');">
-        <span>Puis-je modifier un plan avant de le signer ?</span>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="faq-answer">Oui, entièrement. Nos outils préparent une première version. Vous pouvez modifier tous les aliments, quantités, repas, et refuser le dossier si nécessaire.</div>
-    </div>
-
     <div class="faq-contact-box">
       <strong>Une question ?</strong> Grégoire Martin répond personnellement aux questions de ses confrères diét. :<br>
-      <strong>📧 gmartin.diet@gmail.com</strong> · <strong>📞 06 45 77 38 15</strong> · Réponse sous 48h
+      <strong>📧 gmartin.diet@gmail.com</strong> · Réponse sous 48h
     </div>
   </div>
 </section>
@@ -1565,57 +1389,32 @@
   <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
 </footer>
 
-<!-- SIMULATEUR EN BULLE FLOTTANTE -->
+<!-- SIMULATEUR -->
 <div class="sim-bubble">
   <button class="sim-toggle" onclick="toggleSim()">💰</button>
   <div class="sim-window" id="simWindow">
-    <div class="sim-header">
-      <span>💰 Simulateur de revenus</span>
-      <button class="sim-close" onclick="toggleSim()">✕</button>
-    </div>
+    <div class="sim-header"><span>💰 Simulateur de revenus</span><button class="sim-close" onclick="toggleSim()">✕</button></div>
     <div class="sim-body">
-      <p style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.75rem;">Ajustez les curseurs pour estimer vos revenus mensuels.</p>
-      
       <div class="sim-field">
-        <div class="sim-field-header">
-          <span class="sim-field-label">📋 Plans validés / mois</span>
-          <span class="sim-field-val" id="simPlansVal">10</span>
-        </div>
-        <input type="range" min="1" max="100" value="10" step="1" id="simPlans" oninput="updateSimulatorBubble()">
+        <div class="sim-field-header"><span>📋 Plans validés / mois</span><span id="simPlansVal">10</span></div>
+        <input type="range" min="1" max="100" value="10" id="simPlans" oninput="updateSim()">
       </div>
-
       <div class="sim-field">
-        <div class="sim-field-header">
-          <span class="sim-field-label">🎥 Visios / mois</span>
-          <span class="sim-field-val" id="simVisiosVal">3</span>
-        </div>
-        <input type="range" min="0" max="30" value="3" step="1" id="simVisios" oninput="updateSimulatorBubble()">
+        <div class="sim-field-header"><span>🎥 Visios / mois</span><span id="simVisiosVal">3</span></div>
+        <input type="range" min="0" max="30" value="3" id="simVisios" oninput="updateSim()">
       </div>
-
       <div class="sim-field">
-        <div class="sim-field-header">
-          <span class="sim-field-label">🏢 Packs B2B vendus</span>
-          <span class="sim-field-val" id="simPacksVal">2</span>
-        </div>
-        <input type="range" min="0" max="20" value="2" step="1" id="simPacks" oninput="updateSimulatorBubble()">
-      </div>
-
-      <div class="sim-field">
-        <div class="sim-field-header">
-          <span class="sim-field-label">📦 Forfait</span>
-        </div>
+        <div class="sim-field-header"><span>📦 Forfait</span></div>
         <div class="sim-btns">
-          <div class="sim-abtn" onclick="setAbonnement(0, this)"><div>Essentiel</div><div class="sim-abtn-price">0€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(9, this)"><div>Starter</div><div class="sim-abtn-price">9€/mois</div></div>
-          <div class="sim-abtn active" onclick="setAbonnement(29, this)"><div>Pro</div><div class="sim-abtn-price">29€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(59, this)"><div>Expert</div><div class="sim-abtn-price">59€/mois</div></div>
+          <div class="sim-abtn" onclick="setAbo(0,this)"><div>Essentiel</div><div class="sim-abtn-price">0€</div></div>
+          <div class="sim-abtn" onclick="setAbo(9,this)"><div>Starter</div><div class="sim-abtn-price">9€</div></div>
+          <div class="sim-abtn active" onclick="setAbo(29,this)"><div>Pro</div><div class="sim-abtn-price">29€</div></div>
+          <div class="sim-abtn" onclick="setAbo(59,this)"><div>Expert</div><div class="sim-abtn-price">59€</div></div>
         </div>
         <input type="hidden" id="simAbo" value="29">
       </div>
-
       <div class="sim-results">
         <div class="sim-row"><span>💰 Chiffre d'affaires brut</span><strong id="simCa">364 €</strong></div>
-        <div class="sim-row"><span>📉 Commissions NutriDoc</span><strong id="simCommissions">— €</strong></div>
         <div class="sim-row highlight"><span>📈 Revenu net / mois</span><strong id="simNet">— €</strong></div>
         <div class="sim-row"><span>⏱ Taux horaire estimé</span><strong id="simTaux">— €/h</strong></div>
       </div>
@@ -1627,240 +1426,109 @@
 <div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- ==================== SCRIPTS ==================== -->
+<script src="js/core/auth.js"></script>
+<script src="js/core/ciqual-data.js"></script>
+<script src="js/core/constants.js"></script>
+<script src="js/core/validation.js"></script>
+<script src="js/utils/error-handler.js"></script>
+<script src="js/utils/email.js"></script>
+<script src="js/payments/stripe.js"></script>
+<script src="js/ui/cookies.js"></script>
+<script src="js/utils/performance.js"></script>
+<script src="js/utils/auto-save.js"></script>
+<script src="js/ui/chatbot-widget.js"></script>
+<script src="js/ui/theme-selector.js"></script>
+
 <script>
-// ===== SIMULATEUR EN BULLE =====
-var COMMISSIONS_SIM = { 0: 3.00, 9: 2.50, 29: 2.00, 59: 1.50 };
-var QUOTAS_SIM = { 0: 0, 9: 10, 29: 30, 59: 100 };
-var COMMISSION_B2B = 26;
+// ==================== MODE SOMBRE ====================
+(function(){
+  const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel'), saved=localStorage.getItem('nutridoc_theme');
+  if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
+  else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; localStorage.setItem('nutridoc_theme','light'); }
+  window.toggleDarkMode=function(){ const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
+    else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
+    if(btn){btn.style.transform='scale(0.95)'; setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
+  };
+  if(btn)btn.onclick=window.toggleDarkMode;
+})();
 
-function toggleSim() {
-  document.getElementById('simWindow').classList.toggle('open');
+// ==================== SIMULATEUR ====================
+const COMMISSIONS={0:3,9:2.5,29:2,59:1.5};
+function updateSim(){
+  const plans=parseInt(document.getElementById('simPlans').value), visios=parseInt(document.getElementById('simVisios').value), abo=parseInt(document.getElementById('simAbo').value), com=COMMISSIONS[abo];
+  document.getElementById('simPlansVal').textContent=plans; document.getElementById('simVisiosVal').textContent=visios;
+  const plansPayants=Math.max(0,plans-1), horsQuota=Math.max(0,plansPayants-30), commissions=(horsQuota*com)+(visios*8), ca=(plans*24.9)+(visios*55), net=ca-commissions-abo;
+  const heures=(plans*15+visios*45)/60;
+  const taux=heures>0?Math.round(net/heures):0;
+  document.getElementById('simCa').textContent=Math.round(ca)+' €'; document.getElementById('simNet').textContent=Math.round(net)+' €';
+  document.getElementById('simTaux').textContent=taux+' €/h';
+  document.getElementById('simNote').innerHTML=`📅 Revenu annuel estimé : ${Math.round(net*12).toLocaleString('fr-FR')} € · Commission : ${com.toFixed(2)}€/plan (hors quota)`;
 }
-
-function updateSimulatorBubble() {
-  const plans = parseInt(document.getElementById('simPlans').value);
-  const visios = parseInt(document.getElementById('simVisios').value);
-  const packs = parseInt(document.getElementById('simPacks').value);
-  const abo = parseInt(document.getElementById('simAbo').value);
-  const commissionPlan = COMMISSIONS_SIM[abo];
-  const quota = QUOTAS_SIM[abo];
-  
-  document.getElementById('simPlansVal').textContent = plans;
-  document.getElementById('simVisiosVal').textContent = visios;
-  document.getElementById('simPacksVal').textContent = packs;
-  
-  const plansPayants = Math.max(0, plans - 1);
-  const horsQuota = Math.max(0, plansPayants - quota);
-  const commissionsB2C = (horsQuota * commissionPlan) + (visios * 8);
-  const caB2C = (plans * 24.9) + (visios * 55);
-  
-  const commissionsB2B = packs * COMMISSION_B2B;
-  const caB2B = packs * 130;
-  
-  const caTotal = caB2C + caB2B;
-  const commissionsTotal = commissionsB2C + commissionsB2B;
-  const net = caTotal - commissionsTotal - abo;
-  const heures = (plans * 15 + visios * 45 + packs * 10) / 60;
-  const taux = heures > 0 ? Math.round(net / heures) : 0;
-  
-  document.getElementById('simCa').textContent = Math.round(caTotal) + ' €';
-  document.getElementById('simCommissions').textContent = Math.round(commissionsTotal) + ' €';
-  document.getElementById('simNet').textContent = Math.round(net) + ' €';
-  document.getElementById('simTaux').textContent = taux + ' €/h';
-  document.getElementById('simNote').innerHTML = `📅 Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} € · Commission B2C : ${commissionPlan.toFixed(2)}€/plan (hors quota) · Commission B2B : 26€/pack`;
-}
-
-function setAbonnement(val, btn) {
-  document.getElementById('simAbo').value = val;
-  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
+function setAbo(val,btn){
+  document.getElementById('simAbo').value=val;
+  document.querySelectorAll('.sim-abtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  updateSimulatorBubble();
+  updateSim();
 }
+window.toggleSim=function(){ document.getElementById('simWindow').classList.toggle('open'); };
+window.updateSim=updateSim;
+window.setAbo=setAbo;
 
-// ===== CARROUSEL DYNAMIQUE =====
+// ==================== CARROUSEL ====================
 let currentSlideIndex = 0;
 const totalSlides = 3;
 let autoSlideInterval;
 
-function initCarousel() {
-  const slides = document.querySelectorAll('.carousel-slide');
-  const nav = document.getElementById('carouselNav');
-  
-  // Créer les dots
-  for (let i = 0; i < totalSlides; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'carousel-dot';
-    dot.onclick = () => goToSlide(i);
+function updateCarousel(){
+  const slides=document.querySelectorAll('.carousel-slide');
+  const dots=document.querySelectorAll('.carousel-dot');
+  slides.forEach((s,i)=>{ s.classList.toggle('active',i===currentSlideIndex); });
+  dots.forEach((d,i)=>{ d.classList.toggle('active',i===currentSlideIndex); });
+}
+function nextSlide(){ currentSlideIndex=(currentSlideIndex+1)%totalSlides; updateCarousel(); resetAutoSlide(); }
+function prevSlide(){ currentSlideIndex=(currentSlideIndex-1+totalSlides)%totalSlides; updateCarousel(); resetAutoSlide(); }
+function goToSlide(i){ currentSlideIndex=i; updateCarousel(); resetAutoSlide(); }
+function startAutoSlide(){ autoSlideInterval=setInterval(()=>nextSlide(),6000); }
+function resetAutoSlide(){ clearInterval(autoSlideInterval); startAutoSlide(); }
+function initCarousel(){
+  const nav=document.getElementById('carouselNav');
+  nav.innerHTML='';
+  for(let i=0;i<totalSlides;i++){
+    const dot=document.createElement('div');
+    dot.className='carousel-dot';
+    dot.onclick=()=>goToSlide(i);
     nav.appendChild(dot);
   }
-  
   updateCarousel();
   startAutoSlide();
 }
+window.nextSlide=nextSlide;
+window.prevSlide=prevSlide;
 
-function updateCarousel() {
-  const slides = document.querySelectorAll('.carousel-slide');
-  const dots = document.querySelectorAll('.carousel-dot');
-  
-  slides.forEach((slide, index) => {
-    if (index === currentSlideIndex) {
-      slide.classList.add('active');
-    } else {
-      slide.classList.remove('active');
-    }
-  });
-  
-  dots.forEach((dot, index) => {
-    if (index === currentSlideIndex) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
-    }
-  });
-}
+// ==================== PROFIL ====================
+const PROFILS={patient:{name:'Patient',icon:'🧑',url:'index.html'},dieteticien:{name:'Diététicien',icon:'🥗',url:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',url:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',url:'partenariats.html'}};
+function getStoredProfil(){ try{ return localStorage.getItem('nutridoc_profil'); }catch(e){} return null; }
+function setStoredProfil(p){ localStorage.setItem('nutridoc_profil',p); localStorage.setItem('nutridoc_profil_date',Date.now()); }
+function updateUIForProfil(p){ const prof=PROFILS[p]; if(!prof)return; const bar=document.getElementById('dynamicProfilBar'); if(bar){ bar.style.display='block'; document.getElementById('profilIcon').textContent=prof.icon; document.getElementById('profilName').textContent=prof.name; } }
+function openProfilModal(){ const c=document.getElementById('profilModalContainer'); if(!c)return; c.innerHTML='<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil(\'patient\')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div><div class="profil-card" onclick="selectProfil(\'dieteticien\')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil(\'prescripteur\')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div><div class="profil-card" onclick="selectProfil(\'structure\')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>'; }
+function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML=''; }
+function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
+function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); updateUIForProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
+function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(stored && PROFILS[stored]) updateUIForProfil(stored); else if(!dismissed) setTimeout(openProfilModal,500); else document.getElementById('dynamicProfilBar').style.display='block'; }
+window.selectProfil=selectProfil; window.closeProfilModal=closeProfilModal; window.openProfilModal=openProfilModal; window.dismissProfilForever=dismissProfilForever;
+window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
+document.addEventListener('click',(e)=>{ const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu'); if(w&&m&&!w.contains(e.target)) m.classList.remove('open'); });
+window.addEventListener('scroll',()=>{ document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300); });
 
-function nextSlide() {
-  currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
-  updateCarousel();
-  resetAutoSlide();
-}
+// REVEAL ANIMATIONS
+const observer=new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('revealed'); }); },{ threshold:0.1 });
+document.querySelectorAll('[data-reveal], .nd-step, .nd-diff-card, .price-card').forEach(el=>observer.observe(el));
 
-function prevSlide() {
-  currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
-  updateCarousel();
-  resetAutoSlide();
-}
-
-function goToSlide(index) {
-  currentSlideIndex = index;
-  updateCarousel();
-  resetAutoSlide();
-}
-
-function startAutoSlide() {
-  autoSlideInterval = setInterval(() => {
-    nextSlide();
-  }, 6000);
-}
-
-function resetAutoSlide() {
-  clearInterval(autoSlideInterval);
-  startAutoSlide();
-}
-
-// ===== PROFIL SYSTEM =====
-const PROFIL_KEY = 'nutridoc_profil';
-const PROFIL_DATE_KEY = 'nutridoc_profil_date';
-const PROFIL_EXPIRY_DAYS = 30;
-
-const PROFILS = {
-  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
-  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
-  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
-  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
-};
-
-function getStoredProfil() {
-  const profil = localStorage.getItem(PROFIL_KEY);
-  const date = localStorage.getItem(PROFIL_DATE_KEY);
-  if (!profil || !date) return null;
-  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
-  if (daysSince > PROFIL_EXPIRY_DAYS) {
-    localStorage.removeItem(PROFIL_KEY);
-    localStorage.removeItem(PROFIL_DATE_KEY);
-    return null;
-  }
-  return profil;
-}
-
-function setStoredProfil(profil) {
-  localStorage.setItem(PROFIL_KEY, profil);
-  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
-}
-
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = profil.icon;
-    document.getElementById('profilName').textContent = profil.name;
-  }
-}
-
-function openProfilModal() {
-  const container = document.getElementById('profilModalContainer');
-  if (!container) return;
-  container.innerHTML = `
-    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
-      <div class="profil-modal" onclick="event.stopPropagation()">
-        <h2>Bienvenue sur NutriDoc</h2>
-        <div class="profil-modal-sub">Je suis...</div>
-        <div class="profil-grid">
-          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
-          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
-          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
-          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
-        </div>
-        <div class="profil-modal-footer">
-          <button onclick="closeProfilModal()">Plus tard</button>
-          <button onclick="dismissProfilForever()">Ne plus afficher</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
-function dismissProfilForever() {
-  localStorage.setItem('nutridoc_profil_dismissed', 'true');
-  closeProfilModal();
-}
-function selectProfil(profilKey) {
-  if (!PROFILS[profilKey]) return;
-  setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
-  closeProfilModal();
-  const target = PROFILS[profilKey].redirectUrl;
-  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
-    window.location.href = target;
-  }
-}
-
-function initProfilSystem() {
-  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
-  const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
-}
-
-window.selectProfil = selectProfil;
-window.closeProfilModal = closeProfilModal;
-window.dismissProfilForever = dismissProfilForever;
-window.openProfilModal = openProfilModal;
-window.toggleConn = () => document.getElementById('ndConnMenu')?.classList.toggle('open');
-window.toggleSim = toggleSim;
-window.updateSimulatorBubble = updateSimulatorBubble;
-window.setAbonnement = setAbonnement;
-window.nextSlide = nextSlide;
-window.prevSlide = prevSlide;
-window.goToSlide = goToSlide;
-
-document.addEventListener('click', (e) => {
-  const wrap = document.getElementById('ndConnWrap');
-  const menu = document.getElementById('ndConnMenu');
-  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
-});
-
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
-});
-
-// Initialisation
-initProfilSystem();
-updateSimulatorBubble();
+// INIT
+initProfil();
+updateSim();
 initCarousel();
 </script>
 </body>

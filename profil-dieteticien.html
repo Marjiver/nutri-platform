@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Gérez votre profil professionnel de diététicien sur NutriDoc : informations personnelles, RPPS, RCP, coordonnées professionnelles."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon profil — Espace Diététicien · NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+  
+  <!-- ==================== MASQUE POUR ANDROID ==================== -->
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
+  
+  <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
+  <meta name="msapplication-TileColor" content="#0d2018">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== SCRIPTS EXTERNES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- ==================== PERFORMANCE MONITORING ==================== -->
+  <script src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== -->
+  <script src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== AUTO-SAVE JS ==================== -->
+  <script src="js/utils/auto-save.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== -->
+  <script src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/constants.js"></script>
+  <script src="js/core/validation.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL DYNAMIQUE */
+    .dynamic-profil-bar {
+      background: #080f0b;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.4rem 2rem;
+      position: sticky;
+      top: 60px;
+      z-index: 98;
+      margin-top: 0;
+    }
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .profil-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
+      border-radius: 999px; padding: 0.2rem 0.9rem;
+      font-size: 0.75rem; color: #fff; font-weight: 500;
+    }
+    .profil-switch {
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px; padding: 0.2rem 0.8rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+
+    /* MAIN CONTENT */
+    .profil-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 7rem 1.5rem 4rem;
+    }
+
+    /* THEME SELECTOR */
+    .theme-selector-wrapper {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9997;
+    }
+    @media (max-width: 768px) {
+      .theme-selector-wrapper {
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+
+    /* FORM CARD */
+    .profil-card {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.2s;
+    }
+    .profil-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .profil-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .profil-card-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #0d2018;
+    }
+    .profil-card-header .badge {
+      background: #e1f5ee;
+      color: #1D9E75;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .badge-warning {
+      background: #fff8e6;
+      color: #f59e0b;
+    }
+    .badge-success {
+      background: #e1f5ee;
+      color: #1D9E75;
+    }
+
+    /* FORM GROUP */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: #0d2018;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #1D9E75;
+      outline: none;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .field-hint {
+      font-size: 0.7rem;
+      color: #6b7b74;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .req {
+      color: #ef4444;
+    }
+
+    /* DRAFT ACTIONS */
+    .draft-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .draft-actions button {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+
+    /* AVATAR */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .avatar-upload {
+      flex: 1;
+    }
+    .avatar-upload input {
+      padding: 0.5rem;
+    }
+
+    /* RPPS VERIFICATION STATUS */
+    .rpps-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .rpps-status.verified {
+      background: #e1f5ee;
+      color: #1D9E75;
+    }
+    .rpps-status.pending {
+      background: #fff8e6;
+      color: #f59e0b;
+    }
+    .rpps-status.unverified {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    /* RCP UPLOAD */
+    .rcp-upload {
+      border: 2px dashed #eef4ee;
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+    .rcp-upload:hover {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,0.05);
+    }
+    .rcp-upload-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .rcp-upload-text {
+      font-size: 0.75rem;
+      color: #6b7b74;
+    }
+    .rcp-file-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #f7f9f7;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+
+    /* FORMULE SELECTOR */
+    .formule-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 700px) {
+      .formule-selector {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .formule-option {
+      background: #f7f9f7;
+      border: 2px solid #eef4ee;
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .formule-option:hover {
+      transform: translateY(-2px);
+    }
+    .formule-option.selected {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,0.05);
+    }
+    .formule-option.recommended {
+      position: relative;
+      border-color: #f59e0b;
+    }
+    .formule-option.recommended::before {
+      content: "⭐ RECOMMANDÉ";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .formule-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+    .formule-price {
+      font-size: 0.75rem;
+      color: #1D9E75;
+      font-weight: 500;
+    }
+    .formule-desc {
+      font-size: 0.65rem;
+      color: #6b7b74;
+      margin-top: 0.25rem;
+    }
+
+    /* BUTTONS */
+    .btn-save {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-save:hover {
+      background: #0f6e56;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #eef4ee;
+      color: #0d2018;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .btn-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .btn-delete:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+    .btn-verify {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    .toast.error {
+      background: #ef4444;
+    }
+    .toast.warning {
+      background: #f59e0b;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 450px;
+      width: 90%;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-desc {
+      font-size: 0.85rem;
+      color: #6b7b74;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+<div id="theme-selector-container" class="theme-selector-wrapper"></div>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink active">Mon espace</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="profil-dieteticien.html" class="nd-conn-item active">👤 Mon profil</a>
+          <a href="gestion-forfait-dieteticien.html" class="nd-conn-item">📊 Mon forfait</a>
+          <a href="#" onclick="deconnecter()" class="nd-conn-item">🔓 Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- BARRE PROFIL DYNAMIQUE -->
+<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: block;">
+  <div class="dynamic-profil-inner">
+    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
+    <span class="profil-badge" id="currentProfilBadge">
+      <span id="profilIcon">🥗</span>
+      <span id="profilName">Diététicien</span>
+    </span>
+    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="profil-container">
+  
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>🥗 Mon profil professionnel</h2>
+      <span class="badge">Diététicien</span>
+    </div>
+
+    <!-- BOUTONS SAUVEGARDE AUTO -->
+    <div class="draft-actions">
+      <button type="button" onclick="manualSave('profilDietForm')" style="background: #1D9E75; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        💾 Sauvegarder maintenant
+      </button>
+      <button type="button" onclick="restoreLastDraft('profilDietForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🔄 Restaurer brouillon
+      </button>
+      <button type="button" onclick="clearCurrentDraft('profilDietForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🗑️ Effacer brouillon
+      </button>
+    </div>
+
+    <form id="profilDietForm">
+      <!-- AVATAR -->
+      <div class="avatar-section">
+        <div class="avatar-preview" id="avatarPreview">
+          👤
+        </div>
+        <div class="avatar-upload">
+          <label style="font-size:0.8rem; font-weight:500;">Photo de profil</label>
+          <input type="file" id="avatarInput" accept="image/*" style="margin-top:0.3rem;">
+          <span class="field-hint">Format JPG ou PNG, max 2 Mo</span>
+        </div>
+      </div>
+
+      <!-- IDENTITÉ -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
+        </div>
+        <div class="form-group">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email professionnel <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="contact@cabinet.fr" required>
+        </div>
+        <div class="form-group">
+          <label>Téléphone professionnel</label>
+          <input type="tel" id="telephone" name="telephone" placeholder="05 45 XX XX XX">
+        </div>
+      </div>
+
+      <!-- RPPS SECTION -->
+      <div class="form-group">
+        <label>Numéro RPPS <span class="req">*</span></label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="text" id="rpps" name="rpps" placeholder="10 008 019 381" style="flex: 1;" maxlength="14">
+          <button type="button" class="btn-verify" onclick="verifierRPPS()">Vérifier</button>
+        </div>
+        <div id="rppsStatus" class="rpps-status pending" style="margin-top: 0.5rem;">
+          <span>⏳ En attente de vérification</span>
+        </div>
+        <span class="field-hint">Format : 11 chiffres (ex: 10008019381)</span>
+      </div>
+
+      <!-- SPÉCIALITÉ -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Spécialité <span class="req">*</span></label>
+          <select id="specialite" name="specialite" required>
+            <option value="">— Choisir —</option>
+            <option value="dieteticien">Diététicien(ne) diplômé(e)</option>
+            <option value="nutritionniste">Médecin nutritionniste</option>
+            <option value="sport">Nutrition du sportif</option>
+            <option value="clinique">Nutrition clinique</option>
+            <option value="pediatrie">Pédiatrie</option>
+            <option value="geriatrie">Gériatrie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ADELI (optionnel)</label>
+          <input type="text" id="adeli" name="adeli" placeholder="Numéro ADELI">
+        </div>
+      </div>
+
+      <!-- CABINET -->
+      <div class="form-group">
+        <label>Nom du cabinet / structure</label>
+        <input type="text" id="cabinet" name="cabinet" placeholder="Ex: Cabinet Nutrition Santé">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Adresse</label>
+          <input type="text" id="adresse" name="adresse" placeholder="Numéro et rue">
+        </div>
+        <div class="form-group">
+          <label>Code postal</label>
+          <input type="text" id="codePostal" name="codePostal" placeholder="Ex: 16000">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ville</label>
+          <input type="text" id="ville" name="ville" placeholder="Ex: Angoulême">
+        </div>
+        <div class="form-group">
+          <label>Site web / Doctolib</label>
+          <input type="url" id="siteWeb" name="siteWeb" placeholder="https://...">
+        </div>
+      </div>
+
+      <!-- RCP ASSURANCE -->
+      <div class="form-group">
+        <label>Attestation RCP <span class="req">*</span></label>
+        <div class="rcp-upload" onclick="document.getElementById('rcpFile').click()">
+          <div class="rcp-upload-icon">📄</div>
+          <div class="rcp-upload-text">Cliquez pour télécharger votre attestation RCP<br>(PDF, max 5 Mo)</div>
+          <input type="file" id="rcpFile" accept=".pdf" style="display: none;" onchange="handleRCPUpload(this)">
+        </div>
+        <div id="rcpFileInfo" class="rcp-file-info" style="display: none;">
+          <span>📄</span>
+          <span id="rcpFileName"></span>
+          <button type="button" class="btn-outline" style="margin-left: auto; padding: 2px 8px;" onclick="supprimerRCP()">🗑️</button>
+        </div>
+        <span class="field-hint">Assurance Responsabilité Civile Professionnelle couvrant la téléconsultation</span>
+      </div>
+
+      <!-- FORMULE ACTUELLE -->
+      <div class="form-group">
+        <label>Formule actuelle</label>
+        <div id="formuleActuelle" style="background: #e1f5ee; border-radius: 12px; padding: 0.75rem 1rem; margin-top: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong id="formuleNom">Pro</strong>
+              <span id="formulePrix" style="color: #1D9E75;">29€/mois</span>
+            </div>
+            <a href="gestion-forfait-dieteticien.html" class="btn-outline" style="font-size:0.7rem;">Changer →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SÉLECTEUR DE FORMULE (pour changement) -->
+      <div class="form-group">
+        <label>Changer de formule</label>
+        <div class="formule-selector">
+          <div class="formule-option" data-formule="essentiel" data-prix="0" onclick="selectFormule(this)">
+            <div class="formule-name">Essentiel</div>
+            <div class="formule-price">0€/mois</div>
+            <div class="formule-desc">Référencement seul</div>
+          </div>
+          <div class="formule-option" data-formule="starter" data-prix="9" onclick="selectFormule(this)">
+            <div class="formule-name">Starter</div>
+            <div class="formule-price">9€/mois</div>
+            <div class="formule-desc">10 plans inclus</div>
+          </div>
+          <div class="formule-option recommended" data-formule="pro" data-prix="29" onclick="selectFormule(this)">
+            <div class="formule-name">Pro</div>
+            <div class="formule-price">29€/mois</div>
+            <div class="formule-desc">30 plans inclus</div>
+          </div>
+          <div class="formule-option" data-formule="expert" data-prix="59" onclick="selectFormule(this)">
+            <div class="formule-name">Expert</div>
+            <div class="formule-price">59€/mois</div>
+            <div class="formule-desc">100 plans inclus</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRÉFÉRENCES DE NOTIFICATION -->
+      <div class="form-group">
+        <label>Préférences de notification</label>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifEmail" checked> 📧 Recevoir les nouveaux dossiers par email
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifBrowser" checked> 🔔 Notifications navigateur
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifRappel" checked> ⏰ Rappel des visios 24h avant
+          </label>
+        </div>
+      </div>
+
+      <!-- DESCRIPTION PROFESSIONNELLE -->
+      <div class="form-group">
+        <label>Description professionnelle</label>
+        <textarea id="description" name="description" rows="3" placeholder="Présentez-vous aux patients : votre parcours, vos spécialités, votre approche..."></textarea>
+        <span class="field-hint">Cette description sera visible par les patients</span>
+      </div>
+    </form>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn-save" onclick="sauvegarderProfil()">💾 Sauvegarder les modifications</button>
+      <button class="btn-outline" onclick="annulerModifications()">Annuler</button>
+    </div>
+  </div>
+
+  <!-- CARD INFORMATIONS BANCAIRES -->
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>💰 Informations bancaires</h2>
+      <span class="badge">Stripe Connect</span>
+    </div>
+    <div class="form-group">
+      <label>Titulaire du compte</label>
+      <input type="text" id="ibanTitulaire" placeholder="Nom du titulaire">
+    </div>
+    <div class="form-group">
+      <label>IBAN</label>
+      <input type="text" id="iban" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX">
+      <span class="field-hint">Pour recevoir vos reversements (formules payantes uniquement)</span>
+    </div>
+    <div class="form-group">
+      <label>BIC / SWIFT</label>
+      <input type="text" id="bic" placeholder="Ex: BNPAFRPPXXX">
+    </div>
+    <div style="background: #e1f5ee; border-radius: 12px; padding: 0.75rem; margin-top: 0.5rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+        <span>💰 Prochain reversement estimé</span>
+        <strong id="prochainReversement">— €</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #6b7b74; margin-top: 0.25rem;">
+        <span>📅 Date prévue</span>
+        <span id="dateReversement">15 avril 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD SUPPRESSION DE COMPTE -->
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>⚠️ Zone dangereuse</h2>
+    </div>
+    <p style="font-size:0.85rem; color:#6b7b74; margin-bottom:1rem;">
+      La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.
+    </p>
+    <button class="btn-outline btn-delete" onclick="ouvrirModalSuppression()">🗑️ Supprimer mon compte</button>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<!-- MODAL SUPPRESSION COMPTE -->
+<div class="modal-overlay" id="modalSuppression">
+  <div class="modal">
+    <div class="modal-title">⚠️ Supprimer mon compte</div>
+    <div class="modal-desc">
+      Êtes-vous sûr de vouloir supprimer définitivement votre compte diététicien ?<br><br>
+      Cette action est irréversible et entraînera :<br>
+      • La suppression de tous vos dossiers patients<br>
+      • La perte de votre historique de validation<br>
+      • La suppression de vos informations bancaires
+    </div>
+    <div class="modal-btns">
+      <button class="btn-outline" onclick="fermerModalSuppression()">Annuler</button>
+      <button class="btn-outline btn-delete" onclick="supprimerCompte()">Confirmer la suppression</button>
+    </div>
+  </div>
+</div>
+
+<div id="profilModalContainer"></div>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ==================== SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<script>
+// ==================== PROFIL SYSTEM ====================
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {
+  const profil = PROFILS[profilKey];
+  if (!profil) return;
+  const bar = document.getElementById('dynamicProfilBar');
+  if (bar) {
+    bar.style.display = 'block';
+    document.getElementById('profilIcon').textContent = profil.icon;
+    document.getElementById('profilName').textContent = profil.name;
+  }
+}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button onclick="dismissProfilForever()">Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  updateUIForProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (stored && PROFILS[stored]) updateUIForProfil(stored);
+  else if (!dismissed) setTimeout(openProfilModal, 500);
+  else document.getElementById('dynamicProfilBar').style.display = 'block';
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+function toggleConn() {
+  document.getElementById('ndConnMenu').classList.toggle('open');
+}
+window.toggleConn = toggleConn;
+
+function deconnecter() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+window.deconnecter = deconnecter;
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('ndConnWrap');
+  const menu = document.getElementById('ndConnMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ==================== GESTION DU PROFIL DIÉTÉTICIEN ====================
+
+// Données simulées (à remplacer par Supabase)
+let dietData = {
+  prenom: 'Grégoire',
+  nom: 'Martin',
+  email: 'gmartin.diet@gmail.com',
+  telephone: '06 45 77 38 15',
+  rpps: '10008019381',
+  rppsVerifie: true,
+  specialite: 'dieteticien',
+  adeli: '',
+  cabinet: 'Cabinet NutriDoc',
+  adresse: '4 rue Saint-André',
+  codePostal: '16000',
+  ville: 'Angoulême',
+  siteWeb: 'https://nutridoc.fr',
+  rcpFile: null,
+  formule: 'pro',
+  description: 'Diététicien-Nutritionniste certifié RPPS, spécialisé en nutrition sportive et rééquilibrage alimentaire. Expérience en CHU et cabinet libéral.',
+  notifEmail: true,
+  notifBrowser: true,
+  notifRappel: true,
+  ibanTitulaire: 'Grégoire Martin',
+  iban: 'FR76 1234 5678 9012 3456 7890 123',
+  bic: 'BNPAFRPPXXX'
+};
+
+// Charger les données
+function chargerProfil() {
+  document.getElementById('prenom').value = dietData.prenom || '';
+  document.getElementById('nom').value = dietData.nom || '';
+  document.getElementById('email').value = dietData.email || '';
+  document.getElementById('telephone').value = dietData.telephone || '';
+  document.getElementById('rpps').value = dietData.rpps ? formatRPPSDisplay(dietData.rpps) : '';
+  document.getElementById('specialite').value = dietData.specialite || '';
+  document.getElementById('adeli').value = dietData.adeli || '';
+  document.getElementById('cabinet').value = dietData.cabinet || '';
+  document.getElementById('adresse').value = dietData.adresse || '';
+  document.getElementById('codePostal').value = dietData.codePostal || '';
+  document.getElementById('ville').value = dietData.ville || '';
+  document.getElementById('siteWeb').value = dietData.siteWeb || '';
+  document.getElementById('description').value = dietData.description || '';
+  document.getElementById('notifEmail').checked = dietData.notifEmail;
+  document.getElementById('notifBrowser').checked = dietData.notifBrowser;
+  document.getElementById('notifRappel').checked = dietData.notifRappel;
+  document.getElementById('ibanTitulaire').value = dietData.ibanTitulaire || '';
+  document.getElementById('iban').value = dietData.iban || '';
+  document.getElementById('bic').value = dietData.bic || '';
+
+  // Mettre à jour le statut RPPS
+  const rppsStatus = document.getElementById('rppsStatus');
+  if (dietData.rppsVerifie) {
+    rppsStatus.className = 'rpps-status verified';
+    rppsStatus.innerHTML = '<span>✓ RPPS vérifié · Actif dans l\'annuaire santé</span>';
+  } else if (dietData.rpps) {
+    rppsStatus.className = 'rpps-status pending';
+    rppsStatus.innerHTML = '<span>⏳ En attente de vérification</span>';
+  } else {
+    rppsStatus.className = 'rpps-status unverified';
+    rppsStatus.innerHTML = '<span>✗ RPPS non renseigné</span>';
+  }
+
+  // Mettre à jour la formule
+  updateFormuleDisplay();
+
+  // Mettre à jour l'avatar
+  const avatarPreview = document.getElementById('avatarPreview');
+  if (avatarPreview) {
+    avatarPreview.textContent = (dietData.prenom?.[0] || '👤') + (dietData.nom?.[0] || '');
+  }
+}
+
+function formatRPPSDisplay(rpps) {
+  const raw = String(rpps).replace(/\D/g, '');
+  if (raw.length <= 2) return raw;
+  if (raw.length <= 5) return raw.slice(0, 2) + ' ' + raw.slice(2);
+  if (raw.length <= 8) return raw.slice(0, 2) + ' ' + raw.slice(2, 5) + ' ' + raw.slice(5);
+  return raw.slice(0, 2) + ' ' + raw.slice(2, 5) + ' ' + raw.slice(5, 8) + ' ' + raw.slice(8);
+}
+
+function updateFormuleDisplay() {
+  const formules = { essentiel: 'Essentiel', starter: 'Starter', pro: 'Pro', expert: 'Expert' };
+  const prix = { essentiel: '0€/mois', starter: '9€/mois', pro: '29€/mois', expert: '59€/mois' };
+  document.getElementById('formuleNom').textContent = formules[dietData.formule] || 'Pro';
+  document.getElementById('formulePrix').textContent = prix[dietData.formule] || '29€/mois';
+
+  // Mettre en surbrillance la formule sélectionnée
+  document.querySelectorAll('.formule-option').forEach(opt => {
+    if (opt.dataset.formule === dietData.formule) {
+      opt.classList.add('selected');
+    } else {
+      opt.classList.remove('selected');
+    }
+  });
+}
+
+function selectFormule(element) {
+  const formule = element.dataset.formule;
+  const prix = element.dataset.prix;
+  if (confirm(`Changer pour la formule ${element.querySelector('.formule-name')?.textContent || formule} à ${prix}€/mois ?`)) {
+    dietData.formule = formule;
+    updateFormuleDisplay();
+    showToast(`Formule changée pour ${element.querySelector('.formule-name')?.textContent || formule}`, 'success');
+  }
+}
+
+function verifierRPPS() {
+  const rppsInput = document.getElementById('rpps');
+  const rppsRaw = rppsInput.value.replace(/\D/g, '');
+  
+  if (rppsRaw.length !== 11) {
+    showToast('Le numéro RPPS doit contenir exactement 11 chiffres', 'error');
+    return;
+  }
+
+  const btn = event.target;
+  btn.textContent = 'Vérification...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    // Simulation de vérification RPPS
+    if (rppsRaw.startsWith('00')) {
+      document.getElementById('rppsStatus').className = 'rpps-status unverified';
+      document.getElementById('rppsStatus').innerHTML = '<span>✗ RPPS introuvable dans l\'annuaire santé</span>';
+      showToast('Numéro RPPS invalide', 'error');
+    } else {
+      dietData.rpps = rppsRaw;
+      dietData.rppsVerifie = true;
+      document.getElementById('rppsStatus').className = 'rpps-status verified';
+      document.getElementById('rppsStatus').innerHTML = '<span>✓ RPPS vérifié · Actif dans l\'annuaire santé</span>';
+      showToast('RPPS vérifié avec succès ✓', 'success');
+    }
+    btn.textContent = 'Vérifier';
+    btn.disabled = false;
+  }, 1500);
+}
+
+function handleRCPUpload(input) {
+  const file = input.files[0];
+  if (file && file.type === 'application/pdf') {
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Le fichier ne doit pas dépasser 5 Mo', 'error');
+      return;
+    }
+    dietData.rcpFile = file.name;
+    document.getElementById('rcpFileInfo').style.display = 'flex';
+    document.getElementById('rcpFileName').textContent = file.name;
+    showToast('Attestation RCP téléchargée', 'success');
+  } else {
+    showToast('Veuillez sélectionner un fichier PDF', 'error');
+  }
+}
+
+function supprimerRCP() {
+  dietData.rcpFile = null;
+  document.getElementById('rcpFileInfo').style.display = 'none';
+  document.getElementById('rcpFileName').textContent = '';
+  showToast('Attestation RCP supprimée', 'warning');
+}
+
+function sauvegarderProfil() {
+  const newData = {
+    prenom: document.getElementById('prenom').value,
+    nom: document.getElementById('nom').value,
+    email: document.getElementById('email').value,
+    telephone: document.getElementById('telephone').value,
+    rpps: document.getElementById('rpps').value.replace(/\D/g, ''),
+    specialite: document.getElementById('specialite').value,
+    adeli: document.getElementById('adeli').value,
+    cabinet: document.getElementById('cabinet').value,
+    adresse: document.getElementById('adresse').value,
+    codePostal: document.getElementById('codePostal').value,
+    ville: document.getElementById('ville').value,
+    siteWeb: document.getElementById('siteWeb').value,
+    description: document.getElementById('description').value,
+    notifEmail: document.getElementById('notifEmail').checked,
+    notifBrowser: document.getElementById('notifBrowser').checked,
+    notifRappel: document.getElementById('notifRappel').checked,
+    ibanTitulaire: document.getElementById('ibanTitulaire').value,
+    iban: document.getElementById('iban').value,
+    bic: document.getElementById('bic').value,
+    formule: dietData.formule,
+    rppsVerifie: dietData.rppsVerifie
+  };
+
+  // Validation
+  if (!newData.prenom || !newData.nom) {
+    showToast('Le prénom et le nom sont requis', 'error');
+    return;
+  }
+  if (newData.email && !isValidEmail(newData.email)) {
+    showToast('Email invalide', 'error');
+    return;
+  }
+  if (newData.rpps && newData.rpps.length !== 11) {
+    showToast('Le numéro RPPS doit contenir 11 chiffres', 'error');
+    return;
+  }
+
+  dietData = newData;
+  localStorage.setItem('nutridoc_dieteticien', JSON.stringify(dietData));
+
+  // Nettoyer le brouillon
+  if (typeof clearCurrentDraft === 'function') {
+    clearCurrentDraft('profilDietForm');
+  }
+
+  showToast('Profil sauvegardé avec succès ✓', 'success');
+}
+
+function annulerModifications() {
+  chargerProfil();
+  showToast('Modifications annulées', 'warning');
+}
+
+// Suppression de compte
+function ouvrirModalSuppression() {
+  document.getElementById('modalSuppression').classList.add('open');
+}
+
+function fermerModalSuppression() {
+  document.getElementById('modalSuppression').classList.remove('open');
+}
+
+function supprimerCompte() {
+  if (confirm('⚠️ Dernier avertissement : cette action est irréversible. Voulez-vous vraiment supprimer votre compte ?')) {
+    localStorage.clear();
+    showToast('Votre compte a été supprimé', 'error');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 2000);
+  }
+  fermerModalSuppression();
+}
+
+function showToast(message, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Gestion avatar
+document.getElementById('avatarInput')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const avatarPreview = document.getElementById('avatarPreview');
+      if (avatarPreview) {
+        avatarPreview.style.backgroundImage = `url(${event.target.result})`;
+        avatarPreview.style.backgroundSize = 'cover';
+        avatarPreview.style.backgroundPosition = 'center';
+        avatarPreview.textContent = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  chargerProfil();
+  
+  // Initialiser la sauvegarde auto
+  if (typeof initAutoSave === 'function') {
+    initAutoSave();
+  }
+});
+
+initProfilSystem();
+</script>
+
+</body>
+</html>

@@ -3,23 +3,105 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="description" content="Bilan nutritionnel gratuit · Plan alimentaire avec grammages précis validé par un diététicien certifié RPPS. Perte de poids, prise de masse, performance sportive. Livré sous 48h."/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>NutriDoc — Plateforme nutritionnelle certifiée · CaliDoc Santé</title>
+  
+  <!-- SEO Meta -->
+  <meta name="keywords" content="nutrition, bilan nutritionnel, plan alimentaire, diététicien, perte de poids, prise de masse, coaching nutrition, RPPS">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="theme-color" content="#0d2018">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/">
+  <meta property="og:title" content="NutriDoc — Bilan nutritionnel gratuit">
+  <meta property="og:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS">
+  <meta property="og:image" content="/assets/images/og-image.jpg">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="NutriDoc — Bilan nutritionnel gratuit">
+  <meta property="twitter:description" content="Plan alimentaire personnalisé avec grammages précis, validé par un diététicien certifié RPPS">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/cookies.js"></script>
-
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
   <style>
-    /* Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* ===== VARIABLES CSS ===== */
+    :root {
+      --green: #1D9E75;
+      --green2: #0f6e56;
+      --green3: #5DCAA5;
+      --green-light: #E1F5EE;
+      --cream: #f7f9f7;
+      --dark: #0d2018;
+      --gray: #6b7280;
+      --gray-light: #f3f4f6;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --radius-sm: 8px;
+      
+      /* Thème CLAIR (défaut) - fond clair, texte sombre */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f9f7;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-tertiary: #eef4ee;
+      --text-primary: #0d2018;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* ===== MODE SOMBRE ===== */
+    [data-theme="dark"] {
+      --bg-primary: #0a0f0d;
+      --bg-secondary: #111816;
+      --bg-card: #141c19;
+      --bg-input: #1a221f;
+      --bg-tertiary: #1a221f;
+      --text-primary: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: #2a3430;
+      --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+      
+      --cream: #111816;
+      --gray-light: #1a221f;
+      --border: #2a3430;
+      --dark: #e5e7eb;
+      --gray: #9ca3af;
+    }
+    
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       line-height: 1.5;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    
+    /* Transition fluide pour le mode sombre */
+    * {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     }
 
     /* Pop-up profil */
@@ -34,13 +116,13 @@
       to { opacity: 1; backdrop-filter: blur(8px); }
     }
     .profil-modal {
-      background: #0d2018; border: 1px solid rgba(29,158,117,0.3);
+      background: var(--bg-primary); border: 1px solid rgba(29,158,117,0.3);
       border-radius: 32px; padding: 2rem; max-width: 900px; width: 90%;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
     .profil-modal h2 {
       font-family: 'Playfair Display', serif; font-size: 1.8rem;
-      color: #fff; text-align: center; margin-bottom: 0.5rem;
+      color: var(--text-primary); text-align: center; margin-bottom: 0.5rem;
     }
     .profil-modal-sub {
       text-align: center; color: rgba(255,255,255,0.5);
@@ -74,7 +156,7 @@
     @media (max-width: 700px) { .profil-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .profil-grid { grid-template-columns: 1fr; } .profil-modal { padding: 1.5rem; } }
 
-    /* Barre profil dynamique - collée au header */
+    /* Barre profil dynamique */
     .dynamic-profil-bar {
       background: #080f0b;
       border-bottom: 1px solid rgba(29,158,117,0.2);
@@ -107,7 +189,7 @@
     }
     .profil-switch:hover { border-color: #1D9E75; color: #fff; }
 
-    /* HEADER */
+    /* HEADER - reste toujours sombre */
     .nd-header {
       position: fixed;
       top: 0;
@@ -117,6 +199,15 @@
       background: #0d2018;
       border-bottom: 1px solid rgba(29,158,117,0.2);
       padding: 0.75rem 2rem;
+      transition: all 0.3s ease;
+    }
+    [data-theme="dark"] .nd-header {
+      background: #0a0f0d;
+    }
+    .nd-header.scrolled {
+      padding: 0.5rem 2rem;
+      background: rgba(13,32,24,0.98);
+      backdrop-filter: blur(10px);
     }
     .header-container {
       max-width: 1400px;
@@ -144,7 +235,6 @@
     }
     .nd-navlink:hover { color: #fff; }
 
-    /* Tooltip Grégoire */
     .gregoire-mini {
       position: relative;
       display: flex;
@@ -164,7 +254,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color: var(--bg-primary);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -180,16 +270,6 @@
       transition: opacity 0.3s;
       pointer-events: none;
     }
-    .tooltip-text::after {
-      content: "";
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
     .gregoire-mini-avatar {
       width: 28px;
       height: 28px;
@@ -198,7 +278,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Playfair Display', serif;
       font-size: 0.7rem;
       font-weight: 700;
       color: #fff;
@@ -234,7 +313,7 @@
       position: absolute;
       top: 100%;
       right: 0;
-      background: #0d2018;
+      background: var(--bg-primary);
       border: 1px solid rgba(29,158,117,0.2);
       border-radius: 12px;
       width: 180px;
@@ -256,7 +335,7 @@
       .gregoire-mini { display: none; }
     }
 
-    /* HERO PLEINE LARGEUR AVEC ARRIÈRE-PLAN MATRIX */
+    /* HERO - reste toujours sombre */
     .nd-hero {
       position: relative;
       display: flex;
@@ -270,6 +349,9 @@
       width: 100%;
       overflow: hidden;
       background: #0d2018;
+    }
+    [data-theme="dark"] .nd-hero {
+      background: #0a0f0d;
     }
     .nd-hero-canvas {
       position: absolute;
@@ -288,15 +370,6 @@
         radial-gradient(ellipse 40% 70% at 5% 80%, rgba(15,110,86,0.2) 0%, transparent 60%),
         radial-gradient(ellipse 50% 40% at 95% 10%, rgba(93,202,165,0.1) 0%, transparent 55%);
     }
-    .nd-hero-canvas::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(rgba(29,158,117,0.2) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%);
-    }
     .nd-hero-overlay {
       position: absolute;
       inset: 0;
@@ -311,9 +384,7 @@
       max-width: 550px;
       text-align: center;
     }
-    @media (min-width: 901px) {
-      .nd-hero-content { text-align: left; }
-    }
+    @media (min-width: 901px) { .nd-hero-content { text-align: left; } }
     .nd-hero-eyebrow {
       display: flex;
       align-items: center;
@@ -323,9 +394,7 @@
       color: #5DCAA5;
       margin-bottom: 1rem;
     }
-    @media (min-width: 901px) {
-      .nd-hero-eyebrow { justify-content: flex-start; }
-    }
+    @media (min-width: 901px) { .nd-hero-eyebrow { justify-content: flex-start; } }
     .nd-dot-pulse {
       width: 6px; height: 6px;
       background: #5DCAA5;
@@ -353,9 +422,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    @media (min-width: 901px) {
-      .nd-hero-sub { margin-left: 0; margin-right: 0; }
-    }
+    @media (min-width: 901px) { .nd-hero-sub { margin-left: 0; margin-right: 0; } }
     .nd-hero-ctas {
       display: flex;
       gap: 1rem;
@@ -363,9 +430,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    @media (min-width: 901px) {
-      .nd-hero-ctas { justify-content: flex-start; }
-    }
+    @media (min-width: 901px) { .nd-hero-ctas { justify-content: flex-start; } }
     .nd-cta-main {
       background: #1D9E75;
       color: #fff;
@@ -391,14 +456,12 @@
       margin-bottom: 1.5rem;
       justify-content: center;
     }
-    @media (min-width: 901px) {
-      .nd-hero-trust { justify-content: flex-start; }
-    }
+    @media (min-width: 901px) { .nd-hero-trust { justify-content: flex-start; } }
     .nd-trust-num { font-size: 1.1rem; font-weight: 700; color: #5DCAA5; }
     .nd-trust-label { font-size: 0.6rem; color: rgba(255,255,255,0.5); }
     .nd-trust-sep { width: 1px; height: 30px; background: rgba(255,255,255,0.2); }
 
-    /* MOCKUP 3 BLOCS AVEC FLOTTAISON */
+    /* MOCKUP */
     .nd-hero-mockup {
       position: relative;
       z-index: 2;
@@ -424,92 +487,25 @@
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-6px); }
     }
-    .block-plan {
-      top: 0;
-      left: 0;
-      right: 0;
-      animation-delay: 0s;
-    }
-    .block-livraison {
-      bottom: 20px;
-      left: 0;
-      width: 140px;
-      text-align: center;
-      animation-delay: 0.5s;
-    }
-    .block-gratuit {
-      bottom: 60px;
-      right: 0;
-      width: 120px;
-      text-align: center;
-      animation-delay: 1s;
-    }
-    .plan-label {
-      font-size: 0.7rem;
-      color: #5DCAA5;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-    .plan-meal {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.8);
-      padding: 0.2rem 0;
-    }
+    .block-plan { top: 0; left: 0; right: 0; animation-delay: 0s; }
+    .block-livraison { bottom: 20px; left: 0; width: 140px; text-align: center; animation-delay: 0.5s; }
+    .block-gratuit { bottom: 60px; right: 0; width: 120px; text-align: center; animation-delay: 1s; }
+    .plan-label { font-size: 0.7rem; color: #5DCAA5; font-weight: 500; margin-bottom: 0.5rem; }
+    .plan-meal { display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(255,255,255,0.8); padding: 0.2rem 0; }
     .plan-kcal { color: #5DCAA5; }
-    .plan-total {
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.4);
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-    .livraison-icon {
-      width: 36px;
-      height: 36px;
-      background: #1D9E75;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      margin: 0 auto 0.5rem;
-    }
+    .plan-total { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; text-align: center; }
+    .livraison-icon { width: 36px; height: 36px; background: #1D9E75; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; margin: 0 auto 0.5rem; }
     .livraison-text { font-size: 0.7rem; color: rgba(255,255,255,0.8); }
-    .gratuit-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #5DCAA5;
-    }
-    .gratuit-sub {
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.5);
-    }
-
-    @media (max-width: 1100px) {
-      .nd-hero { padding: 7rem 1.5rem 4rem; gap: 2rem; }
-      .nd-hero-mockup { flex: 0 0 340px; }
-    }
-    @media (max-width: 900px) {
-      .nd-hero { flex-direction: column; padding: 6rem 1.5rem 3rem; text-align: center; }
-      .nd-hero-mockup { display: none; }
-      .nd-hero-content { max-width: 100%; text-align: center; }
-      .nd-hero-sub { margin-left: auto; margin-right: auto; }
-      .nd-hero-ctas { justify-content: center; }
-      .nd-hero-trust { justify-content: center; }
-    }
-    @media (max-width: 480px) {
-      .nd-hero { padding: 6rem 1rem 3rem; }
-      .nd-hero-title { font-size: clamp(1.8rem, 7vw, 2.5rem); }
-      .nd-hero-sub { font-size: 0.85rem; }
-      .nd-cta-main, .nd-cta-ghost { font-size: 0.8rem; padding: 0.6rem 1.2rem; }
-      .nd-hero-trust { gap: 1rem; }
-    }
+    .gratuit-title { font-size: 1.2rem; font-weight: 700; color: #5DCAA5; }
+    .gratuit-sub { font-size: 0.6rem; color: rgba(255,255,255,0.5); }
+    @media (max-width: 1100px) { .nd-hero { padding: 7rem 1.5rem 4rem; gap: 2rem; } .nd-hero-mockup { flex: 0 0 340px; } }
+    @media (max-width: 900px) { .nd-hero { flex-direction: column; padding: 6rem 1.5rem 3rem; text-align: center; } .nd-hero-mockup { display: none; } .nd-hero-content { max-width: 100%; text-align: center; } }
 
     /* Sections */
     .nd-section { padding: 3rem 0; }
-    .nd-section-light { background: #f7f9f7; }
-    .nd-section-dark { background: #0d2018; color: #fff; }
+    .nd-section-light { background: var(--bg-secondary); }
+    .nd-section-dark { background: #0d2018; color: var(--text-primary); }
+    [data-theme="dark"] .nd-section-dark { background: #0a0f0d; }
     .nd-section-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
     .nd-section-header { text-align: center; margin-bottom: 2rem; }
     .nd-tag {
@@ -528,6 +524,7 @@
     .nd-title {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.6rem, 3vw, 2.2rem);
+      color: var(--text-primary);
     }
     .nd-title-light { color: #fff; }
 
@@ -551,17 +548,9 @@
       line-height: 55px;
       margin-bottom: 0.75rem;
     }
-    .nd-step h3 { font-size: 0.9rem; margin-bottom: 0.5rem; }
-    .nd-step p { font-size: 0.75rem; color: #6b7b74; }
+    .nd-step h3 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .nd-step p { font-size: 0.75rem; color: var(--text-secondary); }
     .nd-step-link { font-size: 0.75rem; color: #1D9E75; text-decoration: none; }
-    .nd-48h-pill {
-      display: inline-block;
-      background: rgba(29,158,117,0.1);
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.65rem;
-      margin-top: 0.5rem;
-    }
     @media (max-width: 768px) { .nd-steps { grid-template-columns: 1fr; gap: 1.5rem; } }
 
     /* Diff grid */
@@ -606,24 +595,42 @@
     }
     @media (max-width: 900px) { .pricing-3col { grid-template-columns: 1fr; max-width: 400px; } }
     .price-card {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 20px;
       padding: 1.5rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      border: 1px solid #eef4ee;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
       transition: transform 0.2s;
     }
-    .price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.12); }
+    .price-card:hover { transform: translateY(-4px); }
     .price-card.featured {
-      background: linear-gradient(135deg, #0d2018 0%, #142c1f 100%);
+      background: linear-gradient(135deg, #0d2018 0%, #1a3a2a 100%);
       border: 2px solid #1D9E75;
-      color: #fff;
     }
-    .price-tier { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7b74; margin-bottom: 0.5rem; }
+    [data-theme="dark"] .price-card.featured {
+      background: linear-gradient(135deg, #0a0f0d 0%, #141c19 100%);
+    }
+    .price-tier { 
+      font-size: 0.7rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--text-secondary); 
+      margin-bottom: 0.5rem; 
+    }
     .price-card.featured .price-tier { color: #5DCAA5; }
-    .price-amount { font-size: 2rem; font-weight: 800; color: #1D9E75; margin-bottom: 0.25rem; }
+    .price-amount { 
+      font-size: 2rem; 
+      font-weight: 800; 
+      color: #1D9E75; 
+      margin-bottom: 0.25rem; 
+    }
     .price-card.featured .price-amount { color: #5DCAA5; }
-    .price-desc { font-size: 0.7rem; color: #6b7b74; margin-bottom: 1rem; }
+    .price-desc { 
+      font-size: 0.75rem; 
+      color: var(--text-secondary); 
+      margin-bottom: 1rem; 
+    }
+    .price-card.featured .price-desc { color: rgba(255,255,255,0.7); }
     .price-list { list-style: none; margin: 1rem 0; padding: 0; }
     .price-list li {
       display: flex;
@@ -631,11 +638,10 @@
       gap: 0.5rem;
       font-size: 0.75rem;
       margin-bottom: 0.5rem;
-      color: #0d2018;
+      color: var(--text-primary);
     }
     .price-card.featured .price-list li { color: rgba(255,255,255,0.9); }
     .price-list li::before { content: "✓"; color: #1D9E75; font-weight: 600; }
-    .price-card.featured .price-list li::before { color: #5DCAA5; }
     .price-btn-outline {
       display: block;
       text-align: center;
@@ -660,7 +666,7 @@
       background: #1D9E75;
       color: #fff;
     }
-    .price-btn-primary:hover { background: #0f6e56; transform: translateY(-2px); }
+    .price-btn-primary:hover { background: #0f6e56; }
 
     /* Footer */
     .nd-footer {
@@ -717,6 +723,7 @@
       .nd-footer-links { grid-template-columns: 1fr 1fr; }
     }
 
+    /* Scroll top button */
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
@@ -727,6 +734,17 @@
       z-index: 200;
     }
     .scroll-top-btn.visible { opacity: 1; }
+
+    /* Reveal animations */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    [data-reveal].revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -748,10 +766,28 @@
       <div class="gregoire-mini-text">
         <strong>Grégoire Martin</strong> · Diététicien RPPS
       </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral</span>
     </div>
 
     <div class="header-actions">
+      <!-- Bouton mode sombre dans le header -->
+      <button id="themeHeaderBtn" style="
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+        color: #fff;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+      ">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Sombre</span>
+      </button>
+      
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -761,7 +797,7 @@
           <a href="inscription-dieteticien.html" class="nd-conn-item">Pas encore inscrit ? →</a>
         </div>
       </div>
-      <a href="bilan.html" class="nd-btn-primary" id="mainCtaBtn">Commencer gratuit →</a>
+      <a href="bilan.html" class="nd-btn-primary">Commencer gratuit →</a>
     </div>
   </div>
 </header>
@@ -818,12 +854,10 @@
       <div class="plan-meal"><span>🍽 Dîner récupération</span><span class="plan-kcal">4 semaines</span></div>
       <div class="plan-total">Plan · prise de masse ou perte de poids · périodisé J actif / J repos</div>
     </div>
-
     <div class="mockup-block block-livraison">
       <div class="livraison-icon">✓</div>
       <div class="livraison-text">Livré sous<br><strong>48h ouvrées</strong></div>
     </div>
-
     <div class="mockup-block block-gratuit">
       <div class="gratuit-title">Gratuit</div>
       <div class="gratuit-sub">Recommandations<br>& menus</div>
@@ -859,7 +893,7 @@
         <div class="nd-step-num">04</div>
         <h3>Vous recevez le plan</h3>
         <p>PDF téléchargeable avec grammages et signature RPPS.</p>
-        <div class="nd-48h-pill">⏱ Sous 48h max</div>
+        <div style="display:inline-block; background:rgba(29,158,117,0.1); padding:0.2rem 0.6rem; border-radius:999px; font-size:0.65rem; margin-top:0.5rem;">⏱ Sous 48h max</div>
       </div>
     </div>
   </div>
@@ -913,13 +947,13 @@
         <ul class="price-list">
           <li>Recommandations personnalisées</li>
           <li>Menus hebdomadaires adaptés</li>
-          <li>Accès outils libres (calculatrice, quiz, suivi)</li>
+          <li>Accès outils libres</li>
         </ul>
         <a href="bilan.html" class="price-btn-outline">Commencer gratuitement</a>
       </div>
 
       <div class="price-card featured">
-        <div class="price-tier">PLAN ALIMENTAIRE</div>
+        <div class="price-tier">⭐ POPULAIRE</div>
         <div class="price-amount">24,90 €</div>
         <div class="price-desc">Paiement unique · Livraison sous 48h</div>
         <ul class="price-list">
@@ -946,8 +980,8 @@
       </div>
     </div>
 
-    <div style="text-align:center; margin-top:2rem; padding:0.75rem; background:#eef4ee; border-radius:12px; max-width:600px; margin-left:auto; margin-right:auto;">
-      <p style="font-size:0.75rem; color:#0f6e56;">💚 Visio de suivi : 55€ — intégralement reversée au diététicien · Remboursement possible par votre mutuelle</p>
+    <div style="text-align:center; margin-top:2rem; padding:0.75rem; background:var(--green-light); border-radius:12px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <p style="font-size:0.75rem; color:var(--green2);">💚 Visio de suivi : 55€ — intégralement reversée au diététicien · Remboursement possible par votre mutuelle</p>
     </div>
   </div>
 </section>
@@ -988,8 +1022,76 @@
 <div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- ==================== SCRIPTS ==================== -->
+<script src="js/core/auth.js"></script>
+<script src="js/core/ciqual-data.js"></script>
+<script src="js/core/constants.js"></script>
+<script src="js/core/validation.js"></script>
+<script src="js/utils/error-handler.js"></script>
+<script src="js/utils/email.js"></script>
+<script src="js/payments/stripe.js"></script>
+<script src="js/ui/cookies.js"></script>
+<script src="js/utils/performance.js"></script>
+<script src="js/utils/auto-save.js"></script>
+<script src="js/ui/chatbot-widget.js"></script>
+<script src="js/ui/home.js"></script>
+<script src="js/legacy/main.js"></script>
+
 <script>
-// PROFIL SYSTEM
+// ==================== MODE SOMBRE (bouton dans le header) ====================
+(function initDarkMode() {
+  const btn = document.getElementById('themeHeaderBtn');
+  const iconSpan = document.getElementById('themeIcon');
+  const labelSpan = document.getElementById('themeLabel');
+  
+  // Récupérer le thème sauvegardé - par défaut 'light' (clair)
+  const savedTheme = localStorage.getItem('nutridoc_theme');
+  
+  // Appliquer le thème initial
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    if (iconSpan) iconSpan.textContent = '☀️';
+    if (labelSpan) labelSpan.textContent = 'Clair';
+  } else {
+    // Mode clair par défaut
+    document.documentElement.setAttribute('data-theme', 'light');
+    if (iconSpan) iconSpan.textContent = '🌙';
+    if (labelSpan) labelSpan.textContent = 'Sombre';
+    localStorage.setItem('nutridoc_theme', 'light');
+  }
+  
+  // Fonction de bascule
+  window.toggleDarkMode = function() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    
+    if (isDark) {
+      // Passer en mode clair
+      html.setAttribute('data-theme', 'light');
+      localStorage.setItem('nutridoc_theme', 'light');
+      if (iconSpan) iconSpan.textContent = '🌙';
+      if (labelSpan) labelSpan.textContent = 'Sombre';
+    } else {
+      // Passer en mode sombre
+      html.setAttribute('data-theme', 'dark');
+      localStorage.setItem('nutridoc_theme', 'dark');
+      if (iconSpan) iconSpan.textContent = '☀️';
+      if (labelSpan) labelSpan.textContent = 'Clair';
+    }
+    
+    // Animation du bouton
+    if (btn) {
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => { if (btn) btn.style.transform = 'scale(1)'; }, 150);
+    }
+  };
+  
+  if (btn) {
+    btn.onclick = window.toggleDarkMode;
+  }
+})();
+
+// ==================== PROFIL SYSTEM ====================
 const PROFIL_KEY = 'nutridoc_profil';
 const PROFIL_DATE_KEY = 'nutridoc_profil_date';
 const PROFIL_EXPIRY_DAYS = 30;
@@ -1069,14 +1171,7 @@ function selectProfil(profilKey) {
   }
 }
 
-function initProfilSystem() {
-  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
-  const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
-}
-
+// ==================== UTILITAIRES ====================
 window.selectProfil = selectProfil;
 window.closeProfilModal = closeProfilModal;
 window.dismissProfilForever = dismissProfilForever;
@@ -1089,17 +1184,22 @@ document.addEventListener('click', (e) => {
   if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
 });
 
+// Scroll reveal
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('[data-reveal], .nd-step, .nd-diff-card, .price-card').forEach(el => observer.observe(el));
 
+// Header scroll effect
 window.addEventListener('scroll', () => {
   document.getElementById('ndHeader')?.classList.toggle('scrolled', window.scrollY > 50);
   document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
 });
 
+// Initialisations
+if (typeof initAutoSave === 'function') initAutoSave();
 initProfilSystem();
 </script>
+
 </body>
 </html>

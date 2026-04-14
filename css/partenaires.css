@@ -1,0 +1,682 @@
+/**
+ * partenaires.css — NutriDoc · Styles pour l'espace Partenaires B2B
+ * 
+ * Contient les styles spécifiques aux pages :
+ * - partenariats.html (page d'accueil partenaires)
+ * - partenaire-crm.html (CRM partenaire)
+ * - compta-partenaire.html (comptabilité partenaire)
+ * 
+ * Compatible avec dark-mode
+ */
+
+/* ==================== VARIABLES SPÉCIFIQUES PARTENAIRES ==================== */
+:root {
+  --partner-primary: #0ea5e9;
+  --partner-primary-dark: #0284c7;
+  --partner-primary-light: #7dd3fc;
+  --partner-primary-bg: rgba(14, 165, 233, 0.1);
+  --partner-secondary: #185FA5;
+  --partner-secondary-dark: #134A5C;
+  --partner-gradient: linear-gradient(135deg, #0d2018 0%, #142c1f 100%);
+  --partner-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --partner-card-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ==================== SECTION PARTENAIRES ==================== */
+
+/* Hero section spécifique partenaires */
+.partner-hero {
+  background: var(--partner-gradient);
+  padding: 6rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.partner-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 80%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.partner-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.partner-hero-text {
+  flex: 1;
+  min-width: 280px;
+}
+
+.partner-hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.partner-hero-text h1 em {
+  font-style: italic;
+  color: var(--partner-primary-light);
+}
+
+.partner-hero-text p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+}
+
+.partner-hero-stats {
+  flex: 0.8;
+  min-width: 280px;
+}
+
+/* ==================== CARTES DE TARIFS PARTENAIRES ==================== */
+.partner-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.partner-pricing-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.75rem;
+  border: 1px solid #eef4ee;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.partner-pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--partner-card-hover);
+  border-color: var(--partner-primary);
+}
+
+.partner-pricing-card.featured {
+  border: 2px solid var(--partner-primary);
+  background: linear-gradient(135deg, #fff, #f0f9ff);
+}
+
+.partner-pricing-card.featured::before {
+  content: "⭐ RECOMMANDÉ";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--partner-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.partner-pricing-tier {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7b74;
+  margin-bottom: 0.5rem;
+}
+
+.partner-pricing-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--partner-primary);
+  margin-bottom: 0.25rem;
+}
+
+.partner-pricing-price span {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #6b7b74;
+}
+
+.partner-pricing-desc {
+  font-size: 0.75rem;
+  color: #6b7b74;
+  margin-bottom: 1.25rem;
+}
+
+.partner-pricing-features {
+  list-style: none;
+  margin: 1rem 0 1.5rem;
+  padding: 0;
+}
+
+.partner-pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0;
+  color: #0d2018;
+}
+
+.partner-pricing-features li::before {
+  content: "✓";
+  color: var(--partner-primary);
+  font-weight: 600;
+}
+
+.partner-pricing-btn {
+  display: block;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  background: var(--partner-primary);
+  color: #fff;
+}
+
+.partner-pricing-btn:hover {
+  background: var(--partner-primary-dark);
+  transform: translateY(-2px);
+}
+
+.partner-pricing-btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--partner-primary);
+  color: var(--partner-primary);
+}
+
+.partner-pricing-btn-outline:hover {
+  background: var(--partner-primary-bg);
+  transform: translateY(-2px);
+}
+
+/* ==================== SECTION AVANTAGES PARTENAIRES ==================== */
+.partner-advantages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.partner-advantage-card {
+  background: #fff;
+  border: 1px solid #eef4ee;
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  transition: all 0.3s;
+}
+
+.partner-advantage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--partner-card-shadow);
+  border-color: var(--partner-primary);
+}
+
+.partner-advantage-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.partner-advantage-content h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.partner-advantage-content p {
+  font-size: 0.8rem;
+  color: #6b7b74;
+  line-height: 1.6;
+}
+
+/* ==================== SECTION FORMULAIRE CONTACT ==================== */
+.partner-contact-form {
+  background: #fff;
+  border-radius: 24px;
+  padding: 2rem;
+  border: 1px solid #eef4ee;
+}
+
+.partner-contact-form h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.partner-contact-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .partner-contact-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.partner-contact-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.partner-contact-form label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.partner-contact-form input,
+.partner-contact-form select,
+.partner-contact-form textarea {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1px solid #eef4ee;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+
+.partner-contact-form input:focus,
+.partner-contact-form select:focus,
+.partner-contact-form textarea:focus {
+  border-color: var(--partner-primary);
+  outline: none;
+}
+
+.partner-contact-submit {
+  background: var(--partner-primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.partner-contact-submit:hover {
+  background: var(--partner-primary-dark);
+}
+
+/* ==================== CRM PARTENAIRE ==================== */
+.partner-crm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.partner-crm-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #f7f9f7;
+  border-bottom: 1px solid #eef4ee;
+  font-weight: 600;
+  color: #0d2018;
+}
+
+.partner-crm-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eef4ee;
+}
+
+.partner-crm-table tr:hover td {
+  background: #f7f9f7;
+}
+
+/* Statuts dans CRM */
+.status-pending {
+  background: #fff8e6;
+  color: #f59e0b;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.status-progress {
+  background: #e0f2fe;
+  color: #0ea5e9;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.status-done {
+  background: #e1f5ee;
+  color: #1D9E75;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* ==================== COMPTABILITÉ PARTENAIRE ==================== */
+.partner-compta-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.partner-compta-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.25rem;
+  text-align: center;
+  border: 1px solid #eef4ee;
+  transition: transform 0.2s;
+}
+
+.partner-compta-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--partner-card-shadow);
+}
+
+.partner-compta-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--partner-primary);
+}
+
+.partner-compta-label {
+  font-size: 0.7rem;
+  color: #6b7b74;
+  margin-top: 0.25rem;
+}
+
+/* ==================== SIMULATEUR PARTENAIRE ==================== */
+.partner-simulator {
+  background: var(--partner-gradient);
+  border-radius: 24px;
+  padding: 1.5rem;
+  color: #fff;
+}
+
+.partner-simulator h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.partner-simulator-field {
+  margin-bottom: 1rem;
+}
+
+.partner-simulator-field label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.partner-simulator-field input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.partner-simulator-field input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.partner-simulator-result {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.partner-simulator-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+}
+
+.partner-simulator-row.total {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--partner-primary-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+/* ==================== FILE D'ATTENTE PARTENAIRE ==================== */
+.partner-queue-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.partner-queue-filters {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.partner-queue-filter {
+  background: #fff;
+  border: 1px solid #eef4ee;
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.partner-queue-filter:hover {
+  border-color: var(--partner-primary);
+  color: var(--partner-primary);
+}
+
+.partner-queue-filter.active {
+  background: var(--partner-primary);
+  border-color: var(--partner-primary);
+  color: #fff;
+}
+
+/* ==================== MODAL SPÉCIFIQUE PARTENAIRES ==================== */
+.partner-modal {
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+}
+
+.partner-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eef4ee;
+}
+
+.partner-modal-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+}
+
+.partner-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6b7b74;
+  transition: color 0.2s;
+}
+
+.partner-modal-close:hover {
+  color: #0d2018;
+}
+
+.partner-modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.partner-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eef4ee;
+}
+
+/* ==================== BADGES & TAGS ==================== */
+.partner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.partner-badge-primary {
+  background: var(--partner-primary-bg);
+  color: var(--partner-primary);
+}
+
+.partner-badge-success {
+  background: #e1f5ee;
+  color: #1D9E75;
+}
+
+.partner-badge-warning {
+  background: #fff8e6;
+  color: #f59e0b;
+}
+
+.partner-badge-danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes partnerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.partner-animate {
+  animation: partnerFadeIn 0.5s ease both;
+}
+
+.partner-animate-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.partner-animate-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.partner-animate-delay-3 {
+  animation-delay: 0.3s;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .partner-hero-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .partner-hero-text p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .partner-advantage-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .partner-advantage-icon {
+    margin: 0 auto;
+  }
+}
+
+/* ==================== MODE SOMBRE (DARK MODE) ==================== */
+[data-theme="dark"] .partner-pricing-card,
+[data-theme="dark"] .partner-advantage-card,
+[data-theme="dark"] .partner-contact-form,
+[data-theme="dark"] .partner-compta-card {
+  background: var(--bg-card);
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] .partner-pricing-card.featured {
+  background: linear-gradient(135deg, #141c19, #1a221f);
+}
+
+[data-theme="dark"] .partner-pricing-features li {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .partner-crm-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .partner-crm-table td {
+  border-bottom-color: var(--border-light);
+}
+
+[data-theme="dark"] .partner-crm-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+[data-theme="dark"] .partner-modal {
+  background: var(--bg-card);
+}
+
+[data-theme="dark"] .partner-modal-header {
+  border-bottom-color: var(--border-light);
+}
+
+[data-theme="dark"] .partner-modal-footer {
+  border-top-color: var(--border-light);
+}

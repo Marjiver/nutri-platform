@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Gestion des webhooks Stripe et des intégrations externes pour l'administration NutriDoc."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Webhooks — Administration NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Webhooks NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== BIBLIOTHÈQUES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- ==================== PERFORMANCE ==================== -->
+  <script src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== -->
+  <script src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== -->
+  <script src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script src="js/core/auth.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      color: #0d2018;
+      line-height: 1.5;
+    }
+
+    /* HEADER ADMIN */
+    .admin-header {
+      background: #0d2018;
+      padding: 0.75rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .admin-logo em { font-style: italic; color: #5DCAA5; }
+    .admin-nav { display: flex; gap: 1.5rem; }
+    .admin-nav a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .admin-nav a:hover, .admin-nav a.active { color: #fff; }
+
+    /* THEME SELECTOR */
+    .theme-selector-wrapper {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9997;
+    }
+
+    /* MAIN CONTENT */
+    .webhooks-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 3rem;
+    }
+
+    /* SECTION */
+    .section {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-sub {
+      font-size: 0.8rem;
+      color: #6b7b74;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+
+    /* STATUT BADGE */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .status-active { background: #e1f5ee; color: #1D9E75; }
+    .status-inactive { background: #fef2f2; color: #dc2626; }
+    .status-warning { background: #fff8e6; color: #f59e0b; }
+    .status-pending { background: #e0f2fe; color: #0ea5e9; }
+
+    /* ENDPOINT CARD */
+    .webhook-card {
+      background: #f7f9f7;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.2s;
+    }
+    .webhook-card:hover {
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .webhook-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .webhook-url {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #1D9E75;
+      word-break: break-all;
+    }
+    .webhook-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+    .event-tag {
+      background: #fff;
+      border: 1px solid #eef4ee;
+      border-radius: 999px;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.65rem;
+      color: #6b7b74;
+    }
+    .webhook-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid #eef4ee;
+      border-radius: 8px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .btn-icon.danger:hover {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    /* FORMULAIRE AJOUT */
+    .add-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .add-form input {
+      padding: 0.7rem 1rem;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover {
+      background: #0f6e56;
+    }
+    .btn-secondary {
+      background: #f7f9f7;
+      border: 1px solid #eef4ee;
+      border-radius: 12px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    /* LOGS TABLE */
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .logs-table th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+      color: #6b7b74;
+      font-weight: 500;
+    }
+    .logs-table td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .log-success { color: #22c55e; }
+    .log-error { color: #ef4444; }
+    .log-pending { color: #f59e0b; }
+
+    /* SECRET KEY */
+    .secret-key {
+      background: #1e1e1e;
+      color: #5DCAA5;
+      font-family: monospace;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      display: inline-block;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    .toast.error {
+      background: #ef4444;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-desc {
+      font-size: 0.85rem;
+      color: #6b7b74;
+      margin-bottom: 1.5rem;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 700px) {
+      .add-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+<div id="theme-selector-container" class="theme-selector-wrapper"></div>
+
+<!-- HEADER ADMIN -->
+<header class="admin-header">
+  <div class="header-container">
+    <a href="admin.html" class="admin-logo">Nutri<em>Doc</em> Admin</a>
+    <nav class="admin-nav">
+      <a href="admin.html">Dashboard</a>
+      <a href="statistiques-admin.html">Statistiques</a>
+      <a href="webhooks.html" class="active">Webhooks</a>
+      <a href="admin.html#settings">Paramètres</a>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="webhooks-container">
+
+  <!-- SECTION STRIPE WEBHOOKS -->
+  <div class="section">
+    <div class="section-title">
+      <span>💳</span> Stripe Webhooks
+    </div>
+    <div class="section-sub">
+      Gérez les endpoints webhooks Stripe pour recevoir les événements de paiement, abonnements et remboursements.
+    </div>
+
+    <div class="add-form">
+      <input type="text" id="newWebhookUrl" placeholder="https://votre-site.com/webhooks/stripe" />
+      <button class="btn-primary" onclick="ajouterWebhook()">+ Ajouter un webhook</button>
+    </div>
+
+    <div id="stripeWebhooksList"></div>
+
+    <div style="margin-top: 1rem; padding: 1rem; background: #f7f9f7; border-radius: 12px;">
+      <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">🔐 Clé secrète webhook Stripe</div>
+      <div class="secret-key" id="webhookSecret">whsec_••••••••••••••••••••••••••••</div>
+      <button class="btn-icon" style="margin-top: 0.5rem;" onclick="copierSecret()">📋 Copier</button>
+      <div style="font-size: 0.7rem; color: #6b7b74; margin-top: 0.5rem;">
+        Utilisez cette clé pour vérifier la signature des webhooks entrants.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION WEBHOOKS NUTRIDOC -->
+  <div class="section">
+    <div class="section-title">
+      <span>🔔</span> Webhooks NutriDoc (sortants)
+    </div>
+    <div class="section-sub">
+      Configurez les endpoints qui recevront les notifications des événements NutriDoc (plans validés, nouveaux patients, etc.).
+    </div>
+
+    <div class="add-form">
+      <input type="text" id="newNutridocWebhookUrl" placeholder="https://votre-site.com/webhooks/nutridoc" />
+      <select id="newNutridocEvents" style="padding: 0.7rem; border-radius: 12px; border: 1px solid #eef4ee;">
+        <option value="all">Tous les événements</option>
+        <option value="plan.completed">Plan validé uniquement</option>
+        <option value="patient.created">Nouveau patient</option>
+        <option value="credits.low">Crédits faibles</option>
+      </select>
+      <button class="btn-primary" onclick="ajouterNutridocWebhook()">+ Ajouter</button>
+    </div>
+
+    <div id="nutridocWebhooksList"></div>
+  </div>
+
+  <!-- SECTION ÉVÉNEMENTS DISPONIBLES -->
+  <div class="section">
+    <div class="section-title">
+      <span>📋</span> Événements disponibles
+    </div>
+    <div class="section-sub">
+      Liste complète des événements que vous pouvez écouter via vos webhooks.
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem;">
+      <div class="event-tag" style="padding: 0.5rem;"><strong>💰 Stripe</strong><br>payment_intent.succeeded<br>payment_intent.payment_failed<br>customer.subscription.created<br>customer.subscription.updated<br>invoice.payment_succeeded</div>
+      <div class="event-tag" style="padding: 0.5rem;"><strong>🥗 NutriDoc</strong><br>plan.completed<br>plan.pending<br>plan.expired<br>patient.created<br>patient.updated<br>credits.low<br>visio.scheduled<br>visio.completed</div>
+      <div class="event-tag" style="padding: 0.5rem;"><strong>👥 Utilisateurs</strong><br>user.created<br>user.verified<br>user.suspended<br>user.deleted</div>
+    </div>
+  </div>
+
+  <!-- SECTION LOGS DES WEBHOOKS -->
+  <div class="section">
+    <div class="section-title">
+      <span>📜</span> Journal des webhooks
+    </div>
+    <div class="section-sub">
+      Historique des derniers appels webhooks (succès et échecs).
+    </div>
+
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Endpoint</th>
+          <th>Événement</th>
+          <th>Statut</th>
+          <th>Délai</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="logsBody"></tbody>
+    </table>
+
+    <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <button class="btn-secondary" onclick="rafraichirLogs()">🔄 Rafraîchir</button>
+      <button class="btn-icon" onclick="exporterLogsCSV()">📎 Exporter CSV</button>
+    </div>
+  </div>
+
+  <!-- SECTION TEST WEBHOOK -->
+  <div class="section">
+    <div class="section-title">
+      <span>🧪</span> Test de webhook
+    </div>
+    <div class="section-sub">
+      Envoyez un événement de test vers l'un de vos endpoints configurés.
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+      <div style="flex: 1;">
+        <label style="font-size: 0.7rem; display: block; margin-bottom: 0.25rem;">Endpoint</label>
+        <select id="testEndpoint" style="width: 100%; padding: 0.6rem; border-radius: 12px; border: 1px solid #eef4ee;">
+          <option value="">— Sélectionner un endpoint —</option>
+        </select>
+      </div>
+      <div style="flex: 1;">
+        <label style="font-size: 0.7rem; display: block; margin-bottom: 0.25rem;">Événement</label>
+        <select id="testEvent" style="width: 100%; padding: 0.6rem; border-radius: 12px; border: 1px solid #eef4ee;">
+          <option value="plan.completed">plan.completed</option>
+          <option value="payment_intent.succeeded">payment_intent.succeeded</option>
+          <option value="patient.created">patient.created</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="testerWebhook()">🚀 Envoyer le test</button>
+    </div>
+    <div id="testResult" style="margin-top: 1rem; display: none; padding: 0.75rem; border-radius: 12px;"></div>
+  </div>
+
+</main>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- MODAL CONFIRMATION -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal">
+    <div class="modal-title">⚠️ Confirmation</div>
+    <div class="modal-desc" id="modalConfirmDesc">Êtes-vous sûr de vouloir supprimer ce webhook ?</div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="fermerModalConfirm()">Annuler</button>
+      <button class="btn-primary" id="modalConfirmBtn" onclick="executerAction()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<script>
+// ==================== DONNÉES SIMULÉES ====================
+let stripeWebhooks = [
+  { id: 'wh_1', url: 'https://api.nutridoc.fr/webhooks/stripe', events: ['payment_intent.succeeded', 'payment_intent.payment_failed'], status: 'active', created: '2026-01-15' },
+  { id: 'wh_2', url: 'https://partenaire.com/webhooks/stripe', events: ['customer.subscription.created'], status: 'active', created: '2026-02-20' }
+];
+
+let nutridocWebhooks = [
+  { id: 'nwh_1', url: 'https://api.nutridoc.fr/webhooks/nutridoc', events: ['plan.completed', 'patient.created'], status: 'active', created: '2026-01-15' },
+  { id: 'nwh_2', url: 'https://partenaire.com/webhooks/nutridoc', events: ['plan.completed'], status: 'inactive', created: '2026-03-10' }
+];
+
+let webhookLogs = [
+  { date: '2026-04-13 10:32:15', endpoint: 'https://api.nutridoc.fr/webhooks/stripe', event: 'payment_intent.succeeded', status: 'success', delay: '124ms' },
+  { date: '2026-04-13 09:15:22', endpoint: 'https://partenaire.com/webhooks/nutridoc', event: 'plan.completed', status: 'error', delay: '5000ms', error: 'Timeout' },
+  { date: '2026-04-12 18:45:03', endpoint: 'https://api.nutridoc.fr/webhooks/nutridoc', event: 'patient.created', status: 'success', delay: '87ms' },
+  { date: '2026-04-12 14:20:11', endpoint: 'https://api.nutridoc.fr/webhooks/stripe', event: 'invoice.payment_succeeded', status: 'success', delay: '156ms' },
+  { date: '2026-04-11 22:10:44', endpoint: 'https://partenaire.com/webhooks/stripe', event: 'payment_intent.payment_failed', status: 'pending', delay: '—' }
+];
+
+let actionPending = null;
+let actionId = null;
+
+// Rendu des listes
+function renderStripeWebhooks() {
+  const container = document.getElementById('stripeWebhooksList');
+  container.innerHTML = stripeWebhooks.map(wh => `
+    <div class="webhook-card">
+      <div class="webhook-header">
+        <div class="webhook-url">${wh.url}</div>
+        <span class="status-badge ${wh.status === 'active' ? 'status-active' : 'status-inactive'}">
+          ${wh.status === 'active' ? '✓ Actif' : '✗ Inactif'}
+        </span>
+      </div>
+      <div class="webhook-events">
+        ${wh.events.map(e => `<span class="event-tag">${e}</span>`).join('')}
+      </div>
+      <div class="webhook-actions">
+        <button class="btn-icon" onclick="testerEndpoint('${wh.url}')">🧪 Tester</button>
+        <button class="btn-icon" onclick="toggleWebhookStatus('stripe', '${wh.id}')">${wh.status === 'active' ? '⏸ Désactiver' : '▶ Activer'}</button>
+        <button class="btn-icon danger" onclick="supprimerWebhook('stripe', '${wh.id}')">🗑 Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+  
+  // Mettre à jour le select de test
+  updateTestEndpointSelect();
+}
+
+function renderNutridocWebhooks() {
+  const container = document.getElementById('nutridocWebhooksList');
+  container.innerHTML = nutridocWebhooks.map(wh => `
+    <div class="webhook-card">
+      <div class="webhook-header">
+        <div class="webhook-url">${wh.url}</div>
+        <span class="status-badge ${wh.status === 'active' ? 'status-active' : 'status-inactive'}">
+          ${wh.status === 'active' ? '✓ Actif' : '✗ Inactif'}
+        </span>
+      </div>
+      <div class="webhook-events">
+        ${wh.events.map(e => `<span class="event-tag">${e}</span>`).join('')}
+      </div>
+      <div class="webhook-actions">
+        <button class="btn-icon" onclick="testerEndpoint('${wh.url}')">🧪 Tester</button>
+        <button class="btn-icon" onclick="toggleWebhookStatus('nutridoc', '${wh.id}')">${wh.status === 'active' ? '⏸ Désactiver' : '▶ Activer'}</button>
+        <button class="btn-icon danger" onclick="supprimerWebhook('nutridoc', '${wh.id}')">🗑 Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+  
+  updateTestEndpointSelect();
+}
+
+function renderLogs() {
+  const tbody = document.getElementById('logsBody');
+  tbody.innerHTML = webhookLogs.map(log => `
+    <tr>
+      <td style="font-size:0.75rem;">${log.date}</td>
+      <td style="font-size:0.75rem; max-width:200px; overflow:hidden; text-overflow:ellipsis;">${log.endpoint}</td>
+      <td><span class="event-tag">${log.event}</span></td>
+      <td class="log-${log.status}">${log.status === 'success' ? '✅ Succès' : log.status === 'error' ? '❌ Erreur' : '⏳ En attente'}</td>
+      <td>${log.delay}</td>
+      <td><button class="btn-icon" onclick="voirDetailsLog('${log.event}')">📋 Détails</button></td>
+    </tr>
+  `).join('');
+}
+
+function updateTestEndpointSelect() {
+  const select = document.getElementById('testEndpoint');
+  const allUrls = [...stripeWebhooks, ...nutridocWebhooks].filter(wh => wh.status === 'active').map(wh => wh.url);
+  select.innerHTML = '<option value="">— Sélectionner un endpoint —</option>' + 
+    allUrls.map(url => `<option value="${url}">${url}</option>`).join('');
+}
+
+// Actions
+function ajouterWebhook() {
+  const url = document.getElementById('newWebhookUrl').value.trim();
+  if (!url) {
+    showToast('Veuillez entrer une URL valide', 'error');
+    return;
+  }
+  if (!url.startsWith('https://')) {
+    showToast('L\'URL doit commencer par https://', 'error');
+    return;
+  }
+  
+  stripeWebhooks.push({
+    id: 'wh_' + Date.now(),
+    url: url,
+    events: ['payment_intent.succeeded', 'payment_intent.payment_failed'],
+    status: 'active',
+    created: new Date().toISOString().split('T')[0]
+  });
+  renderStripeWebhooks();
+  document.getElementById('newWebhookUrl').value = '';
+  showToast('Webhook ajouté avec succès', 'success');
+}
+
+function ajouterNutridocWebhook() {
+  const url = document.getElementById('newNutridocWebhookUrl').value.trim();
+  const eventsSelect = document.getElementById('newNutridocEvents');
+  const events = eventsSelect.value === 'all' ? ['plan.completed', 'patient.created', 'credits.low', 'visio.scheduled'] : [eventsSelect.value];
+  
+  if (!url) {
+    showToast('Veuillez entrer une URL valide', 'error');
+    return;
+  }
+  if (!url.startsWith('https://')) {
+    showToast('L\'URL doit commencer par https://', 'error');
+    return;
+  }
+  
+  nutridocWebhooks.push({
+    id: 'nwh_' + Date.now(),
+    url: url,
+    events: events,
+    status: 'active',
+    created: new Date().toISOString().split('T')[0]
+  });
+  renderNutridocWebhooks();
+  document.getElementById('newNutridocWebhookUrl').value = '';
+  showToast('Webhook ajouté avec succès', 'success');
+}
+
+function toggleWebhookStatus(type, id) {
+  if (type === 'stripe') {
+    const wh = stripeWebhooks.find(w => w.id === id);
+    if (wh) wh.status = wh.status === 'active' ? 'inactive' : 'active';
+    renderStripeWebhooks();
+  } else {
+    const wh = nutridocWebhooks.find(w => w.id === id);
+    if (wh) wh.status = wh.status === 'active' ? 'inactive' : 'active';
+    renderNutridocWebhooks();
+  }
+  showToast('Statut mis à jour', 'success');
+}
+
+function supprimerWebhook(type, id) {
+  actionPending = type;
+  actionId = id;
+  document.getElementById('modalConfirmDesc').textContent = 'Êtes-vous sûr de vouloir supprimer ce webhook ? Cette action est irréversible.';
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function executerAction() {
+  if (actionPending === 'stripe') {
+    stripeWebhooks = stripeWebhooks.filter(w => w.id !== actionId);
+    renderStripeWebhooks();
+  } else if (actionPending === 'nutridoc') {
+    nutridocWebhooks = nutridocWebhooks.filter(w => w.id !== actionId);
+    renderNutridocWebhooks();
+  }
+  fermerModalConfirm();
+  showToast('Webhook supprimé', 'success');
+}
+
+function fermerModalConfirm() {
+  document.getElementById('modalConfirm').classList.remove('open');
+  actionPending = null;
+  actionId = null;
+}
+
+function testerEndpoint(url) {
+  showToast(`🧪 Envoi d'un test vers ${url}`, 'success');
+  // Simulation d'envoi
+  setTimeout(() => {
+    webhookLogs.unshift({
+      date: new Date().toLocaleString('fr-FR'),
+      endpoint: url,
+      event: 'test.webhook',
+      status: 'success',
+      delay: '45ms'
+    });
+    renderLogs();
+    showToast('Test envoyé avec succès', 'success');
+  }, 500);
+}
+
+function testerWebhook() {
+  const endpoint = document.getElementById('testEndpoint').value;
+  const event = document.getElementById('testEvent').value;
+  
+  if (!endpoint) {
+    showToast('Veuillez sélectionner un endpoint', 'error');
+    return;
+  }
+  
+  const resultDiv = document.getElementById('testResult');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '⏳ Envoi en cours...';
+  resultDiv.style.background = '#e0f2fe';
+  resultDiv.style.color = '#0ea5e9';
+  
+  setTimeout(() => {
+    resultDiv.innerHTML = `✅ Test envoyé avec succès vers ${endpoint}<br>Événement: ${event}<br>Réponse: HTTP 200 OK`;
+    resultDiv.style.background = '#e1f5ee';
+    resultDiv.style.color = '#1D9E75';
+    
+    webhookLogs.unshift({
+      date: new Date().toLocaleString('fr-FR'),
+      endpoint: endpoint,
+      event: event,
+      status: 'success',
+      delay: '87ms'
+    });
+    renderLogs();
+    
+    setTimeout(() => {
+      resultDiv.style.display = 'none';
+    }, 5000);
+  }, 800);
+}
+
+function rafraichirLogs() {
+  showToast('Logs actualisés', 'success');
+  renderLogs();
+}
+
+function exporterLogsCSV() {
+  let csv = 'Date,Endpoint,Événement,Statut,Délai\n';
+  webhookLogs.forEach(l => {
+    csv += `${l.date},${l.endpoint},${l.event},${l.status},${l.delay}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `webhooks_logs_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Export CSV effectué', 'success');
+}
+
+function voirDetailsLog(event) {
+  alert(`Détails du webhook ${event}\n\nPayload complet disponible dans les logs serveur.`);
+}
+
+function copierSecret() {
+  navigator.clipboard.writeText('whsec_8f7d9a3e2b1c4f6e8a0d2b4c6e8f0a2d4b6c8e0a');
+  showToast('Clé secrète copiée dans le presse-papier', 'success');
+}
+
+function showToast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  renderStripeWebhooks();
+  renderNutridocWebhooks();
+  renderLogs();
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+window.ajouterWebhook = ajouterWebhook;
+window.ajouterNutridocWebhook = ajouterNutridocWebhook;
+window.toggleWebhookStatus = toggleWebhookStatus;
+window.supprimerWebhook = supprimerWebhook;
+window.testerEndpoint = testerEndpoint;
+window.testerWebhook = testerWebhook;
+window.rafraichirLogs = rafraichirLogs;
+window.exporterLogsCSV = exporterLogsCSV;
+window.voirDetailsLog = voirDetailsLog;
+window.copierSecret = copierSecret;
+window.fermerModalConfirm = fermerModalConfirm;
+window.executerAction = executerAction;
+</script>
+
+</body>
+</html>
