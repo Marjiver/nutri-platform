@@ -2,147 +2,517 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-    <meta name="description" content="Connexion à votre espace NutriDoc — patient, diététicien ou professionnel prescripteur."/>
+  <meta name="description" content="Connexion à votre espace NutriDoc — patient, diététicien ou professionnel prescripteur."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Connexion — NutriDoc</title>
   <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="js/ui/nav.js" defer></script>
-  <script src="js/ui/cookies.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f9f7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .nd-header {
+      background: #0d2018;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-back {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      transition: all 0.2s;
+    }
+    .nd-back:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .login-wrap { width: 100%; max-width: 420px; }
+
+    /* ── Titre ── */
+    .login-title {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .login-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      color: #0d2018;
+      margin-bottom: 0.4rem;
+    }
+    .login-title p { font-size: 0.9rem; color: #6b7b74; }
+
+    /* ── Onglets profil ── */
+    .profile-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .profile-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.6rem 0.4rem;
+      border: 1.5px solid #e2e8e4;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'Outfit', sans-serif;
+      color: #6b7b74;
+      transition: all 0.2s;
+    }
+    .profile-tab:hover { border-color: #1D9E75; color: #0d2018; }
+    .profile-tab.active {
+      border-color: #1D9E75;
+      background: #e1f5ee;
+      color: #0d2018;
+      font-weight: 600;
+    }
+    .profile-tab span:first-child { font-size: 1.1rem; }
+
+    /* ── Carte formulaire ── */
+    .login-card {
+      background: #fff;
+      border: 1px solid #e2e8e4;
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 2px 12px rgba(13,32,24,0.06);
+    }
+
+    /* ── Champs ── */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #2d3a35;
+      margin-bottom: 0.35rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #e2e8e4;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      color: #0d2018;
+      background: #f7f9f7;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus { border-color: #1D9E75; background: #fff; }
+
+    .pwd-wrap { position: relative; }
+    .pwd-wrap input { padding-right: 3.5rem; }
+    .pwd-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 0.75rem;
+      color: #6b7b74;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── Erreur / succès ── */
+    .login-error {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.82rem;
+      color: #dc2626;
+      margin-bottom: 1rem;
+    }
+    .login-success {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.82rem;
+      color: #166534;
+      margin-bottom: 1rem;
+    }
+    .hidden { display: none !important; }
+
+    /* ── Bouton principal ── */
+    .btn-login {
+      width: 100%;
+      padding: 0.75rem;
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-login:hover { background: #17875f; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Liens bas ── */
+    .login-footer {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: #6b7b74;
+    }
+    .login-footer a { color: #1D9E75; text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+    .login-divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid #e2e8e4;
+      margin: 0.75rem 0;
+    }
+    .inscription-link { text-align: center; }
+
+    /* ── Modal reset mdp ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-box h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: #0d2018;
+    }
+    .modal-box p { font-size: 0.85rem; color: #6b7b74; margin-bottom: 1.25rem; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .btn-cancel {
+      flex: 1;
+      padding: 0.65rem;
+      background: #f7f9f7;
+      border: 1.5px solid #e2e8e4;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #6b7b74;
+    }
+    .btn-send {
+      flex: 1;
+      padding: 0.65rem;
+      background: #1D9E75;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btn-send:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Bandeau mode démo (visible uniquement sans Supabase) ── */
+    .demo-banner {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #92400e;
+      text-align: center;
+    }
+    .demo-banner strong { display: block; margin-bottom: 0.4rem; }
+    .demo-links {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .demo-links a {
+      background: #fff;
+      border: 1px solid #fcd34d;
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      color: #92400e;
+      text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .profile-tabs { grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+      .profile-tab { font-size: 0.7rem; padding: 0.5rem 0.25rem; }
+      .login-card { padding: 1.25rem; }
+    }
+  </style>
 </head>
-<body class="page-inscription-diet" style="background:var(--cream);">
+<body>
 
-  <header class="header">
-    <a href="index.html" class="logo">Nutri<span>Doc</span></a>
-    <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
-  </header>
+<!-- HEADER -->
+<header class="nd-header">
+  <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+  <a href="index.html" class="nd-back">← Accueil</a>
+</header>
 
-  <main style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;">
-    <div style="width:100%;max-width:400px;">
+<main>
+  <div class="login-wrap">
 
-      <div style="text-align:center;margin-bottom:2rem;">
-        <h2 style="font-family:var(--font-display);font-size:1.75rem;margin-bottom:.5rem;">Connexion</h2>
-        <p style="font-size:.9rem;color:var(--gray);">Accédez à votre espace NutriDoc</p>
+    <div class="login-title">
+      <h1>Connexion</h1>
+      <p>Accédez à votre espace NutriDoc</p>
+    </div>
+
+    <!-- Sélecteur profil -->
+    <div class="profile-tabs" id="profileTabs">
+      <button class="profile-tab active" onclick="selectRole('patient', this)">
+        <span>👤</span><span>Patient</span>
+      </button>
+      <button class="profile-tab" onclick="selectRole('dietitian', this)">
+        <span>🩺</span><span>Diététicien</span>
+      </button>
+      <button class="profile-tab" onclick="selectRole('prescriber', this)">
+        <span>🏥</span><span>Professionnel</span>
+      </button>
+    </div>
+
+    <!-- Carte formulaire -->
+    <div class="login-card">
+
+      <div id="loginError"   class="login-error   hidden"></div>
+      <div id="loginSuccess" class="login-success  hidden"></div>
+
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="votre@email.fr" autocomplete="email"/>
       </div>
 
-      <!-- Sélecteur de profil -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.5rem;" id="profileTabs">
-        <button class="profile-tab active" data-role="patient" onclick="selectRole('patient',this)">
-          <span style="font-size:16px;">👤</span>
-          <span>Patient</span>
-        </button>
-        <button class="profile-tab" data-role="dietitian" onclick="selectRole('dietitian',this)">
-          <span style="font-size:16px;">🩺</span>
-          <span>Diététicien</span>
-        </button>
-        <button class="profile-tab" data-role="prescriber" onclick="selectRole('prescriber',this)">
-          <span style="font-size:16px;">🏥</span>
-          <span>Professionnel déclaré</span>
-        </button>
+      <div class="form-group">
+        <label for="loginPassword">Mot de passe</label>
+        <div class="pwd-wrap">
+          <input type="password" id="loginPassword" placeholder="Votre mot de passe"
+            autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') soumettreConnexion()"/>
+          <button type="button" class="pwd-toggle" onclick="togglePwd()">Voir</button>
+        </div>
       </div>
 
-      <div class="inscription-form-card" style="padding:1.75rem;">
+      <button class="btn-login" id="btnLogin" onclick="soumettreConnexion()">
+        Se connecter →
+      </button>
 
-        <div id="loginError" class="insc-error hidden" style="margin-bottom:1rem;"></div>
-
-        <div class="form-group">
-          <label>Email <span class="req">*</span></label>
-          <input type="email" id="loginEmail" placeholder="votre@email.fr" required />
-        </div>
-        <div class="form-group">
-          <label>Mot de passe <span class="req">*</span></label>
-          <div class="pwd-wrap">
-            <input type="password" id="loginPassword" placeholder="Votre mot de passe" required
-              onkeydown="if(event.key==='Enter') soumettreConnexion()"/>
-            <button type="button" class="pwd-toggle" onclick="toggleLoginPwd()">Voir</button>
-          </div>
-        </div>
-
-        <button class="btn-submit" style="width:100%;margin-top:1rem;" id="btnLogin" onclick="soumettreConnexion()">
-          Se connecter →
-        </button>
-
-        <div style="text-align:center;margin-top:1.25rem;font-size:.8rem;color:var(--gray);">
-          <a href="#" style="color:var(--green);">Mot de passe oublié ?</a>
-        </div>
-
-        <div style="border-top:1px solid var(--border);margin-top:1.5rem;padding-top:1.25rem;text-align:center;">
-          <div id="inscriptionLink" style="font-size:.85rem;color:var(--gray);"></div>
-        </div>
-
-      </div>
-
-      <!-- Mode démo -->
-      <div style="background:var(--gray-light);border-radius:var(--radius-sm);padding:1rem;margin-top:1rem;font-size:.8rem;color:var(--gray);text-align:center;">
-        <strong>Mode démo</strong> — Supabase non configuré.<br>
-        Cliquez directement sur votre espace :
-        <div style="display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap;">
-          <a href="dashboard.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace patient</a>
-          <a href="accueil-dieteticien.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace diét.</a>
-          <a href="prescripteur-dashboard.html" class="btn-back" style="font-size:.78rem;padding:4px 12px;">Espace prescripteur</a>
-        </div>
+      <div class="login-footer">
+        <a href="#" onclick="ouvrirResetMdp(); return false;">Mot de passe oublié ?</a>
+        <hr class="login-divider"/>
+        <div class="inscription-link" id="inscriptionLink"></div>
       </div>
 
     </div>
-  </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script>
-  let roleSelectionne = 'patient';
+    <!-- Bandeau mode démo — masqué si Supabase actif -->
+    <div class="demo-banner" id="demoBanner">
+      <strong>⚠ Mode démo — Supabase non configuré</strong>
+      Accès direct à votre espace :
+      <div class="demo-links">
+        <a href="dashboard.html">Espace patient</a>
+        <a href="dietitian.html">Espace diét.</a>
+        <a href="prescripteur-dashboard.html">Espace prescripteur</a>
+      </div>
+    </div>
 
-  const INSCRIPTIONS = {
-    patient:    { url:'bilan.html',                  label:'Pas encore de compte ? <a href="bilan.html" style="color:var(--green);">Commencer le bilan</a>' },
-    dietitian:  { url:'inscription-dieteticien.html', label:'Pas encore inscrit ? <a href="inscription-dieteticien.html" style="color:var(--green);">Créer un compte diét.</a>' },
-    prescriber: { url:'inscription-prescripteur.html',label:'Pas encore inscrit ? <a href="inscription-prescripteur.html" style="color:var(--green);">Créer un compte prescripteur</a>' }
-  };
+  </div>
+</main>
 
-  function selectRole(role, btn) {
-    roleSelectionne = role;
-    document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('inscriptionLink').innerHTML = INSCRIPTIONS[role].label;
+<!-- Modal reset mot de passe -->
+<div class="modal-overlay hidden" id="modalReset">
+  <div class="modal-box">
+    <h3>Réinitialiser le mot de passe</h3>
+    <p>Entrez votre adresse email. Vous recevrez un lien pour créer un nouveau mot de passe.</p>
+    <div class="form-group">
+      <label for="resetEmail">Email</label>
+      <input type="email" id="resetEmail" placeholder="votre@email.fr"/>
+    </div>
+    <div id="resetMsg" class="hidden" style="font-size:.82rem;color:#166534;margin-top:.5rem;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerResetMdp()">Annuler</button>
+      <button class="btn-send" id="btnSendReset" onclick="envoyerReset()">Envoyer le lien</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/core/auth.js"></script>
+<script>
+let roleSelectionne = 'patient';
+
+const INSCRIPTIONS = {
+  patient:    '<a href="bilan.html">Pas encore de compte ? Commencer le bilan →</a>',
+  dietitian:  '<a href="inscription-dieteticien.html">Pas encore inscrit ? Créer un compte diét. →</a>',
+  prescriber: '<a href="inscription-prescripteur.html">Pas encore inscrit ? Créer un compte prescripteur →</a>'
+};
+
+// Afficher/masquer le bandeau démo selon MODE_SUPA
+document.addEventListener('DOMContentLoaded', () => {
+  selectRole('patient', document.querySelector('.profile-tab'));
+
+  // Masquer le bandeau démo si Supabase est actif
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
+    document.getElementById('demoBanner').classList.add('hidden');
   }
 
-  function toggleLoginPwd() {
-    const inp = document.getElementById('loginPassword');
-    inp.type = inp.type === 'password' ? 'text' : 'password';
+  // Si retour depuis reset mot de passe Supabase
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('reset') === 'true') {
+    showSuccess('Mot de passe réinitialisé. Connectez-vous avec votre nouveau mot de passe.');
   }
+});
 
-  async function soumettreConnexion() {
-    const email    = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    const errEl    = document.getElementById('loginError');
-    const btn      = document.getElementById('btnLogin');
+function selectRole(role, btn) {
+  roleSelectionne = role;
+  document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('inscriptionLink').innerHTML = INSCRIPTIONS[role];
+}
 
-    if (!email || !password) { showLoginError('Veuillez remplir tous les champs.'); return; }
+function togglePwd() {
+  const inp = document.getElementById('loginPassword');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
 
-    btn.textContent = 'Connexion…';
-    btn.disabled    = true;
+async function soumettreConnexion() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn      = document.getElementById('btnLogin');
 
-    if (MODE_SUPA) {
-      const { error } = await connecter(email, password);
-      if (error) { showLoginError(error.message || 'Email ou mot de passe incorrect.'); btn.textContent='Se connecter →'; btn.disabled=false; }
-    } else {
-      // Mode démo : redirection directe
-      setTimeout(() => {
-        const REDIRECT = { patient:'dashboard.html', dietitian:'dietitian.html', prescriber:'prescripteur-dashboard.html' };
-        window.location.href = REDIRECT[roleSelectionne];
-      }, 800);
+  clearMessages();
+  if (!email || !password) { showError('Veuillez remplir tous les champs.'); return; }
+
+  btn.textContent = 'Connexion…';
+  btn.disabled    = true;
+
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA) {
+    const { error } = await connecter(email, password);
+    if (error) {
+      const msg = error.message === 'Invalid login credentials'
+        ? 'Email ou mot de passe incorrect.'
+        : (error.message || 'Erreur de connexion.');
+      showError(msg);
+      btn.textContent = 'Se connecter →';
+      btn.disabled = false;
     }
+    // Si succès, connecter() redirige directement
+  } else {
+    // Mode démo : redirection directe par rôle
+    const REDIRECT = {
+      patient:    'dashboard.html',
+      dietitian:  'dietitian.html',
+      prescriber: 'prescripteur-dashboard.html'
+    };
+    setTimeout(() => { window.location.href = REDIRECT[roleSelectionne]; }, 600);
   }
+}
 
-  function showLoginError(msg) {
-    const el = document.getElementById('loginError');
-    el.textContent = msg;
-    el.classList.remove('hidden');
+// ── Reset mot de passe ────────────────────────────────────────
+function ouvrirResetMdp() {
+  const emailSaisi = document.getElementById('loginEmail').value.trim();
+  if (emailSaisi) document.getElementById('resetEmail').value = emailSaisi;
+  document.getElementById('modalReset').classList.remove('hidden');
+}
+
+function fermerResetMdp() {
+  document.getElementById('modalReset').classList.add('hidden');
+  document.getElementById('resetMsg').classList.add('hidden');
+  document.getElementById('btnSendReset').disabled = false;
+  document.getElementById('btnSendReset').textContent = 'Envoyer le lien';
+}
+
+async function envoyerReset() {
+  const email = document.getElementById('resetEmail').value.trim();
+  const btn   = document.getElementById('btnSendReset');
+  const msg   = document.getElementById('resetMsg');
+
+  if (!email) { msg.textContent = 'Veuillez entrer votre email.'; msg.style.color = '#dc2626'; msg.classList.remove('hidden'); return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Envoi…';
+
+  if (typeof reinitialiserMotDePasse !== 'undefined') {
+    const { error } = await reinitialiserMotDePasse(email);
+    if (error) {
+      msg.textContent = 'Erreur : ' + (error.message || 'Réessayez.');
+      msg.style.color = '#dc2626';
+    } else {
+      msg.textContent = '✓ Email envoyé ! Vérifiez votre boîte mail.';
+      msg.style.color = '#166534';
+      btn.textContent = 'Envoyé ✓';
+    }
+  } else {
+    msg.textContent = 'Supabase non disponible en mode démo.';
+    msg.style.color = '#92400e';
   }
+  msg.classList.remove('hidden');
+}
 
-  document.addEventListener('DOMContentLoaded', () => {
-    selectRole('patient', document.querySelector('.profile-tab'));
-  });
-  </script>
+// ── Helpers messages ─────────────────────────────────────────
+function clearMessages() {
+  document.getElementById('loginError').classList.add('hidden');
+  document.getElementById('loginSuccess').classList.add('hidden');
+}
+function showError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function showSuccess(msg) {
+  const el = document.getElementById('loginSuccess');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+</script>
 
-  
 </body>
 </html>

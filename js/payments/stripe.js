@@ -24,7 +24,7 @@ const STRIPE_CONFIG = {
   checkoutFnUrl: 'https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/create-checkout',
 
   // Clé anon Supabase (pour autoriser l'appel)
-  supabaseAnonKey: 'sb_publishable_1qUFDTMK8V0YQ19kHywSig_I4XBpZa2',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY',
 
   // URLs de redirection après paiement
   successUrl: window.location.origin + '/dashboard.html?paiement=ok',
