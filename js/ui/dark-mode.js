@@ -102,11 +102,11 @@ function injectDarkModeStyles() {
     /* Toggle dans le header */
     #darkModeToggle {
       display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.14);
       border: 1px solid rgba(255,255,255,.18);
       border-radius: 999px;
       padding: 0.35rem 0.85rem;
-      color: rgba(255,255,255,.75);
+      color: rgba(255,255,255,.92);
       font-size: 0.75rem;
       font-family: 'Outfit', sans-serif;
       cursor: pointer;
