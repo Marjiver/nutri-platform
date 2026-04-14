@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   formule             text DEFAULT 'essentiel',
   statut_rpps         text DEFAULT 'en_attente',
   commission_plan     int  DEFAULT 16,
-  commission_visio    int  DEFAULT 4900,
+  commission_visio    int  DEFAULT 4700,
   profession          text,
   siret               text,
   credits             int  DEFAULT 0,
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS visios (
   statut          text DEFAULT 'en_attente'
                   CHECK (statut IN ('en_attente','confirmee','annulee','terminee')),
   montant         int DEFAULT 5500,
-  reversement     int DEFAULT 4900,
+  reversement     int DEFAULT 4700,
   stripe_id       text, confirmed_at timestamptz,
   lien_visio      text, attestation_url text,
   created_at      timestamptz DEFAULT now()

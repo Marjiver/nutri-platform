@@ -1455,7 +1455,7 @@
 })();
 
 // ==================== SIMULATEUR ====================
-const COMMISSIONS={0:3,9:2.5,29:2,59:1.5};
+const COMMISSIONS={0:5,9:2.5,29:2,59:1.5};
 function updateSim(){
   const plans=parseInt(document.getElementById('simPlans').value), visios=parseInt(document.getElementById('simVisios').value), abo=parseInt(document.getElementById('simAbo').value), com=COMMISSIONS[abo];
   document.getElementById('simPlansVal').textContent=plans; document.getElementById('simVisiosVal').textContent=visios;

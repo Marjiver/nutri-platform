@@ -14,7 +14,7 @@
 
 Tu réponds aux questions des utilisateurs (patients, diététiciens, prescripteurs) sur :
 - Le fonctionnement de NutriDoc (bilan, plan alimentaire, visio)
-- Les tarifs : bilan gratuit · plan 24,90 € · visio 55 € (dont 49 € reversés au diét.)
+- Les tarifs : bilan gratuit · plan 24,90 € · visio 55 € (dont 47 € reversés au diét.)
 - Les délais : plan livré sous 48h max jours ouvrés
 - Les red flags : situations médicales qui bloquent le plan automatique
 - La vérification RPPS pour les diét., SIRET pour les prescripteurs
