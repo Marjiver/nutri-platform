@@ -1,14 +1,15 @@
 /**
  * dark-mode.js — NutriDoc · Gestionnaire de thème sombre
- * 
+ *
  * Fonctionnalités :
+ * - Toggle injecté dans .header-actions (header sombre NutriDoc)
+ * - Fallback : bouton flottant si pas de header trouvé
  * - Détection automatique du thème système
- * - Sauvegarde du choix utilisateur
- * - Bouton toggle avec icône animée visible
+ * - Sauvegarde localStorage
  * - Synchronisation entre onglets
- * - Styles CSS injectés automatiquement
- * 
- * Version: 2.0.0
+ *
+ * Version: 2.1.0 — 2026-04-14
+ * Corrections : injection header, suppression ton-sur-ton, nd-header toujours sombre
  */
 
 // ==================== CONFIGURATION ====================
@@ -16,16 +17,16 @@
 const DARK_MODE_CONFIG = {
   storageKey: 'nutridoc_theme',
   systemPrefers: '(prefers-color-scheme: dark)',
-  transitionDuration: 200
 };
 
 // ==================== STYLES CSS INJECTÉS ====================
 
 function injectDarkModeStyles() {
+  if (document.getElementById('dark-mode-styles')) return;
+
   const style = document.createElement('style');
   style.id = 'dark-mode-styles';
   style.textContent = `
-    /* ==================== VARIABLES THÈME CLAIR (défaut) ==================== */
     :root {
       --bg-primary: #ffffff;
       --bg-secondary: #f7f9f7;
@@ -39,9 +40,9 @@ function injectDarkModeStyles() {
       --text-inverse: #ffffff;
       --border-light: #e8edeb;
       --border-medium: #d1d5db;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,.1);
       --accent-green: #1D9E75;
       --accent-green-dark: #0f6e56;
       --accent-green-light: #5DCAA5;
@@ -50,7 +51,6 @@ function injectDarkModeStyles() {
       --accent-blue: #3b82f6;
     }
 
-    /* ==================== THÈME SOMBRE ==================== */
     [data-theme="dark"] {
       --bg-primary: #0a0f0d;
       --bg-secondary: #111816;
@@ -64,446 +64,245 @@ function injectDarkModeStyles() {
       --text-inverse: #0d2018;
       --border-light: #2a3430;
       --border-medium: #374151;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.4);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,.4);
       --accent-green: #5DCAA5;
       --accent-green-dark: #1D9E75;
       --accent-green-light: #9FE1CB;
     }
 
-    /* ==================== APPLICATION GLOBALE ==================== */
-    * {
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    }
+    * { transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
 
-    body {
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-    }
+    body { background-color: var(--bg-secondary); color: var(--text-primary); }
 
-    /* Cartes et conteneurs */
+    /* Le header NutriDoc reste TOUJOURS sombre (couleur de marque) */
+    .nd-header { background: #0d2018 !important; border-bottom-color: rgba(29,158,117,.2) !important; }
+
     .card, .patient-card, .reco-card, .meal-block,
-    .editeur-repas-block, .price-row, .support-widget,
-    .step, .resultat, .form-col, .pricing-col {
-      background-color: var(--bg-card);
-      border-color: var(--border-light);
+    .price-row, .support-widget, .step, .resultat,
+    .form-col, .pricing-col { background-color: var(--bg-card); border-color: var(--border-light); }
+
+    input, select, textarea {
+      background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-light);
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-green); outline: none; }
+
+    .btn-back { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--border-light); }
+
+    #nd-chat-window { background-color: var(--bg-card); }
+    .chat-msg.bot .chat-bubble { background-color: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-content, .dossier-modal, .profil-modal { background-color: var(--bg-card); }
+    .progress-bar { background-color: var(--bg-tertiary); }
+    .progress-fill { background-color: var(--accent-green); }
+    ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-medium); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-green); }
+
+    /* Toggle dans le header */
+    #darkModeToggle {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      color: rgba(255,255,255,.75);
+      font-size: 0.75rem;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      white-space: nowrap;
+    }
+    #darkModeToggle:hover {
+      background: rgba(255,255,255,.15);
+      color: #fff;
     }
 
-    /* Formulaires et inputs */
-    input, select, textarea, .calc-select, .chat-input {
-      background-color: var(--bg-input);
-      color: var(--text-primary);
-      border-color: var(--border-light);
+    /* Bouton flottant (fallback si pas de header) */
+    #darkModeToggle.floating {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--accent-green, #1D9E75) !important;
+      border-color: transparent !important;
+      color: white !important;
+      font-size: 20px;
+      justify-content: center;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
     }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent-green);
-      outline: none;
-    }
-
-    /* Boutons */
-    .btn-primary, .btn-validate, .btn-submit, .btn-next {
-      background: var(--accent-green);
-      color: white;
-    }
-
-    .btn-primary:hover, .btn-validate:hover, .btn-submit:hover, .btn-next:hover {
-      background: var(--accent-green-dark);
-    }
-
-    .btn-back {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      border-color: var(--border-light);
-    }
-
-    /* Navigation */
-    .nd-header {
-      background: var(--bg-primary);
-      border-bottom-color: var(--border-light);
-    }
-
-    /* Chatbot */
-    #nd-chat-window {
-      background-color: var(--bg-card);
-    }
-
-    .chat-msg.bot .chat-bubble {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-    }
-
-    /* Modales */
-    .modal-content, .dossier-modal, .profil-modal {
-      background-color: var(--bg-card);
-    }
-
-    /* Progress bar */
-    .progress-bar {
-      background-color: var(--bg-tertiary);
-    }
-
-    .progress-fill {
-      background-color: var(--accent-green);
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar-track {
-      background: var(--bg-tertiary);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-medium);
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-green);
-    }
+    #darkModeToggle.floating:hover { transform: scale(1.1); }
   `;
-  
-  if (!document.getElementById('dark-mode-styles')) {
-    document.head.appendChild(style);
-  }
+  document.head.appendChild(style);
 }
 
 // ==================== FONCTIONS PRINCIPALES ====================
 
-/**
- * Détection du thème système
- */
 function getSystemTheme() {
   return window.matchMedia(DARK_MODE_CONFIG.systemPrefers).matches ? 'dark' : 'light';
 }
 
-/**
- * Récupération du thème sauvegardé
- */
 function getSavedTheme() {
-  return localStorage.getItem(DARK_MODE_CONFIG.storageKey);
+  try { return localStorage.getItem(DARK_MODE_CONFIG.storageKey); } catch { return null; }
 }
 
-/**
- * Sauvegarde du thème
- */
 function saveTheme(theme) {
-  localStorage.setItem(DARK_MODE_CONFIG.storageKey, theme);
+  try { localStorage.setItem(DARK_MODE_CONFIG.storageKey, theme); } catch {}
 }
 
-/**
- * Application du thème
- */
-function applyTheme(theme) {
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  } else {
-    // Auto : suivre le système
-    const systemTheme = getSystemTheme();
-    document.documentElement.setAttribute('data-theme', systemTheme);
-  }
-  
-  // Mettre à jour l'icône du bouton
-  updateThemeButtonIcon();
-  
-  // Émettre un événement pour les autres composants
-  const event = new CustomEvent('themeChanged', {
-    detail: { theme: getCurrentTheme() }
-  });
-  window.dispatchEvent(event);
-}
-
-/**
- * Récupération du thème actuel
- */
 function getCurrentTheme() {
-  const dataTheme = document.documentElement.getAttribute('data-theme');
-  if (dataTheme === 'dark' || dataTheme === 'light') {
-    return dataTheme;
-  }
-  return getSystemTheme();
+  const t = document.documentElement.getAttribute('data-theme');
+  return (t === 'dark' || t === 'light') ? t : getSystemTheme();
 }
 
-/**
- * Changement de thème
- */
+function applyTheme(theme) {
+  const effective = (theme === 'auto' || !theme) ? getSystemTheme() : theme;
+  document.documentElement.setAttribute('data-theme', effective);
+  updateThemeButtonIcon();
+  window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: effective } }));
+}
+
 function setTheme(theme) {
-  if (theme === 'auto') {
-    saveTheme(null);
-    applyTheme('auto');
-  } else if (theme === 'dark' || theme === 'light') {
-    saveTheme(theme);
-    applyTheme(theme);
-  }
+  if (theme === 'auto') { saveTheme(null); applyTheme('auto'); }
+  else if (theme === 'dark' || theme === 'light') { saveTheme(theme); applyTheme(theme); }
 }
 
-/**
- * Bascule entre clair et sombre
- */
 function toggleTheme() {
-  const currentTheme = getCurrentTheme();
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  setTheme(newTheme);
-  
-  // Animation du bouton
-  const btn = document.getElementById('darkModeToggle');
-  if (btn) {
-    btn.classList.add('theme-animate');
-    setTimeout(() => btn.classList.remove('theme-animate'), 300);
-  }
+  setTheme(getCurrentTheme() === 'dark' ? 'light' : 'dark');
 }
 
-// ==================== BOUTON FLOTTANT ====================
+// ==================== BOUTON TOGGLE ====================
 
-/**
- * Met à jour l'icône du bouton
- */
 function updateThemeButtonIcon() {
   const btn = document.getElementById('darkModeToggle');
   if (!btn) return;
-  
-  const currentTheme = getCurrentTheme();
-  const isDark = currentTheme === 'dark';
-  
-  btn.setAttribute('aria-label', isDark ? 'Passer en mode clair' : 'Passer en mode sombre');
-  btn.setAttribute('title', isDark ? 'Mode clair' : 'Mode sombre');
-  btn.innerHTML = isDark ? '☀️' : '🌙';
+  const isDark = getCurrentTheme() === 'dark';
+  if (btn.classList.contains('floating')) {
+    btn.innerHTML = isDark ? '☀️' : '🌙';
+    btn.title = isDark ? 'Mode clair' : 'Mode sombre';
+  } else {
+    btn.innerHTML = isDark ? '☀️ Clair' : '🌙 Sombre';
+    btn.title = isDark ? 'Passer en mode clair' : 'Passer en mode sombre';
+  }
 }
 
-/**
- * Crée et ajoute le bouton flottant
- */
 function createThemeButton() {
-  // Vérifier si le bouton existe déjà
   if (document.getElementById('darkModeToggle')) return;
-  
+
   const btn = document.createElement('button');
   btn.id = 'darkModeToggle';
-  btn.setAttribute('aria-label', 'Changer de thème');
-  btn.innerHTML = getCurrentTheme() === 'dark' ? '☀️' : '🌙';
   btn.onclick = toggleTheme;
-  
-  // Styles du bouton
-  btn.style.cssText = `
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--accent-green, #1D9E75);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, background 0.2s ease;
-    font-family: system-ui, sans-serif;
-  `;
-  
-  // Effet hover
-  btn.addEventListener('mouseenter', () => {
-    btn.style.transform = 'scale(1.1)';
-  });
-  
-  btn.addEventListener('mouseleave', () => {
-    btn.style.transform = 'scale(1)';
-  });
-  
-  document.body.appendChild(btn);
-  
-  // Ajuster la position si le chatbot est présent
-  const chatbot = document.getElementById('nd-chat-fab');
-  if (chatbot) {
-    btn.style.bottom = '92px';
+  btn.setAttribute('aria-label', 'Changer de thème');
+
+  // Chercher le header-actions (header toujours sombre → pas de ton-sur-ton)
+  const headerActions = document.querySelector(
+    '.nd-header .header-actions, .header-actions, .unav-right'
+  );
+
+  if (headerActions) {
+    // Mode inline dans le header
+    headerActions.insertBefore(btn, headerActions.firstChild);
+  } else {
+    // Fallback : bouton flottant
+    btn.classList.add('floating');
+    document.body.appendChild(btn);
+
+    // Décaler si chatbot présent
+    const adjustForChatbot = () => {
+      btn.style.bottom = document.getElementById('nd-chat-fab') ? '92px' : '24px';
+    };
+    adjustForChatbot();
+    new MutationObserver(adjustForChatbot).observe(document.body, { childList: true, subtree: true });
   }
-  
-  // Observer l'apparition du chatbot
-  const observer = new MutationObserver(() => {
-    const chatbotExists = document.getElementById('nd-chat-fab');
-    if (chatbotExists) {
-      btn.style.bottom = '92px';
-    } else {
-      btn.style.bottom = '24px';
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+
+  updateThemeButtonIcon();
 }
 
-// ==================== SÉLECTEUR DÉROULANT (optionnel) ====================
+// ==================== SÉLECTEUR ÉTENDU (pages profil/paramètres) ====================
 
 /**
- * Crée un sélecteur de thème déroulant (pour les paramètres)
+ * Crée un sélecteur 3 boutons (Clair / Sombre / Auto) dans un conteneur dédié.
+ * À appeler explicitement depuis les pages de profil.
  */
 function createThemeSelector(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  
-  const savedTheme = getSavedTheme() || 'auto';
-  
+
+  const saved = getSavedTheme() || 'auto';
+
+  const makeBtn = (theme, icon, label) => {
+    const active = saved === theme;
+    return `
+      <button class="theme-option ${active ? 'active' : ''}" data-theme="${theme}" style="
+        display:flex; align-items:center; gap:6px;
+        padding:8px 16px; border-radius:999px; border:none;
+        background:${active ? 'var(--accent-green)' : 'transparent'};
+        color:${active ? 'white' : 'var(--text-secondary)'};
+        cursor:pointer; font-family:inherit; font-size:14px;
+        transition:all .2s ease;">
+        ${icon} <span>${label}</span>
+      </button>`;
+  };
+
   container.innerHTML = `
-    <div class="theme-selector" style="
-      display: flex;
-      gap: 8px;
-      background: var(--bg-card);
-      border-radius: 999px;
-      padding: 4px;
-      border: 1px solid var(--border-light);
-    ">
-      <button class="theme-option ${savedTheme === 'light' ? 'active' : ''}" data-theme="light" style="
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        background: ${savedTheme === 'light' ? 'var(--accent-green)' : 'transparent'};
-        border: none;
-        color: ${savedTheme === 'light' ? 'white' : 'var(--text-secondary)'};
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 14px;
-        transition: all 0.2s ease;
-      ">
-        ☀️ <span>Clair</span>
-      </button>
-      <button class="theme-option ${savedTheme === 'dark' ? 'active' : ''}" data-theme="dark" style="
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        background: ${savedTheme === 'dark' ? 'var(--accent-green)' : 'transparent'};
-        border: none;
-        color: ${savedTheme === 'dark' ? 'white' : 'var(--text-secondary)'};
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 14px;
-        transition: all 0.2s ease;
-      ">
-        🌙 <span>Sombre</span>
-      </button>
-      <button class="theme-option ${savedTheme === 'auto' ? 'active' : ''}" data-theme="auto" style="
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        background: ${savedTheme === 'auto' ? 'var(--accent-green)' : 'transparent'};
-        border: none;
-        color: ${savedTheme === 'auto' ? 'white' : 'var(--text-secondary)'};
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 14px;
-        transition: all 0.2s ease;
-      ">
-        🖥️ <span>Auto</span>
-      </button>
-    </div>
-  `;
-  
-  container.querySelectorAll('.theme-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.dataset.theme;
-      setTheme(theme === 'auto' ? 'auto' : theme);
-      
-      // Mettre à jour les classes actives
-      container.querySelectorAll('.theme-option').forEach(b => {
-        b.style.background = 'transparent';
-        b.style.color = 'var(--text-secondary)';
+    <div style="display:flex;gap:4px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:999px;padding:4px;">
+      ${makeBtn('light', '☀️', 'Clair')}
+      ${makeBtn('dark',  '🌙', 'Sombre')}
+      ${makeBtn('auto',  '🖥️', 'Auto')}
+    </div>`;
+
+  container.querySelectorAll('.theme-option').forEach(b => {
+    b.addEventListener('click', () => {
+      setTheme(b.dataset.theme);
+      container.querySelectorAll('.theme-option').forEach(x => {
+        x.style.background = 'transparent';
+        x.style.color = 'var(--text-secondary)';
+        x.classList.remove('active');
       });
-      btn.style.background = 'var(--accent-green)';
-      btn.style.color = 'white';
-      
-      // Mettre à jour le bouton flottant
-      updateThemeButtonIcon();
+      b.style.background = 'var(--accent-green)';
+      b.style.color = 'white';
+      b.classList.add('active');
     });
   });
 }
 
 // ==================== INITIALISATION ====================
 
-/**
- * Écoute les changements de thème système
- */
-function listenToSystemTheme() {
-  window.matchMedia(DARK_MODE_CONFIG.systemPrefers).addEventListener('change', (e) => {
-    const savedTheme = getSavedTheme();
-    if (!savedTheme || savedTheme === 'auto') {
-      applyTheme('auto');
-    }
-  });
-}
-
-/**
- * Synchronise le thème entre onglets
- */
-function syncThemeAcrossTabs() {
-  window.addEventListener('storage', (e) => {
-    if (e.key === DARK_MODE_CONFIG.storageKey) {
-      const newTheme = e.newValue;
-      if (newTheme) {
-        applyTheme(newTheme);
-      } else {
-        applyTheme('auto');
-      }
-    }
-  });
-}
-
-/**
- * Initialisation complète
- */
 function initDarkMode() {
-  console.log('[DarkMode] Initialisation...');
-  
-  // Injecter les styles CSS
   injectDarkModeStyles();
-  
-  // Charger le thème sauvegardé
-  const savedTheme = getSavedTheme();
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  } else {
-    applyTheme('auto');
-  }
-  
-  // Créer le bouton flottant
+  applyTheme(getSavedTheme() || 'auto');
   createThemeButton();
-  
+
   // Écouter les changements système
-  listenToSystemTheme();
-  
+  window.matchMedia(DARK_MODE_CONFIG.systemPrefers).addEventListener('change', () => {
+    if (!getSavedTheme()) applyTheme('auto');
+  });
+
   // Synchroniser entre onglets
-  syncThemeAcrossTabs();
-  
-  // Créer le sélecteur si un conteneur existe
-  if (document.getElementById('theme-selector-container')) {
-    createThemeSelector('theme-selector-container');
-  }
-  
-  console.log('[DarkMode] Initialisé avec succès, thème actuel:', getCurrentTheme());
+  window.addEventListener('storage', e => {
+    if (e.key === DARK_MODE_CONFIG.storageKey) applyTheme(e.newValue || 'auto');
+  });
+
+  // NE PAS auto-injecter dans theme-selector-container
+  // (appeler createThemeSelector('id') explicitement depuis les pages profil)
 }
 
-// ==================== DÉMARRAGE ====================
-
-// Démarrer l'initialisation après le chargement du DOM
+// Démarrer après DOM
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initDarkMode);
 } else {
   initDarkMode();
 }
 
-// ==================== EXPORTS GLOBAUX ====================
-
-window.initDarkMode = initDarkMode;
-window.setTheme = setTheme;
-window.toggleTheme = toggleTheme;
-window.getCurrentTheme = getCurrentTheme;
+// ==================== EXPORTS ====================
+window.initDarkMode     = initDarkMode;
+window.setTheme         = setTheme;
+window.toggleTheme      = toggleTheme;
+window.getCurrentTheme  = getCurrentTheme;
 window.createThemeSelector = createThemeSelector;
 
-console.log('[dark-mode.js] ✅ Chargé avec succès');
+console.log('[dark-mode.js] v2.1.0 charge');
