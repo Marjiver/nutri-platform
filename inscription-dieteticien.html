@@ -445,7 +445,11 @@
       </div>
       <div class="insc-progress-line"></div>
       <div class="insc-progress-step" id="progStep3">
-        <div class="insc-prog-dot">3</div><span>Formule</span>
+        <div class="insc-prog-dot">3</div><span>Vérification</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep4">
+        <div class="insc-prog-dot">4</div><span>Formule</span>
       </div>
     </div>
 
@@ -524,8 +528,48 @@
         </div>
       </div>
 
-      <!-- Étape 3 : Formule + MDP -->
+      <!-- Étape 3 : Identité numérique (optionnel) -->
       <div class="insc-step" data-step="3">
+        <div class="rpps-explainer">
+          <div class="rpps-explainer-icon">🔐</div>
+          <div>
+            <strong>Vérification d'identité</strong>
+            <p style="font-size:0.8rem;color:#6b7b74;margin-top:0.25rem;">Optionnel — mais recommandé. Elle ajoute un <strong>badge de confiance</strong> sur votre profil, visible par les patients.</p>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+
+          <!-- FranceConnect -->
+          <div onclick="selectionnerVerif('fc',this)" style="border:1.5px solid #eef4ee;border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;" id="cardFC">
+            <div style="font-size:1.8rem;margin-bottom:.4rem;">🇫🇷</div>
+            <div style="font-weight:600;font-size:.85rem;margin-bottom:.25rem;">FranceConnect</div>
+            <div style="font-size:.7rem;color:#6b7b74;line-height:1.4;">Via Ameli, impots.gouv ou autres services de l'État</div>
+            <span id="statusFC" style="display:inline-block;margin-top:.5rem;font-size:.68rem;font-weight:600;padding:.15rem .6rem;border-radius:999px;background:#fff8e6;color:#92400e;">Non vérifié</span>
+          </div>
+
+          <!-- Pro Santé Connect -->
+          <div onclick="selectionnerVerif('psc',this)" style="border:1.5px solid #eef4ee;border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;" id="cardPSC">
+            <div style="font-size:1.8rem;margin-bottom:.4rem;">🏥</div>
+            <div style="font-weight:600;font-size:.85rem;margin-bottom:.25rem;">Pro Santé Connect</div>
+            <div style="font-size:.7rem;color:#6b7b74;line-height:1.4;">Avec votre carte CPS ou e-CPS</div>
+            <span id="statusPSC" style="display:inline-block;margin-top:.5rem;font-size:.68rem;font-weight:600;padding:.15rem .6rem;border-radius:999px;background:#fff8e6;color:#92400e;">Non vérifié</span>
+          </div>
+
+        </div>
+
+        <div style="background:#e1f5ee;border-radius:10px;padding:.75rem;font-size:.75rem;color:#0f6e56;margin-bottom:1rem;">
+          ⚠️ Ces services sont en cours d'intégration. Vous pouvez ignorer cette étape pour l'instant — la vérification pourra être faite depuis votre profil.
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Ignorer / Continuer →</button>
+        </div>
+      </div>
+
+      <!-- Étape 4 : Formule + MDP -->
+      <div class="insc-step" data-step="4">
         <div class="form-group">
           <label>Formule choisie <span class="req">*</span></label>
           <div class="formule-recap" id="formuleRecap">
@@ -726,8 +770,16 @@ function updateProgress() {
     s.classList.toggle('done', i + 1 < currentStep);
   });
 }
-function nextStep() { if (currentStep < 3) { currentStep++; updateProgress(); } }
+function nextStep() { if (currentStep < 4) { currentStep++; updateProgress(); } }
 function prevStep() { if (currentStep > 1) { currentStep--; updateProgress(); } }
+
+function selectionnerVerif(type, el) {
+  // Visuel uniquement — intégration réelle à venir
+  document.querySelectorAll('#cardFC,#cardPSC').forEach(c => c.style.borderColor = '#eef4ee');
+  el.style.borderColor = '#1D9E75';
+  const statusId = type === 'fc' ? 'statusFC' : 'statusPSC';
+  document.getElementById(statusId).textContent = '⚙️ Bientôt disponible';
+}
 
 function validateRppsAndContinue() {
   const rpps = document.getElementById('rppsInput').value.replace(/\s/g, '');
