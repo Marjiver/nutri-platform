@@ -166,13 +166,6 @@
       border-radius: 16px; text-align: center;
     }
     .pricing-info-box p { font-size: .75rem; color: #0284c7; margin-bottom: .25rem; }
-    [data-theme="dark"] .pricing-info-box p { color: #7dd3fc; }
-
-    /* ── COLONNE DROITE : FORMULAIRE ── */
-    .form-col {
-      flex: 1; padding: 2rem; overflow-y: auto;
-      background-color: var(--bg-card);
-    }
     .form-col h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem; color: var(--text-primary); margin-bottom: .25rem;
@@ -234,10 +227,6 @@
       opacity: 1;
     }
     /* Renforcement dark mode pour placeholder (certains navigateurs) */
-    [data-theme="dark"] .form-group input::placeholder,
-    [data-theme="dark"] .form-group textarea::placeholder {
-      color: rgba(255,255,255,.28) !important;
-    }
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
@@ -289,8 +278,6 @@
       border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1rem;
     }
     .pack-recap-name { font-weight: 600; color: #0284c7; }
-    [data-theme="dark"] .pack-recap-name { color: #7dd3fc; }
-    .pack-change { background: none; border: none; color: #0ea5e9; font-size: .75rem; cursor: pointer; text-decoration: underline; font-family: 'Outfit', sans-serif; }
 
     /* ── BOUTONS ── */
     .btn-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
@@ -334,22 +321,6 @@
       display: inline-block; font-size: .67rem; font-weight: 600;
       padding: .15rem .55rem; border-radius: 999px;
       background-color: var(--accent-yellow-bg); color: #92400e;
-    }
-    [data-theme="dark"] .id-status { color: #fcd34d; }
-
-    .id-note {
-      background-color: var(--accent-blue-bg);
-      border: 1px solid rgba(14,165,233,.2);
-      border-radius: 10px; padding: .75rem .9rem;
-      font-size: .75rem; color: #0284c7; line-height: 1.5;
-    }
-    [data-theme="dark"] .id-note { color: #7dd3fc; }
-
-    /* ── FORCE DU MOT DE PASSE ── */
-    .pwd-strength-bar {
-      height: 4px; border-radius: 2px;
-      background-color: var(--border-light);
-      margin-top: .35rem; transition: all .3s;
     }
     .pwd-strength-label { font-size: .72rem; margin-top: .2rem; color: var(--text-secondary); }
 
@@ -406,7 +377,6 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header">
@@ -420,10 +390,6 @@
       </nav>
     </div>
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">

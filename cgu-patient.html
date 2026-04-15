@@ -185,15 +185,6 @@
     }
 
     /* BARRE PROFIL */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-      margin-top: 0;
-    }
     .dynamic-profil-inner {
       max-width: 1400px;
       margin: 0 auto;
@@ -202,26 +193,6 @@
       justify-content: center;
       gap: 0.75rem;
       flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
-
-    /* MAIN */
-    .legal-container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 7rem 2rem 3rem;
     }
     .legal-header {
       margin-bottom: 2rem;
@@ -449,7 +420,6 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header" id="ndHeader">
@@ -472,10 +442,6 @@
     </div>
 
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -490,15 +456,6 @@
 </header>
 
 <!-- BARRE PROFIL -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🧑</span>
-      <span id="profilName">Patient</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
 </div>
 
 <!-- MAIN -->

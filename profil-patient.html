@@ -217,15 +217,6 @@
     }
 
     /* BARRE PROFIL DYNAMIQUE */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-      margin-top: 0;
-    }
     .dynamic-profil-inner {
       max-width: 1400px;
       margin: 0 auto;
@@ -235,62 +226,11 @@
       gap: 0.75rem;
       flex-wrap: wrap;
     }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
-
-    /* MAIN CONTENT */
-    .profil-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 7rem 1.5rem 4rem;
-    }
 
     /* THEME SELECTOR */
     @media (max-width: 768px) {
 
     /* FORM CARD */
-    .profil-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
-      border-radius: 24px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-      transition: box-shadow 0.2s;
-    }
-    .profil-card:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-    .profil-card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .profil-card-header h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: #0d2018;
-    }
-    .profil-card-header .badge {
-      background: #e1f5ee;
-      color: #1D9E75;
-      font-size: 0.7rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
 
     /* FORM GROUP */
     .form-group {
@@ -580,7 +520,6 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body data-theme="light">
 
 <!-- ==================== THÈME SELECTOR ==================== -->
 
@@ -605,10 +544,6 @@
     </div>
 
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -622,15 +557,6 @@
 </header>
 
 <!-- BARRE PROFIL DYNAMIQUE -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: block;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🧑</span>
-      <span id="profilName">Patient</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -866,7 +792,6 @@
   </div>
 </div>
 
-<div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ==================== SERVICE WORKER ==================== -->
@@ -881,294 +806,3 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
-// ==================== PROFIL SYSTEM ====================
-const PROFIL_KEY = 'nutridoc_profil';
-const PROFIL_DATE_KEY = 'nutridoc_profil_date';
-const PROFIL_EXPIRY_DAYS = 30;
-
-const PROFILS = {
-  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
-  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
-  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
-  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
-};
-
-function getStoredProfil() {
-  const profil = localStorage.getItem(PROFIL_KEY);
-  const date = localStorage.getItem(PROFIL_DATE_KEY);
-  if (!profil || !date) return null;
-  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
-  if (daysSince > PROFIL_EXPIRY_DAYS) {
-    localStorage.removeItem(PROFIL_KEY);
-    localStorage.removeItem(PROFIL_DATE_KEY);
-    return null;
-  }
-  return profil;
-}
-
-function setStoredProfil(profil) {
-  localStorage.setItem(PROFIL_KEY, profil);
-  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
-}
-
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = profil.icon;
-    document.getElementById('profilName').textContent = profil.name;
-  }
-}
-
-function openProfilModal() {
-  const container = document.getElementById('profilModalContainer');
-  if (!container) return;
-  container.innerHTML = `
-    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
-      <div class="profil-modal" onclick="event.stopPropagation()">
-        <h2>Bienvenue sur NutriDoc</h2>
-        <div class="profil-modal-sub">Je suis...</div>
-        <div class="profil-grid">
-          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
-          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
-          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
-          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
-        </div>
-        <div class="profil-modal-footer">
-          <button onclick="closeProfilModal()">Plus tard</button>
-          <button onclick="dismissProfilForever()">Ne plus afficher</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
-function dismissProfilForever() {
-  localStorage.setItem('nutridoc_profil_dismissed', 'true');
-  closeProfilModal();
-}
-function selectProfil(profilKey) {
-  if (!PROFILS[profilKey]) return;
-  setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
-  closeProfilModal();
-  const target = PROFILS[profilKey].redirectUrl;
-  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
-    window.location.href = target;
-  }
-}
-
-function initProfilSystem() {
-  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
-  const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
-}
-
-window.selectProfil = selectProfil;
-window.closeProfilModal = closeProfilModal;
-window.dismissProfilForever = dismissProfilForever;
-window.openProfilModal = openProfilModal;
-
-function toggleConn() {
-  document.getElementById('ndConnMenu').classList.toggle('open');
-}
-window.toggleConn = toggleConn;
-
-function deconnecter() {
-  localStorage.clear();
-  window.location.href = 'index.html';
-}
-window.deconnecter = deconnecter;
-
-document.addEventListener('click', (e) => {
-  const wrap = document.getElementById('ndConnWrap');
-  const menu = document.getElementById('ndConnMenu');
-  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
-});
-
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
-});
-
-// ==================== GESTION DU PROFIL PATIENT ====================
-
-// Données simulées (à remplacer par Supabase)
-let patientData = {
-  prenom: 'Marie',
-  nom: 'Dupont',
-  email: 'marie.dupont@email.fr',
-  telephone: '06 12 34 56 78',
-  dateNaissance: '1990-05-15',
-  sexe: 'femme',
-  ville: 'Angoulême',
-  taille: 165,
-  poids: 64,
-  objectif: 'perte_poids',
-  activite: 'modere',
-  regime: 'vegetarien',
-  allergies: 'Aucune',
-  aversions: 'Champignons',
-  medicaments: 'Aucun',
-  habitMatin: 'Café + tartine complète + jus d\'orange',
-  habitMidi: 'Salade de lentilles + yaourt',
-  habitSoir: 'Poisson vapeur + légumes verts'
-};
-
-// Charger les données
-function chargerProfil() {
-  document.getElementById('prenom').value = patientData.prenom || '';
-  document.getElementById('nom').value = patientData.nom || '';
-  document.getElementById('email').value = patientData.email || '';
-  document.getElementById('telephone').value = patientData.telephone || '';
-  document.getElementById('dateNaissance').value = patientData.dateNaissance || '';
-  document.getElementById('sexe').value = patientData.sexe || '';
-  document.getElementById('ville').value = patientData.ville || '';
-  document.getElementById('taille').value = patientData.taille || '';
-  document.getElementById('poids').value = patientData.poids || '';
-  document.getElementById('objectif').value = patientData.objectif || '';
-  document.getElementById('activite').value = patientData.activite || '';
-  document.getElementById('regime').value = patientData.regime || '';
-  document.getElementById('allergies').value = patientData.allergies || '';
-  document.getElementById('aversions').value = patientData.aversions || '';
-  document.getElementById('medicaments').value = patientData.medicaments || '';
-  document.getElementById('habitMatin').value = patientData.habitMatin || '';
-  document.getElementById('habitMidi').value = patientData.habitMidi || '';
-  document.getElementById('habitSoir').value = patientData.habitSoir || '';
-
-  // Mettre à jour l'avatar
-  const avatarPreview = document.getElementById('avatarPreview');
-  if (avatarPreview) {
-    avatarPreview.textContent = (patientData.prenom?.[0] || '👤') + (patientData.nom?.[0] || '');
-  }
-}
-
-// Sauvegarder le profil
-function sauvegarderProfil() {
-  const newData = {
-    prenom: document.getElementById('prenom').value,
-    nom: document.getElementById('nom').value,
-    email: document.getElementById('email').value,
-    telephone: document.getElementById('telephone').value,
-    dateNaissance: document.getElementById('dateNaissance').value,
-    sexe: document.getElementById('sexe').value,
-    ville: document.getElementById('ville').value,
-    taille: parseFloat(document.getElementById('taille').value),
-    poids: parseFloat(document.getElementById('poids').value),
-    objectif: document.getElementById('objectif').value,
-    activite: document.getElementById('activite').value,
-    regime: document.getElementById('regime').value,
-    allergies: document.getElementById('allergies').value,
-    aversions: document.getElementById('aversions').value,
-    medicaments: document.getElementById('medicaments').value,
-    habitMatin: document.getElementById('habitMatin').value,
-    habitMidi: document.getElementById('habitMidi').value,
-    habitSoir: document.getElementById('habitSoir').value
-  };
-
-  // Validation
-  if (!newData.prenom || !newData.nom) {
-    showToast('Le prénom et le nom sont requis', 'error');
-    return;
-  }
-  if (newData.email && !isValidEmail(newData.email)) {
-    showToast('Email invalide', 'error');
-    return;
-  }
-
-  patientData = newData;
-  localStorage.setItem('nutridoc_bilan', JSON.stringify(patientData));
-  
-  // Mettre à jour l'avatar
-  const avatarPreview = document.getElementById('avatarPreview');
-  if (avatarPreview) {
-    avatarPreview.textContent = (patientData.prenom?.[0] || '👤') + (patientData.nom?.[0] || '');
-  }
-
-  // Nettoyer le brouillon
-  if (typeof clearCurrentDraft === 'function') {
-    clearCurrentDraft('profilForm');
-  }
-
-  showToast('Profil sauvegardé avec succès ✓', 'success');
-}
-
-function annulerModifications() {
-  chargerProfil();
-  showToast('Modifications annulées', 'warning');
-}
-
-// Suppression de compte
-function ouvrirModalSuppression() {
-  document.getElementById('modalSuppression').classList.add('open');
-}
-
-function fermerModalSuppression() {
-  document.getElementById('modalSuppression').classList.remove('open');
-}
-
-function supprimerCompte() {
-  if (confirm('⚠️ Dernier avertissement : cette action est irréversible. Voulez-vous vraiment supprimer votre compte ?')) {
-    localStorage.clear();
-    showToast('Votre compte a été supprimé', 'error');
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 2000);
-  }
-  fermerModalSuppression();
-}
-
-function showToast(message, type = 'success') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + type;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// Validation email (fallback)
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-// Gestion avatar
-document.getElementById('avatarInput')?.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const avatarPreview = document.getElementById('avatarPreview');
-      if (avatarPreview) {
-        avatarPreview.style.backgroundImage = `url(${event.target.result})`;
-        avatarPreview.style.backgroundSize = 'cover';
-        avatarPreview.style.backgroundPosition = 'center';
-        avatarPreview.textContent = '';
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-  chargerProfil();
-  
-  // Initialiser la sauvegarde auto
-  if (typeof initAutoSave === 'function') {
-    initAutoSave();
-  }
-});
-
-initProfilSystem();
-</script>
-
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
-</body>
-</html>

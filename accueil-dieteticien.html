@@ -40,20 +40,6 @@
       --border-color: #e5e7eb;
     }
     
-    [data-theme="dark"] {
-      --bg-primary: #0a0f0d;
-      --bg-secondary: #111816;
-      --bg-card: #141c19;
-      --bg-input: #1a221f;
-      --bg-tertiary: #1a221f;
-      --text-primary: #e5e7eb;
-      --text-secondary: #9ca3af;
-      --border-color: #2a3430;
-      --cream: #111816;
-      --gray-light: #1a221f;
-      --border: #2a3430;
-      --dark: #e5e7eb;
-    }
     
     body {
       font-family: 'Outfit', sans-serif;
@@ -66,100 +52,14 @@
     * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
     
     /* Pop-up profil */
-    .profil-modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-      z-index: 2000; display: flex; align-items: center; justify-content: center;
-      animation: fadeInModal 0.3s ease;
-    }
     @keyframes fadeInModal {
       from { opacity: 0; backdrop-filter: blur(0); }
       to { opacity: 1; backdrop-filter: blur(8px); }
-    }
-    .profil-modal {
-      background: var(--bg-primary); border: 1px solid rgba(29,158,117,0.3);
-      border-radius: 32px; padding: 2rem; max-width: 900px; width: 90%;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    }
-    .profil-modal h2 {
-      font-family: 'Playfair Display', serif; font-size: 1.8rem;
-      color: var(--text-primary); text-align: center; margin-bottom: 0.5rem;
     }
     .profil-modal-sub {
       text-align: center; color: rgba(255,255,255,0.5);
       margin-bottom: 2rem; font-size: 0.9rem;
     }
-    .profil-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 1rem; margin-bottom: 2rem;
-    }
-    .profil-card {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(29,158,117,0.2);
-      border-radius: 20px; padding: 1.5rem 1rem; text-align: center;
-      cursor: pointer; transition: all 0.2s ease;
-    }
-    .profil-card:hover { background: rgba(29,158,117,0.15); border-color: #1D9E75; transform: translateY(-4px); }
-    .profil-icon { font-size: 3rem; margin-bottom: 0.75rem; }
-    .profil-card h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
-    .profil-card p { font-size: 0.75rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
-    .profil-modal-footer {
-      display: flex; justify-content: center; gap: 1.5rem;
-      padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);
-    }
-    .profil-modal-footer button {
-      background: none; border: none; color: rgba(255,255,255,0.4);
-      font-size: 0.8rem; cursor: pointer; transition: color 0.2s;
-    }
-    .profil-modal-footer button:hover { color: #fff; }
-    @media (max-width: 700px) { .profil-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px) { .profil-grid { grid-template-columns: 1fr; } .profil-modal { padding: 1.5rem; } }
-    
-    /* Barre profil */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-    }
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
-    
-    /* HEADER - identique à index */
-    .nd-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #0d2018;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.75rem 2rem;
-      transition: all 0.3s ease;
-    }
-    [data-theme="dark"] .nd-header { background: #0a0f0d; }
-    .nd-header.scrolled { padding: 0.5rem 2rem; background: rgba(13,32,24,0.98); backdrop-filter: blur(10px); }
     .header-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -286,16 +186,6 @@
       background: #0d2018;
       overflow: hidden;
       padding-top: 80px;
-    }
-    [data-theme="dark"] .nd-hero { background: #0a0f0d; }
-    .nd-hero-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 5rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4rem;
     }
     .nd-hero-canvas {
       position: absolute;
@@ -463,12 +353,6 @@
     .nd-section { padding: 3rem 0; }
     .nd-section-light { background: var(--bg-secondary); }
     .nd-section-dark { background: #0d2018; }
-    [data-theme="dark"] .nd-section-dark { background: #0a0f0d; }
-    .nd-section-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
     .nd-section-header { text-align: center; margin-bottom: 2rem; }
     .nd-tag {
       display: inline-block;
@@ -569,9 +453,6 @@
     .price-card.featured {
       background: linear-gradient(135deg, #0d2018 0%, #1a3a2a 100%);
       border: 2px solid #1D9E75;
-    }
-    [data-theme="dark"] .price-card.featured {
-      background: linear-gradient(135deg, #0a0f0d 0%, #141c19 100%);
     }
     .price-tier { 
       font-size: 0.7rem; 
@@ -1116,10 +997,6 @@
     </div>
 
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
@@ -1136,15 +1013,6 @@
 </header>
 
 <!-- BARRE PROFIL -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🥗</span>
-      <span id="profilName">Diététicien</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
 </div>
 
 
@@ -1498,7 +1366,6 @@
   </div>
 </div>
 
-<div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ==================== SCRIPTS ==================== -->
@@ -1516,122 +1383,3 @@
 <script src="js/theme-selector.js"></script>
 
 <script>
-// ==================== MODE SOMBRE ====================
-(function(){
-  const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel'), saved=localStorage.getItem('nutridoc_theme');
-  if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
-  else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; localStorage.setItem('nutridoc_theme','light'); }
-  window.toggleDarkMode=function(){ const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-    if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
-    else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
-    if(btn){btn.style.transform='scale(0.95)'; setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
-  };
-  if(btn)btn.onclick=window.toggleDarkMode;
-})();
-
-// ==================== SIMULATEUR ====================
-const COMMISSIONS={0:3,9:2.5,29:2,59:1.5};
-function updateSim(){
-  const plans=parseInt(document.getElementById('simPlans').value), visios=parseInt(document.getElementById('simVisios').value), abo=parseInt(document.getElementById('simAbo').value), com=COMMISSIONS[abo];
-  document.getElementById('simPlansVal').textContent=plans; document.getElementById('simVisiosVal').textContent=visios;
-  const plansPayants=Math.max(0,plans-1), horsQuota=Math.max(0,plansPayants-30), commissions=(horsQuota*com)+(visios*8), ca=(plans*24.9)+(visios*55), net=ca-commissions-abo;
-  const heures=(plans*15+visios*45)/60;
-  const taux=heures>0?Math.round(net/heures):0;
-  document.getElementById('simCa').textContent=Math.round(ca)+' €'; document.getElementById('simNet').textContent=Math.round(net)+' €';
-  document.getElementById('simTaux').textContent=taux+' €/h';
-  document.getElementById('simNote').innerHTML=`📅 Revenu annuel estimé : ${Math.round(net*12).toLocaleString('fr-FR')} € · Commission : ${com.toFixed(2)}€/plan (hors quota)`;
-}
-function setAbo(val,btn){
-  document.getElementById('simAbo').value=val;
-  document.querySelectorAll('.sim-abtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  updateSim();
-}
-window.toggleSim=function(){ document.getElementById('simWindow').classList.toggle('open'); };
-window.updateSim=updateSim;
-window.setAbo=setAbo;
-
-// ==================== CARROUSEL ====================
-let currentSlideIndex = 0;
-const totalSlides = 3;
-let autoSlideInterval;
-
-function updateCarousel(){
-  const slides=document.querySelectorAll('.carousel-slide');
-  const dots=document.querySelectorAll('.carousel-dot');
-  slides.forEach((s,i)=>{ s.classList.toggle('active',i===currentSlideIndex); });
-  dots.forEach((d,i)=>{ d.classList.toggle('active',i===currentSlideIndex); });
-}
-function nextSlide(){ currentSlideIndex=(currentSlideIndex+1)%totalSlides; updateCarousel(); resetAutoSlide(); }
-function prevSlide(){ currentSlideIndex=(currentSlideIndex-1+totalSlides)%totalSlides; updateCarousel(); resetAutoSlide(); }
-function goToSlide(i){ currentSlideIndex=i; updateCarousel(); resetAutoSlide(); }
-function startAutoSlide(){ autoSlideInterval=setInterval(()=>nextSlide(),6000); }
-function resetAutoSlide(){ clearInterval(autoSlideInterval); startAutoSlide(); }
-function initCarousel(){
-  const nav=document.getElementById('carouselNav');
-  nav.innerHTML='';
-  for(let i=0;i<totalSlides;i++){
-    const dot=document.createElement('div');
-    dot.className='carousel-dot';
-    dot.onclick=()=>goToSlide(i);
-    nav.appendChild(dot);
-  }
-  updateCarousel();
-  startAutoSlide();
-}
-window.nextSlide=nextSlide;
-window.prevSlide=prevSlide;
-
-
-// ==================== CAROUSEL ====================
-(function(){
-  let cur=0,tot=0,pTimer,progress=0;
-  const DURATION=6000;
-  function init(){
-    tot=document.querySelectorAll('.nd-slide').length;
-    const nav=document.getElementById('carouselNav');
-    if(!nav)return;
-    nav.innerHTML='';
-    for(let i=0;i<tot;i++){
-      const d=document.createElement('button');
-      d.className='nd-dot';
-      d.onclick=(()=>{const idx=i;return()=>goTo(idx);})();
-      nav.appendChild(d);
-    }
-    updateDots();startProgress();
-  }
-  function updateDots(){document.querySelectorAll('.nd-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));}
-  function showSlide(n){document.querySelectorAll('.nd-slide').forEach((s,i)=>s.classList.toggle('active',i===n));updateDots();}
-  function goTo(n){cur=(n+tot)%tot;showSlide(cur);resetProgress();}
-  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
-  function resetProgress(){clearInterval(pTimer);startProgress();}
-  window.slideNav=function(d){goTo(cur+d);};
-  document.addEventListener('DOMContentLoaded',init);
-})();
-
-// ==================== PROFIL ====================
-const PROFILS={patient:{name:'Patient',icon:'🧑',url:'index.html'},dieteticien:{name:'Diététicien',icon:'🥗',url:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',url:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',url:'partenariats.html'}};
-function getStoredProfil(){ try{ return localStorage.getItem('nutridoc_profil'); }catch(e){} return null; }
-function setStoredProfil(p){ localStorage.setItem('nutridoc_profil',p); localStorage.setItem('nutridoc_profil_date',Date.now()); }
-function updateUIForProfil(p){ const prof=PROFILS[p]; if(!prof)return; const bar=document.getElementById('dynamicProfilBar'); if(bar){ bar.style.display='block'; document.getElementById('profilIcon').textContent=prof.icon; document.getElementById('profilName').textContent=prof.name; } }
-function openProfilModal(){ const c=document.getElementById('profilModalContainer'); if(!c)return; c.innerHTML='<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil(\'patient\')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div><div class="profil-card" onclick="selectProfil(\'dieteticien\')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil(\'prescripteur\')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div><div class="profil-card" onclick="selectProfil(\'structure\')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>'; }
-function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML=''; }
-function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
-function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); updateUIForProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
-function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(stored && PROFILS[stored]) updateUIForProfil(stored); else if(!dismissed) setTimeout(openProfilModal,500); else document.getElementById('dynamicProfilBar').style.display='block'; }
-window.selectProfil=selectProfil; window.closeProfilModal=closeProfilModal; window.openProfilModal=openProfilModal; window.dismissProfilForever=dismissProfilForever;
-window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
-document.addEventListener('click',(e)=>{ const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu'); if(w&&m&&!w.contains(e.target)) m.classList.remove('open'); });
-window.addEventListener('scroll',()=>{ document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300); });
-
-// REVEAL ANIMATIONS
-const observer=new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('revealed'); }); },{ threshold:0.1 });
-document.querySelectorAll('[data-reveal], .nd-step, .nd-diff-card, .price-card').forEach(el=>observer.observe(el));
-
-// INIT
-initProfil();
-updateSim();
-initCarousel();
-</script>
-</body>
-</html>

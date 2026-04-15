@@ -163,15 +163,6 @@
     }
 
     /* BARRE PROFIL */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-      margin-top: 0;
-    }
     .dynamic-profil-inner {
       max-width: 1400px;
       margin: 0 auto;
@@ -180,26 +171,6 @@
       justify-content: center;
       gap: 0.75rem;
       flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
-
-    /* MAIN */
-    .legal-container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 7rem 2rem 3rem;
     }
     .legal-header {
       margin-bottom: 2rem;
@@ -427,7 +398,6 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header" id="ndHeader">
@@ -450,10 +420,6 @@
     </div>
 
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       <a href="inscription-dieteticien.html" class="nd-btn-ghost">S'inscrire</a>
       <a href="login.html?role=dietitian" class="nd-btn-ghost">Se connecter</a>
     </div>
@@ -461,15 +427,6 @@
 </header>
 
 <!-- BARRE PROFIL -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🥗</span>
-      <span id="profilName">Diététicien</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
 </div>
 
 <!-- MAIN -->
@@ -655,7 +612,6 @@
   <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
 </footer>
 
-<div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script>
@@ -709,14 +665,14 @@ function openProfilModal() {
         <h2>Bienvenue sur NutriDoc</h2>
         <div class="profil-modal-sub">Je suis...</div>
         <div class="profil-grid">
-          <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
-          <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
-          <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
-          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+          <div class="profil-card" ><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" ><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
         </div>
         <div class="profil-modal-footer">
           <button onclick="closeProfilModal()">Plus tard</button>
-          <button onclick="dismissProfilForever()">Ne plus afficher</button>
+          <button >Ne plus afficher</button>
         </div>
       </div>
     </div>
@@ -756,7 +712,6 @@ window.addEventListener('scroll', () => {
   document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
 });
 
-initProfilSystem();
 </script>
 
   <div id="theme-selector-container" class="theme-selector-wrapper"></div>

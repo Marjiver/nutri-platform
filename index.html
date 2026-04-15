@@ -31,19 +31,11 @@
       --shadow-md:0 4px 6px -1px rgba(0,0,0,.1);
       --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
     }
-    [data-theme="dark"]{
-      --bg-primary:#0a0f0d;--bg-secondary:#111816;--bg-card:#141c19;
-      --text-primary:#e5e7eb;--text-secondary:#9ca3af;--text-muted:#6b7280;
-      --border-color:#2a3430;--border:#2a3430;--dark:#e5e7eb;--gray:#9ca3af;
-      --green-light:rgba(29,158,117,.12);
-    }
     body{font-family:'Outfit',sans-serif;background:var(--bg-secondary);color:var(--text-primary);line-height:1.5;}
     *{transition:background-color .2s ease,border-color .2s ease,color .2s ease;}
 
     /* HEADER */
     .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem;transition:all .3s;}
-    [data-theme="dark"] .nd-header{background:#0a0f0d;}
-    .nd-header.scrolled{padding:.5rem 2rem;background:rgba(13,32,24,.98);backdrop-filter:blur(10px);}
     .header-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
     .header-left{display:flex;align-items:center;gap:2rem;}
     .nd-logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;text-decoration:none;}
@@ -69,16 +61,6 @@
     @media(max-width:900px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}.gregoire-mini{display:none;}}
 
     /* PROFIL BAR */
-    .dynamic-profil-bar{background:#080f0b;border-bottom:1px solid rgba(29,158,117,.2);padding:.4rem 2rem;position:sticky;top:60px;z-index:98;}
-    .dynamic-profil-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;}
-    .profil-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.2rem .9rem;font-size:.75rem;color:#fff;font-weight:500;}
-    .profil-switch{background:none;border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.2rem .8rem;font-size:.7rem;color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;}
-    .profil-switch:hover{border-color:#1D9E75;color:#fff;}
-
-    /* HERO */
-    .nd-hero{position:relative;display:flex;align-items:center;justify-content:center;gap:4rem;padding:7rem 2rem 4rem;width:100%;overflow:hidden;background:#0d2018;}
-    [data-theme="dark"] .nd-hero{background:#0a0f0d;}
-    #heroCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;}
     .nd-hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(13,32,24,.7) 0%,rgba(13,32,24,.2) 55%,transparent 100%);z-index:0;}
     .nd-hero-content{position:relative;z-index:2;flex:1;min-width:0;max-width:560px;text-align:center;}
     @media(min-width:901px){.nd-hero-content{text-align:left;}}
@@ -126,8 +108,6 @@
     .nd-section{padding:3rem 0;}
     .nd-section-light{background:var(--bg-secondary);}
     .nd-section-dark{background:#0d2018;}
-    [data-theme="dark"] .nd-section-dark{background:#0a0f0d;}
-    .nd-section-inner{max-width:1200px;margin:0 auto;padding:0 2rem;}
     .nd-section-header{text-align:center;margin-bottom:2rem;}
     .nd-tag{display:inline-block;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:#1D9E75;background:rgba(29,158,117,.1);padding:.2rem .8rem;border-radius:999px;margin-bottom:.75rem;}
     .nd-tag-light{color:#5DCAA5;background:rgba(93,202,165,.1);}
@@ -191,8 +171,6 @@
     .tarif-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.75rem;transition:transform .2s;}
     .tarif-card:hover{transform:translateY(-4px);}
     .tarif-card.tarif-featured{background:linear-gradient(135deg,#0d2018,#1a3a2a);border:2px solid #1D9E75;}
-    [data-theme="dark"] .tarif-card.tarif-featured{background:linear-gradient(135deg,#0a0f0d,#141c19);}
-    .tarif-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.5rem;}
     .tarif-featured .tarif-label{color:#5DCAA5;}
     .tarif-prix{font-size:2.2rem;font-weight:800;color:#1D9E75;}
     .tarif-featured .tarif-prix{color:#5DCAA5;}
@@ -204,10 +182,6 @@
     .tarif-liste li::before{content:"✓";color:#1D9E75;font-weight:700;flex-shrink:0;}
     .tarif-note{text-align:center;margin-top:1.25rem;padding:.7rem 1rem;background:var(--green-light);border-radius:12px;max-width:620px;margin-left:auto;margin-right:auto;}
     .tarif-note p{font-size:.75rem;color:var(--green2);}
-    [data-theme="dark"] .tarif-note p{color:#5DCAA5;}
-
-    /* TÉMOIGNAGES */
-    .nd-testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
     @media(max-width:768px){.nd-testi-grid{grid-template-columns:1fr;}}
     .nd-testi-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;transition:transform .2s;}
     .nd-testi-card:hover{transform:translateY(-3px);}
@@ -244,403 +218,13 @@
     .scroll-top-btn.visible{opacity:1;}
     [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
     [data-reveal].revealed{opacity:1;transform:translateY(0);}
-    .profil-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;animation:fadeInModal .3s ease;}
-    @keyframes fadeInModal{from{opacity:0;}to{opacity:1;}}
-    .profil-modal{background:var(--bg-primary);border:1px solid rgba(29,158,117,.3);border-radius:32px;padding:2rem;max-width:900px;width:90%;box-shadow:0 25px 50px -12px rgba(0,0,0,.5);}
-    .profil-modal h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--text-primary);text-align:center;margin-bottom:.5rem;}
     .profil-modal-sub{text-align:center;color:var(--text-muted);margin-bottom:2rem;font-size:.9rem;}
-    .profil-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
-    .profil-card{background:rgba(255,255,255,.05);border:1px solid rgba(29,158,117,.2);border-radius:20px;padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all .2s;}
-    .profil-card:hover{background:rgba(29,158,117,.15);border-color:#1D9E75;transform:translateY(-4px);}
-    .profil-icon{font-size:3rem;margin-bottom:.75rem;}
-    .profil-card h3{font-size:1.1rem;font-weight:600;color:var(--text-primary);margin-bottom:.5rem;}
-    .profil-card p{font-size:.75rem;color:var(--text-muted);line-height:1.5;}
-    .profil-modal-footer{display:flex;justify-content:center;gap:1.5rem;padding-top:1rem;border-top:1px solid var(--border-color);}
-    .profil-modal-footer button{background:none;border:none;color:var(--text-muted);font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;}
-    .profil-modal-footer button:hover{color:var(--text-primary);}
-    @media(max-width:700px){.profil-grid{grid-template-columns:repeat(2,1fr);}}
-  </style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="nd-header" id="ndHeader">
-  <div class="header-container">
-    <div class="header-left">
-      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
-      <nav class="nd-nav">
-        <a href="#comment" class="nd-navlink">Comment ça marche</a>
-        <a href="#profils" class="nd-navlink">Nos profils</a>
-        <a href="#tarifs" class="nd-navlink">Tarifs</a>
-        <a href="faq.html" class="nd-navlink">FAQ</a>
-      </nav>
-    </div>
-    <div class="gregoire-mini">
-      <div class="gregoire-mini-avatar">GM</div>
-      <div class="gregoire-mini-text"><strong>Grégoire Martin</strong> · Diététicien RPPS</div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral</span>
-    </div>
-    <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;">
-        <span id="themeIcon">🌙</span><span id="themeLabel">Sombre</span>
-      </button>
-      <div class="nd-conn-wrap" id="ndConnWrap">
-        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
-        <div class="nd-conn-menu" id="ndConnMenu">
-          <a href="login.html?role=patient" class="nd-conn-item">👤 Patient</a>
-          <a href="login.html?role=dietitian" class="nd-conn-item">🥗 Diététicien</a>
-          <a href="login.html?role=prescriber" class="nd-conn-item">🏢 Prescripteur</a>
-          <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:.25rem 0;"/>
-          <a href="inscription-dieteticien.html" class="nd-conn-item" style="color:#5DCAA5;">Pas encore inscrit ? →</a>
-        </div>
-      </div>
-      <a href="accueil-patient.html" class="nd-btn-primary">Commencer gratuit →</a>
-    </div>
-  </div>
-</header>
-
-<!-- PROFIL BAR -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display:none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:.65rem;color:rgba(255,255,255,.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge"><span id="profilIcon">🧑</span><span id="profilName">Patient</span></span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
-</div>
-
-<!-- HERO -->
-<section class="nd-hero">
-  <div id="heroCanvas"></div>
-  <div class="nd-hero-overlay"></div>
-  <div class="nd-hero-content">
-    <div class="nd-hero-eyebrow"><span class="nd-dot-pulse"></span>Diététiciens certifiés RPPS · Partout en France</div>
-    <h1 class="nd-hero-title">La nutrition,<br><em>enfin prescrite</em><br>par un vrai pro.</h1>
-    <p class="nd-hero-sub">Bilan gratuit en 5 minutes. Plan alimentaire avec grammages précis — perte de poids, prise de masse, performance sportive. Validé et signé par un diététicien certifié RPPS. Livré sous 48h.</p>
-    <div class="nd-hero-ctas">
-      <a href="accueil-patient.html" class="nd-cta-main">Démarrer mon bilan gratuit →</a>
-      <a href="#profils" class="nd-cta-ghost">Vous êtes professionnel ?</a>
-    </div>
-    <div class="nd-hero-trust">
-      <div class="nd-trust-item"><span class="nd-trust-num">0 €</span><span class="nd-trust-label">Démarrage</span></div>
-      <div class="nd-trust-sep"></div>
-      <div class="nd-trust-item"><span class="nd-trust-num">48h</span><span class="nd-trust-label">Livraison max</span></div>
-      <div class="nd-trust-sep"></div>
-      <div class="nd-trust-item"><span class="nd-trust-num">RPPS</span><span class="nd-trust-label">Certifié</span></div>
-      <div class="nd-trust-sep"></div>
-      <div class="nd-trust-item"><span class="nd-trust-num">100%</span><span class="nd-trust-label">Légal</span></div>
-    </div>
-  </div>
-  <div class="nd-hero-mockup">
-    <div class="mockup-block nd-mc-1">
-      <div class="plan-label">📋 Plan validé · Grégoire Martin · RPPS</div>
-      <div class="plan-meal"><span>🍳 Petit-déjeuner</span><span class="plan-kcal">selon objectif</span></div>
-      <div class="plan-meal"><span>🥗 Déjeuner</span><span class="plan-kcal">grammages précis</span></div>
-      <div class="plan-meal"><span>🍎 Collation pré-sport</span><span class="plan-kcal">J entraînement</span></div>
-      <div class="plan-meal"><span>🍽 Dîner récupération</span><span class="plan-kcal">4 semaines</span></div>
-      <div class="plan-total">Perte de poids · Prise de masse · Périodisé J actif / J repos</div>
-    </div>
-    <div class="mockup-block nd-mc-2">
-      <div class="livraison-icon">✓</div>
-      <div class="livraison-text">Livré sous<br><strong>48h ouvrées</strong></div>
-    </div>
-    <div class="mockup-block nd-mc-3">
-      <div class="gratuit-title">Gratuit</div>
-      <div class="gratuit-sub">Recommandations<br>&amp; menus</div>
-    </div>
-  </div>
-  <div class="nd-hero-scroll">Défiler</div>
-</section>
-
-<!-- COMMENT ÇA MARCHE -->
-<section class="nd-section nd-section-light" id="comment">
-  <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag">Simple &amp; rapide</span>
-      <h2 class="nd-title">Comment ça marche ?</h2>
-      <p class="nd-subtitle">De votre bilan à votre plan, en 4 étapes et sans rendez-vous.</p>
-    </div>
-    <div class="nd-steps">
-      <div class="nd-step" data-reveal>
-        <div class="nd-step-num">01</div>
-        <h3>Remplissez le bilan</h3>
-        <p>5 minutes pour renseigner vos habitudes alimentaires, votre pratique sportive et vos objectifs.</p>
-        <a href="accueil-patient.html" class="nd-step-link">Commencer →</a>
-      </div>
-      <div class="nd-step" data-reveal>
-        <div class="nd-step-num">02</div>
-        <h3>Un diét. élabore votre plan</h3>
-        <p>Un diététicien certifié RPPS de votre région analyse votre profil et construit votre programme.</p>
-      </div>
-      <div class="nd-step" data-reveal>
-        <div class="nd-step-num">03</div>
-        <h3>Validation et signature</h3>
-        <p>Le plan est relu, ajusté si nécessaire, puis signé électroniquement — valeur légale garantie.</p>
-      </div>
-      <div class="nd-step" data-reveal>
-        <div class="nd-step-num">04</div>
-        <h3>Recevez votre plan PDF</h3>
-        <p>Grammages précis, macros par repas et signature RPPS. Téléchargeable depuis votre espace.</p>
-        <div style="display:inline-block;background:rgba(29,158,117,.1);padding:.2rem .6rem;border-radius:999px;font-size:.65rem;margin-top:.5rem;color:#1D9E75;">⏱ Sous 48h max</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- NOTRE DIFFÉRENCE -->
-<section class="nd-section nd-section-dark">
-  <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag nd-tag-light">Notre différence</span>
-      <h2 class="nd-title nd-title-light">Pas un générateur.<br>Un professionnel qui signe.</h2>
-      <p class="nd-subtitle nd-subtitle-light">NutriDoc n'est pas une app générique. C'est un réseau de diététiciens certifiés qui travaillent pour vous.</p>
-    </div>
-    <div class="nd-diff-grid">
-      <div class="nd-diff-card" data-reveal>
-        <div class="nd-diff-icon">✓</div>
-        <h3>RPPS vérifié</h3>
-        <p>Chaque diététicien est vérifié via l'Annuaire Santé officiel. Numéro visible sur chaque plan.</p>
-      </div>
-      <div class="nd-diff-card" data-reveal>
-        <div class="nd-diff-icon">⚠️</div>
-        <h3>Alertes santé auto.</h3>
-        <p>Grossesse, TCA, pathologies déclarées : redirection vers un diét. spécialisé en temps réel.</p>
-      </div>
-      <div class="nd-diff-card" data-reveal>
-        <div class="nd-diff-icon">💶</div>
-        <h3>Remboursable mutuelle</h3>
-        <p>Consultation visio partiellement remboursée. Attestation générée automatiquement.</p>
-      </div>
-      <div class="nd-diff-card" data-reveal>
-        <div class="nd-diff-icon">📊</div>
-        <h3>Table CIQUAL 2020</h3>
-        <p>Grammages calculés sur la table nationale ANSES. Macros vérifiés repas par repas.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 4 PROFILS -->
-<section class="nd-section nd-section-light" id="profils">
-  <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag">Vous êtes…</span>
-      <h2 class="nd-title">NutriDoc s'adapte à votre profil</h2>
-      <p class="nd-subtitle">Patients, diététiciens, prescripteurs ou structures — chaque espace est conçu pour vous.</p>
-    </div>
-    <div class="nd-profils-grid">
-
-      <!-- Patient -->
-      <div class="nd-profil-card card-dark" data-reveal>
-        <div class="nd-profil-icon-wrap icon-patient">🧑</div>
-        <h3>Patient</h3>
-        <p>Vous souhaitez perdre du poids, prendre de la masse ou améliorer votre alimentation avec un vrai plan personnalisé.</p>
-        <ul class="nd-profil-features">
-          <li>Bilan nutritionnel gratuit en 5 min</li>
-          <li>Plan 4 semaines avec grammages précis</li>
-          <li>Validé et signé par un diét. RPPS</li>
-          <li>Livraison sous 48h</li>
-        </ul>
-        <a href="accueil-patient.html" class="nd-profil-btn btn-green">Espace Patient →</a>
-      </div>
-
-      <!-- Diététicien -->
-      <div class="nd-profil-card" data-reveal>
-        <div class="nd-profil-icon-wrap icon-diet">🥗</div>
-        <h3>Diététicien RPPS</h3>
-        <p>Vous êtes diététicien certifié et souhaitez générer des revenus complémentaires depuis chez vous, à votre rythme.</p>
-        <ul class="nd-profil-features">
-          <li>1 plan offert par mois</li>
-          <li>Dossiers patients de votre région</li>
-          <li>Agenda visio intégré</li>
-          <li>Tableau de bord comptabilité</li>
-        </ul>
-        <a href="accueil-dieteticien.html" class="nd-profil-btn btn-outline">Espace Diététicien →</a>
-      </div>
-
-      <!-- Prescripteur -->
-      <div class="nd-profil-card" data-reveal>
-        <div class="nd-profil-icon-wrap icon-presc">🏋️</div>
-        <h3>Prescripteur</h3>
-        <p>Coach, kiné, infirmier, médecin… Proposez des plans alimentaires légaux à vos clients avec votre SIRET.</p>
-        <ul class="nd-profil-features">
-          <li>CRM clients intégré</li>
-          <li>Packs crédits sans abonnement</li>
-          <li>Plan signé légalement sous 48h</li>
-          <li>PDF à vos couleurs (option)</li>
-        </ul>
-        <a href="accueil-prescripteur.html" class="nd-profil-btn btn-outline">Espace Prescripteur →</a>
-      </div>
-
-      <!-- Partenaires -->
-      <div class="nd-profil-card card-soon" data-reveal>
-        <span class="nd-profil-badge-soon">Bientôt</span>
-        <div class="nd-profil-icon-wrap icon-partner">🏛️</div>
-        <h3>Partenaire</h3>
-        <p>Salle de sport, clinique, mutuelle, réseau multi-praticiens — intégrez la nutrition certifiée comme service premium.</p>
-        <ul class="nd-profil-features">
-          <li>Accès multi-praticiens</li>
-          <li>Marque blanche disponible</li>
-          <li>Tarifs volume dédiés</li>
-          <li>Account manager assigné</li>
-        </ul>
-        <a href="partenariats.html" class="nd-profil-btn btn-disabled">En cours de déploiement</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- TARIF PATIENT -->
-<section class="nd-section nd-section-dark" id="tarifs">
-  <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag nd-tag-light">Tarif patient</span>
-      <h2 class="nd-title nd-title-light">Commencez gratuitement.</h2>
-      <p class="nd-subtitle nd-subtitle-light">Le bilan est toujours gratuit. Le plan complet avec signature RPPS est à tarif unique.</p>
-    </div>
-    <div class="nd-tarif-simple">
-      <div class="tarif-card" data-reveal>
-        <div class="tarif-label">DÉCOUVERTE</div>
-        <div class="tarif-prix">0 €</div>
-        <div class="tarif-desc">Pour toujours · Sans carte bancaire</div>
-        <ul class="tarif-liste">
-          <li>Bilan nutritionnel complet</li>
-          <li>Recommandations personnalisées</li>
-          <li>Menus hebdomadaires adaptés</li>
-          <li>Accès aux outils libres</li>
-        </ul>
-        <a href="bilan.html" class="nd-profil-btn btn-outline" style="width:100%;justify-content:center;">Commencer gratuitement</a>
-      </div>
-      <div class="tarif-card tarif-featured" data-reveal>
-        <div class="tarif-label">⭐ PLAN COMPLET</div>
-        <div class="tarif-prix">24,90 €</div>
-        <div class="tarif-desc">Paiement unique · Livraison sous 48h</div>
-        <ul class="tarif-liste">
-          <li>Plan 4 semaines avec grammages précis</li>
-          <li>Signé par un diététicien certifié RPPS</li>
-          <li>Macros par repas (protéines / glucides / lipides)</li>
-          <li>Adapté à votre objectif et niveau</li>
-          <li>Périodisation J actif / J repos</li>
-          <li><strong>Messagerie avec votre diét. 30 jours</strong></li>
-        </ul>
-        <a href="bilan.html" class="nd-profil-btn btn-green" style="width:100%;justify-content:center;">Commander mon plan</a>
-      </div>
-    </div>
-    <div class="tarif-note">
-      <p>+ Visio de suivi 45 min disponible à 55€ TTC · Attestation mutuelle automatique · Remboursement partiel possible selon votre contrat</p>
-    </div>
-  </div>
-</section>
-
-<!-- TÉMOIGNAGES -->
-<section class="nd-section nd-section-light">
-  <div class="nd-section-inner">
-    <div class="nd-section-header">
-      <span class="nd-tag">Ils nous font confiance</span>
-      <h2 class="nd-title">Ce qu'ils en disent</h2>
-    </div>
-    <div class="nd-testi-grid">
-      <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Enfin un plan avec de vrais grammages, pas juste "mangez des légumes". Mon diét. a adapté les portions aux jours de sport. »</p>
-        <div class="nd-testi-author">
-          <div class="nd-testi-avatar">SL</div>
-          <div><div class="nd-testi-name">Sophie L.</div><div class="nd-testi-role">Objectif perte de poids · Bordeaux</div></div>
-        </div>
-      </div>
-      <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Je suis coach sportif, j'utilisais des plans non signés. Avec NutriDoc je suis enfin en règle et mes clients ont un vrai document légal. »</p>
-        <div class="nd-testi-author">
-          <div class="nd-testi-avatar">TC</div>
-          <div><div class="nd-testi-name">Thomas C.</div><div class="nd-testi-role">Coach sportif · Lyon</div></div>
-        </div>
-      </div>
-      <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Je valide 15 à 20 plans par mois depuis chez moi. La plateforme est intuitive, les dossiers bien remplis. Un vrai revenu complémentaire. »</p>
-        <div class="nd-testi-author">
-          <div class="nd-testi-avatar">AM</div>
-          <div><div class="nd-testi-name">Amélie M.</div><div class="nd-testi-role">Diététicienne RPPS · Nantes</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA FINAL -->
-<section class="nd-section nd-section-light">
-  <div class="nd-section-inner">
-    <div class="nd-cta-final" data-reveal>
-      <h2>Prêt à obtenir votre plan alimentaire légal ?</h2>
-      <p>Commencez par le bilan gratuit. Aucune carte bancaire requise. Votre plan est livré sous 48h une fois commandé.</p>
-      <div class="nd-cta-final-btns">
-        <a href="accueil-patient.html" class="nd-profil-btn btn-green" style="font-size:.9rem;padding:.8rem 2rem;">Faire mon bilan gratuit →</a>
-        <a href="faq.html" style="color:rgba(255,255,255,.5);text-decoration:none;font-size:.85rem;align-self:center;">Des questions ? Voir la FAQ</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="nd-footer">
-  <div class="nd-footer-inner">
-    <div class="nd-footer-brand">
-      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
-      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS. Plans légaux livrés sous 48h.</p>
-      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
-    </div>
-    <div class="nd-footer-links">
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Patients</div>
-        <a href="accueil-patient.html">Faire mon bilan</a>
-        <a href="dashboard.html">Mon espace</a>
-        <a href="cgu-patient.html">CGU Patient</a>
-      </div>
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Professionnels</div>
-        <a href="accueil-dieteticien.html">Espace Diététicien</a>
-        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
-        <a href="partenariats.html">Partenaires B2B</a>
-      </div>
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Légal</div>
-        <a href="politique-confidentialite.html">Politique RGPD</a>
-        <a href="faq.html">FAQ</a>
-        <a href="mentions-legales.html">Mentions légales</a>
-        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
-      </div>
-    </div>
-  </div>
-  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
-</footer>
-
-<div id="profilModalContainer"></div>
-<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-<script src="js/auth.js"></script>
-<script src="js/constants.js"></script>
-<script src="js/error-handler.js"></script>
-<script src="js/cookies.js"></script>
-<script src="js/performance.js"></script>
-<script src="js/auto-save.js"></script>
-<script src="js/chatbot-widget.js"></script>
-<script src="js/home.js"></script>
-<script src="js/main.js"></script>
-
-<script>
-(function initDarkMode(){
-  const btn=document.getElementById('themeHeaderBtn'),iconSpan=document.getElementById('themeIcon'),labelSpan=document.getElementById('themeLabel');
-  const saved=localStorage.getItem('nutridoc_theme');
-  if(saved==='dark'){document.documentElement.setAttribute('data-theme','dark');if(iconSpan)iconSpan.textContent='☀️';if(labelSpan)labelSpan.textContent='Clair';}
   else{document.documentElement.setAttribute('data-theme','light');if(iconSpan)iconSpan.textContent='🌙';if(labelSpan)labelSpan.textContent='Sombre';localStorage.setItem('nutridoc_theme','light');}
-  window.toggleDarkMode=function(){
     const html=document.documentElement,isDark=html.getAttribute('data-theme')==='dark';
     html.setAttribute('data-theme',isDark?'light':'dark');localStorage.setItem('nutridoc_theme',isDark?'light':'dark');
     if(iconSpan)iconSpan.textContent=isDark?'🌙':'☀️';if(labelSpan)labelSpan.textContent=isDark?'Sombre':'Clair';
     if(btn){btn.style.transform='scale(0.95)';setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
   };
-  if(btn)btn.onclick=window.toggleDarkMode;
 })();
 
 const PROFIL_KEY='nutridoc_profil',PROFIL_DATE_KEY='nutridoc_profil_date',PROFIL_EXPIRY_DAYS=30;
@@ -648,7 +232,7 @@ const PROFILS={patient:{name:'Patient',icon:'🧑',redirectUrl:'accueil-patient.
 function getStoredProfil(){const p=localStorage.getItem(PROFIL_KEY),d=localStorage.getItem(PROFIL_DATE_KEY);if(!p||!d)return null;if((Date.now()-parseInt(d))/(1000*3600*24)>PROFIL_EXPIRY_DAYS){localStorage.removeItem(PROFIL_KEY);localStorage.removeItem(PROFIL_DATE_KEY);return null;}return p;}
 function setStoredProfil(p){localStorage.setItem(PROFIL_KEY,p);localStorage.setItem(PROFIL_DATE_KEY,Date.now().toString());}
 function updateUIForProfil(k){const p=PROFILS[k];if(!p)return;const bar=document.getElementById('dynamicProfilBar');if(bar){bar.style.display='block';document.getElementById('profilIcon').textContent=p.icon;document.getElementById('profilName').textContent=p.name;}}
-function openProfilModal(){const c=document.getElementById('profilModalContainer');if(!c)return;c.innerHTML=`<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis…</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div><div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans et générer des revenus</p></div><div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients ou clients</p></div><div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Salle de sport, clinique, entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>`;}
+function openProfilModal(){const c=document.getElementById('profilModalContainer');if(!c)return;c.innerHTML=`<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis…</div><div class="profil-grid"><div class="profil-card" >Ne plus afficher</button></div></div></div>`;}
 function closeProfilModal(){document.getElementById('profilModalContainer').innerHTML='';}
 function dismissProfilForever(){localStorage.setItem('nutridoc_profil_dismissed','true');closeProfilModal();}
 function selectProfil(k){if(!PROFILS[k])return;setStoredProfil(k);updateUIForProfil(k);closeProfilModal();const t=PROFILS[k].redirectUrl;if(t!=='index.html'&&!window.location.pathname.includes(t))window.location.href=t;}
@@ -660,7 +244,6 @@ const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isI
 document.querySelectorAll('[data-reveal]').forEach(el=>observer.observe(el));
 window.addEventListener('scroll',()=>{document.getElementById('ndHeader')?.classList.toggle('scrolled',window.scrollY>50);document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300);});
 if(typeof initAutoSave==='function')initAutoSave();
-initProfilSystem();
 </script>
 </body>
 </html>
