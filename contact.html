@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contact — NutriDoc · CaliDoc Santé</title>
@@ -19,8 +27,10 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 <main style="max-width:900px;margin:0 auto;padding:6rem 2rem 4rem;">
 
   <div style="text-align:center;margin-bottom:3rem;">
@@ -71,5 +81,7 @@
 <footer style="background:var(--dark);padding:1.5rem 2rem;text-align:center;margin-top:3rem;">
   <p style="font-size:.78rem;color:rgba(255,255,255,.3);">NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html" style="color:rgba(255,255,255,.4);">Accueil</a></p>
 </footer>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

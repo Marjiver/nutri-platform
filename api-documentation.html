@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
   <meta name="description" content="Documentation complète de l'API NutriDoc pour l'intégration des partenaires, prescripteurs et diététiciens."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -384,8 +389,10 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <!-- ==================== THÈME SELECTOR ==================== -->
 
@@ -869,5 +876,7 @@ window.addEventListener('scroll', () => {
 window.tryAPI = tryAPI;
 </script>
 
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

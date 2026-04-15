@@ -1,10 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="NutriDoc — Conditions générales d'utilisation (Diététicien)">
+  <meta property="twitter:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/cgu-dieteticien.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:title" content="NutriDoc — Conditions générales d'utilisation (Diététicien)">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="description" content="Conditions Générales d'Utilisation diététicien NutriDoc — CaliDoc Santé. Tarifs, obligations, responsabilité professionnelle, RPPS."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CGU — Diététicien · NutriDoc</title>
+  <title>NutriDoc — Conditions générales d'utilisation (Diététicien)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
@@ -401,8 +422,12 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header" id="ndHeader">
@@ -425,6 +450,10 @@
     </div>
 
     <div class="header-actions">
+      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Sombre</span>
+      </button>
       <a href="inscription-dieteticien.html" class="nd-btn-ghost">S'inscrire</a>
       <a href="login.html?role=dietitian" class="nd-btn-ghost">Se connecter</a>
     </div>
@@ -730,5 +759,21 @@ window.addEventListener('scroll', () => {
 initProfilSystem();
 </script>
 
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

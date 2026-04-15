@@ -1,16 +1,39 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="NutriDoc — Mentions légales">
+  <meta property="twitter:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/mentions-legales.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:title" content="NutriDoc — Mentions légales">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mentions légales — NutriDoc · CaliDoc Santé</title>
+  <title>NutriDoc — Mentions légales</title>
   <meta name="description" content="Mentions légales de la plateforme NutriDoc par CaliDoc Santé — éditeur, hébergeur, propriété intellectuelle, RGPD."/>
   <link rel="stylesheet" href="css/style.css"/>
   <script src="js/ui/nav.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 <main style="max-width:800px;margin:0 auto;padding:6rem 2rem 4rem;">
 
   <div style="margin-bottom:2.5rem;">
@@ -134,5 +157,21 @@
 <footer style="background:var(--dark);padding:1.5rem 2rem;text-align:center;margin-top:3rem;">
   <p style="font-size:.78rem;color:rgba(255,255,255,.3);">NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html" style="color:rgba(255,255,255,.4);">Accueil</a> · contact@calidoc-sante.fr</p>
 </footer>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

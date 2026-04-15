@@ -1,10 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="NutriDoc — Espace Diététicien">
+  <meta property="twitter:description" content="Devenez diététicien partenaire NutriDoc. Validez des plans alimentaires depuis chez vous.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-dieteticien.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Devenez diététicien partenaire NutriDoc. Validez des plans alimentaires depuis chez vous.">
+  <meta property="og:title" content="NutriDoc — Espace Diététicien">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="diététicien, RPPS, revenus complémentaires, validation plans, nutrition professionnelle">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="description" content="Diététicien certifié RPPS : générez des revenus complémentaires en validant des plans alimentaires depuis chez vous. 1 plan offert par mois."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>NutriDoc — Espace Diététicien · CaliDoc Santé</title>
+  <title>NutriDoc — Espace Diététicien · Rejoignez la plateforme RPPS</title>
   
   <meta name="theme-color" content="#0d2018">
   <link rel="manifest" href="/manifest.json">
@@ -996,8 +1016,12 @@
       transform: translateY(0);
     }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header" id="ndHeader">
@@ -1446,90 +1470,50 @@
   const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel'), saved=localStorage.getItem('nutridoc_theme');
   if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
   else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; localStorage.setItem('nutridoc_theme','light'); }
-  window.toggleDarkMode=function(){ const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-    if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
-    else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
-    if(btn){btn.style.transform='scale(0.95)'; setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
-  };
-  if(btn)btn.onclick=window.toggleDarkMode;
-})();
-
-// ==================== SIMULATEUR ====================
-const COMMISSIONS={0:5,9:2.5,29:2,59:1.5};
-function updateSim(){
-  const plans=parseInt(document.getElementById('simPlans').value), visios=parseInt(document.getElementById('simVisios').value), abo=parseInt(document.getElementById('simAbo').value), com=COMMISSIONS[abo];
-  document.getElementById('simPlansVal').textContent=plans; document.getElementById('simVisiosVal').textContent=visios;
-  const plansPayants=Math.max(0,plans-1), horsQuota=Math.max(0,plansPayants-30), commissions=(horsQuota*com)+(visios*8), ca=(plans*24.9)+(visios*55), net=ca-commissions-abo;
-  const heures=(plans*15+visios*45)/60;
-  const taux=heures>0?Math.round(net/heures):0;
-  document.getElementById('simCa').textContent=Math.round(ca)+' €'; document.getElementById('simNet').textContent=Math.round(net)+' €';
-  document.getElementById('simTaux').textContent=taux+' €/h';
-  document.getElementById('simNote').innerHTML=`📅 Revenu annuel estimé : ${Math.round(net*12).toLocaleString('fr-FR')} € · Commission : ${com.toFixed(2)}€/plan (hors quota)`;
-}
-function setAbo(val,btn){
-  document.getElementById('simAbo').value=val;
-  document.querySelectorAll('.sim-abtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  updateSim();
-}
-window.toggleSim=function(){ document.getElementById('simWindow').classList.toggle('open'); };
-window.updateSim=updateSim;
-window.setAbo=setAbo;
-
-// ==================== CARROUSEL ====================
-let currentSlideIndex = 0;
-const totalSlides = 3;
-let autoSlideInterval;
-
-function updateCarousel(){
-  const slides=document.querySelectorAll('.carousel-slide');
-  const dots=document.querySelectorAll('.carousel-dot');
-  slides.forEach((s,i)=>{ s.classList.toggle('active',i===currentSlideIndex); });
-  dots.forEach((d,i)=>{ d.classList.toggle('active',i===currentSlideIndex); });
-}
-function nextSlide(){ currentSlideIndex=(currentSlideIndex+1)%totalSlides; updateCarousel(); resetAutoSlide(); }
-function prevSlide(){ currentSlideIndex=(currentSlideIndex-1+totalSlides)%totalSlides; updateCarousel(); resetAutoSlide(); }
-function goToSlide(i){ currentSlideIndex=i; updateCarousel(); resetAutoSlide(); }
-function startAutoSlide(){ autoSlideInterval=setInterval(()=>nextSlide(),6000); }
-function resetAutoSlide(){ clearInterval(autoSlideInterval); startAutoSlide(); }
-function initCarousel(){
-  const nav=document.getElementById('carouselNav');
-  nav.innerHTML='';
-  for(let i=0;i<totalSlides;i++){
-    const dot=document.createElement('div');
-    dot.className='carousel-dot';
-    dot.onclick=()=>goToSlide(i);
-    nav.appendChild(dot);
+<script>
+(function() {
+  const btn = document.getElementById("themeHeaderBtn");
+  const iconSpan = document.getElementById("themeIcon");
+  const saved = localStorage.getItem("nutridoc_theme");
+  
+  if (saved === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    if (iconSpan) iconSpan.textContent = "☀️";
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+    if (iconSpan) iconSpan.textContent = "🌙";
+    localStorage.setItem("nutridoc_theme", "light");
   }
-  updateCarousel();
-  startAutoSlide();
-}
-window.nextSlide=nextSlide;
-window.prevSlide=prevSlide;
-
-// ==================== PROFIL ====================
-const PROFILS={patient:{name:'Patient',icon:'🧑',url:'index.html'},dieteticien:{name:'Diététicien',icon:'🥗',url:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',url:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',url:'partenariats.html'}};
-function getStoredProfil(){ try{ return localStorage.getItem('nutridoc_profil'); }catch(e){} return null; }
-function setStoredProfil(p){ localStorage.setItem('nutridoc_profil',p); localStorage.setItem('nutridoc_profil_date',Date.now()); }
-function updateUIForProfil(p){ const prof=PROFILS[p]; if(!prof)return; const bar=document.getElementById('dynamicProfilBar'); if(bar){ bar.style.display='block'; document.getElementById('profilIcon').textContent=prof.icon; document.getElementById('profilName').textContent=prof.name; } }
-function openProfilModal(){ const c=document.getElementById('profilModalContainer'); if(!c)return; c.innerHTML='<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil(\'patient\')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div><div class="profil-card" onclick="selectProfil(\'dieteticien\')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil(\'prescripteur\')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div><div class="profil-card" onclick="selectProfil(\'structure\')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>'; }
-function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML=''; }
-function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
-function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); updateUIForProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
-function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(stored && PROFILS[stored]) updateUIForProfil(stored); else if(!dismissed) setTimeout(openProfilModal,500); else document.getElementById('dynamicProfilBar').style.display='block'; }
-window.selectProfil=selectProfil; window.closeProfilModal=closeProfilModal; window.openProfilModal=openProfilModal; window.dismissProfilForever=dismissProfilForever;
-window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
-document.addEventListener('click',(e)=>{ const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu'); if(w&&m&&!w.contains(e.target)) m.classList.remove('open'); });
-window.addEventListener('scroll',()=>{ document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300); });
-
-// REVEAL ANIMATIONS
-const observer=new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('revealed'); }); },{ threshold:0.1 });
-document.querySelectorAll('[data-reveal], .nd-step, .nd-diff-card, .price-card').forEach(el=>observer.observe(el));
-
-// INIT
-initProfil();
-updateSim();
-initCarousel();
+  
+  if (btn) {
+    btn.onclick = function() {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.setItem("nutridoc_theme", "light");
+        if (iconSpan) iconSpan.textContent = "🌙";
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("nutridoc_theme", "dark");
+        if (iconSpan) iconSpan.textContent = "☀️";
+      }
+      btn.style.transform = "scale(0.95)";
+      setTimeout(() => { if(btn) btn.style.transform = "scale(1)"; }, 150);
+    };
+  }
+})();
 </script>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

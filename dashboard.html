@@ -1,9 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Mon espace patient — NutriDoc">
+  <meta property="twitter:description" content="Votre espace personnel NutriDoc pour suivre votre plan alimentaire.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/dashboard.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Votre espace personnel NutriDoc pour suivre votre plan alimentaire.">
+  <meta property="og:title" content="Mon espace patient — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="dashboard patient, suivi nutritionnel, plan alimentaire">
+  <meta name="description" content="Accédez à votre tableau de bord NutriDoc : suivez vos progrès, consultez votre plan alimentaire et échangez avec votre diététicien.">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mon tableau de bord — NutriDoc</title>
+  <title>NutriDoc — Mon tableau de bord patient</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -510,8 +532,12 @@
       .habits-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <header class="dashboard-header">
   <a href="index.html" class="logo">Nutri<em>Doc</em></a>
@@ -1041,5 +1067,21 @@ window.ajouterPoids = ajouterPoids;
 window.ajouterPoidsHistorique = ajouterPoidsHistorique;
 window.sauvegarderHabitudes = sauvegarderHabitudes;
 </script>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

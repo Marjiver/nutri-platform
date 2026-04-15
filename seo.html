@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
   <meta name="description" content="Gestion des paramètres SEO de NutriDoc : métadonnées, sitemap, robots.txt, analytics et optimisation pour les moteurs de recherche."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -382,8 +387,10 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <!-- ==================== THÈME SELECTOR ==================== -->
 
@@ -939,5 +946,7 @@ window.sauvegarderAnalytics = sauvegarderAnalytics;
 window.lancerAuditSEO = lancerAuditSEO;
 </script>
 
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

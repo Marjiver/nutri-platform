@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Agenda Visios — NutriDoc Diététicien</title>
@@ -11,8 +19,10 @@
   <script src="js/ui/nav.js" defer></script>
   <script src="js/utils/email.js" defer></script>
   <script src="js/ui/cookies.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body class="page-dietitian">
+<body class="page-dietitian" data-theme="light">
 
 <header class="header">
   <a href="index.html" class="logo">Nutri<span>Doc</span></a>
@@ -769,5 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .agenda-toast.error   { background:#ef4444; }
 .agenda-toast.visible { opacity:1;transform:translateX(-50%) translateY(0); }
 </style>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

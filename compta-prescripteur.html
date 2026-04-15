@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Comptabilité — NutriDoc Prescripteur</title>
@@ -9,8 +17,10 @@
   <script src="js/ui/nav.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="js/ui/cookies.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body class="page-dashboard">
+<body class="page-dashboard" data-theme="light">
 <main class="dashboard-container" style="padding-top:5rem;">
 
   <div class="dashboard-greeting">
@@ -169,5 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .compta-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
 .compta-table tr:hover td{background:var(--green-light);}
 </style>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

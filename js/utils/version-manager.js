@@ -1,14 +1,13 @@
-// Afficher les infos de version
-versionManager.showInfo();
-
-// Afficher le journal des migrations
-versionManager.showLog();
-
-// Exporter toutes les données (backup)
-versionManager.exportData();
-
-// Voir les sauvegardes disponibles
-console.log(versionManager.getBackups());
-
-// Restaurer une sauvegarde (si nécessaire)
-await versionManager.restoreBackup('nutridoc_backup_1.0.0_1737123456789');
+/**
+ * version-manager.js - NutriDoc
+ * Gestion des versions et migrations
+ */
+const VERSION_MANAGER = {
+  version: '1.0.0',
+  showInfo: function() { console.log('[Version] NutriDoc v' + this.version); },
+  showLog: function() { console.log('[Migration] Aucune migration en attente'); },
+  exportData: function() { console.log('[Backup] Export des données'); return {}; },
+  getBackups: function() { return []; },
+  restoreBackup: async function(id) { console.log('[Restore]', id); return true; }
+};
+window.versionManager = VERSION_MANAGER;

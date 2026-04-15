@@ -1,9 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Partenaires B2B — NutriDoc">
+  <meta property="twitter:description" content="Proposez des plans alimentaires certifiés à vos bénéficiaires.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/partenariats.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Proposez des plans alimentaires certifiés à vos bénéficiaires.">
+  <meta property="og:title" content="Partenaires B2B — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="partenariat B2B, entreprise, mutuelle, salle de sport">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NutriDoc — Partenariats & Structures · CaliDoc Santé</title>
+  <title>NutriDoc — Partenaires B2B · Nutrition pour entreprises</title>
   <meta name="description" content="Intégrez la nutrition certifiée RPPS dans votre structure : salles de sport, cliniques, mutuelles, entreprises. Tarifs volume et accompagnement dédié."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
@@ -260,8 +281,12 @@
     }
 
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="nav">
   <div class="nav-inner">
@@ -1169,6 +1194,22 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a) {
   });
 });
 </script>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>
 PYEOF

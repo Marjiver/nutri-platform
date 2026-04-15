@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Bilan nutritionnel gratuit — NutriDoc">
+  <meta property="twitter:description" content="Faites votre bilan nutritionnel en ligne gratuitement en 5 minutes.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/bilan.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Faites votre bilan nutritionnel en ligne gratuitement en 5 minutes.">
+  <meta property="og:title" content="Bilan nutritionnel gratuit — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="bilan nutritionnel, diagnostic nutrition, évaluation gratuite">
   <meta charset="UTF-8"/>
   <meta name="description" content="Bilan nutritionnel gratuit · Créez votre compte et recevez des recommandations personnalisées."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Bilan nutritionnel — NutriDoc</title>
+  <title>NutriDoc — Bilan nutritionnel gratuit en 5 minutes</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -605,8 +619,12 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <header class="nd-header" id="ndHeader">
   <div class="header-container">
@@ -628,6 +646,10 @@
     </div>
 
     <div class="header-actions">
+      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Sombre</span>
+      </button>
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -1289,5 +1311,10 @@ window.nextStep = nextStep;
 initProfilSystem();
 </script>
 
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>

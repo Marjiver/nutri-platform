@@ -1,111 +1,51 @@
 {
-  "name": "NutriDoc - Plans alimentaires personnalisés",
+  "name": "NutriDoc",
   "short_name": "NutriDoc",
-  "description": "Plateforme de pré-bilan nutritionnel avec validation par des diététiciens certifiés RPPS",
+  "description": "Plateforme nutritionnelle certifiée",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
   "theme_color": "#0d2018",
-  "background_color": "#f7f9f7",
-  "orientation": "portrait-primary",
-  "lang": "fr-FR",
-  "categories": ["health", "lifestyle", "medical"],
+  "background_color": "#0d2018",
   "icons": [
     {
       "src": "/assets/icons/icon-72x72.png",
       "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-152x152.png",
       "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/assets/icons/icon-256x256.png",
-      "sizes": "256x256",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/assets/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
-  ],
-  "shortcuts": [
-    {
-      "name": "Faire mon bilan",
-      "short_name": "Bilan",
-      "description": "Commencer un nouveau bilan nutritionnel",
-      "url": "/bilan.html",
-      "icons": [{ "src": "/assets/icons/shortcut-bilan.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Mon tableau de bord",
-      "short_name": "Dashboard",
-      "description": "Accéder à mon espace personnel",
-      "url": "/dashboard.html",
-      "icons": [{ "src": "/assets/icons/shortcut-dashboard.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Espace diététicien",
-      "short_name": "Diététicien",
-      "description": "Accès professionnel",
-      "url": "/dietitian.html",
-      "icons": [{ "src": "/assets/icons/shortcut-diet.png", "sizes": "96x96" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/assets/screenshots/home.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "platform": "android",
-      "label": "Page d'accueil NutriDoc"
-    },
-    {
-      "src": "/assets/screenshots/dashboard.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "platform": "android",
-      "label": "Tableau de bord patient"
-    }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "display_override": ["window-controls-overlay", "standalone"]
+  ]
 }

@@ -1,10 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Connexion — NutriDoc">
+  <meta property="twitter:description" content="Accédez à votre compte NutriDoc.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/login.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Accédez à votre compte NutriDoc.">
+  <meta property="og:title" content="Connexion — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="connexion, login, espace personnel">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="description" content="Connexion à votre espace NutriDoc — patient, diététicien ou professionnel prescripteur."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Connexion — NutriDoc</title>
+  <title>NutriDoc — Connexion à mon espace</title>
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -289,8 +310,10 @@
       .login-card { padding: 1.25rem; }
     }
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body>
+<body data-theme="light">
 
 <!-- HEADER -->
 <header class="nd-header">
@@ -514,5 +537,21 @@ function showSuccess(msg) {
 }
 </script>
 
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
 </body>
 </html>
