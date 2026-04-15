@@ -2,444 +2,535 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex"/>
   <title>Espace Diététicien — NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
 
-</script>
-  <script src="js/core/auth.js">
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
 
-</script>
-  <script src="js/utils/email.js" defer>
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/ui/cookies.js"></script>
+  <script src="js/ui/dark-mode.js"></script>
 
-</script>
-  <script src="js/ui/nav.js" defer>
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-secondary, #f7f9f7); color: var(--text-primary, #0d2018); }
 
-</script>
-  <script src="js/ui/support.js" defer>
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+    /* ── HEADER ── */
+    .nd-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #0d2018 !important;
+      border-bottom: 1px solid rgba(29,158,117,.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #fff; text-decoration: none; }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.25rem; }
+    .nd-navlink { font-size: 0.78rem; color: rgba(255,255,255,.6); text-decoration: none; transition: color .2s; }
+    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .nd-user-badge {
+      font-size: 0.72rem; color: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; padding: 0.3rem 0.85rem;
+    }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px; padding: 0.35rem 0.9rem;
+      color: rgba(255,255,255,.85); font-size: 0.75rem; cursor: pointer;
+      font-family: 'Outfit', sans-serif; transition: all .2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,.16); color: #fff; }
+    @media (max-width: 900px) { .nd-nav { display: none; } }
 
-</script>
-  <script src="js/ui/cookies.js">
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+    /* ── MAIN ── */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 5.5rem 1.5rem 3rem; }
 
-</script>
-  <script src="js/utils/pdf-plan.js" defer>
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+    /* ── GREETING ── */
+    .greeting-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;
+    }
+    .greeting-row h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
+    .greeting-row p { font-size: 0.85rem; color: var(--text-secondary, #6b7b74); margin-top: .25rem; }
+    .greeting-actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+    .btn-action {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .45rem 1rem; border-radius: 999px; font-size: .78rem; font-weight: 500;
+      text-decoration: none; cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+      transition: all .2s;
+    }
+    .btn-primary { background: #1D9E75; color: #fff; }
+    .btn-primary:hover { background: #0f6e56; }
+    .btn-outline {
+      background: transparent; color: var(--text-secondary, #6b7b74);
+      border: 1px solid var(--border-light, #e8edeb);
+    }
+    .btn-outline:hover { border-color: #1D9E75; color: #1D9E75; }
 
-</script>
-  <script src="js/legacy/dossier-patient.js" defer>
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
+    /* ── KANBAN ── */
+    .kanban-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+    @media (max-width: 768px) { .kanban-grid { grid-template-columns: 1fr; } }
 
-</script>
+    .kanban-col { border-radius: 16px; padding: 1rem; min-height: 140px; }
+    .kanban-col-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem;
+    }
+    .kanban-col-title { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+    .kanban-count {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .68rem; font-weight: 700; color: #fff;
+    }
+
+    /* Carte patient réelle */
+    .kanban-card {
+      background: var(--bg-card, #fff); border-radius: 10px;
+      padding: .6rem .75rem; margin-bottom: .5rem;
+      border: 1px solid rgba(0,0,0,.06); cursor: pointer;
+      transition: box-shadow .15s, transform .15s;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .kanban-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+
+    /* Encart vide en pointillés */
+    .kanban-empty {
+      border: 2px dashed var(--border-light, #d1ddd7);
+      border-radius: 10px; padding: 1rem .75rem;
+      text-align: center; color: var(--text-tertiary, #9ca3af);
+      font-size: .75rem; line-height: 1.6;
+    }
+    .kanban-empty-icon { font-size: 1.25rem; margin-bottom: .25rem; opacity: .4; }
+
+    .avatar-circle {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .68rem; font-weight: 600; color: #fff;
+    }
+    .kanban-card-name { font-size: .82rem; font-weight: 500; }
+    .kanban-card-obj { font-size: .7rem; color: var(--text-secondary, #6b7b74); }
+
+    /* ── SECTION DOSSIERS ── */
+    .section-card {
+      background: var(--bg-card, #fff); border-radius: 20px;
+      border: 1px solid var(--border-light, #e8edeb);
+      padding: 1.25rem 1.5rem; margin-bottom: 1.25rem;
+    }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 1rem; }
+    .filters-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-btn {
+      background: var(--bg-secondary, #f7f9f7); border: 1px solid var(--border-light, #e8edeb);
+      border-radius: 999px; padding: .3rem .8rem;
+      font-size: .75rem; cursor: pointer; font-family: 'Outfit', sans-serif;
+      color: var(--text-secondary, #6b7b74); transition: all .15s;
+    }
+    .filter-btn:hover { border-color: #1D9E75; color: #1D9E75; }
+    .filter-btn.active { background: #1D9E75; border-color: #1D9E75; color: #fff; font-weight: 500; }
+
+    .search-input {
+      width: 100%; padding: .6rem 1rem; border: 1.5px solid var(--border-light, #e8edeb);
+      border-radius: 12px; font-size: .88rem; font-family: 'Outfit', sans-serif;
+      background: var(--bg-input, #fff); color: var(--text-primary, #0d2018);
+      margin-bottom: 1rem; transition: border-color .2s;
+    }
+    .search-input:focus { outline: none; border-color: #1D9E75; }
+    .search-input::placeholder { color: #b0bdb7; }
+    [data-theme="dark"] .search-input::placeholder { color: rgba(255,255,255,.28) !important; }
+
+    /* Grille dossiers */
+    .dossiers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+      gap: 1rem;
+    }
+
+    /* Dossier réel */
+    .dossier-card {
+      background: var(--bg-secondary, #f7f9f7);
+      border: 1px solid var(--border-light, #e8edeb);
+      border-radius: 14px; padding: 1rem 1.1rem; cursor: pointer;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .dossier-card:hover { box-shadow: 0 4px 16px rgba(13,32,24,.08); border-color: rgba(29,158,117,.3); }
+    .dossier-header { display: flex; align-items: center; gap: .65rem; margin-bottom: .6rem; }
+    .dossier-name { font-size: .88rem; font-weight: 500; }
+    .dossier-meta { font-size: .72rem; color: var(--text-secondary, #6b7b74); }
+    .status-badge { font-size: .68rem; font-weight: 500; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .badge-attente { background: #fff8e6; color: #f59e0b; border: 1px solid rgba(245,158,11,.25); }
+    .badge-cours   { background: #eff6ff; color: #0ea5e9; border: 1px solid rgba(14,165,233,.25); }
+    .badge-valide  { background: #e1f5ee; color: #1D9E75; border: 1px solid rgba(29,158,117,.25); }
+    .obj-badge { background: var(--bg-tertiary, #eef4ee); color: var(--text-secondary, #6b7b74); font-size: .7rem; padding: 2px 8px; border-radius: 999px; }
+    .dossier-actions { display: flex; gap: .4rem; margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--border-light, #e8edeb); }
+    .btn-sm { padding: .32rem .75rem; border-radius: 999px; font-size: .75rem; font-weight: 500; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all .2s; }
+    .btn-sm-green { background: #1D9E75; color: #fff; }
+    .btn-sm-green:hover { background: #0f6e56; }
+    .btn-sm-outline { background: transparent; border: 1px solid var(--border-light, #e8edeb); color: var(--text-secondary, #6b7b74); }
+    .btn-sm-outline:hover { border-color: #1D9E75; color: #1D9E75; }
+
+    /* ── ÉTAT VIDE DOSSIERS (pointillés) ── */
+    .empty-dossiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+      gap: 1rem;
+    }
+    .empty-card {
+      border: 2px dashed var(--border-light, #d1ddd7);
+      border-radius: 14px; padding: 1.5rem 1rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; color: var(--text-tertiary, #9ca3af);
+      min-height: 120px; gap: .4rem;
+    }
+    .empty-card-icon { font-size: 1.5rem; opacity: .3; }
+    .empty-card-label { font-size: .78rem; font-weight: 500; }
+    .empty-card-sub { font-size: .72rem; opacity: .7; }
+
+    /* ── ÉTAT VIDE GLOBAL ── */
+    .empty-global {
+      text-align: center; padding: 3rem 1rem;
+      border: 2px dashed var(--border-light, #d1ddd7);
+      border-radius: 16px;
+    }
+    .empty-global-icon { font-size: 2.5rem; opacity: .25; margin-bottom: .75rem; }
+    .empty-global h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: .4rem; color: var(--text-secondary, #6b7b74); }
+    .empty-global p { font-size: .82rem; color: var(--text-tertiary, #9ca3af); max-width: 320px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── LOADING ── */
+    .loading-state {
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      padding: 2rem; color: var(--text-secondary, #6b7b74); font-size: .85rem;
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid var(--border-light, #e8edeb);
+      border-top-color: #1D9E75; border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: #0d2018; color: #fff; padding: .6rem 1.25rem;
+      border-radius: 999px; font-size: .82rem; z-index: 2000;
+      opacity: 0; transition: opacity .3s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      .main-container { padding: 5rem 1rem 2rem; }
+    }
+  </style>
 </head>
-<body class="page-dietitian">
-<main class="dashboard-container" style="padding-top:5rem;">
+<body>
 
-  <div class="dashboard-greeting">
+<!-- HEADER -->
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink active">Mon espace</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <!-- dark-mode.js injecte le toggle ici automatiquement -->
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-container">
+
+  <!-- Greeting -->
+  <div class="greeting-row">
     <div>
-      <h2 id="dietHeader">Bonjour 👋</h2>
+      <h1 id="dietHeader">Bonjour 👋</h1>
       <p id="dietSubHeader">Chargement de votre profil…</p>
     </div>
-    <div style="display:flex;gap:.75rem;align-items:center;">
-      <a href="agenda-dieteticien.html" class="btn-validate">📅 Agenda</a>
-      <a href="gestion-forfait-dieteticien.html" style="font-size:.82rem;color:rgba(255,255,255,.55);">📊 Forfait</a>
-      <a href="compta-dieteticien.html" class="btn-view">💶 Compta</a>
+    <div class="greeting-actions">
+      <a href="agenda-dieteticien.html" class="btn-action btn-primary">📅 Agenda</a>
+      <a href="gestion-forfait-dieteticien.html" class="btn-action btn-outline">📊 Forfait</a>
+      <a href="compta-dieteticien.html" class="btn-action btn-outline">💶 Compta</a>
     </div>
   </div>
 
-  <!-- KANBAN plans ──────────────────────────────────── -->
-  <div class="diet-kanban" id="dietKanban"></div>
-
-  <!-- FILTRES ────────────────────────────────────────── -->
-  <div class="dashboard-section">
-    <div class="section-header-row" style="flex-wrap:wrap;gap:.75rem;">
-      <h3>Dossiers patients</h3>
-      <div class="diet-filters" id="dietFilters"></div>
-    </div>
-
-    <!-- Recherche -->
-    <div style="margin-bottom:1rem;position:relative;">
-      <input type="text" id="searchPatient" placeholder="🔍 Rechercher un patient…"
-        oninput="filterDossiers()" style="width:100%;padding-left:1rem;"/>
-    </div>
-
-    <div id="dossiersList"></div>
+  <!-- Kanban -->
+  <div class="kanban-grid" id="kanbanGrid">
+    <!-- Injecté par JS -->
+    <div class="loading-state"><div class="spinner"></div> Chargement…</div>
   </div>
 
-  <!-- SUPPORT ────────────────────────────────────────── -->
-  <section class="dashboard-section" style="margin-top:1rem;">
-    <div id="supportWidgetdietitian"></div>
-  </section>
+  <!-- Dossiers -->
+  <div class="section-card">
+    <h2 class="section-title">Dossiers patients</h2>
+    <div class="filters-row" id="filtersRow"></div>
+    <input type="text" class="search-input" id="searchInput"
+      placeholder="Rechercher un patient…" oninput="filtrer()"/>
+    <div id="dossiersList">
+      <div class="loading-state"><div class="spinner"></div> Chargement…</div>
+    </div>
+  </div>
 
-</main>
+</div>
+
+<div id="toast"></div>
 
 <script>
+// ── OBJECTIFS ─────────────────────────────────────────────────
 const OBJECTIFS = [
-  { val:'tous',         label:'Tous',            icon:'📋' },
-  { val:'perte_poids',  label:'Perte de gras',   icon:'⬇' },
-  { val:'prise_masse',  label:'Prise de masse',  icon:'💪' },
-  { val:'equilibre',    label:'Équilibre',        icon:'⚖' },
-  { val:'sport_perf',   label:'Performance',     icon:'🏃' },
-  { val:'energie',      label:'Énergie',          icon:'⚡' },
-  { val:'sante',        label:'Prévention',       icon:'❤' },
+  { val:'tous',         label:'Tous',           icon:'📋' },
+  { val:'perte_poids',  label:'Perte de gras',  icon:'⬇️' },
+  { val:'prise_masse',  label:'Prise de masse', icon:'💪' },
+  { val:'equilibre',    label:'Équilibre',      icon:'⚖️' },
+  { val:'energie',      label:'Énergie',        icon:'⚡' },
+  { val:'sante',        label:'Prévention',     icon:'❤️' },
 ];
 
-const PATIENTS = [
-  { id:'p1', prenom:'Marie',  nom:'Dupont',  age:34, ville:'Angoulême', objectif:'perte_poids',  statut_plan:'a_faire',  avatar:'#1D9E75', email:'marie@mail.fr', tel:'06 12 34 56 78', bmi:26.4, notes:'Régime sans gluten. Préfère les menus simples.' },
-  { id:'p2', prenom:'Thomas', nom:'Klein',   age:28, ville:'Poitiers',  objectif:'prise_masse',  statut_plan:'en_cours', avatar:'#5DCAA5', email:'thomas@mail.fr', tel:'06 98 76 54 32', bmi:22.1, notes:'Sportif 5x/semaine. Objectif +5kg muscle.' },
-  { id:'p3', prenom:'Sophie', nom:'Martin',  age:41, ville:'Bordeaux',  objectif:'equilibre',    statut_plan:'valide',   avatar:'#97C459', email:'sophie@mail.fr', tel:'07 11 22 33 44', bmi:24.8, notes:'Végétarienne. Travail sédentaire.' },
-  { id:'p4', prenom:'Lucas',  nom:'Bernard', age:25, ville:'La Rochelle',objectif:'sport_perf',  statut_plan:'valide',   avatar:'#f59e0b', email:'lucas@mail.fr',  tel:'06 55 66 77 88', bmi:21.3, notes:'Course à pied 3x/semaine. Objectif semi-marathon.' },
-  { id:'p5', prenom:'Emma',   nom:'Rousseau',age:33, ville:'Niort',     objectif:'perte_poids',  statut_plan:'a_faire',  avatar:'#0ea5e9', email:'emma@mail.fr',   tel:'06 44 55 66 77', bmi:29.1, notes:'Stress au travail. Fringales le soir.' },
-  { id:'p6', prenom:'Paul',   nom:'Laurent', age:52, ville:'Périgueux', objectif:'sante',        statut_plan:'en_cours', avatar:'#8b5cf6', email:'paul@mail.fr',   tel:'06 33 44 55 66', bmi:27.6, notes:'Antécédent cholestérol. Médecin suivi.' },
-];
+const AVATARS = ['#1D9E75','#5DCAA5','#0ea5e9','#8b5cf6','#f59e0b','#ef4444','#185FA5','#97C459'];
 
-let filtreActif = 'tous';
-let patientSelectionne = null;
+let patientsData = [];
+let filtreActif  = 'tous';
 
-// ── KANBAN ──────────────────────────────────────────────────
-function renderKanban() {
+// ── HELPERS ───────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function initiales(prenom, nom) { return ((prenom||'')[0] + (nom||'')[0]).toUpperCase(); }
+function avatarColor(i) { return AVATARS[i % AVATARS.length]; }
+
+// ── KANBAN ────────────────────────────────────────────────────
+function renderKanban(patients) {
   const cols = [
-    { key:'a_faire',  label:'À traiter',    color:'#f59e0b', bg:'#fff8e6' },
-    { key:'en_cours', label:'En cours',     color:'#0ea5e9', bg:'#eff6ff' },
-    { key:'valide',   label:'Validés',      color:'#1D9E75', bg:'#E1F5EE' },
+    { keys:['a_faire','en_attente','pending'],          label:'À traiter', color:'#f59e0b', bg:'rgba(245,158,11,.07)' },
+    { keys:['en_cours','accepted','in_progress'],       label:'En cours',  color:'#0ea5e9', bg:'rgba(14,165,233,.07)' },
+    { keys:['valide','delivered'],                       label:'Validés',   color:'#1D9E75', bg:'rgba(29,158,117,.07)' },
   ];
-  const kb = document.getElementById('dietKanban');
-  kb.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-    ${cols.map(col => {
-      const pts = PATIENTS.filter(p => p.statut_plan === col.key);
-      return `<div style="background:${col.bg};border:1px solid ${col.color}33;border-radius:var(--radius);padding:1rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-          <span style="font-size:.78rem;font-weight:500;color:${col.color};text-transform:uppercase;letter-spacing:.06em;">${col.label}</span>
-          <span style="background:${col.color};color:#fff;font-size:.7rem;font-weight:600;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${pts.length}</span>
-        </div>
-        ${pts.map(p => `
-          <div class="kanban-card" onclick="ouvrirDossier('${p.id}')" style="cursor:pointer;">
-            <div style="display:flex;align-items:center;gap:.5rem;">
-              <div style="width:28px;height:28px;border-radius:50%;background:${p.avatar};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;flex-shrink:0;">${p.prenom[0]+p.nom[0]}</div>
+
+  document.getElementById('kanbanGrid').innerHTML = cols.map(col => {
+    const pts = patients.filter(p => col.keys.includes(p.statut));
+    return `<div class="kanban-col" style="background:${col.bg};">
+      <div class="kanban-col-header">
+        <span class="kanban-col-title" style="color:${col.color};">${col.label}</span>
+        <span class="kanban-count" style="background:${col.color};">${pts.length}</span>
+      </div>
+      ${pts.length === 0
+        ? `<div class="kanban-empty">
+             <div class="kanban-empty-icon">○</div>
+             Aucun dossier
+           </div>`
+        : pts.map((p, i) => {
+            const obj = OBJECTIFS.find(o => o.val === p.objectif);
+            return `<div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+              <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom, p.nom)}</div>
               <div>
-                <div style="font-size:.82rem;font-weight:500;">${p.prenom} ${p.nom}</div>
-                <div style="font-size:.7rem;color:var(--gray);">${OBJECTIFS.find(o=>o.val===p.objectif)?.label||p.objectif}</div>
+                <div class="kanban-card-name">${p.prenom} ${p.nom}</div>
+                <div class="kanban-card-obj">${obj ? obj.icon + ' ' + obj.label : p.objectif || '—'}</div>
               </div>
-            </div>
-          </div>`).join('')}
-      </div>`;
-    }).join('')}
-  </div>`;
+            </div>`;
+          }).join('')}
+    </div>`;
+  }).join('');
 }
 
-// ── FILTRES ─────────────────────────────────────────────────
+// ── FILTRES ───────────────────────────────────────────────────
 function renderFiltres() {
-  document.getElementById('dietFilters').innerHTML = OBJECTIFS.map(o => `
-    <button class="diet-filter-btn ${filtreActif===o.val?'active':''}"
-      onclick="setFiltre('${o.val}')">${o.icon} ${o.label}</button>
-  `).join('');
+  document.getElementById('filtersRow').innerHTML = OBJECTIFS.map(o =>
+    `<button class="filter-btn ${filtreActif === o.val ? 'active' : ''}"
+       onclick="setFiltre('${o.val}')">${o.icon} ${o.label}</button>`
+  ).join('');
 }
+function setFiltre(val) { filtreActif = val; renderFiltres(); filtrer(); }
 
-function setFiltre(val) {
-  filtreActif = val;
-  renderFiltres();
-  filterDossiers();
-}
-
-// ── DOSSIERS ────────────────────────────────────────────────
-function filterDossiers() {
-  const q = document.getElementById('searchPatient')?.value.toLowerCase() || '';
-  let pts = PATIENTS;
+// ── DOSSIERS ─────────────────────────────────────────────────
+function filtrer() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  let pts = patientsData;
   if (filtreActif !== 'tous') pts = pts.filter(p => p.objectif === filtreActif);
   if (q) pts = pts.filter(p =>
-    (p.prenom+' '+p.nom).toLowerCase().includes(q) ||
-    p.ville.toLowerCase().includes(q) ||
-    p.email.toLowerCase().includes(q)
+    (p.prenom + ' ' + p.nom).toLowerCase().includes(q) ||
+    (p.ville || '').toLowerCase().includes(q)
   );
   renderDossiers(pts);
 }
 
 function renderDossiers(pts) {
-  const STATUS = {
-    a_faire:  { label:'À traiter',  color:'#f59e0b', bg:'#fff8e6' },
-    en_cours: { label:'En cours',   color:'#0ea5e9', bg:'#eff6ff' },
-    valide:   { label:'Validé',     color:'#1D9E75', bg:'#E1F5EE' },
-  };
   const z = document.getElementById('dossiersList');
-  if (!pts.length) { z.innerHTML = '<p style="color:var(--gray);font-size:.875rem;padding:1rem 0;">Aucun dossier pour ce filtre.</p>'; return; }
-  z.innerHTML = `<div class="diet-dossiers-grid">
-    ${pts.map(p => {
-      const s = STATUS[p.statut_plan] || STATUS.a_faire;
-      const obj = OBJECTIFS.find(o => o.val === p.objectif);
-      return `<div class="diet-dossier-card" onclick="ouvrirDossier('${p.id}')">
-        <div class="diet-dos-header">
-          <div style="width:40px;height:40px;border-radius:50%;background:${p.avatar};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;flex-shrink:0;">${p.prenom[0]+p.nom[0]}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:.9rem;font-weight:500;">${p.prenom} ${p.nom} · ${p.age} ans</div>
-            <div style="font-size:.75rem;color:var(--gray);">📍 ${p.ville} · IMC ${p.bmi}</div>
-          </div>
-          <span style="background:${s.bg};color:${s.color};font-size:.68rem;font-weight:500;padding:2px 8px;border-radius:999px;border:1px solid ${s.color}33;white-space:nowrap;">${s.label}</span>
+
+  if (pts.length === 0) {
+    // État vide : encarts en pointillés
+    z.innerHTML = `<div class="empty-dossiers">
+      ${[1,2,3].map(() => `
+        <div class="empty-card">
+          <div class="empty-card-icon">○</div>
+          <div class="empty-card-label">Aucun patient</div>
+          <div class="empty-card-sub">En attente de demandes</div>
+        </div>`).join('')}
+    </div>`;
+    return;
+  }
+
+  z.innerHTML = `<div class="dossiers-grid">${pts.map((p, i) => {
+    const obj = OBJECTIFS.find(o => o.val === p.objectif);
+    let badgeClass = 'badge-attente', badgeLabel = 'À traiter';
+    if (['en_cours','accepted','in_progress'].includes(p.statut)) { badgeClass = 'badge-cours'; badgeLabel = 'En cours'; }
+    if (['valide','delivered'].includes(p.statut)) { badgeClass = 'badge-valide'; badgeLabel = 'Validé'; }
+
+    return `<div class="dossier-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="dossier-header">
+        <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom, p.nom)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="dossier-name">${p.prenom} ${p.nom}${p.age ? ' · ' + p.age + ' ans' : ''}</div>
+          <div class="dossier-meta">${p.ville ? '📍 ' + p.ville : ''}${p.bmi ? ' · IMC ' + p.bmi : ''}</div>
         </div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.6rem 0;">
-          <span class="diet-obj-badge">${obj?.icon} ${obj?.label}</span>
-          <span class="diet-obj-badge">📧 ${p.email}</span>
-          <span class="diet-obj-badge">📞 ${p.tel}</span>
-        </div>
-        <div style="font-size:.78rem;color:var(--gray);line-height:1.5;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.25rem;">${p.notes}</div>
-        <div style="display:flex;gap:.5rem;margin-top:.75rem;">
-          <button class="btn-validate" style="font-size:.78rem;padding:.35rem .85rem;" onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider plan</button>
-          <button class="btn-view"     style="font-size:.78rem;" onclick="event.stopPropagation();">📋 Voir dossier</button>
-        </div>
-      </div>`;
-    }).join('')}
-  </div>`;
+        <span class="status-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      ${obj ? `<div style="margin-top:.4rem;"><span class="obj-badge">${obj.icon} ${obj.label}</span></div>` : ''}
+      <div class="dossier-actions">
+        <button class="btn-sm btn-sm-green"
+          onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider</button>
+        <button class="btn-sm btn-sm-outline"
+          onclick="event.stopPropagation();voirDossier('${p.id}')">📋 Dossier</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
 }
 
-function ouvrirDossier(id) {
-  const p = PATIENTS.find(x => x.id === id);
+// ── ACTIONS ───────────────────────────────────────────────────
+function ouvrirDossier(id) { voirDossier(id); }
+
+function voirDossier(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
   if (!p) return;
-  alert(`Dossier de ${p.prenom} ${p.nom}\nObjectif : ${p.objectif}\nNotes : ${p.notes}`);
+  alert(`${p.prenom} ${p.nom}\nObjectif : ${p.objectif || '—'}\nVille : ${p.ville || '—'}`);
 }
 
-function validerPlan(id) {
-  const p = PATIENTS.find(x => x.id === id);
+async function validerPlan(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
   if (!p) return;
-  p.statut_plan = 'valide';
-  // Bouton PDF dans les dossiers validés
-  if (typeof genererPDF !== 'undefined') {
-    const t = typeof totalsPlan !== 'undefined' ? { kcal: 1650, prot: 130, glu: 180, lip: 55 } : {};
-    genererPDF(p, getDemoData().plan, { nom:profile?.nom || 'Diét.', rpps:'10 008 019 381', titre:'Diét.-Nutritionniste', email:'gmartin.diet@gmail.com', cabinet:'Cabinet NutriDoc' });
+
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof _supa !== 'undefined') {
+    const { error } = await _supa
+      .from('bilans')
+      .update({ statut: 'valide', paiement: 'confirme' })
+      .eq('id', id);
+    if (error) { showToast('Erreur : ' + error.message); return; }
   }
-  if (typeof Email !== 'undefined') {
-    Email.planLivre(p.email, { prenom: p.prenom, diet_nom: profile?.nom || 'Diét.', diet_rpps: '10 008 019 381', kcal: 1650, proteines: 130, visio_dispo: true });
-  }
-  renderKanban(); filterDossiers();
+
+  p.statut = 'valide';
+  renderKanban(patientsData);
+  filtrer();
   showToast(`Plan de ${p.prenom} validé ✓`);
 }
 
-function showToast(msg) {
-  const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;z-index:2000;';
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2500);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderKanban();
-  renderFiltres();
-  filterDossiers();
-  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
-});
-
-// Message facturation lors de la validation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 0) - (diot.plans_valides_mois || 0);
-  
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-    var forfait = (diot.formule || 'essentiel').toLowerCase();
-    var fee = fees[forfait] || 3.00;
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
+// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+async function chargerDonnees() {
+  if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
+    // Non connecté : afficher les états vides directement
+    afficherVide('Connectez-vous pour accéder à vos dossiers.');
+    document.getElementById('navUser').textContent = 'Non connecté';
+    return;
   }
-  return { msg, color };
+
+  const profile = await getProfile();
+
+  if (!profile) {
+    window.location.href = 'login.html'; return;
+  }
+  if (profile.role !== 'dietitian') {
+    window.location.href = 'login.html'; return;
+  }
+
+  // Mettre à jour le header
+  const nomAffiche = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  document.getElementById('navUser').textContent = nomAffiche;
+  document.getElementById('dietHeader').textContent = `Bonjour ${profile.prenom || ''} 👋`;
+  document.getElementById('dietSubHeader').textContent =
+    [profile.rpps ? 'RPPS ' + profile.rpps : null, profile.formule ? 'Formule ' + profile.formule : null]
+    .filter(Boolean).join(' · ') || 'Bienvenue sur NutriDoc';
+
+  // Charger les bilans
+  try {
+    const { data: bilans, error } = await _supa
+      .from('bilans')
+      .select('id, prenom, nom, age, ville, objectif, statut, poids, taille')
+      .in('statut', ['en_attente', 'attente_validation', 'valide'])
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) throw error;
+
+    patientsData = (bilans || []).map(b => ({
+      id:      b.id,
+      prenom:  b.prenom || 'Patient',
+      nom:     b.nom    || '',
+      age:     b.age,
+      ville:   b.ville  || '',
+      objectif:b.objectif || 'equilibre',
+      statut:  b.statut === 'valide' ? 'valide'
+             : b.statut === 'attente_validation' ? 'en_cours'
+             : 'a_faire',
+      bmi:     b.poids && b.taille
+               ? Math.round(b.poids / Math.pow(b.taille / 100, 2) * 10) / 10
+               : null,
+    }));
+
+  } catch (err) {
+    console.warn('[dietitian] Erreur:', err.message);
+    patientsData = [];
+  }
+
+  renderKanban(patientsData);
+  renderFiltres();
+  filtrer();
 }
 
+function afficherVide(message) {
+  // Kanban vide
+  const cols = ['À traiter','En cours','Validés'];
+  const colors = ['#f59e0b','#0ea5e9','#1D9E75'];
+  const bgs = ['rgba(245,158,11,.07)','rgba(14,165,233,.07)','rgba(29,158,117,.07)'];
+  document.getElementById('kanbanGrid').innerHTML = cols.map((label, i) =>
+    `<div class="kanban-col" style="background:${bgs[i]};">
+      <div class="kanban-col-header">
+        <span class="kanban-col-title" style="color:${colors[i]};">${label}</span>
+        <span class="kanban-count" style="background:${colors[i]};">0</span>
+      </div>
+      <div class="kanban-empty"><div class="kanban-empty-icon">○</div>Aucun dossier</div>
+    </div>`
+  ).join('');
+
+  // Filtres
+  renderFiltres();
+
+  // Message global
+  document.getElementById('dossiersList').innerHTML =
+    `<div class="empty-global">
+      <div class="empty-global-icon">📋</div>
+      <h3>Aucun dossier patient</h3>
+      <p>${message || 'Vos dossiers apparaîtront ici dès qu\'un patient aura soumis un bilan.'}</p>
+    </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', chargerDonnees);
 </script>
 
-<style>
-.diet-kanban { margin-bottom:.5rem; }
-.kanban-card { background:#fff;border-radius:8px;padding:.6rem .75rem;margin-bottom:.5rem;border:1px solid rgba(0,0,0,.06);transition:box-shadow .15s; }
-.kanban-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.08); }
-.diet-filters { display:flex;gap:.4rem;flex-wrap:wrap; }
-.diet-filter-btn { background:#fff;border:1px solid var(--border);padding:.35rem .8rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);transition:all .15s;color:var(--gray); }
-.diet-filter-btn:hover { border-color:var(--green);color:var(--green); }
-.diet-filter-btn.active { background:var(--green);border-color:var(--green);color:#fff;font-weight:500; }
-.diet-dossiers-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:1rem; }
-.diet-dossier-card { background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;cursor:pointer;transition:box-shadow .2s,border-color .2s; }
-.diet-dossier-card:hover { box-shadow:0 4px 20px rgba(13,32,24,.08);border-color:rgba(29,158,117,.3); }
-.diet-dos-header { display:flex;align-items:center;gap:.65rem; }
-.diet-obj-badge { background:var(--gray-light);color:var(--gray);font-size:.7rem;padding:2px 8px;border-radius:999px; }
-</style>
 </body>
 </html>
