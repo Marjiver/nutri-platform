@@ -3,803 +3,322 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <meta name="description" content="Comptabilité NutriDoc : suivez vos rémunérations, factures, attestations mutuelle, échéancier des paiements et ce que vous payez à NutriDoc."/>
+  <meta name="robots" content="noindex"/>
   <title>Comptabilité — NutriDoc Diététicien</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="js/core/auth.js"></script>
   <script src="js/ui/cookies.js"></script>
-  <script src="js/ui/support.js"></script>
+  <script src="js/ui/dark-mode.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
-      line-height: 1.5;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); line-height:1.5; }
 
-    /* HEADER */
-    .nd-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #0d2018;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.75rem 2rem;
-    }
-    .header-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 2rem; }
-    .nd-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: #fff;
-      text-decoration: none;
-    }
-    .nd-logo em { font-style: italic; color: #5DCAA5; }
-    .nd-nav { display: flex; gap: 1.5rem; }
-    .nd-navlink {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+    /* ── HEADER ── */
+    .nd-header { position:fixed; top:0; left:0; right:0; z-index:100; background:#0d2018 !important; border-bottom:1px solid rgba(29,158,117,.2); padding:.75rem 2rem; }
+    .header-container { max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .header-left { display:flex; align-items:center; gap:1.5rem; }
+    .nd-logo { font-family:'Playfair Display',serif; font-size:1.25rem; color:#fff; text-decoration:none; }
+    .nd-logo em { font-style:italic; color:#5DCAA5; }
+    .nd-nav { display:flex; gap:1.25rem; }
+    .nd-navlink { font-size:.78rem; color:rgba(255,255,255,.6); text-decoration:none; transition:color .2s; }
+    .nd-navlink:hover, .nd-navlink.active { color:#fff; }
+    .header-actions { display:flex; align-items:center; gap:.75rem; }
+    .nd-user-badge { font-size:.72rem; color:rgba(255,255,255,.55); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.3rem .85rem; }
+    .nd-btn-ghost { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:.35rem .9rem; color:rgba(255,255,255,.85); font-size:.75rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
+    .nd-btn-ghost:hover { background:rgba(255,255,255,.16); color:#fff; }
+    @media (max-width:900px) { .nd-nav { display:none; } }
 
-    .gregoire-mini {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(29,158,117,0.1);
-      padding: 0.25rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid rgba(29,158,117,0.2);
-      cursor: help;
-    }
-    .gregoire-mini:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
-    .tooltip-text {
-      visibility: hidden;
-      opacity: 0;
-      width: 250px;
-      background-color: #0d2018;
-      color: #5DCAA5;
-      text-align: center;
-      border-radius: 10px;
-      padding: 0.6rem;
-      position: absolute;
-      z-index: 1000;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 10px;
-      font-size: 0.7rem;
-      border: 1px solid #1D9E75;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-    .tooltip-text::after {
-      content: "";
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
-    .gregoire-mini-avatar {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, #1D9E75, #0f6e56);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .gregoire-mini-text {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.7);
-    }
-    .gregoire-mini-text strong { color: #5DCAA5; }
+    /* ── LAYOUT ── */
+    .dashboard-layout { display:flex; max-width:1400px; margin:0 auto; padding:5.5rem 2rem 3rem; gap:1.5rem; }
+    @media (max-width:768px) { .dashboard-layout { flex-direction:column; padding:5rem 1rem 2rem; } }
 
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
-    .nd-btn-ghost {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px;
-      padding: 0.4rem 1rem;
-      color: #fff;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
-    .nd-conn-wrap { position: relative; }
-    .nd-conn-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: #0d2018;
-      border: 1px solid rgba(29,158,117,0.2);
-      border-radius: 12px;
-      width: 180px;
-      margin-top: 0.5rem;
-      z-index: 101;
-    }
-    .nd-conn-menu.open { display: block; }
-    .nd-conn-item {
-      display: block;
-      padding: 0.5rem 1rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      font-size: 0.75rem;
-    }
-    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+    /* ── SIDEBAR ── */
+    .sidebar { width:240px; flex-shrink:0; }
+    .sidebar-nav { background:var(--bg-card,#fff); border-radius:20px; border:1px solid var(--border-light,#eef4ee); overflow:hidden; position:sticky; top:80px; }
+    .sidebar-back { display:flex; align-items:center; gap:.4rem; padding:.7rem 1.25rem; font-size:.78rem; color:var(--text-secondary,#6b7b74); text-decoration:none; border-bottom:1px solid var(--border-light,#eef4ee); transition:color .2s; }
+    .sidebar-back:hover { color:#1D9E75; }
+    .sidebar-item { display:flex; align-items:center; gap:.75rem; padding:.8rem 1.25rem; cursor:pointer; transition:all .2s; border-bottom:1px solid var(--border-light,#eef4ee); color:var(--text-secondary,#6b7b74); font-size:.83rem; }
+    .sidebar-item:last-child { border-bottom:none; }
+    .sidebar-item:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
+    .sidebar-item.active { background:rgba(29,158,117,.08); color:#1D9E75; border-left:3px solid #1D9E75; }
+    .sidebar-icon { font-size:1.1rem; width:26px; }
+    @media (max-width:768px) { .sidebar { width:100%; } .sidebar-nav { display:flex; overflow-x:auto; } .sidebar-back { display:none; } .sidebar-item { white-space:nowrap; border-bottom:none; border-right:1px solid var(--border-light,#eef4ee); } }
 
-    @media (max-width: 900px) {
-      .nd-header { padding: 0.75rem 1rem; }
-      .nd-nav { display: none; }
-      .gregoire-mini { display: none; }
-    }
+    /* ── MAIN ── */
+    .main-content { flex:1; min-width:0; }
+    .section { display:none; animation:fadeIn .3s ease; }
+    .section.active { display:block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 
-    /* BARRE PROFIL */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-      margin-top: 0;
-    }
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom:1.5rem; }
+    .page-title { font-family:'Playfair Display',serif; font-size:1.6rem; }
+    .page-sub { font-size:.85rem; color:var(--text-secondary,#6b7b74); margin-top:.2rem; }
 
-    /* LAYOUT AVEC SIDEBAR */
-    .dashboard-layout {
-      display: flex;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 7rem 2rem 3rem;
-      gap: 1.5rem;
-    }
+    /* ── MÉTRIQUES ── */
+    .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+    @media (max-width:700px) { .metrics-grid { grid-template-columns:repeat(2,1fr); } }
+    .metric-card { background:var(--bg-card,#fff); border:1px solid var(--border-light,#eef4ee); border-radius:20px; padding:1rem; text-align:center; }
+    .metric-card.dark { background:linear-gradient(135deg,#0d2018,#142c1f); }
+    .metric-val { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:#1D9E75; line-height:1; }
+    .metric-card.dark .metric-val { color:#5DCAA5; }
+    .metric-label { font-size:.7rem; color:var(--text-secondary,#6b7b74); margin-top:.25rem; }
+    .metric-card.dark .metric-label { color:rgba(255,255,255,.5); }
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 260px;
-      flex-shrink: 0;
-    }
-    .sidebar-nav {
-      background: #fff;
-      border-radius: 20px;
-      border: 1px solid #eef4ee;
-      overflow: hidden;
-      position: sticky;
-      top: 100px;
-    }
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1.25rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
-      font-size: 0.85rem;
-    }
-    .sidebar-item:last-child { border-bottom: none; }
-    .sidebar-item:hover { background: #f7f9f7; color: #0d2018; }
-    .sidebar-item.active {
-      background: rgba(29,158,117,0.1);
-      color: #1D9E75;
-      border-left: 3px solid #1D9E75;
-    }
-    .sidebar-icon { font-size: 1.2rem; width: 28px; }
+    /* ── CARDS ── */
+    .card-block { background:var(--bg-card,#fff); border:1px solid var(--border-light,#eef4ee); border-radius:20px; padding:1.25rem; margin-bottom:1.5rem; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--border-light,#eef4ee); }
+    .card-header h3 { font-size:1rem; font-weight:600; }
+    .btn-sm-action { background:transparent; border:1px solid var(--border-light,#eef4ee); border-radius:999px; padding:.3rem .8rem; font-size:.7rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; color:var(--text-secondary,#6b7b74); }
+    .btn-sm-action:hover { border-color:#1D9E75; color:#1D9E75; }
 
-    /* MAIN CONTENT */
-    .main-content { flex: 1; min-width: 0; }
-    .section { display: none; animation: fadeIn 0.3s ease; }
-    .section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    /* ── TABLEAUX ── */
+    .compta-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .compta-table th { background:var(--bg-secondary,#f7f9f7); padding:.65rem 1rem; text-align:left; font-weight:600; border-bottom:1px solid var(--border-light,#eef4ee); }
+    .compta-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border-light,#eef4ee); color:var(--text-secondary,#6b7b74); }
+    .compta-table tr:hover td { background:var(--bg-secondary,#f7f9f7); }
+    .badge-ok      { background:#e1f5ee; color:#1D9E75; font-size:.68rem; padding:.15rem .55rem; border-radius:999px; }
+    .badge-pending { background:#fff8e6; color:#f59e0b; font-size:.68rem; padding:.15rem .55rem; border-radius:999px; }
+    .text-green { color:#1D9E75; font-weight:600; }
+    .text-red   { color:#ef4444; font-weight:600; }
 
-    /* CARTES */
-    .dashboard-greeting { margin-bottom: 1.5rem; }
-    .dashboard-greeting h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color: #0d2018;
-    }
-    .dashboard-greeting p { font-size: 0.85rem; color: #6b7b74; }
+    /* ── GRAPHIQUE ── */
+    .chart-wrapper { position:relative; height:220px; }
 
-    /* BANNIÈRE FORFAIT */
-    .forfait-banner {
-      background: #fff8e6;
-      border: 1px solid #fcd34d;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .forfait-banner-text { font-size: 0.85rem; color: #633806; }
-    .btn-upgrade {
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.5rem 1.2rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .btn-upgrade:hover { background: #0f6e56; }
+    /* ── ÉCHÉANCIER ── */
+    .echeancier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+    .echeance-card { background:var(--bg-secondary,#f7f9f7); border-radius:16px; padding:1rem; display:flex; align-items:center; gap:1rem; }
+    .echeance-date { background:#1D9E75; color:#fff; border-radius:12px; padding:.5rem; text-align:center; min-width:68px; }
+    .echeance-date .day { font-size:1.2rem; font-weight:700; }
+    .echeance-date .month { font-size:.62rem; }
+    .echeance-info h4 { font-size:.85rem; font-weight:600; }
+    .echeance-info p { font-size:.7rem; color:var(--text-secondary,#6b7b74); }
+    .echeance-montant { margin-left:auto; font-weight:700; font-size:.9rem; }
 
-    /* MÉTRIQUES */
-    .metrics-global {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .metric-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
-      border-radius: 20px;
-      padding: 1rem;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .metric-card.total {
-      background: linear-gradient(135deg, #0d2018, #142c1f);
-      color: #fff;
-    }
-    .metric-card.total .metric-val { color: #5DCAA5; }
-    .metric-val {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #1D9E75;
-      line-height: 1;
-    }
-    .metric-label { font-size: 0.7rem; color: #6b7b74; margin-top: 0.25rem; }
-    .metric-card.total .metric-label { color: rgba(255,255,255,0.6); }
+    /* ── ÉTAT VIDE POINTILLÉS ── */
+    .empty-dashed { border:2px dashed var(--border-light,#d1ddd7); border-radius:14px; padding:2rem 1rem; text-align:center; color:var(--text-tertiary,#9ca3af); }
+    .empty-dashed-icon { font-size:2rem; opacity:.25; margin-bottom:.5rem; }
+    .empty-dashed h4 { font-size:.9rem; font-weight:500; color:var(--text-secondary,#6b7b74); margin-bottom:.3rem; }
+    .empty-dashed p { font-size:.78rem; }
 
-    /* SECTIONS COMMUNES */
-    .card-container {
-      background: #fff;
-      border: 1px solid #eef4ee;
-      border-radius: 20px;
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .card-header h3 { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    /* ── BANNIÈRE FORFAIT ── */
+    .forfait-banner { background:#fff8e6; border:1px solid #fcd34d; border-radius:16px; padding:1rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .forfait-banner-text { font-size:.85rem; color:#633806; }
+    .btn-upgrade { background:#1D9E75; color:#fff; padding:.5rem 1.2rem; border-radius:999px; font-size:.8rem; font-weight:500; text-decoration:none; }
 
-    /* TABLEAUX */
-    .compta-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    .compta-table th {
-      background: #f7f9f7;
-      padding: 0.75rem 1rem;
-      text-align: left;
-      font-weight: 600;
-      color: #0d2018;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .compta-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
-    }
-    .compta-table tr:hover td { background: #f7f9f7; }
-    .badge-ok { background: #e1f5ee; color: #1D9E75; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
-    .badge-pending { background: #fff8e6; color: #f59e0b; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
-    .btn-view, .btn-validate {
-      background: transparent;
-      border: 1px solid #eef4ee;
-      border-radius: 999px;
-      padding: 0.3rem 0.8rem;
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-view:hover { border-color: #1D9E75; color: #1D9E75; }
-    .btn-validate { background: #1D9E75; color: #fff; border: none; }
-    .btn-validate:hover { background: #0f6e56; }
+    /* ── SIMULATEUR ── */
+    .sim-bubble { position:fixed; bottom:1.5rem; left:1.5rem; z-index:300; }
+    .sim-toggle { width:52px; height:52px; background:#1D9E75; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; box-shadow:0 4px 16px rgba(0,0,0,.2); font-size:1.4rem; transition:transform .2s; }
+    .sim-toggle:hover { transform:scale(1.05); background:#0f6e56; }
+    .sim-window { display:none; position:absolute; bottom:64px; left:0; width:310px; background:var(--bg-card,#fff); border-radius:20px; box-shadow:0 8px 32px rgba(0,0,0,.15); border:1px solid rgba(29,158,117,.2); overflow:hidden; }
+    .sim-window.open { display:block; }
+    .sim-header { background:#1D9E75; color:#fff; padding:.7rem 1rem; font-size:.88rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+    .sim-close { background:none; border:none; color:#fff; cursor:pointer; font-size:1rem; }
+    .sim-body { padding:1rem; }
+    .sim-field { margin-bottom:.85rem; }
+    .sim-field-header { display:flex; justify-content:space-between; margin-bottom:.25rem; }
+    .sim-field-label { font-size:.73rem; color:var(--text-secondary,#6b7b74); font-weight:500; }
+    .sim-field-val { font-size:.78rem; font-weight:600; }
+    input[type=range] { -webkit-appearance:none; width:100%; height:5px; border-radius:999px; background:var(--bg-tertiary,#eef4ee); outline:none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#1D9E75; border:2px solid #fff; cursor:pointer; }
+    .sim-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:.25rem; margin:.4rem 0 .75rem; }
+    .sim-abtn { background:var(--bg-secondary,#f7f9f7); border:1px solid var(--border-light,#eef4ee); border-radius:8px; padding:.35rem .15rem; text-align:center; cursor:pointer; font-size:.68rem; transition:all .15s; }
+    .sim-abtn.active { background:#e1f5ee; border-color:#1D9E75; }
+    .sim-abtn-price { font-weight:700; color:#1D9E75; font-size:.7rem; }
+    .sim-results { background:var(--bg-secondary,#f7f9f7); border-radius:10px; padding:.65rem; margin:.6rem 0; }
+    .sim-row { display:flex; justify-content:space-between; font-size:.73rem; margin-bottom:.25rem; }
+    .sim-row.highlight { font-weight:700; color:#1D9E75; font-size:.82rem; }
+    .sim-note { font-size:.63rem; color:var(--text-secondary,#6b7b74); text-align:center; margin-top:.4rem; }
 
-    /* GRAPHIQUE */
-    .chart-wrapper { position: relative; height: 220px; }
+    /* ── FOOTER ── */
+    .nd-footer { background:#080f0b; color:rgba(255,255,255,.5); padding:3rem 2rem 1.5rem; margin-top:2rem; }
+    .nd-footer-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.5fr 2fr; gap:2rem; }
+    .nd-logo-footer { font-family:'Playfair Display',serif; font-size:1.2rem; color:#fff; margin-bottom:.5rem; }
+    .nd-logo-footer em { font-style:italic; color:#5DCAA5; }
+    .nd-footer-brand p { font-size:.7rem; line-height:1.6; max-width:280px; }
+    .nd-footer-links { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .nd-footer-col-title { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.3); margin-bottom:.5rem; }
+    .nd-footer-col a { display:block; font-size:.7rem; color:rgba(255,255,255,.5); text-decoration:none; margin-bottom:.3rem; }
+    .nd-footer-col a:hover { color:#fff; }
+    .nd-footer-bottom { text-align:center; font-size:.65rem; padding-top:2rem; margin-top:2rem; border-top:1px solid rgba(255,255,255,.05); }
+    @media (max-width:768px) { .nd-footer-inner { grid-template-columns:1fr; } .nd-footer-links { grid-template-columns:1fr 1fr; } }
 
-    /* ÉCHÉANCIER */
-    .echeancier-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    .echeance-card {
-      background: #f7f9f7;
-      border-radius: 16px;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      transition: transform 0.2s;
-    }
-    .echeance-card:hover { transform: translateX(4px); }
-    .echeance-date {
-      background: #1D9E75;
-      color: #fff;
-      border-radius: 12px;
-      padding: 0.5rem;
-      text-align: center;
-      min-width: 70px;
-    }
-    .echeance-date .day { font-size: 1.2rem; font-weight: 700; }
-    .echeance-date .month { font-size: 0.65rem; }
-    .echeance-info h4 { font-size: 0.85rem; font-weight: 600; }
-    .echeance-info p { font-size: 0.7rem; color: #6b7b74; }
-    .echeance-montant { margin-left: auto; font-weight: 700; }
-    .echeance-montant.credit { color: #1D9E75; }
-    .echeance-montant.debit { color: #ef4444; }
-
-    /* PAIEMENTS NUTRIDOC - EN DERNIER */
-    .payments-summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .payment-stat {
-      background: #f7f9f7;
-      border-radius: 16px;
-      padding: 0.75rem;
-      text-align: center;
-    }
-    .payment-stat-label { font-size: 0.7rem; color: #6b7b74; }
-    .payment-stat-value { font-size: 1.3rem; font-weight: 700; color: #0d2018; }
-    .payment-stat-value.debit { color: #ef4444; }
-
-    /* BLOCAGE */
-    .blocked-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.95);
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      z-index: 10;
-    }
-
-    /* SIMULATEUR */
-    .sim-bubble {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      z-index: 300;
-    }
-    .sim-toggle {
-      width: 56px;
-      height: 56px;
-      background: #1D9E75;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      font-size: 1.5rem;
-      transition: transform 0.2s;
-    }
-    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
-    .sim-window {
-      display: none;
-      position: absolute;
-      bottom: 70px;
-      left: 0;
-      width: 320px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-      overflow: hidden;
-      border: 1px solid rgba(29,158,117,0.2);
-    }
-    .sim-window.open { display: block; }
-    .sim-header {
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .sim-close {
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .sim-body { padding: 1rem; }
-    .sim-field { margin-bottom: 1rem; }
-    .sim-field-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.3rem;
-    }
-    .sim-field-label { font-size: 0.75rem; color: #6b7b74; font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color: #0d2018; }
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 999px;
-      background: #eef4ee;
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #1D9E75;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-    .sim-btns {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.3rem;
-      margin: 0.5rem 0 1rem;
-    }
-    .sim-abtn {
-      background: #f7f9f7;
-      border: 1px solid #eef4ee;
-      border-radius: 10px;
-      padding: 0.4rem 0.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.7rem;
-    }
-    .sim-abtn.active {
-      background: #e1f5ee;
-      border-color: #1D9E75;
-    }
-    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
-    .sim-results {
-      background: #f7f9f7;
-      border-radius: 12px;
-      padding: 0.75rem;
-      margin: 0.75rem 0;
-    }
-    .sim-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      margin-bottom: 0.3rem;
-    }
-    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color: #6b7b74; text-align: center; margin-top: 0.5rem; }
-
-    /* FOOTER */
-    .nd-footer {
-      background: #080f0b;
-      color: rgba(255,255,255,0.5);
-      padding: 3rem 2rem 1.5rem;
-      margin-top: 0;
-    }
-    .nd-footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.5fr 2fr;
-      gap: 2rem;
-    }
-    .nd-logo-footer {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: #fff;
-      margin-bottom: 0.5rem;
-    }
-    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
-    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
-    .nd-footer-links {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-    .nd-footer-col-title {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 0.5rem;
-    }
-    .nd-footer-col a {
-      display: block;
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      margin-bottom: 0.3rem;
-    }
-    .nd-footer-col a:hover { color: #fff; }
-    .nd-footer-bottom {
-      text-align: center;
-      font-size: 0.65rem;
-      padding-top: 2rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-    @media (max-width: 768px) {
-      .nd-footer-inner { grid-template-columns: 1fr; }
-      .nd-footer-links { grid-template-columns: 1fr 1fr; }
-      .dashboard-layout { flex-direction: column; padding: 6rem 1rem 2rem; }
-      .sidebar { width: 100%; }
-      .sidebar-nav { display: flex; overflow-x: auto; }
-      .sidebar-item { white-space: nowrap; border-bottom: none; border-right: 1px solid #eef4ee; }
-      .metrics-global { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .scroll-top-btn {
-      position: fixed; bottom: 1rem; right: 1rem;
-      width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      opacity: 0; transition: opacity 0.2s;
-      z-index: 200;
-    }
-    .scroll-top-btn.visible { opacity: 1; }
+    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:#1D9E75; color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
+    .scroll-top-btn.visible { opacity:1; }
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="nd-header" id="ndHeader">
+<header class="nd-header">
   <div class="header-container">
     <div class="header-left">
       <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
         <a href="dietitian.html" class="nd-navlink">Mon espace</a>
-        <a href="compta-dieteticien.html" class="nd-navlink active">Comptabilité</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
         <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink active">Comptabilité</a>
         <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
       </nav>
     </div>
-    
-    <div class="gregoire-mini">
-      <div class="gregoire-mini-avatar">GM</div>
-      <div class="gregoire-mini-text">
-        <strong>Grégoire Martin</strong> · Diététicien RPPS
-      </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
-    </div>
-
     <div class="header-actions">
-      <div class="nd-conn-wrap" id="ndConnWrap">
-        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
-        <div class="nd-conn-menu" id="ndConnMenu">
-          <a href="profil-dieteticien.html" class="nd-conn-item">👤 Mon profil</a>
-          <a href="gestion-forfait-dieteticien.html" class="nd-conn-item">📊 Mon forfait</a>
-          <a href="#" onclick="deconnecter()" class="nd-conn-item">🔓 Se déconnecter</a>
-        </div>
-      </div>
+      <!-- dark-mode.js injecte le toggle -->
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
     </div>
   </div>
 </header>
 
-<!-- BARRE PROFIL -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🥗</span>
-      <span id="profilName">Diététicien</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
-</div>
-
-<!-- LAYOUT AVEC SIDEBAR -->
+<!-- LAYOUT -->
 <div class="dashboard-layout">
-  
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-nav">
+      <a href="dietitian.html" class="sidebar-back">← Mon espace</a>
       <div class="sidebar-item active" data-section="dashboard">
-        <span class="sidebar-icon">📊</span>
-        <span>Tableau de bord</span>
+        <span class="sidebar-icon">📊</span><span>Tableau de bord</span>
       </div>
       <div class="sidebar-item" data-section="factures">
-        <span class="sidebar-icon">📄</span>
-        <span>Factures</span>
+        <span class="sidebar-icon">📄</span><span>Factures</span>
       </div>
       <div class="sidebar-item" data-section="attestations">
-        <span class="sidebar-icon">📋</span>
-        <span>Attestations</span>
+        <span class="sidebar-icon">📋</span><span>Attestations</span>
       </div>
       <div class="sidebar-item" data-section="echeancier">
-        <span class="sidebar-icon">📅</span>
-        <span>Échéancier</span>
+        <span class="sidebar-icon">📅</span><span>Échéancier</span>
       </div>
       <div class="sidebar-item" data-section="nutridoc">
-        <span class="sidebar-icon">💰</span>
-        <span>Paiements NutriDoc</span>
+        <span class="sidebar-icon">💰</span><span>Paiements NutriDoc</span>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <main class="main-content">
 
     <!-- SECTION 1 : TABLEAU DE BORD -->
     <div id="section-dashboard" class="section active">
-      <div class="dashboard-greeting">
-        <h2>Tableau de bord comptable</h2>
-        <p>Synthèse de vos revenus et des commissions NutriDoc.</p>
+      <div class="page-header">
+        <h2 class="page-title">Tableau de bord comptable</h2>
+        <p class="page-sub">Synthèse de vos revenus et des commissions NutriDoc.</p>
       </div>
 
-      <!-- BANNIÈRE FORFAIT -->
-      <div id="forfaitBanner" class="forfait-banner" style="display: none;">
+      <div id="forfaitBanner" class="forfait-banner" style="display:none;">
         <div class="forfait-banner-text">
-          <strong>🔓 Version Essentiel</strong> — Vous avez accès aux factures et aux paiements NutriDoc uniquement. Pour débloquer le graphique et l'échéancier, <strong>passez à Starter, Pro ou Expert</strong>.
+          <strong>🔓 Forfait Essentiel</strong> — Passez à Starter, Pro ou Expert pour débloquer le graphique et l'échéancier.
         </div>
-        <a href="gestion-forfait-dieteticien.html" class="btn-upgrade">Upgrader mon forfait →</a>
+        <a href="gestion-forfait-dieteticien.html" class="btn-upgrade">Upgrader →</a>
       </div>
 
-      <!-- MÉTRIQUES -->
-      <div class="metrics-global" id="metricsGlobal"></div>
+      <div class="metrics-grid" id="metricsGrid">
+        <!-- Injecté par JS -->
+      </div>
 
-      <!-- GRAPHIQUE -->
-      <div class="card-container" id="chartSection">
+      <div class="card-block" id="chartSection">
         <div class="card-header">
-          <h3>📈 Revenus nets des 6 derniers mois</h3>
-          <select id="selectAnnee" onchange="renderChart()" style="padding:0.3rem 0.8rem; border-radius:999px; border:1px solid #eef4ee;">
+          <h3>📈 Revenus nets</h3>
+          <select id="selectAnnee" onchange="renderChart()" style="padding:.3rem .8rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.8rem;background:var(--bg-card,#fff);">
+            <option value="2026">2026</option>
             <option value="2025">2025</option>
-            <option value="2024">2024</option>
           </select>
         </div>
-        <div id="chartWrapper" class="chart-wrapper">
-          <canvas id="revenusChart"></canvas>
+        <div id="chartZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📈</div>
+            <h4>Pas encore de données</h4>
+            <p>Le graphique apparaîtra dès vos premiers plans validés.</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- SECTION 2 : FACTURES -->
     <div id="section-factures" class="section">
-      <div class="dashboard-greeting">
-        <h2>Factures électroniques</h2>
-        <p>Consultez et téléchargez vos factures.</p>
+      <div class="page-header">
+        <h2 class="page-title">Factures électroniques</h2>
+        <p class="page-sub">Consultez et téléchargez vos factures mensuelles.</p>
       </div>
-      <div class="card-container">
+      <div class="card-block">
         <div class="card-header">
           <h3>📄 Historique des factures</h3>
-          <button class="btn-view" onclick="genererFactureDemo()">+ Générer facture</button>
         </div>
-        <table class="compta-table">
-          <thead>
-            <tr><th>N° Facture</th><th>Période</th><th>Plans</th><th>Visios</th><th>Abonnement</th><th>Commissions</th><th>Total HT</th><th>Statut</th><th>PDF</th></tr>
-          </thead>
-          <tbody id="facturesBody"></tbody>
-        </table>
+        <div id="facturesZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📄</div>
+            <h4>Aucune facture</h4>
+            <p>Vos factures mensuelles apparaîtront ici une fois générées.</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- SECTION 3 : ATTESTATIONS -->
     <div id="section-attestations" class="section">
-      <div class="dashboard-greeting">
-        <h2>Attestations mutuelle</h2>
-        <p>Envoyez les attestations de visio à vos patients pour leur remboursement.</p>
+      <div class="page-header">
+        <h2 class="page-title">Attestations mutuelle</h2>
+        <p class="page-sub">Envoyez les attestations de visio à vos patients.</p>
       </div>
-      <div class="card-container">
+      <div class="card-block">
         <div class="card-header">
           <h3>📋 Visios réalisées</h3>
         </div>
-        <div id="attestationsZone"></div>
+        <div id="attestationsZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📋</div>
+            <h4>Aucune visio</h4>
+            <p>Les attestations de vos visios apparaîtront ici.</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- SECTION 4 : ÉCHÉANCIER -->
     <div id="section-echeancier" class="section">
-      <div class="dashboard-greeting">
-        <h2>Échéancier des paiements</h2>
-        <p>Paiements à venir (patients + abonnement).</p>
+      <div class="page-header">
+        <h2 class="page-title">Échéancier des paiements</h2>
+        <p class="page-sub">Paiements à venir de vos patients et abonnement.</p>
       </div>
-      <div class="card-container" id="echeancierSection">
+      <div class="card-block">
         <div class="card-header">
           <h3>📅 Échéances à venir</h3>
-          <button class="btn-view" onclick="exporterEcheancierCSV()">📎 Exporter CSV</button>
         </div>
-        <div id="echeancierList" class="echeancier-grid"></div>
+        <div id="echeancierZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📅</div>
+            <h4>Aucune échéance</h4>
+            <p>Vos prochains paiements à recevoir s'afficheront ici.</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SECTION 5 : PAIEMENTS NUTRIDOC (EN DERNIER) -->
+    <!-- SECTION 5 : PAIEMENTS NUTRIDOC -->
     <div id="section-nutridoc" class="section">
-      <div class="dashboard-greeting">
-        <h2>Paiements à NutriDoc</h2>
-        <p>Suivi de ce que vous avez payé et de ce que vous devez payer.</p>
+      <div class="page-header">
+        <h2 class="page-title">Paiements à NutriDoc</h2>
+        <p class="page-sub">Abonnement et commissions prélevées.</p>
       </div>
-      <div class="card-container">
+      <div class="card-block">
         <div class="card-header">
-          <h3>💰 Historique des paiements</h3>
-          <button class="btn-view" onclick="exporterPaiementsCSV()">📎 Exporter CSV</button>
+          <h3>💰 Historique</h3>
         </div>
-        <div class="payments-summary" id="paymentsSummary"></div>
-        <div style="overflow-x: auto;">
-          <table class="compta-table" id="nutridocPaymentsTable">
-            <thead>
-              <tr><th>Date</th><th>Type</th><th>Description</th><th>Montant</th><th>Statut</th><th>Facture</th></tr>
-            </thead>
-            <tbody id="nutridocPaymentsBody"></tbody>
-          </table>
+        <div id="nutridocZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">💰</div>
+            <h4>Aucun mouvement</h4>
+            <p>L'historique de vos paiements à NutriDoc apparaîtra ici.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -807,41 +326,41 @@
   </main>
 </div>
 
-<!-- SIMULATEUR EN BULLE -->
+<!-- SIMULATEUR (outil de projection — pas de données réelles) -->
 <div class="sim-bubble">
-  <button class="sim-toggle" onclick="toggleSim()">💰</button>
+  <button class="sim-toggle" onclick="toggleSim()" title="Simulateur de revenus">💰</button>
   <div class="sim-window" id="simWindow">
     <div class="sim-header">
       <span>💰 Simulateur de revenus</span>
       <button class="sim-close" onclick="toggleSim()">✕</button>
     </div>
     <div class="sim-body">
-      <p style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.75rem;">Ajustez les curseurs pour estimer vos revenus mensuels.</p>
+      <p style="font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-bottom:.75rem;">Projection mensuelle — données non réelles.</p>
       <div class="sim-field">
-        <div class="sim-field-header"><span class="sim-field-label">📋 Plans validés / mois</span><span class="sim-field-val" id="simPlansVal">10</span></div>
-        <input type="range" min="1" max="100" value="10" step="1" id="simPlans" oninput="updateSimulatorBubble()">
+        <div class="sim-field-header"><span class="sim-field-label">📋 Plans / mois</span><span class="sim-field-val" id="simPlansVal">10</span></div>
+        <input type="range" min="1" max="100" value="10" id="simPlans" oninput="updateSim()">
       </div>
       <div class="sim-field">
         <div class="sim-field-header"><span class="sim-field-label">🎥 Visios / mois</span><span class="sim-field-val" id="simVisiosVal">3</span></div>
-        <input type="range" min="0" max="30" value="3" step="1" id="simVisios" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="30" value="3" id="simVisios" oninput="updateSim()">
       </div>
       <div class="sim-field">
         <div class="sim-field-header"><span class="sim-field-label">📦 Forfait</span></div>
         <div class="sim-btns">
-          <div class="sim-abtn" onclick="setAbonnement(0, this)"><div>Essentiel</div><div class="sim-abtn-price">0€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(9, this)"><div>Starter</div><div class="sim-abtn-price">9€/mois</div></div>
-          <div class="sim-abtn active" onclick="setAbonnement(29, this)"><div>Pro</div><div class="sim-abtn-price">29€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(59, this)"><div>Expert</div><div class="sim-abtn-price">59€/mois</div></div>
+          <div class="sim-abtn" onclick="setSimAbo(0,this)"><div>Essentiel</div><div class="sim-abtn-price">0€</div></div>
+          <div class="sim-abtn" onclick="setSimAbo(9,this)"><div>Starter</div><div class="sim-abtn-price">9€</div></div>
+          <div class="sim-abtn active" onclick="setSimAbo(29,this)"><div>Pro</div><div class="sim-abtn-price">29€</div></div>
+          <div class="sim-abtn" onclick="setSimAbo(59,this)"><div>Expert</div><div class="sim-abtn-price">59€</div></div>
         </div>
         <input type="hidden" id="simAbo" value="29">
       </div>
       <div class="sim-results">
-        <div class="sim-row"><span>💰 Chiffre d'affaires brut</span><strong id="simCa">364 €</strong></div>
-        <div class="sim-row"><span>📉 Commissions NutriDoc</span><strong id="simCommissions">— €</strong></div>
-        <div class="sim-row highlight"><span>📈 Revenu net / mois</span><strong id="simNet">— €</strong></div>
-        <div class="sim-row"><span>⏱ Taux horaire estimé</span><strong id="simTaux">— €/h</strong></div>
+        <div class="sim-row"><span>💰 CA brut</span><strong id="simCa">—</strong></div>
+        <div class="sim-row"><span>📉 Commissions</span><strong id="simComm">—</strong></div>
+        <div class="sim-row highlight"><span>📈 Revenu net</span><strong id="simNet">—</strong></div>
+        <div class="sim-row"><span>⏱ Taux horaire</span><strong id="simTaux">—</strong></div>
       </div>
-      <div class="sim-note" id="simNote">📅 Revenu annuel estimé : — €</div>
+      <div class="sim-note" id="simNote"></div>
     </div>
   </div>
 </div>
@@ -852,302 +371,198 @@
     <div class="nd-footer-brand">
       <div class="nd-logo-footer">Nutri<em>Doc</em></div>
       <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
-      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
     </div>
     <div class="nd-footer-links">
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Patients</div><a href="bilan.html">Faire mon bilan</a><a href="dashboard.html">Mon espace</a><a href="cgu-patient.html">CGU Patient</a></div>
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Professionnels</div><a href="accueil-dieteticien.html">Espace Diététicien</a><a href="accueil-prescripteur.html">Espace Prescripteur</a><a href="partenariats.html">Partenaires B2B</a></div>
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Légal</div><a href="politique-confidentialite.html">Politique RGPD</a><a href="faq.html">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a></div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a><a href="dashboard.html">Mon espace</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
     </div>
   </div>
   <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
 </footer>
 
-<div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script>
-// ===== PROFIL SYSTEM =====
-const PROFIL_KEY = 'nutridoc_profil';
-const PROFIL_DATE_KEY = 'nutridoc_profil_date';
-const PROFIL_EXPIRY_DAYS = 30;
-const PROFILS = {
-  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
-  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
-  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
-  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
-};
+// ── SIDEBAR NAVIGATION ────────────────────────────────────────
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const section = item.dataset.section;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('section-' + section)?.classList.add('active');
+  });
+});
 
-function getStoredProfil() {
-  const profil = localStorage.getItem(PROFIL_KEY);
-  const date = localStorage.getItem(PROFIL_DATE_KEY);
-  if (!profil || !date) return null;
-  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
-  if (daysSince > PROFIL_EXPIRY_DAYS) {
-    localStorage.removeItem(PROFIL_KEY);
-    localStorage.removeItem(PROFIL_DATE_KEY);
-    return null;
+// ── SCROLL TOP ────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+const COMMISSIONS = { essentiel:5, starter:2.5, pro:2, expert:1.5 };
+const QUOTAS      = { essentiel:0, starter:10,  pro:30, expert:100 };
+const PRIX_ABO    = { essentiel:0, starter:9,   pro:29, expert:59  };
+
+let chartInstance = null;
+let forfaitActuel = 'essentiel';
+
+async function chargerDonnees() {
+  if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
+    document.getElementById('navUser').textContent = 'Non connecté';
+    afficherMetriquesVides();
+    return;
   }
-  return profil;
-}
-function setStoredProfil(profil) { localStorage.setItem(PROFIL_KEY, profil); localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString()); }
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) { bar.style.display = 'block'; document.getElementById('profilIcon').textContent = profil.icon; document.getElementById('profilName').textContent = profil.name; }
-}
-function openProfilModal() {
-  const container = document.getElementById('profilModalContainer');
-  if (!container) return;
-  container.innerHTML = `<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div><div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div><div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>`;
-}
-function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
-function dismissProfilForever() { localStorage.setItem('nutridoc_profil_dismissed', 'true'); closeProfilModal(); }
-function selectProfil(profilKey) {
-  if (!PROFILS[profilKey]) return;
-  setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
-  closeProfilModal();
-  const target = PROFILS[profilKey].redirectUrl;
-  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') window.location.href = target;
-}
-function initProfilSystem() {
-  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
-  const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
-}
-window.selectProfil = selectProfil;
-window.closeProfilModal = closeProfilModal;
-window.dismissProfilForever = dismissProfilForever;
-window.openProfilModal = openProfilModal;
-function toggleConn() { document.getElementById('ndConnMenu').classList.toggle('open'); }
-window.toggleConn = toggleConn;
-function deconnecter() { localStorage.clear(); window.location.href = 'index.html'; }
-window.deconnecter = deconnecter;
-document.addEventListener('click', (e) => { const wrap = document.getElementById('ndConnWrap'); const menu = document.getElementById('ndConnMenu'); if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open'); });
 
-// ===== DONNÉES =====
-const FORFAIT_ACTUEL = 'pro'; // 'essentiel', 'starter', 'pro', 'expert'
-const DEMO_REVENUS = { labels: ['Oct', 'Nov', 'Déc', 'Jan', 'Fév', 'Mar'], plans: [12, 18, 22, 15, 26, 31], visios: [3, 5, 4, 6, 8, 9], tauxPlan: 24.9, tauxVisio: 55, commissionPlan: 2.00, commissionVisio: 8 };
-const DEMO_FACTURES = [
-  { num: 'FAC-2025-003', periode: 'Mars 2025', plans: 31, visios: 9, abo: 29, commissions: 31*2 + 9*8, statut: 'payée' },
-  { num: 'FAC-2025-002', periode: 'Février 2025', plans: 26, visios: 8, abo: 29, commissions: 26*2 + 8*8, statut: 'payée' },
-  { num: 'FAC-2025-001', periode: 'Janvier 2025', plans: 15, visios: 6, abo: 29, commissions: 15*2 + 6*8, statut: 'payée' }
-];
-const DEMO_VISIOS = [{ patient: 'Marie D.', date: '15/03/2025', duree: '45 min', montant: 55 }, { patient: 'Thomas K.', date: '18/03/2025', duree: '45 min', montant: 55 }, { patient: 'Sophie M.', date: '22/03/2025', duree: '45 min', montant: 55 }];
-const DEMO_ECHEANCIER = [
-  { date: '2025-04-15', patient: 'Marie D.', montant: 55, type: 'Visio', isCredit: true },
-  { date: '2025-04-18', patient: 'Thomas K.', montant: 55, type: 'Visio', isCredit: true },
-  { date: '2025-04-22', patient: 'Sophie M.', montant: 55, type: 'Visio', isCredit: true },
-  { date: '2025-04-30', patient: 'Abonnement Pro', montant: 29, type: 'Abonnement', isCredit: false }
-];
-const DEMO_NUTRIDOC_PAYMENTS = [
-  { date: '2025-03-01', type: 'Abonnement', description: 'Abonnement Pro - Mars 2025', montant: 29, statut: 'payé', facture: 'FAC-2025-003' },
-  { date: '2025-03-15', type: 'Commission', description: 'Commission plan B2C (1 plan hors quota)', montant: 2.00, statut: 'payé', facture: 'FAC-2025-003' },
-  { date: '2025-02-01', type: 'Abonnement', description: 'Abonnement Pro - Février 2025', montant: 29, statut: 'payé', facture: 'FAC-2025-002' },
-  { date: '2025-01-01', type: 'Abonnement', description: 'Abonnement Pro - Janvier 2025', montant: 29, statut: 'payé', facture: 'FAC-2025-001' }
-];
+  const profile = await getProfile();
+  if (!profile) { window.location.href = 'login.html'; return; }
+  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
 
-// ===== SIMULATEUR =====
-var COMMISSIONS_SIM = { 0: 5.00, 9: 2.50, 29: 2.00, 59: 1.50 };
-var QUOTAS_SIM = { 0: 0, 9: 10, 29: 30, 59: 100 };
+  forfaitActuel = profile.formule || 'essentiel';
+  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  document.getElementById('navUser').textContent = nom;
+
+  // Bannière forfait essentiel
+  if (forfaitActuel === 'essentiel') {
+    document.getElementById('forfaitBanner').style.display = 'flex';
+  }
+
+  // Compter plans validés ce mois
+  let plansMois = 0, visiosMois = 0;
+  try {
+    const debut = new Date(); debut.setDate(1); debut.setHours(0,0,0,0);
+    const { count: pc } = await _supa.from('plans').select('id', { count:'exact', head:true })
+      .eq('dietitian_id', profile.id).gte('created_at', debut.toISOString());
+    plansMois = pc || 0;
+
+    const { count: vc } = await _supa.from('visios').select('id', { count:'exact', head:true })
+      .eq('dietitian_id', profile.id).eq('statut', 'terminee').gte('created_at', debut.toISOString());
+    visiosMois = vc || 0;
+  } catch(e) { console.warn('compta load:', e); }
+
+  const quota      = QUOTAS[forfaitActuel] || 0;
+  const prix       = PRIX_ABO[forfaitActuel] || 0;
+  const horsQuota  = Math.max(0, plansMois - 1 - quota);
+  const commission = horsQuota * (COMMISSIONS[forfaitActuel] || 0);
+  const caPlans    = plansMois * 24.90;
+  const caVisios   = visiosMois * 55;
+  const net        = caPlans + caVisios - commission - prix;
+
+  // Métriques
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-val">${plansMois}</div>
+      <div class="metric-label">Plans validés (mois)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">${visiosMois}</div>
+      <div class="metric-label">Visios réalisées (mois)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">${commission.toFixed(0)} €</div>
+      <div class="metric-label">Commissions NutriDoc</div>
+    </div>
+    <div class="metric-card dark">
+      <div class="metric-val">${plansMois > 0 || visiosMois > 0 ? Math.round(net) + ' €' : '—'}</div>
+      <div class="metric-label">Revenu net estimé (mois)</div>
+    </div>`;
+
+  // Graphique si données
+  if (plansMois > 0 || visiosMois > 0) {
+    renderChart(plansMois, visiosMois);
+  }
+}
+
+function afficherMetriquesVides() {
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Plans validés (mois)</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Visios réalisées (mois)</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Commissions NutriDoc</div></div>
+    <div class="metric-card dark"><div class="metric-val">—</div><div class="metric-label">Revenu net estimé (mois)</div></div>`;
+}
+
+function renderChart(plansMois, visiosMois) {
+  const zone = document.getElementById('chartZone');
+  zone.innerHTML = '<div class="chart-wrapper"><canvas id="revenusChart"></canvas></div>';
+  const ctx = document.getElementById('revenusChart').getContext('2d');
+  if (chartInstance) { chartInstance.destroy(); }
+  const now = new Date();
+  const labels = Array.from({length:6}, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+    return d.toLocaleDateString('fr-FR', {month:'short'});
+  });
+  // Seul le mois actuel a des vraies données, les autres sont vides
+  const plansData  = Array(5).fill(0).concat([plansMois]);
+  const visiosData = Array(5).fill(0).concat([visiosMois * 55 / 24.9]);
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Plans (24,90€)', data: plansData, backgroundColor: 'rgba(29,158,117,.7)', borderRadius: 6 },
+        { label: 'Visios (55€)', data: visiosData, backgroundColor: 'rgba(93,202,165,.5)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family:'Outfit', size:11 } } } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, ticks: { font: { family:'Outfit', size:11 } } }
+      }
+    }
+  });
+}
+
+// ── SIMULATEUR ────────────────────────────────────────────────
+const SIM_COMMISSIONS = { 0:5, 9:2.5, 29:2, 59:1.5 };
+const SIM_QUOTAS      = { 0:0, 9:10, 29:30, 59:100 };
+
 function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
-function updateSimulatorBubble() {
-  const plans = parseInt(document.getElementById('simPlans').value);
-  const visios = parseInt(document.getElementById('simVisios').value);
-  const abo = parseInt(document.getElementById('simAbo').value);
-  const commissionPlan = COMMISSIONS_SIM[abo];
-  const quota = QUOTAS_SIM[abo];
-  document.getElementById('simPlansVal').textContent = plans;
-  document.getElementById('simVisiosVal').textContent = visios;
-  const plansPayants = Math.max(0, plans - 1);
-  const horsQuota = Math.max(0, plansPayants - quota);
-  const commissionsTotal = (horsQuota * commissionPlan) + (visios * 8);
-  const caPlans = plans * 24.9;
-  const caVisios = visios * 55;
-  const caTotal = caPlans + caVisios;
-  const net = caTotal - commissionsTotal - abo;
-  const heures = (plans * 15 + visios * 45) / 60;
-  const taux = heures > 0 ? Math.round(net / heures) : 0;
-  document.getElementById('simCa').textContent = Math.round(caTotal) + ' €';
-  document.getElementById('simCommissions').textContent = Math.round(commissionsTotal) + ' €';
-  document.getElementById('simNet').textContent = Math.round(net) + ' €';
-  document.getElementById('simTaux').textContent = taux + ' €/h';
-  document.getElementById('simNote').innerHTML = `📅 Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} € · Commission : ${commissionPlan.toFixed(2)}€/plan (hors quota)`;
-}
-function setAbonnement(val, btn) {
+
+function setSimAbo(val, btn) {
   document.getElementById('simAbo').value = val;
   document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  updateSimulatorBubble();
+  updateSim();
 }
 
-// ===== MÉTRIQUES =====
-function renderMetrics() {
-  const m = DEMO_REVENUS;
-  const lastIdx = m.labels.length - 1;
-  const caPlans = m.plans[lastIdx] * m.tauxPlan;
-  const caVisios = m.visios[lastIdx] * m.tauxVisio;
-  const commissions = (m.plans[lastIdx] * m.commissionPlan) + (m.visios[lastIdx] * m.commissionVisio);
-  const abo = 29;
-  const net = caPlans + caVisios - commissions - abo;
-  const totalCommissionYear = DEMO_NUTRIDOC_PAYMENTS.filter(p => p.type === 'Commission').reduce((s, p) => s + p.montant, 0);
-  const totalAbonnementYear = DEMO_NUTRIDOC_PAYMENTS.filter(p => p.type === 'Abonnement').reduce((s, p) => s + p.montant, 0);
-  document.getElementById('metricsGlobal').innerHTML = `
-    <div class="metric-card"><div class="metric-val">${caPlans + caVisios} €</div><div class="metric-label">CA brut (mars)</div></div>
-    <div class="metric-card"><div class="metric-val">${commissions} €</div><div class="metric-label">Commissions NutriDoc (mars)</div></div>
-    <div class="metric-card"><div class="metric-val">${net} €</div><div class="metric-label">Net perçu (mars)</div></div>
-    <div class="metric-card total"><div class="metric-val">${Math.round((totalCommissionYear + totalAbonnementYear) * 100) / 100} €</div><div class="metric-label">Total payé à NutriDoc (2025)</div></div>
-  `;
+function updateSim() {
+  const plans  = parseInt(document.getElementById('simPlans').value);
+  const visios = parseInt(document.getElementById('simVisios').value);
+  const abo    = parseInt(document.getElementById('simAbo').value);
+  document.getElementById('simPlansVal').textContent  = plans;
+  document.getElementById('simVisiosVal').textContent = visios;
+  const comm    = SIM_COMMISSIONS[abo];
+  const quota   = SIM_QUOTAS[abo];
+  const hq      = Math.max(0, plans - 1 - quota);
+  const commTotal = hq * comm + visios * 8;
+  const ca      = plans * 24.9 + visios * 55;
+  const net     = ca - commTotal - abo;
+  const heures  = (plans * 15 + visios * 45) / 60;
+  document.getElementById('simCa').textContent   = Math.round(ca) + ' €';
+  document.getElementById('simComm').textContent = Math.round(commTotal) + ' €';
+  document.getElementById('simNet').textContent  = Math.round(net) + ' €';
+  document.getElementById('simTaux').textContent = heures > 0 ? Math.round(net / heures) + ' €/h' : '—';
+  document.getElementById('simNote').textContent = `Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} €`;
 }
 
-// ===== GRAPHIQUE =====
-let chart = null;
-function renderChart() {
-  const ctx = document.getElementById('revenusChart');
-  if (chart) chart.destroy();
-  const m = DEMO_REVENUS;
-  const plansData = m.plans.map(v => v * (m.tauxPlan - m.commissionPlan));
-  const visiosData = m.visios.map(v => v * (m.tauxVisio - m.commissionVisio));
-  chart = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: m.labels, datasets: [
-      { label: 'Plans (net)', data: plansData, backgroundColor: '#1D9E75', borderRadius: 8 },
-      { label: 'Visios (net)', data: visiosData, backgroundColor: '#5DCAA5', borderRadius: 8 }
-    ] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => v + '€' } } } }
-  });
-}
-
-// ===== FACTURES =====
-function renderFactures() {
-  const tbody = document.getElementById('facturesBody');
-  tbody.innerHTML = DEMO_FACTURES.map(f => {
-    const total = (f.plans * 24.9 + f.visios * 55 - f.abo - f.commissions).toFixed(2);
-    return `<tr><td style="font-weight:500;">${f.num}</td><td>${f.periode}</td><td>${f.plans} plans</td><td>${f.visios} visios</td><td>−${f.abo} €</td><td>−${f.commissions} €</td><td style="font-weight:500;">${total} €</td><td><span class="badge-ok">✓ ${f.statut}</span></td><td><button class="btn-view" onclick="telechargerFacture('${f.num}')">PDF</button></td></tr>`;
-  }).join('');
-}
-function genererFactureDemo() { alert('📄 Génération de la facture du mois en cours...'); }
-function telechargerFacture(num) { alert(`📎 Téléchargement de ${num}.pdf`); }
-
-// ===== ATTESTATIONS =====
-function renderAttestations() {
-  const z = document.getElementById('attestationsZone');
-  z.innerHTML = `<div style="background:#e1f5ee; border-radius:12px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.75rem; color:#0f6e56;">Chaque consultation visio génère automatiquement une attestation que vous pouvez envoyer directement au patient pour sa demande de remboursement mutuelle.</div>
-    <table class="compta-table"><thead><tr><th>Patient</th><th>Date</th><th>Durée</th><th>Montant</th><th>Envoyer</th><th>PDF</th></thead><tbody>
-    ${DEMO_VISIOS.map(v => `<tr><td style="font-weight:500;">${v.patient}</td><td>${v.date}</td><td>${v.duree}</td><td>${v.montant} €</td><td><button class="btn-validate" onclick="envoyerAttestation('${v.patient}')">✉ Envoyer</button></td><td><button class="btn-view" onclick="dlAttestation('${v.patient}')">PDF</button></td></tr>`).join('')}
-    </tbody></table>`;
-}
-function envoyerAttestation(patient) { alert(`✉ Attestation envoyée par email à ${patient} !`); }
-function dlAttestation(patient) { alert(`📎 Téléchargement attestation_mutuelle_${patient.replace(' ', '_')}.pdf`); }
-
-// ===== ÉCHÉANCIER =====
-function renderEcheancier() {
-  const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-  const container = document.getElementById('echeancierList');
-  container.innerHTML = DEMO_ECHEANCIER.map(e => {
-    const date = new Date(e.date);
-    const jour = date.getDate();
-    const moisNom = mois[date.getMonth()];
-    return `<div class="echeance-card"><div class="echeance-date"><div class="day">${jour}</div><div class="month">${moisNom}</div></div>
-      <div class="echeance-info"><h4>${e.type} ${e.patient !== 'Abonnement Pro' ? '- ' + e.patient : ''}</h4><p>${e.isCredit ? 'Paiement à recevoir' : 'Prélèvement à venir'}</p></div>
-      <div class="echeance-montant ${e.isCredit ? 'credit' : 'debit'}">${e.isCredit ? '+' : '-'}${e.montant.toFixed(2)} €</div></div>`;
-  }).join('');
-}
-function exporterEcheancierCSV() {
-  let csv = "Date,Type,Patient,Montant\n";
-  DEMO_ECHEANCIER.forEach(e => { csv += `${e.date},${e.type},${e.patient},${e.montant}\n`; });
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'echeancier_paiements.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  alert('📎 Export CSV téléchargé');
-}
-
-// ===== PAIEMENTS NUTRIDOC =====
-function renderNutridocPayments() {
-  const totalPaye = DEMO_NUTRIDOC_PAYMENTS.reduce((s, p) => s + p.montant, 0);
-  const aVenir = 29 + 4;
-  document.getElementById('paymentsSummary').innerHTML = `
-    <div class="payment-stat"><div class="payment-stat-label">Déjà payé à NutriDoc</div><div class="payment-stat-value debit">${totalPaye.toFixed(2)} €</div></div>
-    <div class="payment-stat"><div class="payment-stat-label">À payer (échéances à venir)</div><div class="payment-stat-value debit">${aVenir.toFixed(2)} €</div></div>
-  `;
-  const tbody = document.getElementById('nutridocPaymentsBody');
-  tbody.innerHTML = DEMO_NUTRIDOC_PAYMENTS.map(p => `
-    <tr><td>${p.date}</td><td>${p.type}</td><td>${p.description}</td><td>${p.montant.toFixed(2)} €</td><td><span class="badge-ok">✓ ${p.statut}</span></td><td><button class="btn-view" onclick="telechargerFacture('${p.facture}')">PDF</button></td></tr>
-  `).join('');
-}
-function exporterPaiementsCSV() {
-  let csv = "Date,Type,Description,Montant,Statut,Facture\n";
-  DEMO_NUTRIDOC_PAYMENTS.forEach(p => { csv += `${p.date},${p.type},${p.description},${p.montant},${p.statut},${p.facture}\n`; });
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'paiements_nutridoc.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  alert('📎 Export CSV téléchargé');
-}
-
-// ===== GESTION DES ACCÈS =====
-function applyForfaitRestrictions() {
-  const isEssentiel = FORFAIT_ACTUEL === 'essentiel';
-  const banner = document.getElementById('forfaitBanner');
-  if (banner) banner.style.display = isEssentiel ? 'flex' : 'none';
-  const chartWrapper = document.getElementById('chartWrapper');
-  if (isEssentiel && chartWrapper && !chartWrapper.querySelector('.blocked-overlay')) {
-    const overlay = document.createElement('div');
-    overlay.className = 'blocked-overlay';
-    overlay.innerHTML = `<p>🔒 Graphique des revenus disponible à partir du forfait Starter (9€/mois)</p><a href="gestion-forfait-dieteticien.html" class="btn-upgrade">Upgrader mon forfait →</a>`;
-    chartWrapper.style.position = 'relative';
-    chartWrapper.appendChild(overlay);
-  } else if (!isEssentiel) { const overlay = chartWrapper?.querySelector('.blocked-overlay'); if (overlay) overlay.remove(); }
-  const echeancierSection = document.getElementById('echeancierSection');
-  if (isEssentiel && echeancierSection && !echeancierSection.querySelector('.blocked-overlay')) {
-    const overlay = document.createElement('div');
-    overlay.className = 'blocked-overlay';
-    overlay.innerHTML = `<p>🔒 Échéancier des paiements disponible à partir du forfait Starter (9€/mois)</p><a href="gestion-forfait-dieteticien.html" class="btn-upgrade">Upgrader mon forfait →</a>`;
-    echeancierSection.style.position = 'relative';
-    echeancierSection.appendChild(overlay);
-  } else if (!isEssentiel) { const overlay = echeancierSection?.querySelector('.blocked-overlay'); if (overlay) overlay.remove(); }
-}
-
-// ===== NAVIGATION SIDEBAR =====
-function initSidebar() {
-  const items = document.querySelectorAll('.sidebar-item');
-  items.forEach(item => {
-    item.addEventListener('click', () => {
-      const section = item.dataset.section;
-      items.forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(`section-${section}`).classList.add('active');
-    });
-  });
-}
-
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  renderMetrics();
-  renderChart();
-  renderFactures();
-  renderAttestations();
-  renderEcheancier();
-  renderNutridocPayments();
-  applyForfaitRestrictions();
-  updateSimulatorBubble();
-  initSidebar();
-  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
+  chargerDonnees();
+  updateSim();
 });
-window.addEventListener('scroll', () => { document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300); });
-initProfilSystem();
 </script>
 
 </body>
