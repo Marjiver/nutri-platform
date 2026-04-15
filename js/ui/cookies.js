@@ -2,7 +2,7 @@
  * cookies.js — NutriDoc · Bandeau consentement RGPD
  */
 
-(function() {
+document.addEventListener("DOMContentLoaded", function() {
   if (sessionStorage.getItem('nd_cookies_ok')) return;
 
   const banner = document.createElement('div');
@@ -57,7 +57,7 @@
 
   document.head.appendChild(style);
   document.body.appendChild(banner);
-})();
+});
 
 function cookieAccept() {
   sessionStorage.setItem('nd_cookies_ok', '1');
