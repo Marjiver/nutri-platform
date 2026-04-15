@@ -1,30 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:title" content="NutriDoc — Espace Diététicien">
-  <meta property="twitter:description" content="Devenez diététicien partenaire NutriDoc. Validez des plans alimentaires depuis chez vous.">
-  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-dieteticien.html">
-  <meta property="og:type" content="website">
-  <meta property="og:description" content="Devenez diététicien partenaire NutriDoc. Validez des plans alimentaires depuis chez vous.">
-  <meta property="og:title" content="NutriDoc — Espace Diététicien">
-  <meta name="author" content="CaliDoc Santé">
-  <meta name="keywords" content="diététicien, RPPS, revenus complémentaires, validation plans, nutrition professionnelle">
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NutriDoc">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
   <meta name="description" content="Diététicien certifié RPPS : générez des revenus complémentaires en validant des plans alimentaires depuis chez vous. 1 plan offert par mois."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>NutriDoc — Espace Diététicien · Rejoignez la plateforme RPPS</title>
+  <title>NutriDoc — Espace Diététicien · CaliDoc Santé</title>
   
   <meta name="theme-color" content="#0d2018">
   <link rel="manifest" href="/manifest.json">
@@ -1015,13 +995,104 @@
       opacity: 1;
       transform: translateY(0);
     }
+  
+    /* ============================================================
+       CAROUSEL PUB — styles
+    ============================================================ */
+    .nd-carousel{
+      position:relative;background:#0d2018;
+      min-height:88vh;display:flex;flex-direction:column;justify-content:center;
+      overflow:hidden;padding-top:60px;
+    }
+    .nd-carousel::before{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 70% at 70% 40%,rgba(29,158,117,.18) 0%,transparent 65%),
+        radial-gradient(ellipse 35% 50% at 10% 80%,rgba(93,202,165,.1) 0%,transparent 60%);
+    }
+    .nd-car-progress{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);z-index:10;}
+    .nd-car-progress-bar{height:100%;background:#5DCAA5;width:0%;transition:width .1s linear;}
+    .nd-slides{position:relative;width:100%;min-height:inherit;}
+    .nd-slide{
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      padding:3rem 2rem;opacity:0;pointer-events:none;
+      transition:opacity .55s ease,transform .55s ease;
+      transform:translateY(20px);
+    }
+    .nd-slide.active{opacity:1;pointer-events:auto;position:relative;transform:translateY(0);}
+    .nd-slide-inner{
+      max-width:1100px;width:100%;margin:0 auto;
+      display:grid;grid-template-columns:1fr 420px;gap:4rem;align-items:center;
+    }
+    .nd-slide-badge{
+      display:inline-flex;align-items:center;gap:.4rem;
+      font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;
+      color:#5DCAA5;border:1px solid rgba(93,202,165,.3);
+      border-radius:999px;padding:.3rem 1rem;margin-bottom:1.25rem;
+    }
+    .nd-slide-badge .dot{width:5px;height:5px;background:#5DCAA5;border-radius:50%;animation:cPulse 2s infinite;}
+    @keyframes cPulse{0%,100%{box-shadow:0 0 0 0 rgba(93,202,165,.5);}50%{box-shadow:0 0 0 5px rgba(93,202,165,0);}}
+    .nd-slide-title{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1.9rem,3.8vw,2.9rem);
+      color:#fff;line-height:1.15;margin-bottom:1rem;
+    }
+    .nd-slide-title em{font-style:italic;color:#5DCAA5;}
+    .nd-slide-sub{font-size:.95rem;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:1.75rem;max-width:520px;}
+    .nd-slide-chips{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.75rem;}
+    .nd-chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:500;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.35rem .9rem;color:rgba(255,255,255,.85);}
+    .nd-chip-g{background:rgba(29,158,117,.18);border-color:rgba(29,158,117,.35);color:#5DCAA5;}
+    .nd-slide-cta{
+      display:inline-flex;align-items:center;gap:.5rem;
+      background:#1D9E75;color:#fff;
+      padding:.8rem 2rem;border-radius:999px;
+      font-size:.9rem;font-weight:600;text-decoration:none;
+      transition:all .25s;box-shadow:0 4px 18px rgba(29,158,117,.35);
+    }
+    .nd-slide-cta:hover{background:#0f6e56;transform:translateX(4px);}
+    .nd-slide-cta2{display:inline-flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.45);font-size:.82rem;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:1px;transition:color .2s;align-self:center;}
+    .nd-slide-cta2:hover{color:rgba(255,255,255,.85);}
+    .nd-slide-ctas{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+    .nd-slide-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(93,202,165,.2);border-radius:24px;padding:1.75rem;position:relative;overflow:hidden;}
+    .nd-slide-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(93,202,165,.1),transparent 70%);pointer-events:none;}
+    .sc-label{font-size:.65rem;color:#5DCAA5;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;}
+    .sc-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.8rem;}
+    .sc-row:last-of-type{border-bottom:none;}
+    .sc-row-l{color:rgba(255,255,255,.7);}
+    .sc-row-r{color:#5DCAA5;font-weight:600;}
+    .sc-footer{margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+    .sc-diet{display:flex;align-items:center;gap:.6rem;}
+    .sc-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0f6e56);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .sc-di{font-size:.68rem;color:rgba(255,255,255,.55);}
+    .sc-di strong{color:#fff;display:block;}
+    .sc-badge-g{font-size:.62rem;background:rgba(29,158,117,.2);color:#5DCAA5;border:1px solid rgba(29,158,117,.3);border-radius:999px;padding:.2rem .65rem;white-space:nowrap;}
+    .sc-big{text-align:center;padding:.75rem 0;}
+    .sc-big-n{font-family:'Playfair Display',serif;font-size:3.2rem;color:#5DCAA5;line-height:1;}
+    .sc-big-l{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;}
+    .sc-big-s{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.4rem;}
+    .sc-2g{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+    .sc-g-item{background:rgba(255,255,255,.05);border-radius:12px;padding:.75rem;text-align:center;}
+    .sc-g-v{font-size:1.3rem;font-weight:700;color:#5DCAA5;}
+    .sc-g-l{font-size:.63rem;color:rgba(255,255,255,.45);margin-top:.15rem;}
+    .sc-divider{border:none;border-top:1px solid rgba(255,255,255,.08);margin:.75rem 0;}
+    .nd-car-nav{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.6rem;z-index:10;}
+    .nd-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s;border:none;}
+    .nd-dot.active{background:#5DCAA5;width:28px;}
+    .nd-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px);}
+    .nd-arrow:hover{background:rgba(29,158,117,.4);border-color:#1D9E75;}
+    .nd-arrow.prev{left:1.5rem;}
+    .nd-arrow.next{right:1.5rem;}
+    @media(max-width:960px){
+      .nd-slide-inner{grid-template-columns:1fr;gap:2rem;}
+      .nd-slide-card{max-width:400px;margin:0 auto;}
+      .nd-slide{padding:3.5rem 1.5rem 4.5rem;}
+      .nd-arrow{display:none;}
+      .nd-carousel{min-height:auto;}
+    }
   </style>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/dark-mode.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<body data-theme="light">
+<body>
 
 <!-- HEADER -->
 <header class="nd-header" id="ndHeader">
@@ -1076,128 +1147,108 @@
   </div>
 </div>
 
-<!-- HERO -->
-<section class="nd-hero">
-  <div class="nd-hero-canvas"></div>
-  <div class="nd-hero-overlay"></div>
-  <div class="nd-hero-container">
-    <div class="nd-hero-content">
-      <div class="nd-hero-eyebrow">
-        <span class="nd-dot-pulse"></span>
-        Plateforme certifiée RPPS
-      </div>
-      <h1 class="nd-hero-title">
-        Générez des <em>revenus additionnels</em><br>
-        depuis chez vous,<br>
-        à votre rythme
-      </h1>
-      <p class="nd-hero-sub">
-        NutriDoc vous apporte les patients. Vous validez les plans en 15 min. Les paiements arrivent directement sur votre compte.
-      </p>
-      <div class="nd-hero-ctas">
-        <a href="inscription-dieteticien.html" class="nd-cta-main">Rejoindre — c'est gratuit →</a>
-        <a href="#comment" class="nd-cta-ghost">Voir comment ça marche</a>
-      </div>
-      <div class="nd-hero-trust">
-        <div class="nd-trust-item"><span class="nd-trust-num">0 €</span><span class="nd-trust-label">Inscription</span></div>
-        <div class="nd-trust-sep"></div>
-        <div class="nd-trust-item"><span class="nd-trust-num">15 min</span><span class="nd-trust-label">Par plan</span></div>
-        <div class="nd-trust-sep"></div>
-        <div class="nd-trust-item"><span class="nd-trust-num">RPPS</span><span class="nd-trust-label">Certifié</span></div>
-      </div>
-    </div>
 
-    <div class="nd-hero-mockup">
-      <div class="mockup-block block-time">
-        <div class="stat-val-large">15 min</div>
-        <div class="stat-label">Temps de validation</div>
+
+  <div class="nd-carousel" id="ndCarousel">
+    <div class="nd-car-progress"><div class="nd-car-progress-bar" id="progressBar"></div></div>
+    <div class="nd-slides">
+
+      <div class="nd-slide active">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>💰 Revenus additionnels garantis</div>
+            <h1 class="nd-slide-title">Validez 10 plans.<br>Encaissez <em>249€ nets.</em><br>Depuis votre canapé.</h1>
+            <p class="nd-slide-sub">NutriDoc s'occupe de tout : acquisition des patients, outils de génération, signature électronique automatique. Vous passez <strong style="color:#fff;">15 minutes par plan</strong>. Le reste vous appartient — directement sur votre compte Stripe.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">24,90€ / plan validé</span>
+              <span class="nd-chip">⏱ 15 min de travail</span>
+              <span class="nd-chip">💳 Paiement direct Stripe</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="inscription-dieteticien.html" class="nd-slide-cta">Rejoindre — c'est gratuit →</a>
+              <a href="#avantages" class="nd-slide-cta2">Voir les avantages</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">💰 Simulateur rapide · 10 plans/mois</div>
+            <div class="sc-row"><span class="sc-row-l">CA brut (10 × 24,90€)</span><span class="sc-row-r">249€</span></div>
+            <div class="sc-row"><span class="sc-row-l">Commission NutriDoc</span><span class="sc-row-r" style="color:rgba(255,255,255,.5);">− 29€ (forfait Pro)</span></div>
+            <div class="sc-row"><span class="sc-row-l">Temps passé (10 × 15 min)</span><span class="sc-row-r" style="color:rgba(255,255,255,.5);">2h30</span></div>
+            <hr class="sc-divider"/>
+            <div class="sc-row"><span class="sc-row-l" style="font-weight:700;color:#fff;">Revenu net / mois</span><span class="sc-row-r" style="font-size:1.1rem;">220 €</span></div>
+            <div class="sc-row"><span class="sc-row-l">Taux horaire estimé</span><span class="sc-row-r">88 €/h</span></div>
+            <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Estimé sur forfait Pro · 29€/mois</div></div>
+          </div>
+        </div>
       </div>
-      <div class="mockup-block block-visio">
-        <div class="livraison-icon">💬</div>
-        <div class="livraison-text">Visio<br><strong>55€ encaissés</strong></div>
+
+      <div class="nd-slide">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>🔄 Flux entrant sans effort</div>
+            <h1 class="nd-slide-title">Les patients viennent.<br><em>Vous n'avez rien à chercher.</em></h1>
+            <p class="nd-slide-sub">Patients directs, prescripteurs, partenaires B2B… NutriDoc vous apporte un flux de dossiers <strong style="color:#fff;">localisés autour de chez vous</strong>, pré-remplis et qualifiés. Zéro prospection, zéro phoning, zéro charge administrative.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">Patients de votre région</span>
+              <span class="nd-chip">📂 Dossiers pré-remplis</span>
+              <span class="nd-chip">🔔 Notification immédiate</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="inscription-dieteticien.html" class="nd-slide-cta">Rejoindre le réseau →</a>
+              <a href="#comment" class="nd-slide-cta2">Comment ça marche ?</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">📍 Dossiers entrants · Ce mois</div>
+            <div class="sc-2g">
+              <div class="sc-g-item"><div class="sc-g-v">+12</div><div class="sc-g-l">Patients directs</div></div>
+              <div class="sc-g-item"><div class="sc-g-v">+8</div><div class="sc-g-l">Via prescripteurs</div></div>
+            </div>
+            <div class="sc-row"><span class="sc-row-l">Zone géographique</span><span class="sc-row-r">Votre ville & alentours</span></div>
+            <div class="sc-row"><span class="sc-row-l">Dossier patient</span><span class="sc-row-r">Pré-rempli & structuré</span></div>
+            <div class="sc-row"><span class="sc-row-l">Charge administrative</span><span class="sc-row-r" style="color:rgba(255,255,255,.4);">Aucune</span></div>
+            <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Vous validez. NutriDoc gère le reste.</div></div>
+          </div>
+        </div>
       </div>
-      <div class="mockup-block block-delai">
-        <div class="livraison-icon">📋</div>
-        <div class="livraison-text">PDF signé<br><strong>RPPS</strong></div>
+
+      <div class="nd-slide">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>🎁 Essayez sans rien débourser</div>
+            <h1 class="nd-slide-title">1 plan offert chaque mois.<br><em>Même à 0€ d'abonnement.</em></h1>
+            <p class="nd-slide-sub">Testez NutriDoc sans rien débourser. La formule <strong style="color:#fff;">Essentielle est gratuite pour toujours</strong>. Et chaque mois, quel que soit votre forfait, un plan est validé à 100% pour vous — parce que vous méritez de voir ce que ça donne pour de vrai.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">Inscription 100% gratuite</span>
+              <span class="nd-chip">🎁 1 plan offert / mois</span>
+              <span class="nd-chip">Sans engagement</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="inscription-dieteticien.html" class="nd-slide-cta">S'inscrire gratuitement →</a>
+              <a href="#tarifs" class="nd-slide-cta2">Voir les formules</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">📦 Formule Essentielle · 0€/mois</div>
+            <div class="sc-big">
+              <div class="sc-big-n">0 €</div>
+              <div class="sc-big-l">Inscription et accès à vie</div>
+              <div class="sc-big-s">Référencement RPPS + badge vérifié</div>
+            </div>
+            <hr class="sc-divider"/>
+            <div class="sc-row"><span class="sc-row-l">🎁 Plan offert / mois</span><span class="sc-row-r">1 plan validé gratuitement</span></div>
+            <div class="sc-row"><span class="sc-row-l">Commission hors quota</span><span class="sc-row-r">5€ / plan seulement</span></div>
+            <div class="sc-row"><span class="sc-row-l">Résiliation / évolution</span><span class="sc-row-r">Quand vous voulez</span></div>
+            <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Aucun risque · Aucun engagement</div></div>
+          </div>
+        </div>
       </div>
-      <div class="mockup-block block-free">
-        <div class="accent-badge">⭐ OFFERT</div>
-        <div class="stat-val-large">1 plan/mois</div>
-        <div class="stat-label">validé à 100%</div>
-      </div>
+
     </div>
+    <button class="nd-arrow prev" onclick="slideNav(-1)">◀</button>
+    <button class="nd-arrow next" onclick="slideNav(1)">▶</button>
+    <div class="nd-car-nav" id="carouselNav"></div>
   </div>
-</section>
-
-<!-- CARROUSEL -->
-<div class="fullscreen-carousel">
-  <div class="carousel-container">
-    <button class="carousel-arrow prev" onclick="prevSlide()">◀</button>
-    <div class="carousel-slides" id="carouselSlides">
-      <div class="carousel-slide" data-slide="0">
-        <div class="slide-inner">
-          <div class="slide-content">
-            <div class="slide-badge">🎯 REVENUS PRINCIPAUX</div>
-            <div class="slide-title">Validez des plans pour <em>des patients directs</em></div>
-            <div class="slide-desc">Des milliers de patients remplissent leur bilan chaque jour. Vous validez les plans en 15 minutes, ils vous paient directement.</div>
-            <div class="slide-stats">
-              <div class="slide-stat"><div class="slide-stat-value">24,90€</div><div class="slide-stat-label">par plan validé</div></div>
-              <div class="slide-stat"><div class="slide-stat-value">55€</div><div class="slide-stat-label">par consultation visio</div></div>
-            </div>
-            <a href="inscription-dieteticien.html" class="slide-cta">Commencer →</a>
-          </div>
-          <div class="slide-illustration">
-            <div class="illustration-icon">👤 ➜ 🥗</div>
-            <div class="illustration-amount">24,90€</div>
-            <div class="illustration-note">Paiement direct sur votre compte Stripe</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-slide="1">
-        <div class="slide-inner">
-          <div class="slide-content">
-            <div class="slide-badge">🚀 LEVIER DE CROISSANCE</div>
-            <div class="slide-title">Développez votre activité <em>avec les prescripteurs</em></div>
-            <div class="slide-desc">Médecins, kinés, coachs sportifs, ostéopathes… Ils achètent des packs de crédits et vous validez leurs plans. Des revenus réguliers et prévisibles.</div>
-            <div class="slide-stats">
-              <div class="slide-stat"><div class="slide-stat-value">130€</div><div class="slide-stat-label">pack Standard (10 plans)</div></div>
-              <div class="slide-stat"><div class="slide-stat-value">500€</div><div class="slide-stat-label">pack Expert (50 plans)</div></div>
-            </div>
-            <a href="inscription-dieteticien.html" class="slide-cta">Devenir partenaire →</a>
-          </div>
-          <div class="slide-illustration">
-            <div class="illustration-icon">🏢 ➜ 🥗</div>
-            <div class="illustration-amount">+104€ nets</div>
-            <div class="illustration-note">Commission NutriDoc : 26€</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-slide="2">
-        <div class="slide-inner">
-          <div class="slide-content">
-            <div class="slide-badge">🔮 FUTUR PROCHAIN</div>
-            <div class="slide-title">Préparez-vous au <em>programme Partenaires</em></div>
-            <div class="slide-desc">Salles de sport, entreprises, mutuelles, laboratoires… Un réseau de partenaires B2B qui vous apportera des volumes supplémentaires.</div>
-            <div class="slide-stats">
-              <div class="slide-stat"><div class="slide-stat-value">📈 Volume</div><div class="slide-stat-label">garanti</div></div>
-              <div class="slide-stat"><div class="slide-stat-value">🎯 Ciblage</div><div class="slide-stat-label">qualifié</div></div>
-            </div>
-            <a href="inscription-dieteticien.html" class="slide-cta">Pré-inscription →</a>
-          </div>
-          <div class="slide-illustration">
-            <div class="illustration-icon">🤝 ➜ 🥗</div>
-            <div class="illustration-amount">Bientôt disponible</div>
-            <div class="illustration-note">⭐ Rejoignez la liste d'attente</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="carousel-arrow next" onclick="nextSlide()">▶</button>
-    <div class="carousel-nav" id="carouselNav"></div>
-  </div>
-</div>
 
 <!-- COMMENT ÇA MARCHE -->
 <section class="nd-section nd-section-light" id="comment">
@@ -1451,18 +1502,18 @@
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ==================== SCRIPTS ==================== -->
-<script src="js/core/auth.js"></script>
-<script src="js/core/ciqual-data.js"></script>
-<script src="js/core/constants.js"></script>
-<script src="js/core/validation.js"></script>
-<script src="js/utils/error-handler.js"></script>
-<script src="js/utils/email.js"></script>
-<script src="js/payments/stripe.js"></script>
-<script src="js/ui/cookies.js"></script>
-<script src="js/utils/performance.js"></script>
-<script src="js/utils/auto-save.js"></script>
-<script src="js/ui/chatbot-widget.js"></script>
-<script src="js/ui/theme-selector.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ciqual-data.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/error-handler.js"></script>
+<script src="js/email.js"></script>
+<script src="js/stripe.js"></script>
+<script src="js/cookies.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/auto-save.js"></script>
+<script src="js/chatbot-widget.js"></script>
+<script src="js/theme-selector.js"></script>
 
 <script>
 // ==================== MODE SOMBRE ====================
@@ -1470,50 +1521,117 @@
   const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel'), saved=localStorage.getItem('nutridoc_theme');
   if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
   else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; localStorage.setItem('nutridoc_theme','light'); }
-<script>
-(function() {
-  const btn = document.getElementById("themeHeaderBtn");
-  const iconSpan = document.getElementById("themeIcon");
-  const saved = localStorage.getItem("nutridoc_theme");
-  
-  if (saved === "dark") {
-    document.documentElement.setAttribute("data-theme", "dark");
-    if (iconSpan) iconSpan.textContent = "☀️";
-  } else {
-    document.documentElement.setAttribute("data-theme", "light");
-    if (iconSpan) iconSpan.textContent = "🌙";
-    localStorage.setItem("nutridoc_theme", "light");
-  }
-  
-  if (btn) {
-    btn.onclick = function() {
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      if (isDark) {
-        document.documentElement.setAttribute("data-theme", "light");
-        localStorage.setItem("nutridoc_theme", "light");
-        if (iconSpan) iconSpan.textContent = "🌙";
-      } else {
-        document.documentElement.setAttribute("data-theme", "dark");
-        localStorage.setItem("nutridoc_theme", "dark");
-        if (iconSpan) iconSpan.textContent = "☀️";
-      }
-      btn.style.transform = "scale(0.95)";
-      setTimeout(() => { if(btn) btn.style.transform = "scale(1)"; }, 150);
-    };
-  }
+  window.toggleDarkMode=function(){ const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
+    else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
+    if(btn){btn.style.transform='scale(0.95)'; setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
+  };
+  if(btn)btn.onclick=window.toggleDarkMode;
 })();
-</script>
-  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
-  <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js")
-        .then(reg => console.log("Service Worker enregistré:", reg))
-        .catch(err => console.error("Erreur SW:", err));
-    });
+
+// ==================== SIMULATEUR ====================
+const COMMISSIONS={0:3,9:2.5,29:2,59:1.5};
+function updateSim(){
+  const plans=parseInt(document.getElementById('simPlans').value), visios=parseInt(document.getElementById('simVisios').value), abo=parseInt(document.getElementById('simAbo').value), com=COMMISSIONS[abo];
+  document.getElementById('simPlansVal').textContent=plans; document.getElementById('simVisiosVal').textContent=visios;
+  const plansPayants=Math.max(0,plans-1), horsQuota=Math.max(0,plansPayants-30), commissions=(horsQuota*com)+(visios*8), ca=(plans*24.9)+(visios*55), net=ca-commissions-abo;
+  const heures=(plans*15+visios*45)/60;
+  const taux=heures>0?Math.round(net/heures):0;
+  document.getElementById('simCa').textContent=Math.round(ca)+' €'; document.getElementById('simNet').textContent=Math.round(net)+' €';
+  document.getElementById('simTaux').textContent=taux+' €/h';
+  document.getElementById('simNote').innerHTML=`📅 Revenu annuel estimé : ${Math.round(net*12).toLocaleString('fr-FR')} € · Commission : ${com.toFixed(2)}€/plan (hors quota)`;
+}
+function setAbo(val,btn){
+  document.getElementById('simAbo').value=val;
+  document.querySelectorAll('.sim-abtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSim();
+}
+window.toggleSim=function(){ document.getElementById('simWindow').classList.toggle('open'); };
+window.updateSim=updateSim;
+window.setAbo=setAbo;
+
+// ==================== CARROUSEL ====================
+let currentSlideIndex = 0;
+const totalSlides = 3;
+let autoSlideInterval;
+
+function updateCarousel(){
+  const slides=document.querySelectorAll('.carousel-slide');
+  const dots=document.querySelectorAll('.carousel-dot');
+  slides.forEach((s,i)=>{ s.classList.toggle('active',i===currentSlideIndex); });
+  dots.forEach((d,i)=>{ d.classList.toggle('active',i===currentSlideIndex); });
+}
+function nextSlide(){ currentSlideIndex=(currentSlideIndex+1)%totalSlides; updateCarousel(); resetAutoSlide(); }
+function prevSlide(){ currentSlideIndex=(currentSlideIndex-1+totalSlides)%totalSlides; updateCarousel(); resetAutoSlide(); }
+function goToSlide(i){ currentSlideIndex=i; updateCarousel(); resetAutoSlide(); }
+function startAutoSlide(){ autoSlideInterval=setInterval(()=>nextSlide(),6000); }
+function resetAutoSlide(){ clearInterval(autoSlideInterval); startAutoSlide(); }
+function initCarousel(){
+  const nav=document.getElementById('carouselNav');
+  nav.innerHTML='';
+  for(let i=0;i<totalSlides;i++){
+    const dot=document.createElement('div');
+    dot.className='carousel-dot';
+    dot.onclick=()=>goToSlide(i);
+    nav.appendChild(dot);
   }
-  </script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
+  updateCarousel();
+  startAutoSlide();
+}
+window.nextSlide=nextSlide;
+window.prevSlide=prevSlide;
+
+
+// ==================== CAROUSEL ====================
+(function(){
+  let cur=0,tot=0,pTimer,progress=0;
+  const DURATION=6000;
+  function init(){
+    tot=document.querySelectorAll('.nd-slide').length;
+    const nav=document.getElementById('carouselNav');
+    if(!nav)return;
+    nav.innerHTML='';
+    for(let i=0;i<tot;i++){
+      const d=document.createElement('button');
+      d.className='nd-dot';
+      d.onclick=(()=>{const idx=i;return()=>goTo(idx);})();
+      nav.appendChild(d);
+    }
+    updateDots();startProgress();
+  }
+  function updateDots(){document.querySelectorAll('.nd-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));}
+  function showSlide(n){document.querySelectorAll('.nd-slide').forEach((s,i)=>s.classList.toggle('active',i===n));updateDots();}
+  function goTo(n){cur=(n+tot)%tot;showSlide(cur);resetProgress();}
+  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
+  function resetProgress(){clearInterval(pTimer);startProgress();}
+  window.slideNav=function(d){goTo(cur+d);};
+  document.addEventListener('DOMContentLoaded',init);
+})();
+
+// ==================== PROFIL ====================
+const PROFILS={patient:{name:'Patient',icon:'🧑',url:'index.html'},dieteticien:{name:'Diététicien',icon:'🥗',url:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',url:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',url:'partenariats.html'}};
+function getStoredProfil(){ try{ return localStorage.getItem('nutridoc_profil'); }catch(e){} return null; }
+function setStoredProfil(p){ localStorage.setItem('nutridoc_profil',p); localStorage.setItem('nutridoc_profil_date',Date.now()); }
+function updateUIForProfil(p){ const prof=PROFILS[p]; if(!prof)return; const bar=document.getElementById('dynamicProfilBar'); if(bar){ bar.style.display='block'; document.getElementById('profilIcon').textContent=prof.icon; document.getElementById('profilName').textContent=prof.name; } }
+function openProfilModal(){ const c=document.getElementById('profilModalContainer'); if(!c)return; c.innerHTML='<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil(\'patient\')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div><div class="profil-card" onclick="selectProfil(\'dieteticien\')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil(\'prescripteur\')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div><div class="profil-card" onclick="selectProfil(\'structure\')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>'; }
+function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML=''; }
+function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
+function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); updateUIForProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
+function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(stored && PROFILS[stored]) updateUIForProfil(stored); else if(!dismissed) setTimeout(openProfilModal,500); else document.getElementById('dynamicProfilBar').style.display='block'; }
+window.selectProfil=selectProfil; window.closeProfilModal=closeProfilModal; window.openProfilModal=openProfilModal; window.dismissProfilForever=dismissProfilForever;
+window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
+document.addEventListener('click',(e)=>{ const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu'); if(w&&m&&!w.contains(e.target)) m.classList.remove('open'); });
+window.addEventListener('scroll',()=>{ document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300); });
+
+// REVEAL ANIMATIONS
+const observer=new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('revealed'); }); },{ threshold:0.1 });
+document.querySelectorAll('[data-reveal], .nd-step, .nd-diff-card, .price-card').forEach(el=>observer.observe(el));
+
+// INIT
+initProfil();
+updateSim();
+initCarousel();
+</script>
 </body>
 </html>
