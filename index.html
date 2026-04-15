@@ -125,7 +125,7 @@
       color: var(--text-primary); text-align: center; margin-bottom: 0.5rem;
     }
     .profil-modal-sub {
-      text-align: center; color: rgba(255,255,255,0.5);
+      text-align: center; color: var(--text-secondary);
       margin-bottom: 2rem; font-size: 0.9rem;
     }
     .profil-grid {
@@ -140,6 +140,13 @@
     .profil-card:hover {
       background: rgba(29,158,117,0.15); border-color: #1D9E75;
       transform: translateY(-4px);
+    }
+    .profil-card.disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .profil-soon {
+      display: inline-block; margin-top: 0.4rem;
+      font-size: 0.63rem; font-weight: 600;
+      background: rgba(245,158,11,0.18); color: #f59e0b;
+      padding: 0.1rem 0.5rem; border-radius: 999px; letter-spacing: 0.04em;
     }
     .profil-icon { font-size: 3rem; margin-bottom: 0.75rem; }
     .profil-card h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
@@ -1023,19 +1030,19 @@
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ==================== SCRIPTS ==================== -->
-<script src="js/core/auth.js"></script>
-<script src="js/core/ciqual-data.js"></script>
-<script src="js/core/constants.js"></script>
-<script src="js/core/validation.js"></script>
-<script src="js/utils/error-handler.js"></script>
-<script src="js/utils/email.js"></script>
-<script src="js/payments/stripe.js"></script>
-<script src="js/ui/cookies.js"></script>
-<script src="js/utils/performance.js"></script>
-<script src="js/utils/auto-save.js"></script>
-<script src="js/ui/chatbot-widget.js"></script>
-<script src="js/ui/home.js"></script>
-<script src="js/legacy/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ciqual-data.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/error-handler.js"></script>
+<script src="js/email.js"></script>
+<script src="js/stripe.js"></script>
+<script src="js/cookies.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/auto-save.js"></script>
+<script src="js/chatbot-widget.js"></script>
+<script src="js/home.js"></script>
+<script src="js/main.js"></script>
 
 <script>
 // ==================== MODE SOMBRE (bouton dans le header) ====================
@@ -1144,7 +1151,7 @@ function openProfilModal() {
           <div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
           <div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
           <div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
-          <div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+          <div class="profil-card disabled"><div class="profil-icon">🏛️</div><h3>Partenaires</h3><p>Maison de santé, salle de sport, entreprise</p><span class="profil-soon">Bientôt disponible</span></div>
         </div>
         <div class="profil-modal-footer">
           <button onclick="closeProfilModal()">Plus tard</button>
@@ -1195,6 +1202,17 @@ window.addEventListener('scroll', () => {
   document.getElementById('ndHeader')?.classList.toggle('scrolled', window.scrollY > 50);
   document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
 });
+
+// ── INIT PROFIL SYSTEM ──────────────────────────────────────
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored    = getStoredProfil();
+  if (stored && PROFILS[stored]) {
+    updateUIForProfil(stored);
+  } else if (!dismissed) {
+    setTimeout(openProfilModal, 1000);
+  }
+}
 
 // Initialisations
 if (typeof initAutoSave === 'function') initAutoSave();
