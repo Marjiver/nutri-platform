@@ -1,22 +1,57 @@
 // ============================================================
-//  Supabase Edge Function : generate-plan (version OpenAI)
+//  Supabase Edge Function : generate-plan (OpenAI + CIQUAL)
 //  Chemin : supabase/functions/generate-plan/index.ts
 //
-//  Déploiement :
-//    supabase functions deploy generate-plan
-//
-//  Variables d'environnement requises (Dashboard → Settings → Secrets) :
-//    OPENAI_API_KEY = sk-...
+//  Variables d'environnement requises :
+//    OPENAI_API_KEY
+//    SUPABASE_URL (fournie automatiquement)
+//    SUPABASE_SERVICE_ROLE_KEY (fournie automatiquement)
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import OpenAI from "https://deno.land/x/openai@v4.24.0/mod.ts";
+import { CIQUAL } from "./ciqual-data.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Génère un résumé des aliments CIQUAL pour le prompt (limité pour ne pas exploser le contexte)
+function getCiqualSummary(): string {
+  const summary: string[] = [];
+  for (const group of Object.values(CIQUAL)) {
+    const aliments = group.equivalents.slice(0, 8).map((e: any) => e.aliment).join(", ");
+    summary.push(`**${group.label}** : ${aliments}...`);
+  }
+  return summary.join("\n");
+}
+
+// Enrichissement optionnel du plan avec les données CIQUAL (ex. ajouter kcal estimé)
+function enrichirAvecCiqual(plan: any): any {
+  if (!plan.semaine) return plan;
+  for (const jour of plan.semaine) {
+    for (const repas of ["matin", "collation_matin", "midi", "collation_soir", "soir"]) {
+      const item = jour[repas];
+      if (item?.description) {
+        const mots = item.description.toLowerCase().split(/\s+/);
+        let found = null;
+        for (const grp of Object.values(CIQUAL)) {
+          found = grp.equivalents.find((e: any) =>
+            mots.some((m: string) => e.aliment.toLowerCase().includes(m) && m.length > 3)
+          );
+          if (found) break;
+        }
+        if (found) {
+          item.ciqual_ref = found.aliment;
+          item.kcal_estime = found.kcal;
+        }
+      }
+    }
+  }
+  return plan;
+}
 
 serve(async (req) => {
   // Preflight CORS
@@ -33,29 +68,41 @@ serve(async (req) => {
       });
     }
 
-    // ── Auth Supabase ──────────────────────────────────────
+    // ── Auth Supabase avec support de la clé service_role ──
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const openaiKey = Deno.env.get("OPENAI_API_KEY")!;
 
     const supa = createClient(supabaseUrl, supabaseKey);
 
-    // Vérifier que le demandeur est bien un diététiste / prescripteur
     const authHeader = req.headers.get("Authorization");
-    const { data: { user } } = await supa.auth.getUser(authHeader?.replace("Bearer ", "") || "");
-    if (!user) {
-      return new Response(JSON.stringify({ error: "Non authentifié" }), {
-        status: 401,
-        headers: corsHeaders,
-      });
-    }
+    const token = authHeader?.replace("Bearer ", "") || "";
 
-    const { data: profile } = await supa.from("profiles").select("role").eq("id", user.id).single();
-    if (!profile || !["dietitian", "prescriber"].includes(profile.role)) {
-      return new Response(JSON.stringify({ error: "Accès refusé" }), {
-        status: 403,
-        headers: corsHeaders,
-      });
+    let isServiceRole = false;
+    let userId: string | null = null;
+
+    // Si le token correspond à la clé service_role, on bypass l'auth
+    if (token === supabaseKey) {
+      isServiceRole = true;
+    } else {
+      // Vérification normale par JWT
+      const { data: { user }, error: userError } = await supa.auth.getUser(token);
+      if (userError || !user) {
+        return new Response(JSON.stringify({ error: "Non authentifié" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
+      userId = user.id;
+
+      // Vérification du rôle (uniquement pour les utilisateurs normaux)
+      const { data: profile } = await supa.from("profiles").select("role").eq("id", userId).single();
+      if (!profile || !["dietitian", "prescriber"].includes(profile.role)) {
+        return new Response(JSON.stringify({ error: "Accès refusé" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
     }
 
     // ── Récupérer le bilan ─────────────────────────────────
@@ -72,7 +119,7 @@ serve(async (req) => {
       });
     }
 
-    // ── Construire le prompt (identique à votre version) ───
+    // ── Construire le prompt (avec CIQUAL) ─────────────────
     const IMC = bilan.poids && bilan.taille
       ? Math.round(bilan.poids / Math.pow(bilan.taille / 100, 2) * 10) / 10
       : null;
@@ -93,6 +140,8 @@ serve(async (req) => {
       actif:       "Très actif (5+x/semaine)",
       tres_actif:  "Extrêmement actif",
     };
+
+    const ciqualSummary = getCiqualSummary();
 
     const prompt = `Tu es un diététicien RPPS expert. Génère une proposition de plan alimentaire sur 7 jours pour ce patient.
 
@@ -133,8 +182,15 @@ Allergies : ${bilan.allergies || "aucune"}
 Aversions : ${bilan.aversions || "aucune"}
 Alertes santé : ${bilan.alertes_sante?.length ? bilan.alertes_sante.join(", ") : "aucune"}
 
+═══ BASE DE DONNÉES CIQUAL (aliments disponibles) ═══
+Voici les aliments réels que tu dois utiliser impérativement. Leurs valeurs nutritionnelles sont issues de la table CIQUAL 2020.
+Pour chaque repas, choisis un ou plusieurs aliments parmi cette liste. Utilise les noms exacts ci-dessous.
+
+${ciqualSummary}
+
 ═══ INSTRUCTIONS ═══
-Génère un plan structuré en JSON avec exactement ce format :
+Génère un plan structuré en JSON avec exactement ce format. Les descriptions doivent contenir des aliments de la liste CIQUAL, avec des quantités en grammes réalistes.
+
 {
   "resume": "Résumé du profil et de la stratégie (2-3 phrases)",
   "apports_cibles": {
@@ -147,11 +203,11 @@ Génère un plan structuré en JSON avec exactement ce format :
   "semaine": [
     {
       "jour": "Lundi",
-      "matin": { "description": "...", "exemple": "..." },
-      "collation_matin": { "description": "...", "exemple": "..." },
-      "midi": { "description": "...", "exemple": "...", "grammages": "..." },
-      "collation_soir": { "description": "...", "exemple": "..." },
-      "soir": { "description": "...", "exemple": "...", "grammages": "..." }
+      "matin": { "description": "ex: 50g de Flocons d'avoine avec 150ml de Lait demi-écrémé", "exemple": "" },
+      "collation_matin": { "description": "ex: 1 pomme", "exemple": "" },
+      "midi": { "description": "ex: 150g de Riz complet cuit + 120g de Blanc de poulet cuit + 100g de Brocolis cuits", "exemple": "", "grammages": "150g riz, 120g poulet, 100g brocolis" },
+      "collation_soir": { "description": "ex: 30g d'Amandes", "exemple": "" },
+      "soir": { "description": "ex: 200g de Lentilles cuites + 150g de Poivron rouge cuit", "exemple": "", "grammages": "200g lentilles, 150g poivron" }
     }
     // 7 jours (Lundi à Dimanche)
   ],
@@ -161,27 +217,30 @@ Génère un plan structuré en JSON avec exactement ce format :
   "suivi_recommande": "fréquence de suivi recommandée"
 }
 
-Adapte précisément aux restrictions alimentaires, allergies et objectif. Inclus des grammages précis pour le midi et le soir. Réponds UNIQUEMENT avec le JSON, sans texte autour.`;
+Adapte précisément aux restrictions alimentaires, allergies et objectif. Utilise UNIQUEMENT des noms d'aliments présents dans la liste CIQUAL. Réponds UNIQUEMENT avec le JSON, sans texte autour.`;
 
     // ── Appel OpenAI ───────────────────────────────────────
     const openai = new OpenAI({ apiKey: openaiKey });
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",  // Peut être remplacé par "gpt-4.1" si besoin de plus de qualité
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       response_format: { type: "json_object" },
     });
 
-    const rawText = completion.choices[0].message.content || "{}";
+    let rawText = completion.choices[0].message.content || "{}";
+    rawText = rawText.replace(/```json|```/g, "").trim();
 
-    // Parser le JSON retourné
     let planIA;
     try {
-      planIA = JSON.parse(rawText.replace(/```json|```/g, "").trim());
+      planIA = JSON.parse(rawText);
     } catch {
       planIA = { raw: rawText, erreur: "Format JSON invalide" };
     }
+
+    // Enrichissement optionnel avec CIQUAL
+    planIA = enrichirAvecCiqual(planIA);
 
     // ── Sauvegarder dans Supabase ──────────────────────────
     await supa.from("bilans").update({
@@ -194,6 +253,7 @@ Adapte précisément aux restrictions alimentaires, allergies et objectif. Inclu
     });
 
   } catch (err) {
+    console.error(err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
