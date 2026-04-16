@@ -760,9 +760,35 @@ function updateProgress() {
     s.classList.toggle('done',   i + 1 < currentStep);
   });
   document.getElementById('inscError')?.classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function nextStep() { if (currentStep < TOTAL_STEPS) { currentStep++; updateProgress(); } }
-function prevStep() { if (currentStep > 1)           { currentStep--; updateProgress(); } }
+
+function validateStep1Presc() {
+  const fields = [
+    { id:'prenom', label:'Prénom' },
+    { id:'nom',    label:'Nom' },
+    { id:'email',  label:'Email professionnel' },
+  ];
+  for (const f of fields) {
+    const el = document.getElementById(f.id);
+    if (!el) continue;
+    const empty = !el.value.trim();
+    el.style.borderColor = empty ? '#ef4444' : '';
+    if (empty) { showError(`⚠️ Le champ « ${f.label} » est obligatoire.`); el.focus(); return false; }
+  }
+  const emailVal = document.getElementById('email')?.value.trim();
+  if (emailVal && !emailVal.includes('@')) {
+    document.getElementById('email').style.borderColor = '#ef4444';
+    showError('⚠️ Veuillez entrer une adresse email valide.'); return false;
+  }
+  return true;
+}
+
+function nextStep() {
+  if (currentStep === 1 && !validateStep1Presc()) return;
+  if (currentStep < TOTAL_STEPS) { currentStep++; updateProgress(); }
+}
+function prevStep() { if (currentStep > 1) { currentStep--; updateProgress(); } }
 
 // ── VALIDATION SIRET ──────────────────────────────────────────
 function validateSiretAndContinue() {

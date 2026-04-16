@@ -1067,33 +1067,137 @@ function updateProgress() {
   });
 }
 
-function goToStep(step) {
-  if (step < 1 || step > totalSteps) return;
-  
-  const currentStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
-  if (currentStepEl) {
-    const requiredInputs = currentStepEl.querySelectorAll('[required]');
-    let isValid = true;
-    requiredInputs.forEach(input => {
-      if (!input.value.trim()) {
-        isValid = false;
-        input.style.borderColor = '#ef4444';
-      } else {
-        input.style.borderColor = '#eef4ee';
-      }
-    });
-    if (!isValid && step > currentStep) {
-      alert('Veuillez remplir tous les champs obligatoires.');
-      return;
+// ── Affiche/masque les erreurs inline ──────────────────────────
+function showStepError(stepNum, msg) {
+  // Cherche un div d'erreur dédié à cette étape, sinon le crée
+  const stepEl = document.querySelector(`.step[data-step="${stepNum}"]`);
+  if (!stepEl) return;
+  let errEl = stepEl.querySelector('.step-inline-error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.className = 'step-inline-error step-error';
+    errEl.style.cssText = 'margin-bottom:.75rem;';
+    const btnRow = stepEl.querySelector('.btn-row');
+    if (btnRow) stepEl.insertBefore(errEl, btnRow);
+    else stepEl.appendChild(errEl);
+  }
+  errEl.textContent = msg;
+  errEl.style.display = 'block';
+}
+function clearStepError(stepNum) {
+  const stepEl = document.querySelector(`.step[data-step="${stepNum}"]`);
+  if (!stepEl) return;
+  const errEl = stepEl.querySelector('.step-inline-error');
+  if (errEl) errEl.style.display = 'none';
+}
+
+// ── Validation spécifique par étape ───────────────────────────
+function validateStep(stepNum) {
+  clearStepError(stepNum);
+  const stepEl = document.querySelector(`.step[data-step="${stepNum}"]`);
+  if (!stepEl) return true;
+
+  // Vérification des champs required classiques
+  const requiredInputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
+  let firstInvalid = null;
+  requiredInputs.forEach(input => {
+    const empty = input.type === 'checkbox' ? !input.checked : !input.value.trim();
+    if (empty) {
+      input.style.borderColor = '#ef4444';
+      if (!firstInvalid) firstInvalid = input;
+    } else {
+      input.style.borderColor = '';
+    }
+  });
+  if (firstInvalid) {
+    const label = firstInvalid.closest('.form-group')?.querySelector('label')?.textContent?.replace('*','').trim() || 'un champ';
+    showStepError(stepNum, `⚠️ Le champ « ${label} » est obligatoire.`);
+    firstInvalid.focus();
+    return false;
+  }
+
+  // Étape 2 : validation âge min/max
+  if (stepNum === 2) {
+    const age = parseInt(stepEl.querySelector('[name="age"]')?.value);
+    if (isNaN(age) || age < 16 || age > 120) {
+      showStepError(stepNum, '⚠️ Veuillez entrer un âge valide (entre 16 et 120 ans).');
+      return false;
     }
   }
-  
+
+  // Étape 3 : vérifier que taille et poids sont cohérents
+  if (stepNum === 3) {
+    const taille = parseFloat(stepEl.querySelector('[name="taille"]')?.value);
+    const poids  = parseFloat(stepEl.querySelector('[name="poids"]')?.value);
+    if (taille < 100 || taille > 250) {
+      showStepError(stepNum, '⚠️ Taille invalide (entre 100 cm et 250 cm).');
+      return false;
+    }
+    if (poids < 30 || poids > 300) {
+      showStepError(stepNum, '⚠️ Poids invalide (entre 30 kg et 300 kg).');
+      return false;
+    }
+  }
+
+  // Étape 4 : au moins une case santé cochée (obligatoire)
+  if (stepNum === 4) {
+    const anyChecked = stepEl.querySelectorAll('#redFlagList input[type="checkbox"]:checked').length > 0;
+    if (!anyChecked) {
+      showStepError(stepNum, '⚠️ Veuillez cocher au moins une case — ou "Aucune de ces situations ne me concerne".');
+      // Mettre en évidence la liste
+      const list = document.getElementById('redFlagList');
+      if (list) {
+        list.style.border = '2px solid #ef4444';
+        list.style.borderRadius = '12px';
+        list.style.padding = '8px';
+        setTimeout(() => {
+          list.style.border = '';
+          list.style.padding = '';
+        }, 3000);
+      }
+      return false;
+    }
+  }
+
+  // Étape 5 : validation compte
+  if (stepNum === 5) {
+    const email    = document.getElementById('email')?.value.trim();
+    const password = document.getElementById('password')?.value;
+    const confirm  = document.getElementById('passwordConfirm')?.value;
+    const cgu      = document.getElementById('cgu')?.checked;
+    if (!email || !email.includes('@')) {
+      showStepError(stepNum, '⚠️ Veuillez entrer une adresse email valide.');
+      return false;
+    }
+    if (!password || password.length < 8) {
+      showStepError(stepNum, '⚠️ Le mot de passe doit contenir au moins 8 caractères.');
+      return false;
+    }
+    if (password !== confirm) {
+      showStepError(stepNum, '⚠️ Les mots de passe ne correspondent pas.');
+      return false;
+    }
+    if (!cgu) {
+      showStepError(stepNum, '⚠️ Vous devez accepter les CGU pour créer votre compte.');
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function goToStep(step) {
+  if (step < 1 || step > totalSteps) return;
+  // Si on avance, valider l'étape courante
+  if (step > currentStep && !validateStep(currentStep)) return;
+
   document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
   const targetStep = document.querySelector(`.step[data-step="${step}"]`);
   if (targetStep) {
     targetStep.classList.add('active');
     currentStep = step;
     updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
@@ -1187,36 +1291,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Soumission du formulaire
 document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  
+
+  // Validation finale de l'étape 5 (et 4 au cas où)
+  if (!validateStep(4)) { goToStep(4); return; }
+  if (!validateStep(5)) return;
+
   const anyChecked = document.querySelectorAll('#redFlagList input[type="checkbox"]:checked').length > 0;
-  if (!anyChecked) {
-    document.getElementById('stepError5').innerHTML = 'Veuillez cocher au moins une case (ou "aucune de ces situations").';
-    document.getElementById('stepError5').classList.remove('hidden');
-    return;
-  }
-  
-  const password = document.getElementById('password').value;
-  const passwordConfirm = document.getElementById('passwordConfirm').value;
-  const email = document.getElementById('email').value;
-  const cgu = document.getElementById('cgu').checked;
-  
-  if (password !== passwordConfirm) {
-    document.getElementById('stepError5').innerHTML = 'Les mots de passe ne correspondent pas.';
-    document.getElementById('stepError5').classList.remove('hidden');
-    return;
-  }
-  if (password.length < 8) {
-    document.getElementById('stepError5').innerHTML = 'Le mot de passe doit contenir au moins 8 caractères.';
-    document.getElementById('stepError5').classList.remove('hidden');
-    return;
-  }
-  if (!cgu) {
-    document.getElementById('stepError5').innerHTML = 'Vous devez accepter les CGU pour continuer.';
-    document.getElementById('stepError5').classList.remove('hidden');
-    return;
-  }
-  
-  document.getElementById('stepError5').classList.add('hidden');
+  if (!anyChecked) { goToStep(4); return; }
   
   const formData = new FormData(e.target);
   const bilanData = {};
