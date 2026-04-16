@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    :root{--green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--green-light:#E1F5EE;--dark:#0d2018;--bg-primary:#fff;--bg-secondary:#f7f9f7;--bg-card:#fff;--text-primary:#0d2018;--text-secondary:#4b5563;--text-muted:#6b7280;--border-color:#e5e7eb;--shadow:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);}
+    :root{--green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--green-light:#E1F5EE;--dark:#0d2018;--bg-primary:#fff;--bg-secondary:#f7f9f7;--bg-card:#fff;--text-primary:#0d2018;--text-secondary:#4b5563;--text-muted:#6b7280;--border-color:var(--border-light,#e5e7eb);--shadow:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);}
     [data-theme="dark"]{--bg-primary:#0a0f0d;--bg-secondary:#111816;--bg-card:#141c19;--text-primary:#e5e7eb;--text-secondary:#9ca3af;--text-muted:#6b7280;--border-color:#2a3430;--green-light:rgba(29,158,117,.12);}
     body{font-family:'Outfit',sans-serif;background:var(--bg-secondary);color:var(--text-primary);line-height:1.5;}
     *{transition:background-color .2s,border-color .2s,color .2s;}
@@ -222,6 +222,14 @@
     [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
     [data-reveal].revealed{opacity:1;transform:translateY(0);}
   </style>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-patient.html"/>
+  <meta property="og:title" content="NutriDoc — Votre plan alimentaire légal en 48h"/>
+  <meta property="og:description" content="Bilan nutritionnel gratuit. Plan alimentaire personnalisé validé par un diététicien certifié RPPS. Livré sous 48h."/>
+  <meta property="og:image" content="assets/images/og-image.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="NutriDoc — Votre plan alimentaire légal en 48h"/>
+  <meta name="twitter:description" content="Bilan nutritionnel gratuit. Plan alimentaire personnalisé validé par un diététicien certifié RPPS. Livré sous 48h."/>
 </head>
 <body>
 <!-- HEADER -->

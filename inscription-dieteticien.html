@@ -42,15 +42,15 @@
 
   <!-- Scripts tête -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
-  <script src="js/utils/performance.js"></script>
-  <script src="js/ui/dark-mode.js"></script>
-  <script src="js/utils/auto-save.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/utils/performance.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
+  <script defer src="js/utils/auto-save.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background: #f7f9f7; color: #0d2018; line-height: 1.5; }
+    body { font-family: 'Outfit', sans-serif; background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); line-height: 1.5; }
 
     /* ── HEADER ── */
     .nd-header {
@@ -108,7 +108,7 @@
     }
     .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
     .tooltip-text {
-      visibility: hidden; opacity: 0; width: 250px; background-color: #0d2018;
+      visibility: hidden; opacity: 0; width: 250px; background-color:var(--text-primary,#0d2018);
       color: #5DCAA5; text-align: center; border-radius: 10px; padding: 0.6rem;
       position: absolute; z-index: 1000; top: 100%; left: 50%; transform: translateX(-50%);
       margin-top: 10px; font-size: 0.7rem; border: 1px solid #1D9E75;
@@ -142,14 +142,14 @@
 
     /* Colonne gauche - Tarifs */
     .pricing-col {
-      flex: 1; background: #f7f9f7; padding: 2rem;
+      flex: 1; background:var(--bg-secondary,#f7f9f7); padding: 2rem;
       overflow-y: auto; border-right: 1px solid #eef4ee;
     }
-    .pricing-col h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #0d2018; margin-bottom: 0.5rem; }
-    .pricing-col .hero-sub { font-size: 0.85rem; color: #6b7b74; margin-bottom: 1.5rem; }
+    .pricing-col h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color:var(--text-primary,#0d2018); margin-bottom: 0.5rem; }
+    .pricing-col .hero-sub { font-size: 0.85rem; color:var(--text-secondary,#6b7b74); margin-bottom: 1.5rem; }
     .pricing-stack { display: flex; flex-direction: column; gap: 1rem; }
     .price-row {
-      background: #fff; border-radius: 20px; padding: 1rem 1.25rem;
+      background:var(--bg-card,#fff); border-radius: 20px; padding: 1rem 1.25rem;
       border: 1.5px solid #eef4ee; transition: all 0.2s; cursor: pointer;
       display: flex; align-items: center; gap: 1rem;
     }
@@ -168,10 +168,10 @@
     .price-row.featured .price-name { color: #5DCAA5; }
     .price-value { font-size: 1.3rem; font-weight: 800; color: #1D9E75; }
     .price-row.featured .price-value { color: #5DCAA5; }
-    .price-desc { font-size: 0.7rem; color: #6b7b74; margin-top: 0.2rem; }
+    .price-desc { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.2rem; }
     .price-row.featured .price-desc { color: rgba(255,255,255,0.6); }
-    .price-features { font-size: 0.7rem; color: #6b7b74; margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
-    .price-features span { background: #eef4ee; padding: 0.1rem 0.4rem; border-radius: 999px; }
+    .price-features { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .price-features span { background:var(--bg-tertiary,#eef4ee); padding: 0.1rem 0.4rem; border-radius: 999px; }
     .price-row.featured .price-features span { background: rgba(93,202,165,0.15); color: #5DCAA5; }
     .price-check {
       width: 24px; height: 24px; background: #1D9E75; border-radius: 50%;
@@ -186,22 +186,22 @@
     }
 
     /* ── FORMULAIRE ── */
-    .form-col { flex: 1; background: #fff; padding: 2rem; overflow-y: auto; }
+    .form-col { flex: 1; background:var(--bg-card,#fff); padding: 2rem; overflow-y: auto; }
     .form-col h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.25rem; }
-    .form-col .form-sub { font-size: 0.8rem; color: #6b7b74; margin-bottom: 1.5rem; }
+    .form-col .form-sub { font-size: 0.8rem; color:var(--text-secondary,#6b7b74); margin-bottom: 1.5rem; }
 
     .insc-progress-bar { display: flex; align-items: center; margin-bottom: 1.5rem; }
     .insc-progress-step { display: flex; align-items: center; gap: 0.5rem; }
     .insc-prog-dot {
-      width: 32px; height: 32px; border-radius: 50%; background: #eef4ee;
+      width: 32px; height: 32px; border-radius: 50%; background:var(--bg-tertiary,#eef4ee);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 500; color: #6b7b74;
+      font-size: 0.8rem; font-weight: 500; color:var(--text-secondary,#6b7b74);
     }
     .insc-progress-step.active .insc-prog-dot { background: #1D9E75; color: #fff; }
     .insc-progress-step.done .insc-prog-dot { background: #e1f5ee; color: #1D9E75; }
-    .insc-progress-step span { font-size: 0.75rem; color: #6b7b74; }
-    .insc-progress-step.active span { color: #0d2018; font-weight: 500; }
-    .insc-progress-line { flex: 1; height: 2px; background: #eef4ee; margin: 0 0.5rem; }
+    .insc-progress-step span { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); }
+    .insc-progress-step.active span { color:var(--text-primary,#0d2018); font-weight: 500; }
+    .insc-progress-line { flex: 1; height: 2px; background:var(--bg-tertiary,#eef4ee); margin: 0 0.5rem; }
 
     .insc-step { display: none; animation: fadeIn 0.3s ease; }
     .insc-step.active { display: block; }
@@ -231,8 +231,8 @@
     .btn-next, .btn-submit { background: #1D9E75; color: #fff; }
     .btn-next:hover, .btn-submit:hover { background: #0f6e56; }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-back { background: transparent; border: 1.5px solid #eef4ee; color: #0d2018; }
-    .btn-back:hover { background: #f7f9f7; }
+    .btn-back { background: transparent; border: 1.5px solid #eef4ee; color:var(--text-primary,#0d2018); }
+    .btn-back:hover { background:var(--bg-secondary,#f7f9f7); }
 
     .formule-recap {
       display: flex; align-items: center; justify-content: space-between;
@@ -268,7 +268,7 @@
     }
     .confirm-steps { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem auto; max-width: 280px; }
     .confirm-step { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; }
-    .conf-dot { width: 10px; height: 10px; border-radius: 50%; background: #eef4ee; }
+    .conf-dot { width: 10px; height: 10px; border-radius: 50%; background:var(--bg-tertiary,#eef4ee); }
     .conf-dot.done { background: #1D9E75; }
     .conf-dot.pending { background: #f59e0b; animation: pulse 1.8s infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -344,9 +344,6 @@
     </div>
   </div>
 </header>
-
-<!-- BARRE PROFIL -->
-</div>
 
 <!-- SPLIT SCREEN -->
 <div class="split-container">
@@ -668,19 +665,11 @@ function setStoredProfil(p) {
   localStorage.setItem(PROFIL_KEY, p);
   localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
 }
-function updateUIForProfil(k) {
-  const p = PROFILS[k]; if (!p) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = p.icon;
-    document.getElementById('profilName').textContent = p.name;
-  }
-}
+function updateUIForProfil(k) {}
 function openProfilModal() {
   document.getElementById('profilModalContainer').innerHTML = `
     <div onclick="closeProfilModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-      <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:100%;">
+      <div onclick="event.stopPropagation()" style="background:var(--bg-card,#fff);border-radius:20px;padding:2rem;max-width:420px;width:100%;">
         <h2 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;">Bienvenue sur NutriDoc</h2>
         <p style="font-size:0.85rem;color:#6b7b74;margin-bottom:1.5rem;">Je suis…</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
@@ -699,15 +688,13 @@ function closeProfilModal(e) {
 }
 function selectProfil(k) {
   if (!PROFILS[k]) return;
-  setStoredProfil(k); updateUIForProfil(k); closeProfilModal();
+  setStoredProfil(k); closeProfilModal();
   const t = PROFILS[k].redirectUrl;
   if (t !== 'inscription-dieteticien.html') window.location.href = t;
 }
 function initProfilSystem() {
   const s = getStoredProfil();
-  if (s && PROFILS[s]) updateUIForProfil(s);
-  else if (!localStorage.getItem('nutridoc_profil_dismissed')) setTimeout(openProfilModal, 800);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
+  if (!s && !localStorage.getItem('nutridoc_profil_dismissed')) setTimeout(openProfilModal, 800);
 }
 window.selectProfil = selectProfil;
 window.closeProfilModal = closeProfilModal;

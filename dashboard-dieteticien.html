@@ -17,18 +17,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
-  <script src="js/ui/support.js"></script>
-  <script src="js/utils/pdf-plan.js"></script>
-  <script src="js/utils/email.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/support.js"></script>
+  <script defer src="js/utils/pdf-plan.js"></script>
+  <script defer src="js/utils/email.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -88,7 +88,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color:var(--text-primary,#0d2018);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -199,11 +199,11 @@
     .dashboard-title h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .dashboard-title p {
       font-size: 0.8rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.2rem;
     }
     .dashboard-stats {
@@ -211,12 +211,12 @@
       gap: 1rem;
     }
     .stat-badge {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 999px;
       padding: 0.4rem 1rem;
       font-size: 0.75rem;
       font-weight: 500;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
     }
     .stat-badge .count {
       font-weight: 700;
@@ -276,7 +276,7 @@
       padding: 0.6rem 1.2rem;
       font-size: 0.85rem;
       font-weight: 500;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       cursor: pointer;
       border-radius: 999px;
       transition: all 0.2s;
@@ -284,7 +284,7 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .diet-tab:hover { background: #f7f9f7; color: #0d2018; }
+    .diet-tab:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
     .diet-tab.active {
       background: #1D9E75;
       color: #fff;
@@ -316,10 +316,10 @@
     .search-input-wrapper input {
       width: 100%;
       padding: 0.7rem 1rem 0.7rem 2.5rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 999px;
       font-size: 0.85rem;
-      background: #fff;
+      background:var(--bg-card,#fff);
       transition: all 0.2s;
     }
     .search-input-wrapper input:focus {
@@ -332,7 +332,7 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       font-size: 0.9rem;
     }
     .filter-chips {
@@ -341,8 +341,8 @@
       flex-wrap: wrap;
     }
     .filter-chip {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 999px;
       padding: 0.4rem 1rem;
       font-size: 0.75rem;
@@ -364,10 +364,10 @@
       margin-bottom: 1.5rem;
     }
     .kanban-col {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
       padding: 1rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
     }
     .kanban-header {
       display: flex;
@@ -388,15 +388,15 @@
       gap: 0.4rem;
     }
     .kanban-count {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 999px;
       padding: 0.1rem 0.5rem;
       font-size: 0.7rem;
       font-weight: 600;
     }
     .kanban-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 12px;
       padding: 0.75rem;
       margin-bottom: 0.75rem;
@@ -428,7 +428,7 @@
     }
     .kanban-card-objectif {
       font-size: 0.65rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.2rem;
       margin-left: 2.2rem;
     }
@@ -440,8 +440,8 @@
       gap: 1rem;
     }
     .patient-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1rem;
       transition: all 0.2s;
@@ -475,7 +475,7 @@
     }
     .patient-info p {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .patient-status {
       margin-left: auto;
@@ -495,10 +495,10 @@
     }
     .patient-badge {
       font-size: 0.65rem;
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       padding: 0.2rem 0.6rem;
       border-radius: 999px;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .patient-actions {
       display: flex;
@@ -519,7 +519,7 @@
     .btn-validate:hover { background: #0f6e56; }
     .btn-view {
       background: transparent;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       padding: 0.4rem 1rem;
       border-radius: 999px;
       font-size: 0.7rem;
@@ -536,11 +536,11 @@
       margin-bottom: 2rem;
     }
     .stat-card {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
       padding: 1rem;
       text-align: center;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
     }
     .stat-card-value {
       font-family: 'Playfair Display', serif;
@@ -550,7 +550,7 @@
     }
     .stat-card-label {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.2rem;
     }
 
@@ -582,7 +582,7 @@
       bottom: 70px;
       left: 0;
       width: 320px;
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
       overflow: hidden;
@@ -613,14 +613,14 @@
       justify-content: space-between;
       margin-bottom: 0.3rem;
     }
-    .sim-field-label { font-size: 0.75rem; color: #6b7b74; font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color: #0d2018; }
+    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
       height: 5px;
       border-radius: 999px;
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       outline: none;
     }
     input[type=range]::-webkit-slider-thumb {
@@ -639,8 +639,8 @@
       margin: 0.5rem 0 1rem;
     }
     .sim-abtn {
-      background: #f7f9f7;
-      border: 1px solid #eef4ee;
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 10px;
       padding: 0.4rem 0.2rem;
       text-align: center;
@@ -654,7 +654,7 @@
     }
     .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
     .sim-results {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 12px;
       padding: 0.75rem;
       margin: 0.75rem 0;
@@ -666,7 +666,7 @@
       margin-bottom: 0.3rem;
     }
     .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color: #6b7b74; text-align: center; margin-top: 0.5rem; }
+    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
 
     /* FOOTER */
     .nd-footer {
@@ -774,10 +774,8 @@
   </div>
 </header>
 
-<!-- BARRE PROFIL -->
-</div>
-
 <!-- MAIN -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Tableau de bord Diététicien</h1>
 <main class="dashboard-container">
 
   <div class="dashboard-header">
@@ -1050,16 +1048,7 @@ function setStoredProfil(profil) {
   localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
 }
 
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = profil.icon;
-    document.getElementById('profilName').textContent = profil.name;
-  }
-}
+function updateUIForProfil(profilKey) {}
 
 function openProfilModal() {
   const container = document.getElementById('profilModalContainer');
@@ -1092,7 +1081,6 @@ function dismissProfilForever() {
 function selectProfil(profilKey) {
   if (!PROFILS[profilKey]) return;
   setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
   closeProfilModal();
   const target = PROFILS[profilKey].redirectUrl;
   if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
@@ -1103,9 +1091,7 @@ function selectProfil(profilKey) {
 function initProfilSystem() {
   const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
   const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
 }
 
 window.selectProfil = selectProfil;

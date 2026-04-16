@@ -55,25 +55,25 @@
   
   <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
   
   <!-- ==================== PERFORMANCE MONITORING ==================== -->
-  <script src="js/utils/performance.js"></script>
+  <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== AUTO-SAVE JS ==================== -->
-  <script src="js/utils/auto-save.js"></script>
+  <script defer src="js/utils/auto-save.js"></script>
 
   <style>
     /* Tous les styles identiques à la version précédente */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -129,7 +129,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color:var(--text-primary,#0d2018);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -236,14 +236,14 @@
     .progress-step {
       text-align: center;
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       flex: 1;
     }
     .progress-step.active { color: #1D9E75; font-weight: 500; }
     .progress-step.done { color: #1D9E75; }
     .progress-bar {
       height: 4px;
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       border-radius: 999px;
       overflow: hidden;
     }
@@ -256,8 +256,8 @@
     }
 
     .step {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 24px;
       padding: 1.75rem;
       margin-bottom: 1rem;
@@ -285,11 +285,11 @@
     .step-header h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.3rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .step-intro {
       font-size: 0.8rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 1rem;
     }
 
@@ -303,10 +303,10 @@
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
       padding: 0.7rem 1rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 12px;
       font-size: 0.9rem;
-      background: #fff;
+      background:var(--bg-card,#fff);
       transition: border-color 0.2s;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -321,7 +321,7 @@
     @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
     .field-hint {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.25rem;
       display: block;
     }
@@ -336,7 +336,7 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.5rem 1rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 999px;
       cursor: pointer;
       font-size: 0.8rem;
@@ -359,19 +359,19 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.6rem 1rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 12px;
       cursor: pointer;
       font-size: 0.85rem;
       transition: all 0.2s;
-      background: #fff;
+      background:var(--bg-card,#fff);
     }
     .checkbox-option:has(input:checked) {
       border-color: #1D9E75;
       background: rgba(29,158,117,0.05);
     }
     .checkbox-option input { width: 18px; height: 18px; accent-color: #1D9E75; }
-    .checkbox-none { border-style: dashed; background: #f7f9f7; }
+    .checkbox-none { border-style: dashed; background:var(--bg-secondary,#f7f9f7); }
 
     .alerte_sante-notice {
       display: flex;
@@ -406,7 +406,7 @@
       background: none;
       border: none;
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       cursor: pointer;
     }
 
@@ -436,10 +436,10 @@
     }
     .btn-back {
       background: transparent;
-      border: 1px solid #eef4ee;
-      color: #0d2018;
+      border: 1px solid var(--border-light,#eef4ee);
+      color:var(--text-primary,#0d2018);
     }
-    .btn-back:hover { background: #f7f9f7; }
+    .btn-back:hover { background:var(--bg-secondary,#f7f9f7); }
 
     .step-error {
       background: #fef2f2;
@@ -454,8 +454,8 @@
 
     .resultat {
       text-align: center;
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 24px;
       padding: 2rem;
       animation: fadeIn 0.3s ease;
@@ -479,7 +479,7 @@
     }
     .resultat p {
       font-size: 0.85rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 1rem;
     }
     .alerte_sante-flags {
@@ -631,6 +631,7 @@
 
 </div>
 
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mon bilan nutritionnel</h1>
 <main class="bilan-container">
   
   <!-- ==================== THÈME SELECTOR ==================== -->
@@ -970,16 +971,7 @@ function setStoredProfil(profil) {
   localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
 }
 
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = profil.icon;
-    document.getElementById('profilName').textContent = profil.name;
-  }
-}
+function updateUIForProfil(profilKey) {}
 
 function openProfilModal() {
   const container = document.getElementById('profilModalContainer');
@@ -1012,7 +1004,6 @@ function dismissProfilForever() {
 function selectProfil(profilKey) {
   if (!PROFILS[profilKey]) return;
   setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
   closeProfilModal();
   const target = PROFILS[profilKey].redirectUrl;
   if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
@@ -1020,14 +1011,10 @@ function selectProfil(profilKey) {
   }
 }
 
-// Version corrigée : on force l'affichage du profil Patient sur cette page
 function initProfilSystem() {
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = '🧑';
-    document.getElementById('profilName').textContent = 'Patient';
-  }
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
 }
 
 window.selectProfil = selectProfil;

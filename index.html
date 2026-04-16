@@ -23,10 +23,10 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{
       --green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--green-light:#E1F5EE;
-      --dark:#0d2018;--gray:#6b7280;--border:#e5e7eb;
+      --dark:#0d2018;--gray:#6b7280;--border-color:var(--border-light,#e5e7eb);
       --bg-primary:#ffffff;--bg-secondary:#f7f9f7;--bg-card:#ffffff;
       --text-primary:#0d2018;--text-secondary:#4b5563;--text-muted:#6b7280;
-      --border-color:#e5e7eb;
+      --border-color:var(--border-light,#e5e7eb);
       --shadow:0 1px 2px 0 rgba(0,0,0,.05);
       --shadow-md:0 4px 6px -1px rgba(0,0,0,.1);
       --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
@@ -67,13 +67,6 @@
     .nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;}
     .nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff;}
     @media(max-width:900px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}.gregoire-mini{display:none;}}
-
-    /* PROFIL BAR */
-    .dynamic-profil-bar{background:#080f0b;border-bottom:1px solid rgba(29,158,117,.2);padding:.4rem 2rem;position:sticky;top:60px;z-index:98;}
-    .dynamic-profil-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;}
-    .profil-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.35);border-radius:999px;padding:.2rem .9rem;font-size:.75rem;color:#fff;font-weight:500;}
-    .profil-switch{background:none;border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.2rem .8rem;font-size:.7rem;color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;}
-    .profil-switch:hover{border-color:#1D9E75;color:#fff;}
 
     /* HERO */
     .nd-hero{position:relative;display:flex;align-items:center;justify-content:center;gap:4rem;padding:7rem 2rem 4rem;width:100%;overflow:hidden;background:#0d2018;}
@@ -298,15 +291,6 @@
     </div>
   </div>
 </header>
-
-<!-- PROFIL BAR -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display:none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:.65rem;color:rgba(255,255,255,.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge"><span id="profilIcon">🧑</span><span id="profilName">Patient</span></span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
-</div>
 
 <!-- HERO -->
 <section class="nd-hero">
@@ -647,7 +631,7 @@ const PROFIL_KEY='nutridoc_profil',PROFIL_DATE_KEY='nutridoc_profil_date',PROFIL
 const PROFILS={patient:{name:'Patient',icon:'🧑',redirectUrl:'accueil-patient.html'},dieteticien:{name:'Diététicien',icon:'🥗',redirectUrl:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',redirectUrl:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',redirectUrl:'partenariats.html'}};
 function getStoredProfil(){const p=localStorage.getItem(PROFIL_KEY),d=localStorage.getItem(PROFIL_DATE_KEY);if(!p||!d)return null;if((Date.now()-parseInt(d))/(1000*3600*24)>PROFIL_EXPIRY_DAYS){localStorage.removeItem(PROFIL_KEY);localStorage.removeItem(PROFIL_DATE_KEY);return null;}return p;}
 function setStoredProfil(p){localStorage.setItem(PROFIL_KEY,p);localStorage.setItem(PROFIL_DATE_KEY,Date.now().toString());}
-function updateUIForProfil(k){const p=PROFILS[k];if(!p)return;const bar=document.getElementById('dynamicProfilBar');if(bar){bar.style.display='block';document.getElementById('profilIcon').textContent=p.icon;document.getElementById('profilName').textContent=p.name;}}
+function updateUIForProfil(k){}
 function openProfilModal(){const c=document.getElementById('profilModalContainer');if(!c)return;c.innerHTML=`<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis…</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil('patient')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div><div class="profil-card" onclick="selectProfil('dieteticien')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans et générer des revenus</p></div><div class="profil-card" onclick="selectProfil('prescripteur')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients ou clients</p></div><div class="profil-card" onclick="selectProfil('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Salle de sport, clinique, entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>`;}
 function closeProfilModal(){document.getElementById('profilModalContainer').innerHTML='';}
 function dismissProfilForever(){localStorage.setItem('nutridoc_profil_dismissed','true');closeProfilModal();}

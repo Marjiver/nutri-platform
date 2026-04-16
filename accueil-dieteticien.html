@@ -26,7 +26,7 @@
       --dark: #0d2018;
       --gray: #6b7280;
       --gray-light: #f3f4f6;
-      --border: #e5e7eb;
+      --border-color:var(--border-light,#e5e7eb);
       --radius: 12px;
       --radius-sm: 8px;
       
@@ -37,7 +37,7 @@
       --bg-tertiary: #eef4ee;
       --text-primary: #0d2018;
       --text-secondary: #4b5563;
-      --border-color: #e5e7eb;
+      --border-color:var(--border-light,#e5e7eb);
     }
     
     [data-theme="dark"] {
@@ -113,38 +113,6 @@
     .profil-modal-footer button:hover { color: #fff; }
     @media (max-width: 700px) { .profil-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .profil-grid { grid-template-columns: 1fr; } .profil-modal { padding: 1.5rem; } }
-    
-    /* Barre profil */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-    }
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
     
     /* HEADER - identique à index */
     .nd-header {
@@ -1083,14 +1051,32 @@
     .nd-arrow:hover{background:rgba(29,158,117,.4);border-color:#1D9E75;}
     .nd-arrow.prev{left:1.5rem;}
     .nd-arrow.next{right:1.5rem;}
+    /* Bouton pause */
+    .nd-pause-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.25rem .75rem;color:rgba(255,255,255,.55);font-size:.8rem;cursor:pointer;line-height:1;transition:all .2s;font-family:'Outfit',sans-serif;flex-shrink:0;}
+    .nd-pause-btn:hover{background:rgba(255,255,255,.16);color:#fff;}
+    .nd-pause-btn.paused{color:#5DCAA5;border-color:rgba(93,202,165,.4);}
+    /* Mobile : slide visible sans scroll */
     @media(max-width:960px){
-      .nd-slide-inner{grid-template-columns:1fr;gap:2rem;}
-      .nd-slide-card{max-width:400px;margin:0 auto;}
-      .nd-slide{padding:3.5rem 1.5rem 4.5rem;}
       .nd-arrow{display:none;}
-      .nd-carousel{min-height:auto;}
+      .nd-carousel{height:calc(100svh - 60px);min-height:unset;overflow:hidden;}
+      .nd-slides{height:100%;}
+      .nd-slide{padding:2rem 1.5rem 5rem;align-items:flex-start;overflow:hidden;}
+      .nd-slide-inner{grid-template-columns:1fr;gap:0;overflow:hidden;}
+      .nd-slide-card{display:none;}
+      .nd-slide-chips{display:none;}
+      .nd-slide-title{font-size:clamp(1.65rem,6vw,2.4rem);margin-bottom:.75rem;}
+      .nd-slide-sub{font-size:.87rem;line-height:1.6;margin-bottom:1.25rem;
+        display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
     }
   </style>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-dieteticien.html"/>
+  <meta property="og:title" content="NutriDoc — Espace Diététicien · Revenus additionnels garantis"/>
+  <meta property="og:description" content="Rejoignez NutriDoc : validez des plans alimentaires depuis chez vous. 24,90€ net par plan, 15 min de travail. Diététiciens certifiés RPPS."/>
+  <meta property="og:image" content="assets/images/og-image.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="NutriDoc — Espace Diététicien · Revenus additionnels garantis"/>
+  <meta name="twitter:description" content="Rejoignez NutriDoc : validez des plans alimentaires depuis chez vous. 24,90€ net par plan, 15 min de travail. Diététiciens certifiés RPPS."/>
 </head>
 <body>
 
@@ -1134,20 +1120,6 @@
     </div>
   </div>
 </header>
-
-<!-- BARRE PROFIL -->
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: none;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Vous consultez en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">🥗</span>
-      <span id="profilName">Diététicien</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
-</div>
-
-
 
   <div class="nd-carousel" id="ndCarousel">
     <div class="nd-car-progress"><div class="nd-car-progress-bar" id="progressBar"></div></div>
@@ -1585,8 +1557,9 @@ window.prevSlide=prevSlide;
 
 // ==================== CAROUSEL ====================
 (function(){
-  let cur=0,tot=0,pTimer,progress=0;
+  let cur=0,tot=0,pTimer,progress=0,isPaused=false;
   const DURATION=6000;
+
   function init(){
     tot=document.querySelectorAll('.nd-slide').length;
     const nav=document.getElementById('carouselNav');
@@ -1595,17 +1568,61 @@ window.prevSlide=prevSlide;
     for(let i=0;i<tot;i++){
       const d=document.createElement('button');
       d.className='nd-dot';
-      d.onclick=(()=>{const idx=i;return()=>goTo(idx);})();
+      d.onclick=(()=>{const idx=i;return()=>{isPaused=false;updatePauseBtn();goTo(idx);};})();
       nav.appendChild(d);
     }
+    // Bouton pause
+    const sep=document.createElement('span');
+    sep.style.cssText='width:1px;height:14px;background:rgba(255,255,255,.15);display:inline-block;';
+    nav.appendChild(sep);
+    const pb=document.createElement('button');
+    pb.id='carouselPauseBtn';
+    pb.className='nd-pause-btn';
+    pb.title='Mettre en pause';
+    pb.textContent='⏸';
+    pb.onclick=togglePause;
+    nav.appendChild(pb);
     updateDots();startProgress();
   }
+
+  function updatePauseBtn(){
+    const btn=document.getElementById('carouselPauseBtn');
+    if(!btn)return;
+    if(isPaused){btn.textContent='▶';btn.classList.add('paused');btn.title='Reprendre';}
+    else{btn.textContent='⏸';btn.classList.remove('paused');btn.title='Mettre en pause';}
+  }
+
+  function togglePause(){
+    isPaused=!isPaused;
+    updatePauseBtn();
+    if(isPaused){
+      clearInterval(pTimer);
+    }else{
+      startProgress();
+    }
+  }
+
   function updateDots(){document.querySelectorAll('.nd-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));}
   function showSlide(n){document.querySelectorAll('.nd-slide').forEach((s,i)=>s.classList.toggle('active',i===n));updateDots();}
   function goTo(n){cur=(n+tot)%tot;showSlide(cur);resetProgress();}
-  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
-  function resetProgress(){clearInterval(pTimer);startProgress();}
-  window.slideNav=function(d){goTo(cur+d);};
+
+  function startProgress(){
+    if(isPaused)return;
+    progress=0;clearInterval(pTimer);
+    const b=document.getElementById('progressBar');
+    if(b)b.style.width='0%';
+    pTimer=setInterval(()=>{
+      if(isPaused)return;
+      progress+=100/(DURATION/100);
+      if(progress>=100){clearInterval(pTimer);goTo(cur+1);}
+      const b2=document.getElementById('progressBar');
+      if(b2)b2.style.width=Math.min(progress,100)+'%';
+    },100);
+  }
+  function resetProgress(){clearInterval(pTimer);if(!isPaused)startProgress();}
+
+  window.slideNav=function(d){isPaused=false;updatePauseBtn();goTo(cur+d);};
+  window.toggleCarouselPause=togglePause;
   document.addEventListener('DOMContentLoaded',init);
 })();
 
@@ -1613,12 +1630,12 @@ window.prevSlide=prevSlide;
 const PROFILS={patient:{name:'Patient',icon:'🧑',url:'index.html'},dieteticien:{name:'Diététicien',icon:'🥗',url:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',url:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',url:'partenariats.html'}};
 function getStoredProfil(){ try{ return localStorage.getItem('nutridoc_profil'); }catch(e){} return null; }
 function setStoredProfil(p){ localStorage.setItem('nutridoc_profil',p); localStorage.setItem('nutridoc_profil_date',Date.now()); }
-function updateUIForProfil(p){ const prof=PROFILS[p]; if(!prof)return; const bar=document.getElementById('dynamicProfilBar'); if(bar){ bar.style.display='block'; document.getElementById('profilIcon').textContent=prof.icon; document.getElementById('profilName').textContent=prof.name; } }
+function updateUIForProfil(p){}
 function openProfilModal(){ const c=document.getElementById('profilModalContainer'); if(!c)return; c.innerHTML='<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" onclick="selectProfil(\'patient\')"><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div><div class="profil-card" onclick="selectProfil(\'dieteticien\')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div><div class="profil-card" onclick="selectProfil(\'prescripteur\')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div><div class="profil-card" onclick="selectProfil(\'structure\')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une entreprise</p></div></div><div class="profil-modal-footer"><button onclick="closeProfilModal()">Plus tard</button><button onclick="dismissProfilForever()">Ne plus afficher</button></div></div></div>'; }
 function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML=''; }
 function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
-function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); updateUIForProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
-function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(stored && PROFILS[stored]) updateUIForProfil(stored); else if(!dismissed) setTimeout(openProfilModal,500); else document.getElementById('dynamicProfilBar').style.display='block'; }
+function selectProfil(p){ if(!PROFILS[p])return; setStoredProfil(p); closeProfilModal(); const target=PROFILS[p].url; if(target!==window.location.pathname.split('/').pop() && target!=='index.html') window.location.href=target; }
+function initProfil(){ const dismissed=localStorage.getItem('nutridoc_profil_dismissed'); const stored=getStoredProfil(); if(!stored && !dismissed) setTimeout(openProfilModal,500); }
 window.selectProfil=selectProfil; window.closeProfilModal=closeProfilModal; window.openProfilModal=openProfilModal; window.dismissProfilForever=dismissProfilForever;
 window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
 document.addEventListener('click',(e)=>{ const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu'); if(w&&m&&!w.contains(e.target)) m.classList.remove('open'); });

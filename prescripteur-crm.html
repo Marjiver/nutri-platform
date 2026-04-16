@@ -20,11 +20,28 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js"></script>
   <script src="js/ui/nav.js" defer></script>
-  <script src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
+<style>
+@media(max-width:768px){
+  .nd-header{padding:.75rem 1rem;}
+  .nd-nav{display:none;}
+  .dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}
+  .sidebar{width:100%;}
+  .sidebar-nav{display:flex;overflow-x:auto;}
+  .sidebar-back{display:none;}
+  .main-content{min-width:0;}
+  .metrics-grid{grid-template-columns:1fr 1fr !important;}
+}
+@media(max-width:480px){
+  .page-title{font-size:1.3rem;}
+  .metrics-grid{grid-template-columns:1fr !important;}
+  .card-block{padding:1rem;}
+}
+</style>
 </head>
 
 <header class="header">
@@ -35,6 +52,7 @@
   </nav>
 </header>
 
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">CRM Prescripteur</h1>
 <main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 
   <!-- Barre de recherche + filtres -->
@@ -68,7 +86,7 @@
     <div id="ficheClient" style="display:none;">
 
       <!-- Header fiche -->
-      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;">
+      <div style="background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;">
 
         <!-- Photos de progression -->
         <div style="background:#f8f8f8;padding:1.25rem;border-bottom:1px solid var(--border);">
@@ -112,7 +130,7 @@
 
       <!-- TAB: Courbe poids -->
       <div class="tab-content" id="tab-courbe">
-        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
+        <div style="background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
             <div style="font-size:0.875rem;font-weight:500;">Évolution du poids</div>
             <button class="btn-back" style="font-size:0.75rem;padding:3px 10px;" onclick="ajouterPoids()">+ Ajouter mesure</button>
@@ -132,12 +150,12 @@
 
       <!-- TAB: Notes -->
       <div class="tab-content hidden" id="tab-notes">
-        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
+        <div style="background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;">
           <div style="font-size:0.8rem;color:var(--gray);margin-bottom:0.75rem;">Notes privées — visibles uniquement par vous</div>
           <textarea id="ficheNotes" rows="6" placeholder="Observations, comportement alimentaire, contexte de vie, motivation..." style="width:100%;font-size:0.875rem;" oninput="saveNotes()"></textarea>
           <div id="notesSaved" style="font-size:0.75rem;color:var(--green);margin-top:4px;opacity:0;transition:opacity 0.3s;">Sauvegardé</div>
         </div>
-        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:0.75rem;">
+        <div style="background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:0.75rem;">
           <div style="font-size:0.8rem;font-weight:500;margin-bottom:0.75rem;">Rappel automatique</div>
           <div style="display:flex;align-items:center;gap:1rem;">
             <label style="font-size:0.875rem;color:var(--gray);">Prochain check-in dans</label>
@@ -155,7 +173,7 @@
     </div>
 
     <!-- Placeholder si aucun client sélectionné -->
-    <div id="fichePlaceholder" style="background:#fff;border:1px dashed var(--border);border-radius:var(--radius);padding:3rem;text-align:center;color:var(--gray);">
+    <div id="fichePlaceholder" style="background:var(--bg-card,#fff);border:1px dashed var(--border);border-radius:var(--radius);padding:3rem;text-align:center;color:var(--gray);">
       <div style="font-size:2rem;margin-bottom:1rem;">👤</div>
       <p style="font-size:0.9rem;">Sélectionnez un client pour voir sa fiche</p>
     </div>
@@ -165,7 +183,7 @@
 
 <!-- MODAL nouveau client -->
 <div id="modalNouveauClient" style="display:none;min-height:600px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
-  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:520px;margin:0 auto;">
+  <div style="background:var(--bg-card,#fff);border-radius:var(--radius);padding:2rem;max-width:520px;margin:0 auto;">
     <h4 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:1.5rem;">Nouveau client</h4>
     <div class="form-row">
       <div class="form-group"><label>Prénom <span class="req">*</span></label><input type="text" id="ncPrenom" placeholder="Ex : Julien" /></div>
@@ -198,7 +216,7 @@
 
 <!-- MODAL ajouter poids -->
 <div id="modalAjouterPoids" style="display:none;min-height:300px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
-  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:360px;margin:0 auto;">
+  <div style="background:var(--bg-card,#fff);border-radius:var(--radius);padding:2rem;max-width:360px;margin:0 auto;">
     <h4 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:1.25rem;">Ajouter une mesure</h4>
     <div class="form-group"><label>Date</label><input type="date" id="mesureDate" /></div>
     <div class="form-group"><label>Poids (kg)</label><input type="number" id="mesurePoids" placeholder="Ex : 76.5" step="0.1" /></div>
@@ -211,7 +229,7 @@
 
 <!-- MODAL ajouter photos -->
 <div id="modalAjouterPhotos" style="display:none;min-height:400px;background:rgba(0,0,0,0.4);padding:60px 1rem;">
-  <div style="background:#fff;border-radius:var(--radius);padding:2rem;max-width:480px;margin:0 auto;">
+  <div style="background:var(--bg-card,#fff);border-radius:var(--radius);padding:2rem;max-width:480px;margin:0 auto;">
     <h4 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:0.5rem;">Photos de progression</h4>
     <p style="font-size:0.8rem;color:var(--gray);margin-bottom:1.25rem;">Ajoutez jusqu'à 4 photos : face, profil gauche, profil droit, dos.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">

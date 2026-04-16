@@ -22,9 +22,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -214,7 +214,8 @@
   </aside>
 
   <!-- MAIN -->
-  <main class="main-content">
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Comptabilité Diététicien</h1>
+<main class="main-content">
 
     <!-- SECTION 1 : TABLEAU DE BORD -->
     <div id="section-dashboard" class="section active">
@@ -575,6 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
   <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
+  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
+</script>
 </body>
 </html>

@@ -15,10 +15,10 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js"></script>
   <script src="js/ui/nav.js" defer></script>
   <script src="js/utils/email.js" defer></script>
-  <script src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
@@ -41,6 +41,7 @@
   </div>
 </header>
 
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Agenda Diététicien</h1>
 <main class="agenda-main">
 
   <!-- ── Barre outils ──────────────────────────────── -->
@@ -659,23 +660,23 @@ document.addEventListener('DOMContentLoaded', () => {
 .agenda-main { display:flex;flex-direction:column;gap:1rem;padding:1rem 1.5rem;min-height:calc(100vh - 70px); }
 
 /* ── Toolbar ── */
-.agenda-toolbar { display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:#fff;border:1px solid var(--border);border-radius:var(--radius);flex-wrap:wrap;gap:.75rem; }
+.agenda-toolbar { display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);flex-wrap:wrap;gap:.75rem; }
 .agenda-toolbar-left,.agenda-toolbar-right { display:flex;align-items:center;gap:.5rem; }
 .agenda-btn-today { background:var(--dark);color:#fff;border:none;padding:.4rem .9rem;border-radius:6px;font-size:.82rem;cursor:pointer;font-family:var(--font-body);transition:background .2s; }
 .agenda-btn-today:hover { background:var(--green); }
-.agenda-nav-btn { background:#fff;border:1px solid var(--border);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s; }
+.agenda-nav-btn { background:var(--bg-card,#fff);border:1px solid var(--border);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s; }
 .agenda-nav-btn:hover { background:var(--green-light); }
 .agenda-title { font-family:var(--font-display);font-size:1.1rem;color:var(--dark);margin:0 .5rem; }
 .agenda-view-tabs { display:flex;background:var(--gray-light);border-radius:8px;padding:2px;gap:2px; }
 .agenda-view-tab { background:transparent;border:none;padding:.35rem .9rem;border-radius:6px;font-size:.8rem;cursor:pointer;color:var(--gray);font-family:var(--font-body);transition:background .15s,color .15s; }
-.agenda-view-tab.active { background:#fff;color:var(--dark);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.agenda-view-tab.active { background:var(--bg-card,#fff);color:var(--dark);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08); }
 .agenda-btn-add { background:var(--green);color:#fff;border:none;padding:.4rem 1rem;border-radius:999px;font-size:.82rem;cursor:pointer;font-family:var(--font-body);transition:background .2s,transform .15s; }
 .agenda-btn-add:hover { background:var(--green2);transform:translateY(-1px); }
 .agenda-legend { display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--gray); }
 .leg-dot { width:8px;height:8px;border-radius:50%;display:inline-block; }
 
 /* ── Corps de l'agenda ── */
-.agenda-body { flex:1;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:auto; }
+.agenda-body { flex:1;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);overflow:auto; }
 .agenda-view { min-height:600px; }
 
 /* ── Grille horaire ── */
@@ -740,17 +741,17 @@ document.addEventListener('DOMContentLoaded', () => {
 .month-slot-dot { font-size:.65rem;padding:1px 6px;border-radius:4px;font-weight:500; }
 .month-slot-dot.confirme { background:#E1F5EE;color:#0f6e56; }
 .month-slot-dot.attente  { background:#FFF8E6;color:#92400e; }
-.month-slot-dot.libre    { background:#F3F4F6;color:#6b7280; }
+.month-slot-dot.libre    { background:#F3F4F6;color:var(--text-secondary,#6b7280); }
 
 /* ── Stats ── */
 .agenda-stats-row { display:flex;gap:1rem;flex-wrap:wrap; }
-.agenda-stat { background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem 1rem;flex:1;min-width:120px; }
+.agenda-stat { background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem 1rem;flex:1;min-width:120px; }
 .agenda-stat-val { font-family:var(--font-display);font-size:1.5rem;color:var(--green);line-height:1; }
 .agenda-stat-label { font-size:.72rem;color:var(--gray);margin-top:2px; }
 
 /* ── Tooltip ── */
 .patient-tooltip {
-  position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);
+  position:fixed;z-index:1000;background:var(--bg-card,#fff);border:1px solid var(--border);
   border-radius:12px;padding:1rem;width:240px;box-shadow:0 8px 32px rgba(0,0,0,.12);
   opacity:0;pointer-events:none;transition:opacity .15s;
 }
@@ -765,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ── Modal ── */
 .modal-overlay { position:absolute;top:0;left:0;right:0;min-height:100vh;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:60px 1rem; }
-.modal-box { background:#fff;border-radius:var(--radius);width:100%;max-width:440px; }
+.modal-box { background:var(--bg-card,#fff);border-radius:var(--radius);width:100%;max-width:440px; }
 .modal-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border); }
 .modal-header h3 { font-family:var(--font-display);font-size:1.1rem;margin:0; }
 .modal-close { background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--gray);transition:color .15s; }
@@ -777,6 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .agenda-toast.success { background:var(--green); }
 .agenda-toast.error   { background:#ef4444; }
 .agenda-toast.visible { opacity:1;transform:translateX(-50%) translateY(0); }
+@media(max-width:768px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}.dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}.sidebar{width:100%;}.sidebar-nav{display:flex;overflow-x:auto;}.sidebar-back{display:none;}.main-content{min-width:0;}}@media(max-width:480px){.page-title{font-size:1.3rem;}.metrics-grid{grid-template-columns:1fr 1fr;}.card-block{padding:1rem;}.compta-table{font-size:.72rem;}}
 </style>
   <script src="js/error-handler.js"></script>
   <script src="js/theme-selector.js"></script>

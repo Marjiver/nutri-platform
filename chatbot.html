@@ -17,6 +17,23 @@
   <script src="js/ui/nav.js" defer></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
+<style>
+@media(max-width:768px){
+  .nd-header{padding:.75rem 1rem;}
+  .nd-nav{display:none;}
+  .dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}
+  .sidebar{width:100%;}
+  .sidebar-nav{display:flex;overflow-x:auto;}
+  .sidebar-back{display:none;}
+  .main-content{min-width:0;}
+  .metrics-grid{grid-template-columns:1fr 1fr !important;}
+}
+@media(max-width:480px){
+  .page-title{font-size:1.3rem;}
+  .metrics-grid{grid-template-columns:1fr !important;}
+  .card-block{padding:1rem;}
+}
+</style>
 </head>
 <!-- Widget standalone — peut être chargé en iframe ou intégré -->
 <div id="chatbotRoot"></div>

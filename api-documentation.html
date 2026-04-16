@@ -35,24 +35,24 @@
   <link rel="stylesheet" href="css/dark-mode-variables.css">
   
   <!-- ==================== PERFORMANCE ==================== -->
-  <script src="js/utils/performance.js"></script>
+  <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PRISM.JS POUR SYNTAX HIGHLIGHTING ==================== -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -121,26 +121,26 @@
       height: fit-content;
     }
     .api-sidebar-nav {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 16px;
       overflow: hidden;
     }
     .api-sidebar-category {
       padding: 0.75rem 1rem;
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       font-weight: 600;
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       border-bottom: 1px solid #eef4ee;
     }
     .api-sidebar-item {
       display: block;
       padding: 0.6rem 1rem;
       font-size: 0.8rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       text-decoration: none;
       border-bottom: 1px solid #eef4ee;
       transition: all 0.2s;
@@ -169,13 +169,13 @@
     .api-section h1 {
       font-family: 'Playfair Display', serif;
       font-size: 2rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       margin-bottom: 0.5rem;
     }
     .api-section h2 {
       font-size: 1.3rem;
       font-weight: 600;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       margin: 1.5rem 0 1rem;
       padding-bottom: 0.5rem;
       border-bottom: 2px solid #eef4ee;
@@ -188,22 +188,22 @@
     }
     .api-section p {
       font-size: 0.85rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       line-height: 1.7;
       margin-bottom: 1rem;
     }
 
     /* ENDPOINT CARD */
     .endpoint-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 16px;
       margin-bottom: 1.5rem;
       overflow: hidden;
     }
     .endpoint-header {
       padding: 1rem 1.25rem;
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-bottom: 1px solid #eef4ee;
       display: flex;
       align-items: center;
@@ -224,15 +224,15 @@
     .endpoint-url {
       font-family: monospace;
       font-size: 0.85rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       flex: 1;
     }
     .endpoint-auth {
       font-size: 0.65rem;
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       padding: 0.2rem 0.6rem;
       border-radius: 999px;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .endpoint-body {
       padding: 1.25rem;
@@ -242,7 +242,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 0.5rem;
     }
 
@@ -259,7 +259,7 @@
       font-size: 0.75rem;
     }
     .inline-code {
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       padding: 0.1rem 0.3rem;
       border-radius: 4px;
       font-family: monospace;
@@ -276,7 +276,7 @@
     .params-table th {
       text-align: left;
       padding: 0.5rem;
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       font-weight: 500;
       border-bottom: 1px solid #eef4ee;
     }
@@ -285,11 +285,11 @@
       border-bottom: 1px solid #eef4ee;
     }
     .param-required { color: #ef4444; font-size: 0.7rem; }
-    .param-optional { color: #6b7b74; font-size: 0.7rem; }
+    .param-optional { color:var(--text-secondary,#6b7b74); font-size: 0.7rem; }
 
     /* RESPONSE EXAMPLE */
     .response-example {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 12px;
       padding: 1rem;
       margin-top: 0.75rem;
@@ -307,7 +307,7 @@
 
     /* TRY IT OUT */
     .tryit-section {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 12px;
       padding: 1rem;
       margin-top: 1rem;
@@ -322,7 +322,7 @@
     .tryit-input input {
       flex: 1;
       padding: 0.5rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 8px;
       font-family: monospace;
     }
@@ -474,7 +474,7 @@
 }</code></pre>
             <h4>Réponse</h4>
             <pre><code class="language-json">{
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.EXEMPLE",
   "token_type": "Bearer",
   "expires_in": 3600
 }</code></pre>
@@ -535,7 +535,7 @@
 }</code></pre>
             <div class="tryit-section">
               <div class="tryit-input">
-                <input type="text" id="tryPlans" placeholder="Token JWT" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                <input type="text" id="tryPlans" placeholder="Token JWT" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.EXEMPLE">
                 <button class="tryit-btn" onclick="tryAPI('plans')">Essayer</button>
               </div>
               <div id="tryPlansResult" class="tryit-result" style="display:none;"></div>
@@ -823,7 +823,7 @@ const plan = await client.plans.create({
 <!-- FOOTER -->
 <footer class="api-footer">
   <div class="footer-inner">
-    <p>NutriDoc API v1.0.0 — Documentation technique · <a href="cgu-partenaires.html" style="color:rgba(255,255,255,0.5);">CGU Partenaires</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,0.5);">Confidentialité</a></p>
+    <p>NutriDoc API v1.0.0 — Documentation technique · <a href="cgu-prescripteur.html" style="color:rgba(255,255,255,0.5);">CGU Partenaires</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,0.5);">Confidentialité</a></p>
     <p style="margin-top:0.5rem;">© 2025-2026 NutriDoc by CaliDoc Santé</p>
   </div>
 </footer>

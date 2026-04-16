@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="js/ui/nav.js" defer></script>
-  <script src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
@@ -125,7 +125,7 @@ function toggleFaq(id) {
 .faq-item { border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:.5rem; overflow:hidden; }
 .faq-q {
   width:100%; display:flex; justify-content:space-between; align-items:center; gap:1rem;
-  padding:.9rem 1rem; background:#fff; border:none; cursor:pointer; font-size:.9rem;
+  padding:.9rem 1rem; background:var(--bg-card,#fff); border:none; cursor:pointer; font-size:.9rem;
   font-family:var(--font-body); font-weight:500; color:var(--dark); text-align:left;
   transition:background .15s;
 }
@@ -139,6 +139,7 @@ function toggleFaq(id) {
   background:#fafafa; border-top:0 solid var(--border);
 }
 .faq-item.open .faq-a { max-height:200px; padding:.75rem 1rem; border-top:1px solid var(--border); }
+@media(max-width:768px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}.dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}.sidebar{width:100%;}.sidebar-nav{display:flex;overflow-x:auto;}.sidebar-back{display:none;}.main-content{min-width:0;}}@media(max-width:480px){.page-title{font-size:1.3rem;}.metrics-grid{grid-template-columns:1fr 1fr;}.card-block{padding:1rem;}.compta-table{font-size:.72rem;}}
 </style>
   
 

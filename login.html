@@ -22,14 +22,14 @@
       --dark: #0d2018;
       --gray: #6b7280;
       --gray-light: #f3f4f6;
-      --border: #e5e7eb;
+      --border-color:var(--border-light,#e5e7eb);
       --bg-primary: #ffffff;
       --bg-secondary: #f7f9f7;
       --bg-card: #ffffff;
       --bg-input: #ffffff;
       --text-primary: #0d2018;
       --text-secondary: #4b5563;
-      --border-color: #e5e7eb;
+      --border-color:var(--border-light,#e5e7eb);
     }
 
     [data-theme="dark"] {
@@ -119,38 +119,6 @@
       .nd-header { padding: 0.75rem 1rem; }
       .nd-nav { display: none; }
     }
-
-    /* BARRE PROFIL DYNAMIQUE */
-    .dynamic-profil-bar {
-      background: #080f0b;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.4rem 2rem;
-      position: sticky;
-      top: 60px;
-      z-index: 98;
-    }
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .profil-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.35);
-      border-radius: 999px; padding: 0.2rem 0.9rem;
-      font-size: 0.75rem; color: #fff; font-weight: 500;
-    }
-    .profil-switch {
-      background: none; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px; padding: 0.2rem 0.8rem;
-      font-size: 0.7rem; color: rgba(255,255,255,0.5);
-      cursor: pointer;
-    }
-    .profil-switch:hover { border-color: #1D9E75; color: #fff; }
 
     /* MODAL PROFIL (avec option bêta) */
     .profil-modal-overlay {
@@ -582,17 +550,6 @@
   </div>
 </header>
 
-<div class="dynamic-profil-bar" id="dynamicProfilBar" style="display: block;">
-  <div class="dynamic-profil-inner">
-    <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Je me connecte en tant que :</span>
-    <span class="profil-badge" id="currentProfilBadge">
-      <span id="profilIcon">👤</span>
-      <span id="profilName">Patient</span>
-    </span>
-    <button class="profil-switch" onclick="openProfilModal()">Changer de profil</button>
-  </div>
-</div>
-
 <main>
   <div class="login-main">
     <div class="login-card">
@@ -761,8 +718,6 @@
   function updateUIForProfil(roleKey){
     const p = PROFILS[roleKey];
     if(p){
-      document.getElementById('profilIcon').textContent = p.icon;
-      document.getElementById('profilName').textContent = p.name;
       currentRole = roleKey;
       document.querySelectorAll('.profile-tab').forEach(tab => {
         const tabRole = tab.getAttribute('data-role');

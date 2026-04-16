@@ -40,27 +40,27 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   
   <!-- ==================== PERFORMANCE ==================== -->
-  <script src="js/utils/performance.js"></script>
+  <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== VERSION MANAGER ==================== -->
-  <script src="js/utils/version-manager.js"></script>
+  <script defer src="js/utils/version-manager.js"></script>
   
   <!-- ==================== ERROR HANDLER ==================== -->
-  <script src="js/utils/error-handler.js"></script>
+  <script defer src="js/utils/error-handler.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== AUTO-SAVE JS ==================== -->
-  <script src="js/utils/auto-save.js"></script>
+  <script defer src="js/utils/auto-save.js"></script>
   
   <!-- ==================== PWA MANAGER ==================== */
-  <script src="js/utils/pwa.js"></script>
+  <script defer src="js/utils/pwa.js"></script>
   
   <!-- ==================== CORE ==================== -->
-  <script src="js/core/auth.js"></script>
-  <script src="js/core/constants.js"></script>
-  <script src="js/core/validation.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/constants.js"></script>
+  <script defer src="js/core/validation.js"></script>
   
   <!-- ==================== STRIPE ==================== -->
   <script src="js/payments/stripe.js"></script>
@@ -69,8 +69,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -191,8 +191,8 @@
       }
     }
     .kpi-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
       text-align: center;
@@ -206,7 +206,7 @@
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 0.5rem;
     }
     .kpi-value {
@@ -218,7 +218,7 @@
     }
     .kpi-sub {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.25rem;
     }
 
@@ -245,7 +245,7 @@
       }
     }
     .pack-card {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border: 2px solid #eef4ee;
       border-radius: 24px;
       padding: 1.5rem;
@@ -282,7 +282,7 @@
     }
     .pack-credits {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 0.5rem;
     }
     .pack-price {
@@ -294,11 +294,11 @@
     .pack-price span {
       font-size: 0.8rem;
       font-weight: 400;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .pack-per-plan {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.25rem;
     }
     .pack-economy {
@@ -323,15 +323,15 @@
       background: #0f6e56;
     }
     .pack-btn:disabled {
-      background: #eef4ee;
-      color: #6b7b74;
+      background:var(--bg-tertiary,#eef4ee);
+      color:var(--text-secondary,#6b7b74);
       cursor: not-allowed;
     }
 
     /* RÉCAPITULATIF COMMANDE */
     .recap-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.5rem;
       margin-bottom: 2rem;
@@ -359,15 +359,15 @@
     }
     .recap-note {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       text-align: center;
       margin-top: 1rem;
     }
 
     /* HISTORIQUE */
     .historique-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.5rem;
     }
@@ -390,7 +390,7 @@
       text-align: left;
       padding: 0.75rem 0.5rem;
       border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       font-weight: 500;
     }
     .historique-table td {
@@ -426,7 +426,7 @@
       display: flex;
     }
     .modal {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 24px;
       padding: 1.5rem;
       max-width: 450px;
@@ -439,7 +439,7 @@
     }
     .modal-desc {
       font-size: 0.85rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 1.5rem;
     }
     .modal-btns {
@@ -506,6 +506,7 @@
 </header>
 
 <!-- MAIN CONTENT -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Gestion des crédits</h1>
 <main class="credits-container">
 
   <!-- SOLDE CARD -->
@@ -608,7 +609,7 @@
   <div class="historique-card">
     <div class="historique-title">
       <span>📜 Historique des transactions</span>
-      <button class="pack-btn" style="width: auto; padding: 0.3rem 1rem; font-size: 0.7rem; background: #f7f9f7; color: #0d2018;" onclick="exportHistoriqueCSV()">📎 Exporter CSV</button>
+      <button class="pack-btn" style="width: auto; padding: 0.3rem 1rem; font-size: 0.7rem; background: #f7f9f7; color:var(--text-primary,#0d2018);" onclick="exportHistoriqueCSV()">📎 Exporter CSV</button>
     </div>
     <table class="historique-table">
       <thead>
@@ -634,7 +635,7 @@
     <div class="modal-title">💳 Paiement sécurisé</div>
     <div class="modal-desc" id="modalDesc">Redirection vers Stripe Connect en cours...</div>
     <div class="modal-btns">
-      <button class="pack-btn" style="background: #eef4ee; color: #0d2018;" onclick="fermerModalPaiement()">Annuler</button>
+      <button class="pack-btn" style="background: #eef4ee; color:var(--text-primary,#0d2018);" onclick="fermerModalPaiement()">Annuler</button>
       <button class="pack-btn" id="modalConfirmBtn" onclick="confirmerPaiement()">Confirmer</button>
     </div>
   </div>

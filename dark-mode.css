@@ -1,0 +1,129 @@
+
+/* ==================== CORRECTIONS SPÉCIFIQUES PAGES (ajout v2) ==================== */
+
+/* Form labels */
+[data-theme="dark"] label,
+[data-theme="dark"] .form-label,
+[data-theme="dark"] .field-label {
+  color: var(--text-secondary);
+}
+
+/* Cards & blocs contenu */
+[data-theme="dark"] .card-block,
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .profil-card,
+[data-theme="dark"] .insc-card,
+[data-theme="dark"] .section-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .fiscal-box,
+[data-theme="dark"] .pack-card:not(.featured) {
+  background-color: var(--bg-card);
+  border-color: var(--border-light);
+}
+
+/* Tableaux */
+[data-theme="dark"] .compta-table th,
+[data-theme="dark"] table th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .compta-table td,
+[data-theme="dark"] table td {
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .compta-table tr:hover td {
+  background-color: var(--bg-hover);
+}
+
+/* Inputs & selects natifs */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Sidebar navigation */
+[data-theme="dark"] .sidebar-nav,
+[data-theme="dark"] .sidebar-item {
+  background-color: var(--bg-card);
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .sidebar-item:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .sidebar-item.active {
+  background-color: rgba(29,158,117,.1);
+  color: #1D9E75;
+}
+
+/* Filtres/barres */
+[data-theme="dark"] .filtres-bar {
+  background-color: var(--bg-card);
+  border-color: var(--border-light);
+}
+[data-theme="dark"] .filtres-bar select,
+[data-theme="dark"] .filtres-bar input {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+/* Modales */
+[data-theme="dark"] .profil-modal,
+[data-theme="dark"] .modal-content {
+  background-color: var(--bg-card);
+  border-color: var(--border-light);
+}
+[data-theme="dark"] .profil-modal h2,
+[data-theme="dark"] .profil-card h3 {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .profil-card p {
+  color: var(--text-secondary);
+}
+
+/* Badges status */
+[data-theme="dark"] .badge-ok  { background: rgba(29,158,117,.2); color:#5DCAA5; }
+[data-theme="dark"] .badge-pending { background: rgba(245,158,11,.15); color:#fbbf24; }
+[data-theme="dark"] .badge-waiting { background: rgba(100,116,139,.2); color:#94a3b8; }
+
+/* Alertes */
+[data-theme="dark"] .alert-credits {
+  background: rgba(245,158,11,.1);
+  border-color: rgba(245,158,11,.3);
+}
+[data-theme="dark"] .alert-credits-text { color: #fbbf24; }
+
+/* Notice */
+[data-theme="dark"] .notice-box {
+  background: rgba(14,165,233,.08);
+  border-color: rgba(14,165,233,.2);
+  color: var(--text-secondary);
+}
+
+/* Page headers */
+[data-theme="dark"] .page-title { color: var(--text-primary); }
+[data-theme="dark"] .page-sub   { color: var(--text-secondary); }
+
+/* Scroll top */
+[data-theme="dark"] .scroll-top-btn { background: #1D9E75; }
+
+/* Select inline dans les card-headers */
+[data-theme="dark"] .card-header select,
+[data-theme="dark"] .card-header-actions select {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+/* Texte bold en dark */
+[data-theme="dark"] .text-bold { color: var(--text-primary); }

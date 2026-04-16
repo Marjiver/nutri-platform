@@ -30,15 +30,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -98,7 +98,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color:var(--text-primary,#0d2018);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -190,7 +190,7 @@
     .legal-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.8rem, 4vw, 2.2rem);
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       margin-bottom: 0.5rem;
     }
     .legal-meta {
@@ -198,13 +198,13 @@
       flex-wrap: wrap;
       gap: 1rem;
       font-size: 0.75rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
 
     /* SOMMAIRE */
     .legal-toc {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem 1.5rem;
       margin-bottom: 2rem;
@@ -214,7 +214,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 0.75rem;
     }
     .legal-toc ol {
@@ -228,7 +228,7 @@
       font-size: 0.8rem;
     }
     .legal-toc a {
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -248,11 +248,11 @@
       font-size: 0.95rem;
       font-weight: 600;
       margin: 1.25rem 0 0.5rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .legal-body p {
       font-size: 0.85rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       line-height: 1.7;
       margin-bottom: 1rem;
     }
@@ -265,7 +265,7 @@
     }
     .legal-body li {
       font-size: 0.82rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
       line-height: 1.6;
     }
     .legal-body a {
@@ -296,12 +296,12 @@
       border-collapse: collapse;
       font-size: 0.8rem;
       margin: 1rem 0 1.5rem;
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 16px;
       overflow: hidden;
     }
     .legal-table th {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       padding: 0.75rem 1rem;
       text-align: left;
       font-weight: 600;
@@ -425,9 +425,6 @@
     </div>
   </div>
 </header>
-
-<!-- BARRE PROFIL -->
-</div>
 
 <!-- MAIN -->
 <main class="legal-container">
@@ -724,16 +721,7 @@ function setStoredProfil(profil) {
   localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
 }
 
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) {
-    bar.style.display = 'block';
-    document.getElementById('profilIcon').textContent = profil.icon;
-    document.getElementById('profilName').textContent = profil.name;
-  }
-}
+function updateUIForProfil(profilKey) {}
 
 function openProfilModal() {
   const container = document.getElementById('profilModalContainer');
@@ -766,7 +754,6 @@ function dismissProfilForever() {
 function selectProfil(profilKey) {
   if (!PROFILS[profilKey]) return;
   setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
   closeProfilModal();
   const target = PROFILS[profilKey].redirectUrl;
   if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
@@ -777,9 +764,7 @@ function selectProfil(profilKey) {
 function initProfilSystem() {
   const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
   const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
 }
 
 window.selectProfil = selectProfil;

@@ -49,30 +49,30 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   
   <!-- ==================== PERFORMANCE MONITORING ==================== -->
-  <script src="js/utils/performance.js"></script>
+  <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== VERSION MANAGER ==================== */
-  <script src="js/utils/version-manager.js"></script>
+  <script defer src="js/utils/version-manager.js"></script>
   
   <!-- ==================== ERROR HANDLER ==================== -->
-  <script src="js/utils/error-handler.js"></script>
+  <script defer src="js/utils/error-handler.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PWA MANAGER ==================== -->
-  <script src="js/utils/pwa.js"></script>
+  <script defer src="js/utils/pwa.js"></script>
   
   <!-- ==================== CORE ==================== -->
-  <script src="js/core/auth.js"></script>
-  <script src="js/core/constants.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/constants.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -149,8 +149,8 @@
       flex-wrap: wrap;
     }
     .periode-btn {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 999px;
       padding: 0.4rem 1.2rem;
       font-size: 0.8rem;
@@ -175,8 +175,8 @@
       margin-bottom: 1.5rem;
     }
     .kpi-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
       position: relative;
@@ -197,7 +197,7 @@
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-bottom: 0.5rem;
     }
     .kpi-value {
@@ -218,7 +218,7 @@
     .kpi-trend.down { color: #ef4444; }
     .kpi-sub {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.25rem;
     }
 
@@ -236,8 +236,8 @@
       margin-bottom: 1.5rem;
     }
     .chart-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
     }
@@ -250,11 +250,11 @@
     .chart-title {
       font-weight: 600;
       font-size: 0.9rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .chart-sub {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.2rem;
     }
     .chart-wrapper {
@@ -267,8 +267,8 @@
 
     /* TABLEAUX */
     .table-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
       margin-bottom: 1.5rem;
@@ -284,11 +284,11 @@
     .table-title {
       font-weight: 600;
       font-size: 0.9rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .btn-export {
       background: transparent;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 999px;
       padding: 0.3rem 1rem;
       font-size: 0.7rem;
@@ -308,7 +308,7 @@
       text-align: left;
       padding: 0.75rem 0.5rem;
       border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       font-weight: 500;
       font-size: 0.7rem;
       text-transform: uppercase;
@@ -322,7 +322,7 @@
       border-bottom: none;
     }
     .stats-table tr:hover td {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
     }
 
     /* PRÉDICTIONS */
@@ -447,6 +447,7 @@
 </header>
 
 <!-- MAIN CONTENT -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Statistiques Administration</h1>
 <main class="stats-container">
 
   <!-- PÉRIODE SELECTOR -->

@@ -32,12 +32,12 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --dark:#0d2018; --green:#1D9E75; --green-d:#0F6E56; --green-l:#E1F5EE;
-      --gray:#6b7b74; --border:#e8edeb; --cream:#f7f9f7;
+      --gray:#6b7b74; --border-color:var(--border-light,#e8edeb); --cream:#f7f9f7;
       --blue:#185FA5; --blue-l:#E6F1FB;
       --amber:#FAEEDA; --amber-d:#633806;
       --font-d:'DM Serif Display',Georgia,serif; --font-b:'DM Sans',system-ui,sans-serif;
     }
-    body { font-family:var(--font-b); color:var(--dark); background:#fff; line-height:1.6; }
+    body { font-family:var(--font-b); color:var(--dark); background:var(--bg-card,#fff); line-height:1.6; }
     a { text-decoration:none; }
 
     /* NAV */
@@ -92,7 +92,7 @@
 
     /* PERSONAS */
     .personas { display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem; }
-    .persona { background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.75rem;transition:box-shadow .25s,transform .25s; }
+    .persona { background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:16px;padding:1.75rem;transition:box-shadow .25s,transform .25s; }
     .persona:hover { box-shadow:0 8px 24px rgba(13,32,24,.08);transform:translateY(-2px); }
     .persona-icon { font-size:2rem;margin-bottom:.875rem; }
     .persona-title { font-weight:600;color:var(--dark);font-size:.95rem;margin-bottom:.35rem; }
@@ -103,7 +103,7 @@
 
     /* OFFRES VOLUME */
     .offres { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;max-width:1000px;margin:0 auto; }
-    .offre { background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.75rem;display:flex;flex-direction:column;position:relative; }
+    .offre { background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:18px;padding:1.75rem;display:flex;flex-direction:column;position:relative; }
     .offre.featured { border:2px solid var(--green);box-shadow:0 8px 32px rgba(29,158,117,.12); }
     .offre-badge { position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.68rem;font-weight:600;border-radius:999px;padding:.25rem .875rem;white-space:nowrap; }
     .offre-tier { font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);font-weight:500;margin-bottom:.5rem; }
@@ -125,7 +125,7 @@
 
     /* AVANTAGES */
     .avantages { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem; }
-    .avantage { display:flex;gap:1rem;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem; }
+    .avantage { display:flex;gap:1rem;align-items:flex-start;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem; }
     .avantage-icon { font-size:1.5rem;flex-shrink:0;margin-top:.1rem; }
     .avantage-title { font-weight:600;font-size:.9rem;color:var(--dark);margin-bottom:.3rem; }
     .avantage-desc { font-size:.8rem;color:var(--gray);line-height:1.6; }
@@ -139,7 +139,7 @@
     .contact-guarantee-text { font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.55; }
     .contact-guarantee-text strong { color:#fff; }
 
-    .contact-form { background:#fff;border-radius:20px;padding:2.25rem;box-shadow:0 12px 40px rgba(0,0,0,.25); }
+    .contact-form { background:var(--bg-card,#fff);border-radius:20px;padding:2.25rem;box-shadow:0 12px 40px rgba(0,0,0,.25); }
     .form-title { font-weight:600;font-size:1.05rem;color:var(--dark);margin-bottom:1.5rem; }
     .form-row { display:grid;grid-template-columns:1fr 1fr;gap:.875rem; }
     .form-group { display:flex;flex-direction:column;gap:.35rem;margin-bottom:.875rem; }
@@ -147,7 +147,7 @@
     .form-label .req { color:var(--green); }
     .form-input, .form-select, .form-textarea {
       width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .875rem;
-      font-family:var(--font-b);font-size:.875rem;color:var(--dark);background:#fff;transition:border-color .2s;
+      font-family:var(--font-b);font-size:.875rem;color:var(--dark);background:var(--bg-card,#fff);transition:border-color .2s;
     }
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.1);
@@ -177,7 +177,7 @@
     .cta-section { background:var(--green);padding:4rem 2rem;text-align:center; }
     .cta-title { font-family:var(--font-d);font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:1rem; }
     .cta-sub { font-size:.95rem;color:rgba(255,255,255,.8);margin-bottom:2rem; }
-    .cta-btn { background:#fff;color:var(--green-d);border:none;border-radius:999px;padding:.9rem 2.25rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:var(--font-b);display:inline-block;transition:all .2s; }
+    .cta-btn { background:var(--bg-card,#fff);color:var(--green-d);border:none;border-radius:999px;padding:.9rem 2.25rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:var(--font-b);display:inline-block;transition:all .2s; }
     .cta-btn:hover { box-shadow:0 4px 16px rgba(0,0,0,.15); }
 
     .footer { background:var(--dark);padding:2rem;text-align:center; }
@@ -847,7 +847,7 @@
           <div class="form-group" style="flex-direction:row;align-items:flex-start;gap:.5rem;">
             <input type="checkbox" id="cp_cgu" style="margin-top:3px;accent-color:var(--green);flex-shrink:0;" required/>
             <label for="cp_cgu" style="font-size:.78rem;color:var(--gray);line-height:1.5;cursor:pointer;">
-              J'accepte la <a href="politique-confidentialite.html" style="color:var(--green);">politique de confidentialité</a> et les <a href="cgu-partenaires.html" style="color:var(--green);">CGU Partenaires</a> de CaliDoc Santé. <span class="req">*</span>
+              J'accepte la <a href="politique-confidentialite.html" style="color:var(--green);">politique de confidentialité</a> et les <a href="cgu-prescripteur.html" style="color:var(--green);">CGU Partenaires</a> de CaliDoc Santé. <span class="req">*</span>
             </label>
           </div>
           <button type="button" class="form-submit" onclick="envoyerContact()">

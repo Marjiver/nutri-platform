@@ -21,17 +21,17 @@
   <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
-  <script src="js/ui/support.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/support.js"></script>
   <script src="js/payments/stripe.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: #f7f9f7;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
       line-height: 1.5;
     }
 
@@ -88,7 +88,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color: #0d2018;
+      background-color:var(--text-primary,#0d2018);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -191,9 +191,9 @@
       flex-shrink: 0;
     }
     .sidebar-nav {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       overflow: hidden;
       position: sticky;
       top: 100px;
@@ -206,11 +206,11 @@
       cursor: pointer;
       transition: all 0.2s;
       border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       font-size: 0.85rem;
     }
     .sidebar-item:last-child { border-bottom: none; }
-    .sidebar-item:hover { background: #f7f9f7; color: #0d2018; }
+    .sidebar-item:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
     .sidebar-item.active {
       background: rgba(29,158,117,0.1);
       color: #1D9E75;
@@ -230,11 +230,11 @@
     .section-header h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
     .section-header p {
       font-size: 0.85rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.2rem;
     }
 
@@ -246,8 +246,8 @@
       margin-bottom: 1.5rem;
     }
     .metric-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1rem;
       text-align: center;
@@ -256,7 +256,7 @@
     .metric-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
     .metric-label {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
@@ -271,8 +271,8 @@
 
     /* JAUGE DE MARGE - Pour le prescripteur (simulateur de marge personnelle) */
     .marge-gauge {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
       margin-bottom: 1.5rem;
@@ -293,7 +293,7 @@
     }
     .gauge-bar {
       height: 12px;
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       border-radius: 999px;
       overflow: hidden;
       margin-bottom: 0.5rem;
@@ -310,17 +310,17 @@
       display: flex;
       justify-content: space-between;
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .gauge-value {
       font-weight: 700;
-      color: #0d2018;
+      color:var(--text-primary,#0d2018);
     }
 
     /* FORMULAIRES */
     .form-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
@@ -335,10 +335,10 @@
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
       padding: 0.65rem 1rem;
-      border: 1px solid #eef4ee;
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 12px;
       font-size: 0.85rem;
-      background: #fff;
+      background:var(--bg-card,#fff);
       transition: border-color 0.2s;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -366,9 +366,9 @@
     }
     .btn-submit:hover { background: #0f6e56; }
     .btn-secondary {
-      background: #f7f9f7;
-      border: 1px solid #eef4ee;
-      color: #0d2018;
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
+      color:var(--text-primary,#0d2018);
       padding: 0.6rem 1rem;
       border-radius: 999px;
       font-size: 0.75rem;
@@ -384,8 +384,8 @@
       gap: 1rem;
     }
     .patient-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1rem;
       transition: all 0.2s;
@@ -414,7 +414,7 @@
       color: #fff;
     }
     .patient-info h4 { font-size: 0.9rem; font-weight: 600; }
-    .patient-info p { font-size: 0.7rem; color: #6b7b74; }
+    .patient-info p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
     .patient-status {
       margin-left: auto;
       font-size: 0.65rem;
@@ -427,7 +427,7 @@
     .status-en-attente { background: #fff8e6; color: #f59e0b; }
     .patient-notes {
       font-size: 0.7rem;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
       margin-top: 0.5rem;
       padding-top: 0.5rem;
       border-top: 1px solid #eef4ee;
@@ -435,7 +435,7 @@
 
     /* PROFIL PATIENT */
     .patient-profile {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
       padding: 1.25rem;
     }
@@ -459,7 +459,7 @@
       color: #fff;
     }
     .profile-name h3 { font-size: 1.1rem; font-weight: 600; }
-    .profile-name p { font-size: 0.7rem; color: #6b7b74; }
+    .profile-name p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
     .profile-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -467,13 +467,13 @@
       margin-bottom: 1rem;
     }
     .profile-stat {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 12px;
       padding: 0.6rem;
       text-align: center;
     }
-    .profile-stat-label { font-size: 0.6rem; color: #6b7b74; text-transform: uppercase; }
-    .profile-stat-value { font-size: 0.9rem; font-weight: 600; color: #0d2018; }
+    .profile-stat-label { font-size: 0.6rem; color:var(--text-secondary,#6b7b74); text-transform: uppercase; }
+    .profile-stat-value { font-size: 0.9rem; font-weight: 600; color:var(--text-primary,#0d2018); }
     .profile-section {
       margin-top: 1rem;
       padding-top: 0.75rem;
@@ -509,8 +509,8 @@
     }
     @media (max-width: 700px) { .recharge-grid { grid-template-columns: 1fr; } }
     .recharge-card {
-      background: #fff;
-      border: 1px solid #eef4ee;
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 20px;
       padding: 1.25rem;
       text-align: center;
@@ -536,9 +536,9 @@
       border-radius: 999px;
       white-space: nowrap;
     }
-    .recharge-nb { font-size: 1rem; font-weight: 600; color: #0d2018; margin-bottom: 0.25rem; }
+    .recharge-nb { font-size: 1rem; font-weight: 600; color:var(--text-primary,#0d2018); margin-bottom: 0.25rem; }
     .recharge-prix { font-size: 1.3rem; font-weight: 700; color: #1D9E75; }
-    .recharge-unitaire { font-size: 0.7rem; color: #6b7b74; margin-top: 0.2rem; }
+    .recharge-unitaire { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.2rem; }
 
     /* TABLEAUX COMPTA */
     .compta-table {
@@ -547,7 +547,7 @@
       font-size: 0.8rem;
     }
     .compta-table th {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       padding: 0.75rem 1rem;
       text-align: left;
       font-weight: 600;
@@ -556,7 +556,7 @@
     .compta-table td {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid #eef4ee;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .badge-ok { background: #e1f5ee; color: #1D9E75; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
 
@@ -588,7 +588,7 @@
       bottom: 70px;
       left: 0;
       width: 320px;
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
       overflow: hidden;
@@ -619,14 +619,14 @@
       justify-content: space-between;
       margin-bottom: 0.3rem;
     }
-    .sim-field-label { font-size: 0.75rem; color: #6b7b74; font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color: #0d2018; }
+    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
       height: 5px;
       border-radius: 999px;
-      background: #eef4ee;
+      background:var(--bg-tertiary,#eef4ee);
       outline: none;
     }
     input[type=range]::-webkit-slider-thumb {
@@ -645,8 +645,8 @@
       margin: 0.5rem 0 1rem;
     }
     .sim-abtn {
-      background: #f7f9f7;
-      border: 1px solid #eef4ee;
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
       border-radius: 10px;
       padding: 0.4rem 0.2rem;
       text-align: center;
@@ -660,7 +660,7 @@
     }
     .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
     .sim-results {
-      background: #f7f9f7;
+      background:var(--bg-secondary,#f7f9f7);
       border-radius: 12px;
       padding: 0.75rem;
       margin: 0.75rem 0;
@@ -672,7 +672,7 @@
       margin-bottom: 0.3rem;
     }
     .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color: #6b7b74; text-align: center; margin-top: 0.5rem; }
+    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
 
     /* MODALS */
     .modal-overlay {
@@ -686,7 +686,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: #fff;
+      background:var(--bg-card,#fff);
       border-radius: 24px;
       padding: 1.5rem;
       max-width: 500px;
@@ -705,7 +705,7 @@
       border: none;
       font-size: 1.2rem;
       cursor: pointer;
-      color: #6b7b74;
+      color:var(--text-secondary,#6b7b74);
     }
     .modal-btns {
       display: flex;
@@ -844,9 +844,6 @@
   </div>
 </header>
 
-<!-- BARRE PROFIL DYNAMIQUE -->
-</div>
-
 <!-- LAYOUT AVEC SIDEBAR -->
 <div class="dashboard-layout">
   
@@ -873,7 +870,8 @@
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main class="main-content">
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Tableau de bord Prescripteur</h1>
+<main class="main-content">
 
     <!-- SECTION DASHBOARD -->
     <div id="section-dashboard" class="section active">
@@ -1169,12 +1167,7 @@ function getStoredProfil() {
   return profil;
 }
 function setStoredProfil(profil) { localStorage.setItem(PROFIL_KEY, profil); localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString()); }
-function updateUIForProfil(profilKey) {
-  const profil = PROFILS[profilKey];
-  if (!profil) return;
-  const bar = document.getElementById('dynamicProfilBar');
-  if (bar) { bar.style.display = 'block'; document.getElementById('profilIcon').textContent = profil.icon; document.getElementById('profilName').textContent = profil.name; }
-}
+function updateUIForProfil(profilKey) {}
 function openProfilModal() {
   const container = document.getElementById('profilModalContainer');
   if (!container) return;
@@ -1185,7 +1178,6 @@ function dismissProfilForever() { localStorage.setItem('nutridoc_profil_dismisse
 function selectProfil(profilKey) {
   if (!PROFILS[profilKey]) return;
   setStoredProfil(profilKey);
-  updateUIForProfil(profilKey);
   closeProfilModal();
   const target = PROFILS[profilKey].redirectUrl;
   if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') window.location.href = target;
@@ -1193,9 +1185,7 @@ function selectProfil(profilKey) {
 function initProfilSystem() {
   const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
   const stored = getStoredProfil();
-  if (stored && PROFILS[stored]) updateUIForProfil(stored);
-  else if (!dismissed) setTimeout(openProfilModal, 500);
-  else document.getElementById('dynamicProfilBar').style.display = 'block';
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
 }
 window.selectProfil = selectProfil;
 window.closeProfilModal = closeProfilModal;

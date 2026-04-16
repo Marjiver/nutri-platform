@@ -23,9 +23,9 @@
   <meta name="theme-color" content="#0d2018"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/ui/cookies.js"></script>
-  <script src="js/ui/dark-mode.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -137,7 +137,7 @@
     .toggle input { opacity:0; width:0; height:0; }
     .toggle-track { position:absolute; inset:0; background:var(--border-medium,#d1d5db); border-radius:999px; transition:background .2s; cursor:pointer; }
     .toggle input:checked + .toggle-track { background:#1D9E75; }
-    .toggle-thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:transform .2s; pointer-events:none; }
+    .toggle-thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--bg-card,#fff); border-radius:50%; transition:transform .2s; pointer-events:none; }
     .toggle input:checked ~ .toggle-thumb { transform:translateX(16px); }
 
     /* ── BANCAIRE ── */
@@ -718,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
   <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
+  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
+</script>
 </body>
 </html>
