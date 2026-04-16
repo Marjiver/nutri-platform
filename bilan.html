@@ -18,7 +18,7 @@
   <meta charset="UTF-8"/>
   <meta name="description" content="Bilan nutritionnel gratuit · Créez votre compte et recevez des recommandations personnalisées."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>NutriDoc — Bilan nutritionnel gratuit en 5 minutes</title>
+  <title>NutriDoc — Bilan nutritionnel gratuit en 6 étapes</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -639,10 +639,11 @@
   <div class="progress-container">
     <div class="progress-steps">
       <div class="progress-step" data-step="1">1. Profil</div>
-      <div class="progress-step" data-step="2">2. Morphologie</div>
+      <div class="progress-step" data-step="2">2. Corps</div>
       <div class="progress-step" data-step="3">3. Activité</div>
-      <div class="progress-step" data-step="4">4. Santé</div>
-      <div class="progress-step" data-step="5">5. Compte</div>
+      <div class="progress-step" data-step="4">4. Habitudes</div>
+      <div class="progress-step" data-step="5">5. Santé</div>
+      <div class="progress-step" data-step="6">6. Compte</div>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill"></div>
@@ -667,12 +668,18 @@
     <!-- ÉTAPE 1 : Profil -->
     <div class="step active" data-step="1">
       <div class="step-header">
-        <div class="step-num-pill">1 / 5</div>
+        <div class="step-num-pill">1 / 6</div>
         <h2>Votre profil</h2>
       </div>
-      <div class="form-group">
-        <label>Prénom <span class="req">*</span></label>
-        <input type="text" name="prenom" placeholder="Ex : Marie" required/>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" name="prenom" placeholder="Ex : Marie" required/>
+        </div>
+        <div class="form-group">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" name="nom" placeholder="Ex : Dupont" required/>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -700,7 +707,7 @@
     <!-- ÉTAPE 2 : Morphologie -->
     <div class="step" data-step="2">
       <div class="step-header">
-        <div class="step-num-pill">2 / 5</div>
+        <div class="step-num-pill">2 / 6</div>
         <h2>Votre morphologie</h2>
       </div>
       <div class="form-row">
@@ -726,7 +733,7 @@
     <!-- ÉTAPE 3 : Activité & objectif -->
     <div class="step" data-step="3">
       <div class="step-header">
-        <div class="step-num-pill">3 / 5</div>
+        <div class="step-num-pill">3 / 6</div>
         <h2>Activité &amp; objectif</h2>
       </div>
       <div class="form-group">
@@ -774,10 +781,148 @@
       </div>
     </div>
 
-    <!-- ÉTAPE 4 : Santé & habitudes -->
+
+    <!-- ÉTAPE 4 : Habitudes de vie -->
     <div class="step" data-step="4">
       <div class="step-header">
-        <div class="step-num-pill">4 / 5</div>
+        <div class="step-num-pill">4 / 6</div>
+        <h2>Habitudes de vie</h2>
+      </div>
+      <p class="step-intro">Ces informations permettent au diététicien d'adapter précisément votre plan à votre quotidien.</p>
+
+      <!-- Type de travail -->
+      <div class="form-group">
+        <label>Type de travail</label>
+        <select name="travail">
+          <option value="">— Choisir —</option>
+          <option value="bureau">Bureau / travail assis</option>
+          <option value="debout">Travail debout / en déplacement</option>
+          <option value="physique">Travail physique / manuel</option>
+          <option value="nuit">Travail en horaires décalés / nuit</option>
+          <option value="sans">Sans activité professionnelle</option>
+        </select>
+      </div>
+
+      <!-- Sport pratiqué -->
+      <div class="form-group">
+        <label>Sport(s) pratiqué(s)</label>
+        <input type="text" name="sport" placeholder="Ex : course à pied, musculation, natation…"/>
+        <span class="field-hint">Précisez le ou les sports pratiqués régulièrement</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fréquence sport</label>
+          <select name="sport_freq">
+            <option value="">— Choisir —</option>
+            <option value="1">1 fois/semaine</option>
+            <option value="2">2 fois/semaine</option>
+            <option value="3">3 fois/semaine</option>
+            <option value="4">4 fois/semaine</option>
+            <option value="5">5 fois ou plus</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Durée moyenne / séance</label>
+          <select name="sport_duree">
+            <option value="">— Choisir —</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">1h</option>
+            <option value="90">1h30</option>
+            <option value="120">2h ou plus</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Sommeil & hydratation -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Qualité du sommeil</label>
+          <select name="sommeil">
+            <option value="">— Choisir —</option>
+            <option value="excellent">Excellent (7-9h, réparateur)</option>
+            <option value="bon">Bon (6-7h)</option>
+            <option value="moyen">Moyen (5-6h ou perturbé)</option>
+            <option value="mauvais">Mauvais (moins de 5h)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Consommation d'eau / jour</label>
+          <select name="hydratation">
+            <option value="">— Choisir —</option>
+            <option value="moins_1l">Moins de 1 litre</option>
+            <option value="1_1.5l">1 à 1,5 litre</option>
+            <option value="1.5_2l">1,5 à 2 litres</option>
+            <option value="plus_2l">Plus de 2 litres</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabagisme & fringales -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tabagisme</label>
+          <select name="tabagisme">
+            <option value="non">Non-fumeur</option>
+            <option value="ex">Ex-fumeur</option>
+            <option value="occasionnel">Fumeur occasionnel</option>
+            <option value="regulier">Fumeur régulier</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fringales / grignotages</label>
+          <select name="fringales">
+            <option value="">— Choisir —</option>
+            <option value="jamais">Jamais</option>
+            <option value="matin">Souvent le matin</option>
+            <option value="apres_midi">Souvent l'après-midi</option>
+            <option value="soir">Souvent le soir</option>
+            <option value="frequents">Fréquents (plusieurs fois/jour)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Habitudes repas -->
+      <div class="form-group">
+        <label>Que mangez-vous habituellement le matin ?</label>
+        <input type="text" name="repas_matin" placeholder="Ex : café + tartines, rien, yaourt + fruits…"/>
+      </div>
+      <div class="form-group">
+        <label>Que mangez-vous habituellement le midi ?</label>
+        <input type="text" name="repas_midi" placeholder="Ex : sandwich bureau, repas chaud à domicile, restaurant…"/>
+      </div>
+      <div class="form-group">
+        <label>Que mangez-vous habituellement le soir ?</label>
+        <input type="text" name="repas_soir" placeholder="Ex : repas complet, soupe, plat simple rapide…"/>
+      </div>
+
+      <!-- Aliments non aimés & budget -->
+      <div class="form-group">
+        <label>Aliments que vous n'aimez pas ou ne souhaitez pas manger</label>
+        <input type="text" name="aversions" placeholder="Ex : poisson, brocolis, foie…"/>
+        <span class="field-hint">Différent des allergies — ce sont des préférences alimentaires</span>
+      </div>
+      <div class="form-group">
+        <label>Budget alimentaire estimé / semaine</label>
+        <select name="budget">
+          <option value="">— Choisir —</option>
+          <option value="moins_30">Moins de 30€</option>
+          <option value="30_50">30 à 50€</option>
+          <option value="50_80">50 à 80€</option>
+          <option value="plus_80">Plus de 80€</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" data-prev="3">← Retour</button>
+        <button type="button" class="btn-next" data-next="5">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 5 : Santé & alertes -->
+    <div class="step" data-step="5">
+      <div class="step-header">
+        <div class="step-num-pill">5 / 6</div>
         <h2>Santé &amp; habitudes</h2>
       </div>
       <p class="step-intro">Confidentielles, jamais partagées. Permettent au diététicien de sécuriser votre plan.</p>
@@ -815,15 +960,15 @@
         <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2"></textarea>
       </div>
       <div class="btn-row">
-        <button type="button" class="btn-back" data-prev="3">← Retour</button>
-        <button type="button" class="btn-next" data-next="5">Continuer →</button>
+        <button type="button" class="btn-back" data-prev="4">← Retour</button>
+        <button type="button" class="btn-next" data-next="6">Continuer →</button>
       </div>
     </div>
 
     <!-- ÉTAPE 5 : Création compte -->
-    <div class="step" data-step="5">
+    <div class="step" data-step="6">
       <div class="step-header">
-        <div class="step-num-pill">5 / 5</div>
+        <div class="step-num-pill">6 / 6</div>
         <h2>Créez votre compte</h2>
       </div>
       <p class="step-intro">Un email vous sera envoyé pour confirmer votre compte.</p>
@@ -854,7 +999,7 @@
       <div id="stepError5" class="step-error hidden"></div>
       
       <div class="btn-row">
-        <button type="button" class="btn-back" data-prev="4">← Retour</button>
+        <button type="button" class="btn-back" data-prev="5">← Retour</button>
         <button type="submit" class="btn-submit">Créer mon compte →</button>
       </div>
     </div>
@@ -1052,7 +1197,7 @@ window.addEventListener('scroll', () => {
 
 // ===== NAVIGATION =====
 let currentStep = 1;
-const totalSteps = 5;
+const totalSteps = 6;
 
 function updateProgress() {
   const percent = ((currentStep - 1) / (totalSteps - 1)) * 100;
@@ -1139,8 +1284,8 @@ function validateStep(stepNum) {
     }
   }
 
-  // Étape 4 : au moins une case santé cochée (obligatoire)
-  if (stepNum === 4) {
+  // Étape 5 : au moins une case santé cochée (obligatoire)
+  if (stepNum === 5) {
     const anyChecked = stepEl.querySelectorAll('#redFlagList input[type="checkbox"]:checked').length > 0;
     if (!anyChecked) {
       showStepError(stepNum, '⚠️ Veuillez cocher au moins une case — ou "Aucune de ces situations ne me concerne".');
@@ -1159,8 +1304,8 @@ function validateStep(stepNum) {
     }
   }
 
-  // Étape 5 : validation compte
-  if (stepNum === 5) {
+  // Étape 6 : validation compte
+  if (stepNum === 6) {
     const email    = document.getElementById('email')?.value.trim();
     const password = document.getElementById('password')?.value;
     const confirm  = document.getElementById('passwordConfirm')?.value;
@@ -1322,6 +1467,19 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
     objectif:      document.querySelector('[name="objectif"]')?.value || '',
     regime:        document.querySelector('[name="regime"]')?.value || '',
     allergies:     document.querySelector('[name="allergies"]')?.value?.trim() || '',
+    aversions:     document.querySelector('[name="aversions"]')?.value?.trim() || '',
+    sport:         document.querySelector('[name="sport"]')?.value?.trim() || '',
+    sport_freq:    parseInt(document.querySelector('[name="sport_freq"]')?.value) || null,
+    sport_duree:   parseInt(document.querySelector('[name="sport_duree"]')?.value) || null,
+    travail:       document.querySelector('[name="travail"]')?.value || '',
+    sommeil:       document.querySelector('[name="sommeil"]')?.value || '',
+    hydratation:   document.querySelector('[name="hydratation"]')?.value || '',
+    tabagisme:     document.querySelector('[name="tabagisme"]')?.value || '',
+    fringales:     document.querySelector('[name="fringales"]')?.value || '',
+    repas_matin:   document.querySelector('[name="repas_matin"]')?.value?.trim() || '',
+    repas_midi:    document.querySelector('[name="repas_midi"]')?.value?.trim() || '',
+    repas_soir:    document.querySelector('[name="repas_soir"]')?.value?.trim() || '',
+    budget:        document.querySelector('[name="budget"]')?.value || '',
     alertes_sante: redFlags,
   };
 
@@ -1385,7 +1543,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
     const { error: bilanError } = await _supa.from('bilans').insert({
       patient_id:    userId,
       prenom:        bilanData.prenom,
-      nom:           bilanData.nom,
+      nom:           bilanData.nom || '',
       age:           bilanData.age,
       sexe:          bilanData.sexe,
       ville:         bilanData.ville,
@@ -1397,6 +1555,19 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       regime:        bilanData.regime,
       allergies:     bilanData.allergies,
       alertes_sante: bilanData.alertes_sante,
+      aversions:     bilanData.aversions     || '',
+      sport:         bilanData.sport         || '',
+      sport_freq:    bilanData.sport_freq    || null,
+      sport_duree:   bilanData.sport_duree   || null,
+      travail:       bilanData.travail       || '',
+      sommeil:       bilanData.sommeil       || '',
+      hydratation:   bilanData.hydratation   || '',
+      tabagisme:     bilanData.tabagisme     || '',
+      fringales:     bilanData.fringales     || '',
+      repas_matin:   bilanData.repas_matin   || '',
+      repas_midi:    bilanData.repas_midi    || '',
+      repas_soir:    bilanData.repas_soir    || '',
+      budget:        bilanData.budget        || '',
       statut:        'en_attente',
       paiement:      'gratuit',
     });
