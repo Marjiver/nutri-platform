@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="Espace diététicien NutriDoc : gérez vos patients, validez des plans alimentaires, suivez vos revenus et votre quota mensuel."/>
+  <title>Espace Diététicien — NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/support.js"></script>
+  <script defer src="js/utils/pdf-plan.js"></script>
+  <script defer src="js/utils/email.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color:var(--text-primary,#0d2018);
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL */
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* HEADER DASHBOARD */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .dashboard-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .dashboard-title p {
+      font-size: 0.8rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.2rem;
+    }
+    .dashboard-stats {
+      display: flex;
+      gap: 1rem;
+    }
+    .stat-badge {
+      background:var(--bg-card,#fff);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1px solid var(--border-light,#eef4ee);
+    }
+    .stat-badge .count {
+      font-weight: 700;
+      color: #1D9E75;
+      margin-right: 0.3rem;
+    }
+
+    /* BOUTONS AGENDA & COMPTA mis en évidence */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-agenda {
+      background: #0ea5e9;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+    }
+    .btn-agenda:hover {
+      background: #0284c7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(14,165,233,0.4);
+    }
+    .btn-compta {
+      background: #1D9E75;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(29,158,117,0.3);
+    }
+    .btn-compta:hover {
+      background: #0f6e56;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(29,158,117,0.4);
+    }
+
+    /* ONGLETS */
+    .diet-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #eef4ee;
+      padding-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .diet-tab {
+      background: none;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color:var(--text-secondary,#6b7b74);
+      cursor: pointer;
+      border-radius: 999px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .diet-tab:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
+    .diet-tab.active {
+      background: #1D9E75;
+      color: #fff;
+    }
+    .tab-badge {
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.7rem;
+    }
+    .diet-tab.active .tab-badge { background: rgba(255,255,255,0.3); }
+
+    /* CONTENU DES ONGLETS */
+    .tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* RECHERCHE */
+    .search-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+    .search-input-wrapper input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.5rem;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      background:var(--bg-card,#fff);
+      transition: all 0.2s;
+    }
+    .search-input-wrapper input:focus {
+      border-color: #1D9E75;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color:var(--text-secondary,#6b7b74);
+      font-size: 0.9rem;
+    }
+    .filter-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-chip:hover { border-color: #1D9E75; color: #1D9E75; }
+    .filter-chip.active {
+      background: #1D9E75;
+      border-color: #1D9E75;
+      color: #fff;
+    }
+
+    /* KANBAN */
+    .kanban-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kanban-col {
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      padding: 1rem;
+      border: 1px solid var(--border-light,#eef4ee);
+    }
+    .kanban-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid;
+    }
+    .kanban-header.a-faire { border-bottom-color: #f59e0b; }
+    .kanban-header.en-cours { border-bottom-color: #0ea5e9; }
+    .kanban-header.valide { border-bottom-color: #1D9E75; }
+    .kanban-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .kanban-count {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .kanban-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .kanban-card:hover {
+      transform: translateX(4px);
+      border-color: #1D9E75;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .kanban-card-name {
+      font-weight: 500;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .kanban-card-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .kanban-card-objectif {
+      font-size: 0.65rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.2rem;
+      margin-left: 2.2rem;
+    }
+
+    /* GRILLE PATIENTS */
+    .patients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+    }
+    .patient-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .patient-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #1D9E75;
+    }
+    .patient-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .patient-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .patient-info h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .patient-info p {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .patient-status {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .patient-status.a-faire { background: #fff8e6; color: #f59e0b; }
+    .patient-status.en-cours { background: #eff6ff; color: #0ea5e9; }
+    .patient-status.valide { background: #e1f5ee; color: #1D9E75; }
+    .patient-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.75rem 0;
+    }
+    .patient-badge {
+      font-size: 0.65rem;
+      background:var(--bg-secondary,#f7f9f7);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .patient-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .btn-validate {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-validate:hover { background: #0f6e56; }
+    .btn-view {
+      background: transparent;
+      border: 1px solid var(--border-light,#eef4ee);
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-view:hover { border-color: #1D9E75; color: #1D9E75; }
+
+    /* STATS CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid var(--border-light,#eef4ee);
+    }
+    .stat-card-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1D9E75;
+    }
+    .stat-card-label {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.2rem;
+    }
+
+    /* SIMULATEUR EN BULLE (bas gauche) */
+    .sim-bubble {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 300;
+    }
+    .sim-toggle {
+      width: 56px;
+      height: 56px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
+    .sim-window {
+      display: none;
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      width: 320px;
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(29,158,117,0.2);
+    }
+    .sim-window.open { display: block; }
+    .sim-header {
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sim-close {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .sim-body { padding: 1rem; }
+    .sim-field { margin-bottom: 1rem; }
+    .sim-field-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background:var(--bg-tertiary,#eef4ee);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #1D9E75;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .sim-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .sim-abtn {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 10px;
+      padding: 0.4rem 0.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.7rem;
+    }
+    .sim-abtn.active {
+      background: #e1f5ee;
+      border-color: #1D9E75;
+    }
+    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
+    .sim-results {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+    }
+    .sim-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
+    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .kanban-grid { grid-template-columns: 1fr; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink">Mon espace</a>
+        <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="profil-dieteticien.html" class="nd-conn-item">👤 Mon profil</a>
+          <a href="gestion-forfait-dieteticien.html" class="nd-conn-item">📊 Mon forfait</a>
+          <a href="#" onclick="deconnecter()" class="nd-conn-item">🔓 Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Tableau de bord Diététicien</h1>
+<main class="dashboard-container">
+
+  <div class="dashboard-header">
+    <div class="dashboard-title">
+      <h2>Bonjour, Grégoire 👋</h2>
+      <p>Pro · 1 plan offert/mois · Quota restant : <strong>28/30</strong> plans</p>
+    </div>
+    <div class="dashboard-stats">
+      <div class="stat-badge"><span class="count">6</span> patients</div>
+      <div class="stat-badge"><span class="count">3</span> à traiter</div>
+      <div class="stat-badge"><span class="count">2</span> en cours</div>
+      <div class="stat-badge"><span class="count">1</span> validé</div>
+    </div>
+    <div class="action-buttons">
+      <a href="agenda-dieteticien.html" class="btn-action btn-agenda">📅 Agenda</a>
+      <a href="compta-dieteticien.html" class="btn-action btn-compta">💰 Comptabilité</a>
+    </div>
+  </div>
+
+  <!-- ONGLETS -->
+  <div class="diet-tabs">
+    <button class="diet-tab active" data-tab="dashboard">
+      📊 Tableau de bord
+    </button>
+    <button class="diet-tab" data-tab="patients">
+      👥 Patients <span class="tab-badge" id="patientsCount">6</span>
+    </button>
+    <button class="diet-tab" data-tab="kanban">
+      📋 Kanban
+    </button>
+  </div>
+
+  <!-- TAB 1 : DASHBOARD -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-value">24,90€</div><div class="stat-card-label">CA / plan</div></div>
+      <div class="stat-card"><div class="stat-card-value">55€</div><div class="stat-card-label">Visio</div></div>
+      <div class="stat-card"><div class="stat-card-value">1</div><div class="stat-card-label">Plan offert/mois</div></div>
+      <div class="stat-card"><div class="stat-card-value">2,00€</div><div class="stat-card-label">Commission/plan</div></div>
+    </div>
+
+    <div class="kanban-grid">
+      <div class="kanban-col">
+        <div class="kanban-header a-faire">
+          <span class="kanban-title">⏳ À traiter</span>
+          <span class="kanban-count" id="countAFaire">0</span>
+        </div>
+        <div id="kanbanAFaire"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header en-cours">
+          <span class="kanban-title">🔄 En cours</span>
+          <span class="kanban-count" id="countEnCours">0</span>
+        </div>
+        <div id="kanbanEnCours"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header valide">
+          <span class="kanban-title">✅ Validés</span>
+          <span class="kanban-count" id="countValide">0</span>
+        </div>
+        <div id="kanbanValide"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 : PATIENTS -->
+  <div id="tab-patients" class="tab-content">
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Rechercher par nom, ville, objectif..." oninput="filterPatients()">
+      </div>
+      <div class="filter-chips" id="filterChips"></div>
+    </div>
+    <div id="patientsGrid" class="patients-grid"></div>
+  </div>
+
+  <!-- TAB 3 : KANBAN -->
+  <div id="tab-kanban" class="tab-content">
+    <div class="kanban-grid">
+      <div class="kanban-col">
+        <div class="kanban-header a-faire">
+          <span class="kanban-title">⏳ À traiter</span>
+          <span class="kanban-count" id="kanbanAFaireCount">0</span>
+        </div>
+        <div id="kanbanAFaireFull"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header en-cours">
+          <span class="kanban-title">🔄 En cours</span>
+          <span class="kanban-count" id="kanbanEnCoursCount">0</span>
+        </div>
+        <div id="kanbanEnCoursFull"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header valide">
+          <span class="kanban-title">✅ Validés</span>
+          <span class="kanban-count" id="kanbanValideCount">0</span>
+        </div>
+        <div id="kanbanValideFull"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPPORT -->
+  <section style="margin-top:2rem;">
+    <div id="supportWidgetdietitian"></div>
+  </section>
+
+</main>
+
+<!-- SIMULATEUR EN BULLE (bas gauche) -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()">💰</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-header">
+      <span>💰 Simulateur de revenus</span>
+      <button class="sim-close" onclick="toggleSim()">✕</button>
+    </div>
+    <div class="sim-body">
+      <p style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.75rem;">Ajustez les curseurs pour estimer vos revenus mensuels.</p>
+      
+      <div class="sim-field">
+        <div class="sim-field-header">
+          <span class="sim-field-label">📋 Plans validés / mois</span>
+          <span class="sim-field-val" id="simPlansVal">10</span>
+        </div>
+        <input type="range" min="1" max="100" value="10" step="1" id="simPlans" oninput="updateSimulatorBubble()">
+      </div>
+
+      <div class="sim-field">
+        <div class="sim-field-header">
+          <span class="sim-field-label">🎥 Visios / mois</span>
+          <span class="sim-field-val" id="simVisiosVal">3</span>
+        </div>
+        <input type="range" min="0" max="30" value="3" step="1" id="simVisios" oninput="updateSimulatorBubble()">
+      </div>
+
+      <div class="sim-field">
+        <div class="sim-field-header">
+          <span class="sim-field-label">📦 Forfait</span>
+        </div>
+        <div class="sim-btns">
+          <div class="sim-abtn" onclick="setAbonnement(0, this)"><div>Essentiel</div><div class="sim-abtn-price">0€/mois</div></div>
+          <div class="sim-abtn" onclick="setAbonnement(9, this)"><div>Starter</div><div class="sim-abtn-price">9€/mois</div></div>
+          <div class="sim-abtn active" onclick="setAbonnement(29, this)"><div>Pro</div><div class="sim-abtn-price">29€/mois</div></div>
+          <div class="sim-abtn" onclick="setAbonnement(59, this)"><div>Expert</div><div class="sim-abtn-price">59€/mois</div></div>
+        </div>
+        <input type="hidden" id="simAbo" value="29">
+      </div>
+
+      <div class="sim-results">
+        <div class="sim-row"><span>💰 Chiffre d'affaires brut</span><strong id="simCa">364 €</strong></div>
+        <div class="sim-row"><span>📉 Commissions NutriDoc</span><strong id="simCommissions">— €</strong></div>
+        <div class="sim-row highlight"><span>📈 Revenu net / mois</span><strong id="simNet">— €</strong></div>
+        <div class="sim-row"><span>⏱ Taux horaire estimé</span><strong id="simTaux">— €/h</strong></div>
+      </div>
+      <div class="sim-note" id="simNote">📅 Revenu annuel estimé : — €</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== SIMULATEUR EN BULLE =====
+var COMMISSIONS_SIM = { 0: 3.00, 9: 2.50, 29: 2.00, 59: 1.50 };
+var QUOTAS_SIM = { 0: 0, 9: 10, 29: 30, 59: 100 };
+
+function toggleSim() {
+  document.getElementById('simWindow').classList.toggle('open');
+}
+
+function updateSimulatorBubble() {
+  const plans = parseInt(document.getElementById('simPlans').value);
+  const visios = parseInt(document.getElementById('simVisios').value);
+  const abo = parseInt(document.getElementById('simAbo').value);
+  const commissionPlan = COMMISSIONS_SIM[abo];
+  const quota = QUOTAS_SIM[abo];
+  
+  document.getElementById('simPlansVal').textContent = plans;
+  document.getElementById('simVisiosVal').textContent = visios;
+  
+  const plansPayants = Math.max(0, plans - 1);
+  const horsQuota = Math.max(0, plansPayants - quota);
+  const commissionsTotal = (horsQuota * commissionPlan) + (visios * 8);
+  
+  const caPlans = plans * 24.9;
+  const caVisios = visios * 55;
+  const caTotal = caPlans + caVisios;
+  const net = caTotal - commissionsTotal - abo;
+  const heures = (plans * 15 + visios * 45) / 60;
+  const taux = heures > 0 ? Math.round(net / heures) : 0;
+  
+  document.getElementById('simCa').textContent = Math.round(caTotal) + ' €';
+  document.getElementById('simCommissions').textContent = Math.round(commissionsTotal) + ' €';
+  document.getElementById('simNet').textContent = Math.round(net) + ' €';
+  document.getElementById('simTaux').textContent = taux + ' €/h';
+  document.getElementById('simNote').innerHTML = `📅 Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} € · Commission : ${commissionPlan.toFixed(2)}€/plan (hors quota)`;
+}
+
+function setAbonnement(val, btn) {
+  document.getElementById('simAbo').value = val;
+  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSimulatorBubble();
+}
+
+// ===== PROFIL SYSTEM =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" ><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" ><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button >Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+function toggleConn() {
+  document.getElementById('ndConnMenu').classList.toggle('open');
+}
+window.toggleConn = toggleConn;
+
+function deconnecter() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+window.deconnecter = deconnecter;
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('ndConnWrap');
+  const menu = document.getElementById('ndConnMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+});
+
+// ===== DONNÉES PATIENTS =====
+const PATIENTS = [
+  { id:'p1', prenom:'Marie', nom:'Dupont', age:34, ville:'Angoulême', objectif:'perte_poids', statut:'a_faire', avatar:'#1D9E75', email:'marie@mail.fr', tel:'06 12 34 56 78', bmi:26.4, notes:'Régime sans gluten. Préfère les menus simples.' },
+  { id:'p2', prenom:'Thomas', nom:'Klein', age:28, ville:'Poitiers', objectif:'prise_masse', statut:'en_cours', avatar:'#5DCAA5', email:'thomas@mail.fr', tel:'06 98 76 54 32', bmi:22.1, notes:'Sportif 5x/semaine. Objectif +5kg muscle.' },
+  { id:'p3', prenom:'Sophie', nom:'Martin', age:41, ville:'Bordeaux', objectif:'equilibre', statut:'valide', avatar:'#97C459', email:'sophie@mail.fr', tel:'07 11 22 33 44', bmi:24.8, notes:'Végétarienne. Travail sédentaire.' },
+  { id:'p4', prenom:'Lucas', nom:'Bernard', age:25, ville:'La Rochelle', objectif:'sport_perf', statut:'valide', avatar:'#f59e0b', email:'lucas@mail.fr', tel:'06 55 66 77 88', bmi:21.3, notes:'Course à pied 3x/semaine. Objectif semi-marathon.' },
+  { id:'p5', prenom:'Emma', nom:'Rousseau', age:33, ville:'Niort', objectif:'perte_poids', statut:'a_faire', avatar:'#0ea5e9', email:'emma@mail.fr', tel:'06 44 55 66 77', bmi:29.1, notes:'Stress au travail. Fringales le soir.' },
+  { id:'p6', prenom:'Paul', nom:'Laurent', age:52, ville:'Périgueux', objectif:'sante', statut:'en_cours', avatar:'#8b5cf6', email:'paul@mail.fr', tel:'06 33 44 55 66', bmi:27.6, notes:'Antécédent cholestérol. Médecin suivi.' },
+];
+
+const OBJECTIFS = [
+  { val:'tous', label:'Tous', icon:'📋' },
+  { val:'perte_poids', label:'Perte de poids', icon:'⬇' },
+  { val:'prise_masse', label:'Prise de masse', icon:'💪' },
+  { val:'equilibre', label:'Équilibre', icon:'⚖' },
+  { val:'sport_perf', label:'Performance', icon:'🏃' },
+  { val:'energie', label:'Énergie', icon:'⚡' },
+  { val:'sante', label:'Prévention', icon:'❤' },
+];
+
+let currentFilter = 'tous';
+let currentSearch = '';
+
+function getObjectifLabel(val) {
+  return OBJECTIFS.find(o => o.val === val)?.label || val;
+}
+
+function getObjectifIcon(val) {
+  return OBJECTIFS.find(o => o.val === val)?.icon || '📋';
+}
+
+// Rendu Kanban Dashboard
+function renderKanbanDashboard() {
+  const aFaire = PATIENTS.filter(p => p.statut === 'a_faire');
+  const enCours = PATIENTS.filter(p => p.statut === 'en_cours');
+  const valide = PATIENTS.filter(p => p.statut === 'valide');
+  
+  document.getElementById('countAFaire').textContent = aFaire.length;
+  document.getElementById('countEnCours').textContent = enCours.length;
+  document.getElementById('countValide').textContent = valide.length;
+  
+  document.getElementById('kanbanAFaire').innerHTML = aFaire.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+  
+  document.getElementById('kanbanEnCours').innerHTML = enCours.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+  
+  document.getElementById('kanbanValide').innerHTML = valide.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+}
+
+// Rendu Kanban complet
+function renderKanbanFull() {
+  const aFaire = PATIENTS.filter(p => p.statut === 'a_faire');
+  const enCours = PATIENTS.filter(p => p.statut === 'en_cours');
+  const valide = PATIENTS.filter(p => p.statut === 'valide');
+  
+  document.getElementById('kanbanAFaireCount').textContent = aFaire.length;
+  document.getElementById('kanbanEnCoursCount').textContent = enCours.length;
+  document.getElementById('kanbanValideCount').textContent = valide.length;
+  
+  document.getElementById('kanbanAFaireFull').innerHTML = aFaire.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+  
+  document.getElementById('kanbanEnCoursFull').innerHTML = enCours.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+  
+  document.getElementById('kanbanValideFull').innerHTML = valide.map(p => `
+    <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="kanban-card-name">
+        <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        ${p.prenom} ${p.nom}
+      </div>
+      <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
+    </div>
+  `).join('');
+}
+
+// Rendu filtres
+function renderFilterChips() {
+  const container = document.getElementById('filterChips');
+  if (container) {
+    container.innerHTML = OBJECTIFS.map(o => `
+      <button class="filter-chip ${currentFilter === o.val ? 'active' : ''}" onclick="setFilter('${o.val}')">${o.icon} ${o.label}</button>
+    `).join('');
+  }
+}
+
+function setFilter(val) {
+  currentFilter = val;
+  renderFilterChips();
+  filterPatients();
+}
+
+function filterPatients() {
+  const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+  let filtered = PATIENTS;
+  
+  if (currentFilter !== 'tous') {
+    filtered = filtered.filter(p => p.objectif === currentFilter);
+  }
+  if (searchTerm) {
+    filtered = filtered.filter(p => 
+      (p.prenom + ' ' + p.nom).toLowerCase().includes(searchTerm) ||
+      p.ville.toLowerCase().includes(searchTerm) ||
+      getObjectifLabel(p.objectif).toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  renderPatientsGrid(filtered);
+  document.getElementById('patientsCount').textContent = filtered.length;
+}
+
+function renderPatientsGrid(patients) {
+  const container = document.getElementById('patientsGrid');
+  if (!container) return;
+  
+  const statusLabels = { a_faire: 'À traiter', en_cours: 'En cours', valide: 'Validé' };
+  const statusClasses = { a_faire: 'a-faire', en_cours: 'en-cours', valide: 'valide' };
+  
+  container.innerHTML = patients.map(p => `
+    <div class="patient-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="patient-header">
+        <div class="patient-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        <div class="patient-info">
+          <h4>${p.prenom} ${p.nom} · ${p.age} ans</h4>
+          <p>📍 ${p.ville} · IMC ${p.bmi}</p>
+        </div>
+        <div class="patient-status ${statusClasses[p.statut]}">${statusLabels[p.statut]}</div>
+      </div>
+      <div class="patient-badges">
+        <span class="patient-badge">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</span>
+        <span class="patient-badge">📧 ${p.email}</span>
+        <span class="patient-badge">📞 ${p.tel}</span>
+      </div>
+      <div class="patient-notes" style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.5rem;">${p.notes}</div>
+      <div class="patient-actions">
+        <button class="btn-validate" onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider plan</button>
+        <button class="btn-view" onclick="event.stopPropagation();ouvrirDossier('${p.id}')">📋 Voir dossier</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function ouvrirDossier(id) {
+  const p = PATIENTS.find(x => x.id === id);
+  if (p) alert(`📁 Dossier de ${p.prenom} ${p.nom}\n\nObjectif : ${getObjectifLabel(p.objectif)}\nNotes : ${p.notes}\nEmail : ${p.email}\nTél : ${p.tel}`);
+}
+
+function validerPlan(id) {
+  const p = PATIENTS.find(x => x.id === id);
+  if (!p) return;
+  p.statut = 'valide';
+  renderKanbanDashboard();
+  renderKanbanFull();
+  filterPatients();
+  showToast(`✅ Plan de ${p.prenom} ${p.nom} validé !`);
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:0.5rem 1rem;border-radius:999px;font-size:0.75rem;z-index:2000;';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// Onglets
+function initTabs() {
+  const tabs = document.querySelectorAll('.diet-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabId = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    });
+  });
+}
+
+// Message facturation
+function afficherMessageFacturation(planIndex) {
+  var diot = window._dietitianData || {};
+  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
+  var quotaRestant = (diot.quota_mensuel || 30) - (diot.plans_valides_mois || 0);
+  var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+  var forfait = (diot.formule || 'pro').toLowerCase();
+  var fee = fees[forfait] || 2.00;
+  var msg, color;
+  if (!planGratuitUtilise) {
+    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
+    color = "#1D9E75";
+  } else if (quotaRestant > 0) {
+    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
+    color = "#185FA5";
+  } else {
+    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
+    color = "#F59E0B";
+  }
+  return { msg, color };
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  renderKanbanDashboard();
+  renderKanbanFull();
+  renderFilterChips();
+  filterPatients();
+  initTabs();
+  updateSimulatorBubble();
+  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+</script>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

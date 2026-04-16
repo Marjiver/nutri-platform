@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex"/>
+  <title>Gestion du forfait — NutriDoc</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-secondary, #f7f9f7); color: var(--text-primary, #0d2018); line-height: 1.5; }
+
+    /* ── HEADER ── */
+    .nd-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #0d2018 !important;
+      border-bottom: 1px solid rgba(29,158,117,.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nd-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #fff; text-decoration: none; }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.25rem; }
+    .nd-navlink { font-size: 0.78rem; color: rgba(255,255,255,.6); text-decoration: none; transition: color .2s; }
+    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .nd-user-badge {
+      font-size: 0.72rem; color: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; padding: 0.3rem 0.85rem;
+    }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px; padding: 0.35rem 0.9rem;
+      color: rgba(255,255,255,.85); font-size: 0.75rem; cursor: pointer;
+      font-family: 'Outfit', sans-serif; transition: all .2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,.16); color: #fff; }
+    @media (max-width: 900px) { .nd-nav { display: none; } }
+
+    /* ── MAIN ── */
+    .main-container { max-width: 1100px; margin: 0 auto; padding: 5.5rem 2rem 3rem; }
+
+    /* ── BREADCRUMB / RETOUR ── */
+    .back-row {
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: 1.5rem;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .78rem; color: var(--text-secondary, #6b7b74);
+      text-decoration: none; transition: color .2s;
+    }
+    .back-btn:hover { color: #1D9E75; }
+    .breadcrumb-sep { color: var(--text-tertiary, #9ca3af); font-size: .75rem; }
+    .breadcrumb-current { font-size: .78rem; color: var(--text-primary, #0d2018); font-weight: 500; }
+
+    /* ── PAGE TITLE ── */
+    .page-header { margin-bottom: 1.75rem; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: .25rem; }
+    .page-sub { font-size: .85rem; color: var(--text-secondary, #6b7b74); }
+
+    /* ── BANNIÈRE PLAN GRATUIT ── */
+    .gratuit-banner {
+      background: #e1f5ee; border: 1px solid #1D9E75;
+      border-radius: 16px; padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem;
+    }
+    .gratuit-icon { font-size: 1.8rem; }
+    .gratuit-text strong { font-size: .9rem; color: #0f6e56; display: block; }
+    .gratuit-text p { font-size: .75rem; color: #0f6e56; margin-top: .15rem; }
+
+    /* ── KPIs ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+    @media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi {
+      background: var(--bg-card, #fff); border-radius: 16px; padding: 1rem;
+      text-align: center; border: 1px solid var(--border-light, #eef4ee);
+    }
+    .kpi-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary, #6b7b74); margin-bottom: .5rem; }
+    .kpi-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .kpi-sub { font-size: .7rem; color: var(--text-secondary, #6b7b74); margin-top: .25rem; }
+    .kpi-green .kpi-val { color: #1D9E75; }
+    .kpi-blue  .kpi-val { color: #185FA5; }
+    .kpi-amber .kpi-val { color: #633806; }
+
+    /* ── FORFAITS ── */
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 1rem; }
+    .forfaits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.75rem; }
+    @media (max-width: 1000px) { .forfaits { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .forfaits { grid-template-columns: 1fr; } }
+
+    .forfait {
+      background: var(--bg-card, #fff); border-radius: 20px; padding: 1.25rem;
+      border: 1.5px solid var(--border-light, #eef4ee); position: relative;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .forfait:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
+    .forfait.current { border: 2px solid #1D9E75; background: var(--bg-card, #fff); }
+    .forfait.recommended { border: 2px solid #185FA5; }
+
+    .badge-top {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      font-size: .62rem; font-weight: 700; padding: .2rem .8rem;
+      border-radius: 999px; white-space: nowrap; color: #fff;
+    }
+    .badge-current-color { background: #1D9E75; }
+    .badge-reco-color    { background: #185FA5; }
+
+    .forfait-tier { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary, #6b7b74); margin-bottom: .2rem; }
+    .forfait-price { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .forfait-price span { font-size: .75rem; font-weight: 400; color: var(--text-secondary, #6b7b74); }
+    .forfait-quota { font-size: .72rem; color: #1D9E75; font-weight: 500; margin: .25rem 0 .2rem; }
+    .forfait-desc { font-size: .68rem; color: var(--text-secondary, #6b7b74); margin-bottom: .75rem; line-height: 1.4; }
+    .forfait-list { list-style: none; margin: .5rem 0; }
+    .forfait-list li { font-size: .7rem; display: flex; align-items: flex-start; gap: .3rem; padding: .18rem 0; }
+    .forfait-list li::before { content: "✓"; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
+    .btn-changer {
+      display: block; text-align: center; width: 100%;
+      padding: .55rem; border-radius: 999px; font-size: .75rem; font-weight: 600;
+      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+      margin-top: .75rem; transition: all .2s;
+    }
+    .btn-main    { background: #1D9E75; color: #fff; }
+    .btn-main:hover { background: #0f6e56; }
+    .btn-outline-f { background: transparent; border: 1.5px solid var(--border-light, #eef4ee); color: var(--text-primary, #0d2018); }
+    .btn-outline-f:hover { border-color: #1D9E75; color: #1D9E75; }
+    .btn-blue    { background: #185FA5; color: #fff; }
+    .btn-blue:hover { background: #134A5C; }
+    .btn-disabled { background: var(--bg-secondary, #f7f9f7); color: var(--text-secondary, #6b7b74); cursor: default; }
+
+    /* ── SEUILS ── */
+    .seuils-box {
+      background: var(--bg-card, #fff); border: 1px solid var(--border-light, #eef4ee);
+      border-radius: 16px; padding: 1.25rem; margin-bottom: 1.75rem;
+    }
+    .seuils-title { font-weight: 600; font-size: .85rem; margin-bottom: .75rem; }
+    .seuils-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+    @media (max-width: 600px) { .seuils-grid { grid-template-columns: 1fr; } }
+    .seuil-item {
+      background: var(--bg-secondary, #f7f9f7); border-radius: 12px; padding: .6rem;
+      text-align: center; font-size: .73rem; color: var(--text-secondary, #6b7b74);
+    }
+    .seuil-item strong { color: var(--text-primary, #0d2018); display: block; margin-bottom: .2rem; }
+    .seuil-item .eco { color: #1D9E75; font-size: .68rem; margin-top: .2rem; }
+
+    /* ── HISTORIQUE ── */
+    .histo {
+      background: var(--bg-card, #fff); border: 1px solid var(--border-light, #eef4ee);
+      border-radius: 16px; padding: 1.25rem;
+    }
+    .histo-title { font-weight: 600; font-size: .85rem; margin-bottom: 1rem; }
+    .histo-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .5rem 0; border-bottom: 1px solid var(--border-light, #eef4ee);
+      font-size: .75rem;
+    }
+    .histo-row:last-child { border-bottom: none; }
+    .histo-date { color: var(--text-secondary, #6b7b74); min-width: 80px; }
+    .histo-desc { flex: 1; }
+    .histo-montant { font-weight: 600; min-width: 70px; text-align: right; }
+    .histo-debit  { color: #b91c1c; }
+    .histo-credit { color: #1D9E75; }
+
+    /* État vide historique */
+    .histo-empty {
+      border: 2px dashed var(--border-light, #d1ddd7); border-radius: 10px;
+      padding: 1.5rem; text-align: center;
+      color: var(--text-tertiary, #9ca3af); font-size: .8rem;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 300;
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-card, #fff); border-radius: 24px; padding: 1.5rem;
+      max-width: 420px; width: 100%;
+    }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: .5rem; }
+    .modal-desc { font-size: .8rem; color: var(--text-secondary, #6b7b74); line-height: 1.6; margin-bottom: 1.5rem; }
+    .modal-btns { display: flex; gap: .75rem; justify-content: flex-end; }
+    .btn-cancel {
+      background: var(--bg-secondary, #f7f9f7); border: 1px solid var(--border-light, #eef4ee);
+      border-radius: 999px; padding: .5rem 1.2rem; font-size: .8rem; cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+    }
+    .btn-confirm {
+      background: #1D9E75; border: none; border-radius: 999px;
+      padding: .5rem 1.2rem; font-size: .8rem; font-weight: 600; color: #fff; cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .main-container { padding: 5rem 1rem 2rem; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink">Mon espace</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink active">Forfait</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <!-- dark-mode.js injecte le toggle ici -->
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-container">
+
+  <!-- RETOUR -->
+  <div class="back-row">
+    <a href="dietitian.html" class="back-btn">← Mon espace</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Gestion du forfait</span>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">Gestion du forfait</h1>
+    <p class="page-sub">Consultez votre consommation, votre plan gratuit mensuel et changez d'offre à tout moment.</p>
+  </div>
+
+  <!-- Bannière plan gratuit -->
+  <div class="gratuit-banner" id="gratuitBanner">
+    <div class="gratuit-icon" id="gratuitIcon">🎁</div>
+    <div class="gratuit-text">
+      <strong id="gratuitTitre">Plan gratuit du mois</strong>
+      <p id="gratuitDesc">Chargement…</p>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi kpi-green">
+      <div class="kpi-label">Forfait actuel</div>
+      <div class="kpi-val" id="kForfait">—</div>
+      <div class="kpi-sub" id="kPrix">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Plans ce mois</div>
+      <div class="kpi-val" id="kPlans">—</div>
+      <div class="kpi-sub" id="kQuota">/ — quota</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-label">Hors quota</div>
+      <div class="kpi-val" id="kHQ">—</div>
+      <div class="kpi-sub" id="kCommission">—</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="kpi-label">Net perçu</div>
+      <div class="kpi-val" id="kNet">—</div>
+      <div class="kpi-sub">après commissions NutriDoc</div>
+    </div>
+  </div>
+
+  <!-- Forfaits -->
+  <h2 class="section-title">Choisir un forfait</h2>
+  <div class="forfaits">
+
+    <div class="forfait" id="card-essentiel">
+      <div class="forfait-tier">Essentiel</div>
+      <div class="forfait-price">0€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 plan gratuit + 0 dans le quota</div>
+      <div class="forfait-desc">Phase pilote, démarrage, très petit volume.</div>
+      <ul class="forfait-list">
+        <li>Profil public dans l'annuaire RPPS</li>
+        <li>Badge RPPS vérifié</li>
+        <li>✗ Accès aux dossiers patients</li>
+        <li>✗ Validation de plans (hors offert)</li>
+      </ul>
+      <button class="btn-changer btn-outline-f" onclick="ouvrirModal('essentiel',0)">Choisir Essentiel</button>
+    </div>
+
+    <div class="forfait" id="card-starter">
+      <div class="forfait-tier">Starter</div>
+      <div class="forfait-price">9€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 10 dans le quota</div>
+      <div class="forfait-desc">Diététicien libéral débutant — 5 à 15 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>Accès aux dossiers patients</li>
+        <li>10 plans inclus par mois</li>
+        <li>Commission : 2,50€/plan (au-delà)</li>
+        <li>Agenda visio intégré</li>
+      </ul>
+      <button class="btn-changer btn-outline-f" onclick="ouvrirModal('starter',9)">Choisir Starter</button>
+    </div>
+
+    <div class="forfait" id="card-pro">
+      <div class="forfait-tier" style="color:#1D9E75;">Pro</div>
+      <div class="forfait-price">29€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 30 dans le quota</div>
+      <div class="forfait-desc">Diététicien installé — 20 à 50 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>30 plans inclus par mois</li>
+        <li>Commission : 2,00€/plan (au-delà)</li>
+        <li>Support prioritaire</li>
+        <li>Statistiques avancées</li>
+      </ul>
+      <button class="btn-changer btn-main" onclick="ouvrirModal('pro',29)">Choisir Pro</button>
+    </div>
+
+    <div class="forfait" id="card-expert">
+      <div class="forfait-tier" style="color:#185FA5;">Expert</div>
+      <div class="forfait-price">59€ <span>HT/mois</span></div>
+      <div class="forfait-quota">1 gratuit + 100 dans le quota</div>
+      <div class="forfait-desc">Gros volume, cabinet structuré — +50 plans/mois.</div>
+      <ul class="forfait-list">
+        <li>100 plans inclus par mois</li>
+        <li>Commission : 1,50€/plan (au-delà)</li>
+        <li>Analytics avancés</li>
+        <li>Accès API (sur demande)</li>
+      </ul>
+      <button class="btn-changer btn-blue" onclick="ouvrirModal('expert',59)">Choisir Expert</button>
+    </div>
+
+  </div>
+
+  <!-- Seuils -->
+  <div class="seuils-box">
+    <div class="seuils-title">📈 Quand passer au forfait supérieur ?</div>
+    <div class="seuils-grid">
+      <div class="seuil-item"><strong>Essentiel → Starter</strong>dès 6 plans/mois<div class="eco">💰 Économie dès 6 plans</div></div>
+      <div class="seuil-item"><strong>Starter → Pro</strong>dès 25 plans/mois<div class="eco">💰 Économie jusqu'à 15€/mois</div></div>
+      <div class="seuil-item"><strong>Pro → Expert</strong>dès 80 plans/mois<div class="eco">💰 Économie jusqu'à 40€/mois</div></div>
+    </div>
+    <p style="font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-top:.75rem;">💡 La plateforme vous notifie automatiquement lorsqu'un changement de forfait serait plus économique.</p>
+  </div>
+
+  <!-- Historique -->
+  <div class="histo">
+    <div class="histo-title">📄 Historique de facturation</div>
+    <div id="histoList">
+      <div class="histo-empty">
+        <div style="font-size:1.5rem;opacity:.3;margin-bottom:.5rem;">📄</div>
+        Aucun mouvement ce mois-ci
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal confirmation -->
+<div class="modal-overlay" id="modalOverlay" onclick="fermerModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modalTitre">Changer de forfait</div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmerChangement()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COMMISSIONS = { essentiel: 5.00, starter: 2.50, pro: 2.00, expert: 1.50 };
+const QUOTAS      = { essentiel: 0,    starter: 10,   pro: 30,   expert: 100  };
+const PRIX        = { essentiel: 0,    starter: 9,    pro: 29,   expert: 59   };
+const LABELS      = { essentiel: 'Essentiel (0€/mois)', starter: 'Starter (9€/mois)', pro: 'Pro (29€/mois)', expert: 'Expert (59€/mois)' };
+
+let forfaitActuel = null;
+let pendingForfait = null;
+
+// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+async function chargerDonnees() {
+  if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
+    afficherNonConnecte(); return;
+  }
+
+  const profile = await getProfile();
+  if (!profile) { window.location.href = 'login.html'; return; }
+  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
+
+  forfaitActuel = profile.formule || 'essentiel';
+  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  document.getElementById('navUser').textContent = nom;
+
+  // KPIs réels
+  const quota     = QUOTAS[forfaitActuel] || 0;
+  const prix      = PRIX[forfaitActuel]   || 0;
+
+  // Compter les plans validés ce mois depuis Supabase
+  let plansMois = 0;
+  try {
+    const debut = new Date(); debut.setDate(1); debut.setHours(0,0,0,0);
+    const { count } = await _supa
+      .from('plans')
+      .select('id', { count: 'exact', head: true })
+      .eq('dietitian_id', profile.id)
+      .gte('created_at', debut.toISOString());
+    plansMois = count || 0;
+  } catch(e) { console.warn('plans count:', e); }
+
+  const horsQuota   = Math.max(0, plansMois - 1 - quota); // -1 plan gratuit
+  const commission  = horsQuota * (COMMISSIONS[forfaitActuel] || 0);
+  const netEstime   = plansMois * 24.90 - commission - prix;
+
+  document.getElementById('kForfait').textContent = forfaitActuel.charAt(0).toUpperCase() + forfaitActuel.slice(1);
+  document.getElementById('kPrix').textContent    = prix + '€/mois';
+  document.getElementById('kPlans').textContent   = plansMois;
+  document.getElementById('kQuota').textContent   = '/ ' + quota + ' quota';
+  document.getElementById('kHQ').textContent      = horsQuota;
+  document.getElementById('kCommission').textContent = commission.toFixed(2) + '€ commission';
+  document.getElementById('kNet').textContent     = plansMois > 0 ? Math.round(netEstime) + '€' : '—';
+
+  // Bannière plan gratuit
+  const gratuitUtilise = plansMois > 0;
+  if (gratuitUtilise) {
+    document.getElementById('gratuitIcon').textContent    = '✅';
+    document.getElementById('gratuitTitre').textContent   = 'Plan gratuit du mois — Utilisé';
+    document.getElementById('gratuitDesc').textContent    = 'Votre plan gratuit de ce mois a été utilisé. Le prochain sera disponible le 1er du mois.';
+    document.getElementById('gratuitBanner').style.background   = 'var(--bg-secondary,#f7f9f7)';
+    document.getElementById('gratuitBanner').style.borderColor  = 'var(--border-light,#eef4ee)';
+  } else {
+    document.getElementById('gratuitTitre').textContent = 'Plan gratuit du mois — Non utilisé';
+    document.getElementById('gratuitDesc').textContent  = 'Chaque mois, un plan est reversé intégralement au diététicien (24,90€) sans aucun frais NutriDoc.';
+  }
+
+  // Marquer le forfait actuel
+  marquerForfaitActuel(forfaitActuel);
+
+  // Recommandation intelligente
+  if (forfaitActuel === 'essentiel' && plansMois >= 6) recommander('starter');
+  else if (forfaitActuel === 'starter' && plansMois >= 25) recommander('pro');
+  else if (forfaitActuel === 'pro' && plansMois >= 80) recommander('expert');
+
+  // Historique : vide pour l'instant (sera connecté Stripe plus tard)
+  document.getElementById('histoList').innerHTML =
+    `<div class="histo-empty">
+       <div style="font-size:1.5rem;opacity:.3;margin-bottom:.5rem;">📄</div>
+       Aucun mouvement enregistré pour le moment
+     </div>`;
+}
+
+function afficherNonConnecte() {
+  document.getElementById('navUser').textContent = 'Non connecté';
+  document.getElementById('kForfait').textContent = '—';
+  document.getElementById('kPrix').textContent = '—';
+  document.getElementById('kPlans').textContent = '—';
+  document.getElementById('kQuota').textContent = '—';
+  document.getElementById('kHQ').textContent = '—';
+  document.getElementById('kCommission').textContent = '—';
+  document.getElementById('kNet').textContent = '—';
+  document.getElementById('gratuitTitre').textContent = 'Connectez-vous pour voir vos données';
+  document.getElementById('gratuitDesc').textContent = '';
+}
+
+function marquerForfaitActuel(f) {
+  const card = document.getElementById('card-' + f);
+  if (!card) return;
+  card.classList.add('current');
+  const badge = document.createElement('div');
+  badge.className = 'badge-top badge-current-color';
+  badge.textContent = '✓ Forfait actuel';
+  card.appendChild(badge);
+  const btn = card.querySelector('.btn-changer');
+  if (btn) { btn.textContent = 'Forfait actuel'; btn.className = 'btn-changer btn-disabled'; btn.disabled = true; btn.onclick = null; }
+}
+
+function recommander(f) {
+  const card = document.getElementById('card-' + f);
+  if (!card) return;
+  card.classList.add('recommended');
+  const badge = document.createElement('div');
+  badge.className = 'badge-top badge-reco-color';
+  badge.textContent = '💡 Recommandé';
+  card.appendChild(badge);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function ouvrirModal(forfait, prix) {
+  if (forfait === forfaitActuel) return;
+  pendingForfait = forfait;
+  document.getElementById('modalTitre').textContent = 'Passer au forfait ' + LABELS[forfait];
+  document.getElementById('modalDesc').innerHTML =
+    'Votre forfait passera à ' + LABELS[forfait] + ' à compter du prochain cycle de facturation.<br><br>' +
+    'Nouvelle commission : <strong>' + COMMISSIONS[forfait].toFixed(2) + '€/plan</strong> (au-delà du quota de ' + QUOTAS[forfait] + ' plans).';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function fermerModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+async function confirmerChangement() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  if (!pendingForfait) return;
+
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof _supa !== 'undefined') {
+    const profile = await getProfile();
+    if (profile) {
+      await _supa.from('profiles').update({ formule: pendingForfait }).eq('id', profile.id);
+    }
+  }
+
+  alert('Forfait mis à jour : ' + LABELS[pendingForfait] + '\n(En production : prélèvement Stripe au prochain cycle)');
+  window.location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', chargerDonnees);
+</script>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
+</script>
+</body>
+</html>

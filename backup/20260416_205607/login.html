@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>NutriDoc — Connexion · Espace sécurisé</title>
+  <meta name="description" content="Accédez à votre espace patient, diététicien ou prescripteur. Connexion rapide et sécurisée sur NutriDoc."/>
+  <meta name="theme-color" content="#0d2018"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #1D9E75;
+      --green2: #0f6e56;
+      --green3: #5DCAA5;
+      --green-light: #E1F5EE;
+      --cream: #f7f9f7;
+      --dark: #0d2018;
+      --gray: #6b7280;
+      --gray-light: #f3f4f6;
+      --border-color:var(--border-light,#e5e7eb);
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f9f7;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --text-primary: #0d2018;
+      --text-secondary: #4b5563;
+      --border-color:var(--border-light,#e5e7eb);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0a0f0d;
+      --bg-secondary: #111816;
+      --bg-card: #141c19;
+      --bg-input: #1a221f;
+      --text-primary: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --border-color: #2a3430;
+      --cream: #111816;
+      --gray-light: #1a221f;
+      --border: #2a3430;
+      --dark: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+      transition: all 0.3s ease;
+    }
+    [data-theme="dark"] .nd-header { background: #0a0f0d; }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .nd-back {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .nd-back:hover { background: rgba(255,255,255,0.16); }
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+    }
+
+    /* MODAL PROFIL (avec option bêta) */
+    .profil-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+      animation: fadeInModal 0.3s ease;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; backdrop-filter: blur(0); }
+      to { opacity: 1; backdrop-filter: blur(8px); }
+    }
+    .profil-modal {
+      background: var(--bg-primary); border: 1px solid rgba(29,158,117,0.3);
+      border-radius: 32px; padding: 2rem; max-width: 900px; width: 90%;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .profil-modal h2 {
+      font-family: 'Playfair Display', serif; font-size: 1.8rem;
+      color: var(--text-primary); text-align: center; margin-bottom: 0.5rem;
+    }
+    .profil-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .profil-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 20px; padding: 1.5rem 1rem; text-align: center;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .profil-card:hover { background: rgba(29,158,117,0.15); border-color: #1D9E75; transform: translateY(-4px); }
+    .profil-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .profil-card h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+    .profil-card p { font-size: 0.75rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
+    .beta-opt {
+      background: rgba(93,202,165,0.1);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .beta-opt label {
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .profil-modal-footer {
+      display: flex; justify-content: center; gap: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .profil-modal-footer button {
+      background: none; border: none; color: rgba(255,255,255,0.4);
+      font-size: 0.8rem; cursor: pointer;
+    }
+    .profil-modal-footer button:hover { color: #fff; }
+    @media (max-width: 700px) { .profil-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* MAIN LAYOUT - centré, plus de colonne droite */
+    .login-main {
+      max-width: 600px;
+      margin: 100px auto 2rem;
+      padding: 1rem;
+    }
+    @media (max-width: 960px) {
+      .login-main { margin-top: 80px; }
+    }
+
+    /* FORMULAIRE */
+    .login-card {
+      background: var(--bg-card);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+    .login-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+    }
+    .login-title p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+    }
+    .profile-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--bg-secondary);
+      border-radius: 60px;
+      padding: 0.25rem;
+    }
+    .profile-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.6rem 0.2rem;
+      border: none;
+      background: transparent;
+      border-radius: 40px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .profile-tab.active {
+      background: #1D9E75;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(29,158,117,0.2);
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+    .input-icon {
+      position: relative;
+    }
+    .input-icon input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-icon input:focus {
+      border-color: #1D9E75;
+      box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
+    }
+    .pwd-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #1D9E75;
+    }
+    .checkbox-group label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 0.85rem;
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-login:hover { background: #0f6e56; transform: translateY(-2px); }
+    .login-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    .login-footer a {
+      color: #1D9E75;
+      text-decoration: none;
+    }
+    .login-footer a:hover { text-decoration: underline; }
+    .login-divider {
+      margin: 1rem 0;
+      border: none;
+      border-top: 1px solid var(--border-color);
+    }
+    .error-message, .success-message {
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .error-message { background: #fee2e2; color: #b91c1c; border-left: 4px solid #ef4444; }
+    .success-message { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
+    .hidden { display: none; }
+
+    /* ENCART PARTENAIRES + GRAPHIQUES */
+    .partner-card {
+      margin-top: 2rem;
+      background: linear-gradient(135deg, rgba(29,158,117,0.08), rgba(93,202,165,0.02));
+      border-radius: 24px;
+      padding: 1.5rem;
+      border: 1px solid rgba(29,158,117,0.2);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .partner-card::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(93,202,165,0.15), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .partner-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .partner-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #5DCAA5;
+      margin-bottom: 0.5rem;
+    }
+    .partner-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    .partner-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .partner-form input {
+      padding: 0.7rem 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 999px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      outline: none;
+    }
+    .partner-form input:focus {
+      border-color: #1D9E75;
+    }
+    .partner-btn {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.7rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .partner-btn:hover {
+      background: #0f6e56;
+      transform: translateY(-2px);
+    }
+    .partner-message {
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+      color: #5DCAA5;
+    }
+    /* Graphiques SVG décoratifs */
+    .graphics-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .graphic-item {
+      text-align: center;
+      width: 120px;
+    }
+    .graphic-item svg {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+    }
+    .graphic-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+    .circular-chart {
+      transform: rotate(-90deg);
+    }
+    .circle-bg {
+      stroke: var(--border-color);
+      fill: none;
+      stroke-width: 8;
+    }
+    .circle-progress {
+      stroke: #5DCAA5;
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.5s;
+    }
+    .perc-text {
+      font-size: 0.5rem;
+      fill: var(--text-primary);
+      transform: rotate(90deg);
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+    }
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html#objectifs" class="nd-navlink">Objectifs</a>
+        <a href="index.html#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Sombre</span>
+      </button>
+      <a href="index.html" class="nd-back">← Retour accueil</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="login-main">
+    <div class="login-card">
+      <div class="login-title">
+        <h1>Connexion</h1>
+        <p>Accédez à votre espace personnel</p>
+      </div>
+
+      <div class="profile-tabs" id="profileTabs">
+        <button class="profile-tab" data-role="patient">👤 Patient</button>
+        <button class="profile-tab" data-role="dietitian">🥗 Diététicien</button>
+        <button class="profile-tab" data-role="prescriber">🏢 Prescripteur</button>
+      </div>
+
+      <div id="errorMsg" class="error-message hidden"></div>
+      <div id="successMsg" class="success-message hidden"></div>
+
+      <div class="form-group">
+        <label>Adresse email</label>
+        <div class="input-icon">
+          <input type="email" id="loginEmail" placeholder="exemple@email.fr" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-icon">
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') soumettreConnexion()">
+          <button type="button" class="pwd-toggle" onclick="togglePassword()">Afficher</button>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="rememberMe">
+        <label for="rememberMe">Se souvenir de moi (rester connecté)</label>
+      </div>
+
+      <button class="btn-login" id="btnLogin" onclick="soumettreConnexion()">Se connecter →</button>
+
+      <div class="login-footer">
+        <a href="#" onclick="ouvrirResetMdp(); return false;">Mot de passe oublié ?</a>
+        <hr class="login-divider"/>
+        <div id="inscriptionLink"></div>
+      </div>
+    </div>
+
+    <!-- ENCART PARTENAIRES + GRAPHIQUES -->
+    <div class="partner-card">
+      <div class="partner-icon">🤝</div>
+      <div class="partner-title">Espace Partenaires</div>
+      <div class="partner-desc">
+        Mutuelles, salles de sport, CSE — solutions B2B sur-mesure. Bêta privée à venir.
+      </div>
+      <div class="partner-form">
+        <input type="email" id="partnerEmail" placeholder="votre email professionnel" autocomplete="email">
+        <button class="partner-btn" onclick="subscribePartner()">Me prévenir · Gratuit</button>
+      </div>
+      <div id="partnerMessage" class="partner-message"></div>
+    </div>
+
+    <!-- Graphiques SVG légers -->
+    <div class="graphics-container">
+      <div class="graphic-item">
+        <svg viewBox="0 0 100 100" class="circular-chart">
+          <circle class="circle-bg" cx="50" cy="50" r="42"></circle>
+          <circle class="circle-progress" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="26.4"></circle>
+          <text x="50" y="54" class="perc-text" dominant-baseline="middle" text-anchor="middle">98%</text>
+        </svg>
+        <div class="graphic-label">Satisfaction client</div>
+      </div>
+      <div class="graphic-item">
+        <svg viewBox="0 0 100 100" class="circular-chart">
+          <circle class="circle-bg" cx="50" cy="50" r="42"></circle>
+          <circle class="circle-progress" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="79.2"></circle>
+          <text x="50" y="54" class="perc-text" dominant-baseline="middle" text-anchor="middle">70%</text>
+        </svg>
+        <div class="graphic-label">de clients reviennent</div>
+      </div>
+      <div class="graphic-item">
+        <svg viewBox="0 0 100 100" class="circular-chart">
+          <circle class="circle-bg" cx="50" cy="50" r="42"></circle>
+          <circle class="circle-progress" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="52.8"></circle>
+          <text x="50" y="54" class="perc-text" dominant-baseline="middle" text-anchor="middle">80%</text>
+        </svg>
+        <div class="graphic-label">diététiciens actifs</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="profilModalContainer"></div>
+<div id="modalReset" class="profil-modal-overlay" style="display:none;">
+  <div class="profil-modal" style="max-width:450px;">
+    <h2>Réinitialisation</h2>
+    <div class="profil-modal-sub" style="color:var(--text-secondary);">Entrez votre email pour recevoir un lien</div>
+    <div class="form-group" style="margin-top:1rem;">
+      <input type="email" id="resetEmail" placeholder="votre@email.fr" style="width:100%; padding:0.8rem; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary);">
+    </div>
+    <div id="resetMsg" class="hidden" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <div class="profil-modal-footer" style="margin-top:1rem;">
+      <button onclick="fermerResetMdp()">Annuler</button>
+      <button id="btnSendReset" onclick="envoyerReset()" style="background:#1D9E75; padding:0.4rem 1.2rem; border-radius:999px; color:#fff;">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Accès rapide</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="accueil-dieteticien.html">Espace diététicien</a>
+        <a href="accueil-prescripteur.html">Espace prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Ressources</div>
+        <a href="faq.html">FAQ</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+        <a href="politique-confidentialite.html">Confidentialité</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Contact</div>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // ========== THEME ==========
+  (function(){
+    const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel');
+    const saved=localStorage.getItem('nutridoc_theme');
+    if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
+    else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
+    window.toggleDarkMode=function(){
+      const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+      if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
+      else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
+    };
+    if(btn)btn.onclick=window.toggleDarkMode;
+  })();
+
+  // ========== GESTION PROFIL PERSISTANT ==========
+  const PROFILS = {
+    patient: { name: 'Patient', icon: '👤', redirectUrl: 'dashboard.html', roleKey: 'patient' },
+    dietitian: { name: 'Diététicien', icon: '🥗', redirectUrl: 'dietitian.html', roleKey: 'dietitian' },
+    prescriber: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'prescripteur-dashboard.html', roleKey: 'prescriber' },
+    structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html', roleKey: 'prescriber' }
+  };
+  let currentRole = 'patient';
+
+  function getStoredProfil(){ return localStorage.getItem('nutridoc_profil'); }
+  function setStoredProfil(p){ localStorage.setItem('nutridoc_profil', p); localStorage.setItem('nutridoc_profil_date', Date.now()); }
+
+  function updateUIForProfil(roleKey){
+    const p = PROFILS[roleKey];
+    if(p){
+      currentRole = roleKey;
+      document.querySelectorAll('.profile-tab').forEach(tab => {
+        const tabRole = tab.getAttribute('data-role');
+        if(tabRole === roleKey) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+      const inscriptions = {
+        patient: '<a href="bilan.html">Pas encore de compte ? Commencer le bilan →</a>',
+        dietitian: '<a href="inscription-dieteticien.html">Pas encore inscrit ? Créer un compte diét. →</a>',
+        prescriber: '<a href="inscription-prescripteur.html">Pas encore inscrit ? Créer un compte prescripteur →</a>'
+      };
+      document.getElementById('inscriptionLink').innerHTML = inscriptions[roleKey] || inscriptions.patient;
+    }
+  }
+
+  function initProfilFromContext(){
+    let profil = getStoredProfil();
+    if(!profil){
+      const urlParams = new URLSearchParams(window.location.search);
+      const roleParam = urlParams.get('role');
+      if(roleParam === 'dietitian') profil = 'dietitian';
+      else if(roleParam === 'prescriber') profil = 'prescriber';
+      else if(roleParam === 'patient') profil = 'patient';
+    }
+    if(profil && PROFILS[profil]) updateUIForProfil(profil);
+    else updateUIForProfil('patient');
+  }
+
+  function setRole(roleKey){
+    if(PROFILS[roleKey]){
+      setStoredProfil(roleKey);
+      updateUIForProfil(roleKey);
+    }
+  }
+
+  // MODAL PROFIL AVEC OPTION BÊTA
+  let betaConsent = false;
+  function openProfilModal(){
+    const container = document.getElementById('profilModalContainer');
+    container.innerHTML = `
+      <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+        <div class="profil-modal" onclick="event.stopPropagation()">
+          <h2>Bienvenue sur NutriDoc</h2>
+          <div class="profil-modal-sub">Je me connecte en tant que...</div>
+          <div class="profil-grid">
+            <div class="profil-card" onclick="selectProfilModal('patient')"><div class="profil-icon">👤</div><h3>Patient</h3><p>Je cherche un plan alimentaire</p></div>
+            <div class="profil-card" onclick="selectProfilModal('dietitian')"><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je valide des plans</p></div>
+            <div class="profil-card" onclick="selectProfilModal('prescriber')"><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes clients</p></div>
+            <div class="profil-card" onclick="selectProfilModal('structure')"><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Entreprise / salle de sport</p></div>
+          </div>
+          <div class="beta-opt">
+            <label><input type="checkbox" id="betaCheckbox"> 🚀 Participer à la version bêta et recevoir les nouveaux accès en avant-première</label>
+          </div>
+          <div class="profil-modal-footer">
+            <button onclick="closeProfilModal()">Plus tard</button>
+            <button onclick="dismissProfilForever()">Ne plus afficher</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  function closeProfilModal(){ document.getElementById('profilModalContainer').innerHTML = ''; }
+  function dismissProfilForever(){ localStorage.setItem('nutridoc_profil_dismissed','true'); closeProfilModal(); }
+  function selectProfilModal(roleKey){
+    const betaChecked = document.getElementById('betaCheckbox')?.checked || false;
+    if(betaChecked){
+      // Stocker la préférence bêta
+      localStorage.setItem('nutridoc_beta_consent', 'true');
+      const email = document.getElementById('loginEmail')?.value;
+      if(email && email.includes('@')){
+        subscribeToBeta(email, roleKey);
+      }
+    }
+    if(PROFILS[roleKey]){ setRole(roleKey); closeProfilModal(); }
+  }
+  function subscribeToBeta(email, role){
+    // Simuler envoi à la newsletter bêta
+    console.log(`Beta subscription: ${email} as ${role}`);
+    localStorage.setItem('nutridoc_beta_email', email);
+    // Optionnel : afficher un message
+    const msg = document.getElementById('successMsg');
+    if(msg){
+      msg.textContent = '🎉 Merci ! Vous recevrez les nouveautés en avant-première.';
+      msg.classList.remove('hidden');
+      setTimeout(()=> msg.classList.add('hidden'), 3000);
+    }
+  }
+
+  document.querySelectorAll('.profile-tab').forEach(tab => {
+    tab.addEventListener('click', () => { setRole(tab.getAttribute('data-role')); });
+  });
+
+  window.openProfilModal = openProfilModal;
+  window.closeProfilModal = closeProfilModal;
+  window.selectProfilModal = selectProfilModal;
+  window.dismissProfilForever = dismissProfilForever;
+  initProfilFromContext();
+
+  // ========== SESSION PERSISTANTE ==========
+  const SESSION_TOKEN_KEY = 'nutridoc_session_token';
+  const SESSION_EXPIRY_DAYS = 30;
+  function generateSessionToken(email, role) {
+    const data = `${email}|${role}|${Date.now()}`;
+    return btoa(data);
+  }
+  function verifySessionToken(token) {
+    try {
+      const decoded = atob(token);
+      const [email, role, timestamp] = decoded.split('|');
+      const daysSince = (Date.now() - parseInt(timestamp)) / (1000 * 3600 * 24);
+      if (daysSince < SESSION_EXPIRY_DAYS && email && role) return { email, role };
+    } catch(e) {}
+    return null;
+  }
+  function saveSession(email, role) { localStorage.setItem(SESSION_TOKEN_KEY, generateSessionToken(email, role)); }
+  function clearSession() { localStorage.removeItem(SESSION_TOKEN_KEY); }
+  function restoreSession() {
+    const token = localStorage.getItem(SESSION_TOKEN_KEY);
+    if (token) {
+      const session = verifySessionToken(token);
+      if (session) {
+        document.getElementById('loginEmail').value = session.email;
+        if (PROFILS[session.role]) window.location.href = PROFILS[session.role].redirectUrl;
+        return true;
+      } else clearSession();
+    }
+    return false;
+  }
+
+  // ========== CONNEXION ==========
+  let MODE_SUPA = false;
+  if(typeof window.supabaseClient !== 'undefined') MODE_SUPA = true;
+  else if(typeof supabaseClient !== 'undefined') MODE_SUPA = true;
+
+  async function soumettreConnexion(){
+    const email = document.getElementById('loginEmail').value.trim();
+    const pwd = document.getElementById('loginPassword').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const btn = document.getElementById('btnLogin');
+    const errorDiv = document.getElementById('errorMsg');
+    const successDiv = document.getElementById('successMsg');
+    errorDiv.classList.add('hidden');
+    successDiv.classList.add('hidden');
+    if(!email || !pwd){ errorDiv.textContent = 'Veuillez remplir tous les champs.'; errorDiv.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = 'Connexion...';
+    if(MODE_SUPA && typeof connecter === 'function'){
+      const { error } = await connecter(email, pwd);
+      if(error){
+        errorDiv.textContent = error.message === 'Invalid login credentials' ? 'Email ou mot de passe incorrect.' : error.message;
+        errorDiv.classList.remove('hidden');
+        btn.disabled = false; btn.textContent = 'Se connecter →';
+      } else {
+        if (remember) saveSession(email, currentRole);
+        successDiv.textContent = 'Connexion réussie, redirection...';
+        successDiv.classList.remove('hidden');
+        setTimeout(()=>{ window.location.href = PROFILS[currentRole].redirectUrl; }, 1000);
+      }
+    } else {
+      if (remember) saveSession(email, currentRole);
+      setTimeout(()=>{ window.location.href = PROFILS[currentRole].redirectUrl; }, 600);
+    }
+  }
+
+  function togglePassword(){
+    const inp = document.getElementById('loginPassword');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  // RESET MDP
+  function ouvrirResetMdp(){
+    const email = document.getElementById('loginEmail').value;
+    if(email) document.getElementById('resetEmail').value = email;
+    document.getElementById('modalReset').style.display = 'flex';
+  }
+  function fermerResetMdp(){
+    document.getElementById('modalReset').style.display = 'none';
+    document.getElementById('resetMsg').classList.add('hidden');
+  }
+  async function envoyerReset(){
+    const email = document.getElementById('resetEmail').value.trim();
+    const msgDiv = document.getElementById('resetMsg');
+    const btn = document.getElementById('btnSendReset');
+    if(!email){ msgDiv.textContent = 'Email requis.'; msgDiv.style.color = '#dc2626'; msgDiv.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = 'Envoi...';
+    if(MODE_SUPA && typeof reinitialiserMotDePasse === 'function'){
+      const { error } = await reinitialiserMotDePasse(email);
+      if(error){
+        msgDiv.textContent = 'Erreur : ' + (error.message || 'Réessayez.');
+        msgDiv.style.color = '#dc2626';
+      } else {
+        msgDiv.textContent = '✓ Un lien de réinitialisation a été envoyé.';
+        msgDiv.style.color = '#166534';
+      }
+    } else {
+      msgDiv.textContent = 'Mode démo : fonctionnalité disponible avec Supabase.';
+      msgDiv.style.color = '#92400e';
+    }
+    msgDiv.classList.remove('hidden');
+    btn.disabled = false; btn.textContent = 'Envoyer';
+  }
+
+  // PARTENAIRES NEWSLETTER
+  function subscribePartner(){
+    const email = document.getElementById('partnerEmail').value.trim();
+    const msgDiv = document.getElementById('partnerMessage');
+    if(!email || !email.includes('@')) {
+      msgDiv.textContent = 'Veuillez entrer un email valide.';
+      msgDiv.style.color = '#dc2626';
+      setTimeout(()=> msgDiv.textContent = '', 3000);
+      return;
+    }
+    // Simuler enregistrement newsletter
+    localStorage.setItem('nutridoc_newsletter', email);
+    msgDiv.textContent = '✨ Merci ! Vous recevrez nos actualités partenaires.';
+    msgDiv.style.color = '#5DCAA5';
+    document.getElementById('partnerEmail').value = '';
+    setTimeout(()=> msgDiv.textContent = '', 4000);
+  }
+
+  window.soumettreConnexion = soumettreConnexion;
+  window.togglePassword = togglePassword;
+  window.ouvrirResetMdp = ouvrirResetMdp;
+  window.fermerResetMdp = fermerResetMdp;
+  window.envoyerReset = envoyerReset;
+  window.subscribePartner = subscribePartner;
+
+  // Restore session
+  if (!restoreSession()) {
+    const savedEmail = localStorage.getItem('nutridoc_last_email');
+    if (savedEmail) document.getElementById('loginEmail').value = savedEmail;
+  }
+  document.getElementById('loginEmail').addEventListener('change', function() {
+    localStorage.setItem('nutridoc_last_email', this.value);
+  });
+
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollTopBtn');
+    if(btn) btn.classList.toggle('visible', window.scrollY > 300);
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/core/auth.js"></script>
+</body>
+</html>

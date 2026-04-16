@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="NutriDoc"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="robots" content="noindex"/>
+  <meta name="description" content="NutriDoc — Espace Diététicien"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <title>Espace Diététicien — NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);}
+
+    /* ── HEADER ── */
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem;}
+    .header-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+    .header-left{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:#5DCAA5;}
+    .nd-nav{display:flex;gap:1.25rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .header-actions{display:flex;align-items:center;gap:.75rem;}
+    .nd-user-badge{font-size:.72rem;color:rgba(255,255,255,.55);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.3rem .85rem;}
+    .nd-btn-ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.35rem .9rem;color:rgba(255,255,255,.85);font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .nd-btn-ghost:hover{background:rgba(255,255,255,.16);}
+    @media(max-width:900px){.nd-nav{display:none;}}
+
+    /* ── MAIN ── */
+    .main-container{max-width:1200px;margin:0 auto;padding:5.5rem 1.5rem 3rem;}
+
+    /* ── GREETING ── */
+    .greeting-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;}
+    .greeting-row h1{font-family:'Playfair Display',serif;font-size:1.6rem;}
+    .greeting-row p{font-size:.85rem;color:var(--text-secondary,#6b7b74);margin-top:.25rem;}
+    .greeting-actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
+    .btn-action{display:inline-flex;align-items:center;gap:.35rem;padding:.45rem 1rem;border-radius:999px;font-size:.78rem;font-weight:500;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-primary{background:#1D9E75;color:#fff;}
+    .btn-primary:hover{background:#0f6e56;}
+    .btn-outline{background:transparent;color:var(--text-secondary,#6b7b74);border:1px solid var(--border-light,#e8edeb);}
+    .btn-outline:hover{border-color:#1D9E75;color:#1D9E75;}
+
+    /* ── KANBAN ── */
+    .kanban-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.75rem;}
+    @media(max-width:768px){.kanban-grid{grid-template-columns:1fr;}}
+    .kanban-col{border-radius:16px;padding:1rem;min-height:140px;}
+    .kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
+    .kanban-col-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;}
+    .kanban-count{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff;}
+    .kanban-card{background:var(--bg-card,#fff);border-radius:10px;padding:.6rem .75rem;margin-bottom:.5rem;border:1px solid rgba(0,0,0,.06);cursor:pointer;transition:box-shadow .15s,transform .15s;display:flex;align-items:center;gap:.5rem;}
+    .kanban-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.08);transform:translateY(-1px);}
+    .kanban-empty{border:2px dashed var(--border-light,#d1ddd7);border-radius:10px;padding:1rem .75rem;text-align:center;color:var(--text-tertiary,#9ca3af);font-size:.75rem;line-height:1.6;}
+    .kanban-empty-icon{font-size:1.25rem;margin-bottom:.25rem;opacity:.4;}
+    .avatar-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;}
+    .kanban-card-name{font-size:.82rem;font-weight:500;}
+    .kanban-card-obj{font-size:.7rem;color:var(--text-secondary,#6b7b74);}
+
+    /* ── SECTION DOSSIERS ── */
+    .section-card{background:var(--bg-card,#fff);border-radius:20px;border:1px solid var(--border-light,#e8edeb);padding:1.25rem 1.5rem;margin-bottom:1.25rem;}
+    .section-title{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;}
+    .filters-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+    .filter-btn{background:var(--bg-secondary,#f7f9f7);border:1px solid var(--border-light,#e8edeb);border-radius:999px;padding:.3rem .8rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--text-secondary,#6b7b74);transition:all .15s;}
+    .filter-btn:hover{border-color:#1D9E75;color:#1D9E75;}
+    .filter-btn.active{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:500;}
+    .search-input{width:100%;padding:.6rem 1rem;border:1.5px solid var(--border-light,#e8edeb);border-radius:12px;font-size:.88rem;font-family:'Outfit',sans-serif;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);margin-bottom:1rem;transition:border-color .2s;}
+    .search-input:focus{outline:none;border-color:#1D9E75;}
+    .search-input::placeholder{color:#b0bdb7;}
+    .dossiers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;}
+    .dossier-card{background:var(--bg-secondary,#f7f9f7);border:1px solid var(--border-light,#e8edeb);border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow .2s,border-color .2s;}
+    .dossier-card:hover{box-shadow:0 4px 16px rgba(13,32,24,.08);border-color:rgba(29,158,117,.3);}
+    .dossier-header{display:flex;align-items:center;gap:.65rem;margin-bottom:.6rem;}
+    .dossier-name{font-size:.88rem;font-weight:500;}
+    .dossier-meta{font-size:.72rem;color:var(--text-secondary,#6b7b74);}
+    .status-badge{font-size:.68rem;font-weight:500;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+    .badge-attente{background:#fff8e6;color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
+    .badge-cours{background:#eff6ff;color:#0ea5e9;border:1px solid rgba(14,165,233,.25);}
+    .badge-valide{background:#e1f5ee;color:#1D9E75;border:1px solid rgba(29,158,117,.25);}
+    .badge-source{font-size:.65rem;padding:1px 7px;border-radius:999px;background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2);}
+    .obj-badge{background:var(--bg-tertiary,#eef4ee);color:var(--text-secondary,#6b7b74);font-size:.7rem;padding:2px 8px;border-radius:999px;}
+    .dossier-actions{display:flex;gap:.4rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-light,#e8edeb);}
+    .btn-sm{padding:.32rem .75rem;border-radius:999px;font-size:.75rem;font-weight:500;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-sm-green{background:#1D9E75;color:#fff;}
+    .btn-sm-green:hover{background:#0f6e56;}
+    .btn-sm-outline{background:transparent;border:1px solid var(--border-light,#e8edeb);color:var(--text-secondary,#6b7b74);}
+    .btn-sm-outline:hover{border-color:#1D9E75;color:#1D9E75;}
+
+    /* ── MODAL DOSSIER ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
+    .modal-panel{background:var(--bg-card,#fff);border-radius:24px;width:100%;max-width:740px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .25s ease;margin:auto;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-light,#e8edeb);}
+    .modal-header h2{font-family:'Playfair Display',serif;font-size:1.25rem;}
+    .modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-secondary,#6b7b74);padding:.2rem .5rem;border-radius:8px;transition:background .2s;}
+    .modal-close:hover{background:var(--bg-secondary,#f7f9f7);}
+    .modal-body{padding:1.5rem;}
+    .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-light,#e8edeb);display:flex;gap:.75rem;justify-content:flex-end;flex-wrap:wrap;}
+
+    /* Sections du dossier */
+    .dossier-section{margin-bottom:1.5rem;}
+    .dossier-section-title{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-tertiary,#9ca3af);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border-light,#e8edeb);}
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;}
+    .info-item{background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.6rem .85rem;}
+    .info-label{font-size:.65rem;color:var(--text-tertiary,#9ca3af);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;}
+    .info-value{font-size:.88rem;font-weight:500;color:var(--text-primary,#0d2018);}
+    .info-value.empty{color:var(--text-tertiary,#9ca3af);font-weight:400;font-style:italic;}
+
+    /* Alertes santé */
+    .alertes-list{display:flex;flex-wrap:wrap;gap:.4rem;}
+    .alerte-tag{background:#fef2f2;color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:999px;padding:.2rem .75rem;font-size:.75rem;font-weight:500;}
+    .alerte-none{color:var(--text-tertiary,#9ca3af);font-size:.82rem;font-style:italic;}
+
+    /* IMC */
+    .imc-bar-wrap{height:8px;background:var(--bg-tertiary,#eef4ee);border-radius:999px;overflow:hidden;margin:.5rem 0 .25rem;}
+    .imc-bar{height:100%;border-radius:999px;transition:width .6s ease;}
+    .imc-label{font-size:.7rem;color:var(--text-secondary,#6b7b74);}
+
+    /* Source badge */
+    .source-banner{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);border-radius:10px;padding:.6rem 1rem;font-size:.8rem;color:#7c3aed;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+
+    /* États vides */
+    .empty-dossiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:1rem;}
+    .empty-card{border:2px dashed var(--border-light,#d1ddd7);border-radius:14px;padding:1.5rem 1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-tertiary,#9ca3af);min-height:120px;gap:.4rem;}
+    .empty-card-icon{font-size:1.5rem;opacity:.3;}
+    .empty-card-label{font-size:.78rem;font-weight:500;}
+    .empty-card-sub{font-size:.72rem;opacity:.7;}
+    .empty-global{text-align:center;padding:3rem 1rem;border:2px dashed var(--border-light,#d1ddd7);border-radius:16px;}
+    .empty-global-icon{font-size:2.5rem;opacity:.25;margin-bottom:.75rem;}
+    .empty-global h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.4rem;color:var(--text-secondary,#6b7b74);}
+    .empty-global p{font-size:.82rem;color:var(--text-tertiary,#9ca3af);max-width:320px;margin:0 auto;line-height:1.6;}
+
+    /* Loading / toast */
+    .loading-state{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:2rem;color:var(--text-secondary,#6b7b74);font-size:.85rem;}
+    .spinner{width:18px;height:18px;border:2px solid var(--border-light,#e8edeb);border-top-color:#1D9E75;border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#0d2018;color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;}
+    #toast.show{opacity:1;}
+    .hidden{display:none!important;}
+    @media(max-width:600px){.main-container{padding:5rem 1rem 2rem;}.modal-panel{border-radius:16px;}.modal-body{padding:1rem;}.info-grid{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink active">Mon espace</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-container">
+  <div class="greeting-row">
+    <div>
+      <h1 id="dietHeader">Bonjour 👋</h1>
+      <p id="dietSubHeader">Chargement de votre profil…</p>
+    </div>
+    <div class="greeting-actions">
+      <a href="agenda-dieteticien.html" class="btn-action btn-primary">📅 Agenda</a>
+      <a href="gestion-forfait-dieteticien.html" class="btn-action btn-outline">📊 Forfait</a>
+      <a href="compta-dieteticien.html" class="btn-action btn-outline">💶 Compta</a>
+    </div>
+  </div>
+
+  <div class="kanban-grid" id="kanbanGrid">
+    <div class="loading-state"><div class="spinner"></div> Chargement…</div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Dossiers patients</h2>
+    <div class="filters-row" id="filtersRow"></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un patient, une ville…" oninput="filtrer()"/>
+    <div id="dossiersList">
+      <div class="loading-state"><div class="spinner"></div> Chargement…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DOSSIER PATIENT COMPLET -->
+<div id="modalOverlay" class="modal-overlay hidden" onclick="fermerModal(event)">
+  <div class="modal-panel" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modalTitle">Dossier patient</h2>
+      <button class="modal-close" onclick="fermerModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"><!-- injecté --></div>
+    <div class="modal-footer" id="modalFooter"><!-- injecté --></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONSTANTES ────────────────────────────────────────────────
+const OBJECTIFS = [
+  {val:'tous',        label:'Tous',          icon:'📋'},
+  {val:'perte_poids', label:'Perte de gras', icon:'⬇️'},
+  {val:'prise_masse', label:'Prise de masse',icon:'💪'},
+  {val:'equilibre',   label:'Équilibre',     icon:'⚖️'},
+  {val:'sport_perf',  label:'Sport & perf.', icon:'🏃'},
+  {val:'sante',       label:'Prévention',    icon:'❤️'},
+];
+const ACTIVITE_LABELS = {
+  sedentaire:'Sédentaire',leger:'Légèrement actif',modere:'Modérément actif',
+  actif:'Actif',tres_actif:'Très actif'
+};
+const TRAVAIL_LABELS = {
+  bureau:'Bureau / assis',debout:'Debout / déplacement',physique:'Travail physique',
+  nuit:'Horaires décalés / nuit',sans:'Sans activité pro'
+};
+const SOMMEIL_LABELS = {
+  excellent:'Excellent (7-9h)',bon:'Bon (6-7h)',moyen:'Moyen (5-6h)',mauvais:'Mauvais (<5h)'
+};
+const HYDRA_LABELS = {
+  'moins_1l':'< 1 litre/jour','1_1.5l':'1 à 1,5 litre','1.5_2l':'1,5 à 2 litres','plus_2l':'> 2 litres'
+};
+const BUDGET_LABELS = {
+  'moins_30':'< 30€/semaine','30_50':'30–50€','50_80':'50–80€','plus_80':'> 80€'
+};
+const REGIME_LABELS = {
+  '':'Aucune restriction',vegetarien:'Végétarien',vegan:'Vegan',
+  sans_gluten:'Sans gluten',sans_lactose:'Sans lactose',halal:'Halal',kasher:'Kasher'
+};
+const AVATARS = ['#1D9E75','#5DCAA5','#0ea5e9','#8b5cf6','#f59e0b','#ef4444','#185FA5','#97C459'];
+
+let patientsData = [];
+let filtreActif  = 'tous';
+let dossierCourant = null;
+
+// ── HELPERS ───────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function initiales(prenom, nom) { return ((prenom||'?')[0]+(nom||'')[0]).toUpperCase(); }
+function avatarColor(i) { return AVATARS[i % AVATARS.length]; }
+function val(v, fallback='—') { return (v !== null && v !== undefined && v !== '') ? v : fallback; }
+function calculIMC(poids, taille) {
+  if (!poids || !taille) return null;
+  return Math.round(poids / Math.pow(taille / 100, 2) * 10) / 10;
+}
+function imcLabel(imc) {
+  if (!imc) return '';
+  if (imc < 18.5) return {label:'Insuffisance pondérale', color:'#0ea5e9'};
+  if (imc < 25)   return {label:'Poids normal', color:'#1D9E75'};
+  if (imc < 30)   return {label:'Surpoids', color:'#f59e0b'};
+  return {label:'Obésité', color:'#ef4444'};
+}
+
+// ── KANBAN ────────────────────────────────────────────────────
+function renderKanban(patients) {
+  const cols = [
+    {keys:['a_faire','en_attente','pending'],      label:'À traiter', color:'#f59e0b', bg:'rgba(245,158,11,.07)'},
+    {keys:['en_cours','accepted','in_progress'],   label:'En cours',  color:'#0ea5e9', bg:'rgba(14,165,233,.07)'},
+    {keys:['valide','valide_rpps','delivered'],     label:'Validés',   color:'#1D9E75', bg:'rgba(29,158,117,.07)'},
+  ];
+  document.getElementById('kanbanGrid').innerHTML = cols.map(col => {
+    const pts = patients.filter(p => col.keys.includes(p.statut));
+    return `<div class="kanban-col" style="background:${col.bg};">
+      <div class="kanban-col-header">
+        <span class="kanban-col-title" style="color:${col.color};">${col.label}</span>
+        <span class="kanban-count" style="background:${col.color};">${pts.length}</span>
+      </div>
+      ${pts.length === 0
+        ? `<div class="kanban-empty"><div class="kanban-empty-icon">○</div>Aucun dossier</div>`
+        : pts.map((p,i) => {
+            const obj = OBJECTIFS.find(o => o.val === p.objectif);
+            return `<div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+              <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
+              <div>
+                <div class="kanban-card-name">${p.prenom} ${p.nom}</div>
+                <div class="kanban-card-obj">${obj ? obj.icon+' '+obj.label : p.objectif||'—'}${p.source==='prescripteur'?' · 🏢':''}</div>
+              </div>
+            </div>`;
+          }).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ── FILTRES ───────────────────────────────────────────────────
+function renderFiltres() {
+  document.getElementById('filtersRow').innerHTML = OBJECTIFS.map(o =>
+    `<button class="filter-btn ${filtreActif===o.val?'active':''}" onclick="setFiltre('${o.val}')">${o.icon} ${o.label}</button>`
+  ).join('');
+}
+function setFiltre(val) { filtreActif = val; renderFiltres(); filtrer(); }
+
+// ── DOSSIERS ─────────────────────────────────────────────────
+function filtrer() {
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  let pts = patientsData;
+  if (filtreActif !== 'tous') pts = pts.filter(p => p.objectif === filtreActif);
+  if (q) pts = pts.filter(p =>
+    (p.prenom+' '+p.nom).toLowerCase().includes(q) ||
+    (p.ville||'').toLowerCase().includes(q)
+  );
+  renderDossiers(pts);
+}
+
+function renderDossiers(pts) {
+  const z = document.getElementById('dossiersList');
+  if (pts.length === 0) {
+    z.innerHTML = `<div class="empty-dossiers">${[1,2,3].map(()=>`
+      <div class="empty-card">
+        <div class="empty-card-icon">○</div>
+        <div class="empty-card-label">Aucun patient</div>
+        <div class="empty-card-sub">En attente de demandes</div>
+      </div>`).join('')}</div>`;
+    return;
+  }
+  z.innerHTML = `<div class="dossiers-grid">${pts.map((p,i) => {
+    const obj = OBJECTIFS.find(o => o.val === p.objectif);
+    let badgeClass='badge-attente', badgeLabel='À traiter';
+    if (['en_cours','accepted','in_progress'].includes(p.statut)){badgeClass='badge-cours';badgeLabel='En cours';}
+    if (['valide','valide_rpps','delivered'].includes(p.statut)){badgeClass='badge-valide';badgeLabel='Validé';}
+    const imc = calculIMC(p.poids, p.taille);
+    return `<div class="dossier-card" onclick="ouvrirDossier('${p.id}')">
+      <div class="dossier-header">
+        <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="dossier-name">${p.prenom} ${p.nom}${p.age?' · '+p.age+' ans':''}</div>
+          <div class="dossier-meta">${p.ville?'📍 '+p.ville:''}${imc?' · IMC '+imc:''}</div>
+        </div>
+        <span class="status-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.5rem;">
+        ${obj?`<span class="obj-badge">${obj.icon} ${obj.label}</span>`:''}
+        ${p.source==='prescripteur'?`<span class="badge-source">🏢 Via prescripteur</span>`:''}
+        ${p.alertes?.length?`<span style="background:#fef2f2;color:#ef4444;font-size:.68rem;padding:1px 7px;border-radius:999px;border:1px solid rgba(239,68,68,.2);">⚠️ ${p.alertes.length} alerte${p.alertes.length>1?'s':''}</span>`:''}
+      </div>
+      <div class="dossier-actions">
+        <button class="btn-sm btn-sm-green" onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider</button>
+        <button class="btn-sm btn-sm-outline" onclick="event.stopPropagation();ouvrirDossier('${p.id}')">📋 Dossier complet</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── MODAL DOSSIER COMPLET ─────────────────────────────────────
+function ouvrirDossier(id) {
+  dossierCourant = patientsData.find(x => String(x.id) === String(id));
+  if (!dossierCourant) return;
+  renderModal(dossierCourant);
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay') && e.type !== 'click') return;
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  dossierCourant = null;
+}
+
+function renderModal(p) {
+  const imc = calculIMC(p.poids, p.taille);
+  const imcInfo = imcLabel(imc);
+
+  // ── Titre
+  document.getElementById('modalTitle').textContent =
+    `${p.prenom} ${p.nom}${p.age ? ' · ' + p.age + ' ans' : ''}`;
+
+  // ── Corps
+  let html = '';
+
+  // Source prescripteur
+  if (p.source === 'prescripteur') {
+    html += `<div class="source-banner">
+      🏢 <strong>Demande via prescripteur</strong> — Ce dossier a été créé par un professionnel pour son client.
+    </div>`;
+  }
+
+  // Statut + date
+  html += `<div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;">`;
+  let bClass='badge-attente',bLabel='À traiter';
+  if(['en_cours','accepted','in_progress'].includes(p.statut)){bClass='badge-cours';bLabel='En cours';}
+  if(['valide','valide_rpps','delivered'].includes(p.statut)){bClass='badge-valide';bLabel='Validé';}
+  html += `<span class="status-badge ${bClass}">${bLabel}</span>`;
+  if (p.objectif) {
+    const obj = OBJECTIFS.find(o => o.val === p.objectif);
+    html += `<span class="obj-badge">${obj ? obj.icon+' '+obj.label : p.objectif}</span>`;
+  }
+  if (p.created_at) {
+    html += `<span style="font-size:.72rem;color:var(--text-tertiary,#9ca3af);">
+      Soumis le ${new Date(p.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}
+    </span>`;
+  }
+  html += `</div>`;
+
+  // ── SECTION 1 : Identité & morphologie
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">👤 Identité & morphologie</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Prénom / Nom</div><div class="info-value">${val(p.prenom)} ${val(p.nom)}</div></div>
+      <div class="info-item"><div class="info-label">Âge</div><div class="info-value">${p.age ? p.age+' ans' : '—'}</div></div>
+      <div class="info-item"><div class="info-label">Sexe</div><div class="info-value">${p.sexe==='homme'?'Homme':p.sexe==='femme'?'Femme':val(p.sexe)}</div></div>
+      <div class="info-item"><div class="info-label">Ville</div><div class="info-value ${!p.ville?'empty':''}">${val(p.ville)}</div></div>
+      <div class="info-item"><div class="info-label">Taille</div><div class="info-value">${p.taille ? p.taille+' cm' : '—'}</div></div>
+      <div class="info-item"><div class="info-label">Poids actuel</div><div class="info-value">${p.poids ? p.poids+' kg' : '—'}</div></div>
+      <div class="info-item"><div class="info-label">Poids objectif</div><div class="info-value ${!p.poids_objectif?'empty':''}">${p.poids_objectif ? p.poids_objectif+' kg' : '—'}</div></div>
+      <div class="info-item">
+        <div class="info-label">IMC</div>
+        <div class="info-value" style="color:${imcInfo?.color||'inherit'}">${imc || '—'}${imcInfo ? ' · '+imcInfo.label : ''}</div>
+      </div>
+    </div>
+    ${imc ? `<div class="imc-bar-wrap">
+      <div class="imc-bar" style="width:${Math.min(imc/40*100,100)}%;background:${imcInfo?.color||'#1D9E75'};"></div>
+    </div>
+    <div class="imc-label">IMC ${imc} · Référence : 18,5–24,9 (normal)</div>` : ''}
+  </div>`;
+
+  // ── SECTION 2 : Objectif & activité
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">🏃 Objectif & activité</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Objectif principal</div><div class="info-value">${(() => {const o=OBJECTIFS.find(x=>x.val===p.objectif);return o?o.icon+' '+o.label:val(p.objectif)})()}</div></div>
+      <div class="info-item"><div class="info-label">Niveau d'activité</div><div class="info-value">${ACTIVITE_LABELS[p.activite]||val(p.activite)}</div></div>
+    </div>
+  </div>`;
+
+  // ── SECTION 3 : Alertes santé
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">⚠️ Alertes santé</div>`;
+  if (p.alertes && p.alertes.length) {
+    const ALERTE_LABELS = {
+      grossesse:'Grossesse ou allaitement',tca:'Troubles du comportement alimentaire (TCA)',
+      diabete:'Diabète sous traitement médical',insuffisance_renale:'Insuffisance rénale',
+      bariatrique:'Chirurgie bariatrique',allergies_severes:'Allergies multiples sévères',
+      medicaments:'Médicaments impactant le poids',antecedents:'Antécédents médicaux lourds',
+    };
+    html += `<div class="alertes-list">${p.alertes.map(a=>
+      `<span class="alerte-tag">⚠️ ${ALERTE_LABELS[a]||a}</span>`
+    ).join('')}</div>
+    <p style="font-size:.78rem;color:#ef4444;margin-top:.6rem;">Attention : ce dossier nécessite une vigilance particulière avant validation.</p>`;
+  } else {
+    html += `<span class="alerte-none">✅ Aucune alerte santé signalée</span>`;
+  }
+  html += `</div>`;
+
+  // ── SECTION 4 : Préférences alimentaires
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">🍽️ Préférences alimentaires</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Régime alimentaire</div><div class="info-value">${REGIME_LABELS[p.regime]||val(p.regime,'Aucune restriction')}</div></div>
+      <div class="info-item" style="grid-column:span 2;"><div class="info-label">Allergies / intolérances</div><div class="info-value ${!p.allergies?'empty':''}">${val(p.allergies,'Aucune mentionnée')}</div></div>
+    </div>
+  </div>`;
+
+  // ── SECTION 5 : Habitudes de vie
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">🌙 Habitudes de vie</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Travail</div><div class="info-value ${!p.travail?'empty':''}">${TRAVAIL_LABELS[p.travail]||val(p.travail)}</div></div>
+      <div class="info-item"><div class="info-label">Sommeil</div><div class="info-value ${!p.sommeil?'empty':''}">${SOMMEIL_LABELS[p.sommeil]||val(p.sommeil)}</div></div>
+      <div class="info-item"><div class="info-label">Hydratation</div><div class="info-value ${!p.hydratation?'empty':''}">${HYDRA_LABELS[p.hydratation]||val(p.hydratation)}</div></div>
+      <div class="info-item"><div class="info-label">Tabagisme</div><div class="info-value ${!p.tabagisme?'empty':''}">${{non:'Non-fumeur',ex:'Ex-fumeur',occasionnel:'Fumeur occasionnel',regulier:'Fumeur régulier'}[p.tabagisme]||val(p.tabagisme)}</div></div>
+      <div class="info-item"><div class="info-label">Sport pratiqué</div><div class="info-value ${!p.sport?'empty':''}">${val(p.sport)}</div></div>
+      <div class="info-item"><div class="info-label">Fréquence / durée</div><div class="info-value ${!p.sport_freq?'empty':''}">${p.sport_freq?p.sport_freq+'x/sem':'—'}${p.sport_duree?' · '+p.sport_duree+' min':''}</div></div>
+      <div class="info-item"><div class="info-label">Fringales</div><div class="info-value ${!p.fringales?'empty':''}">${{jamais:'Jamais',matin:'Le matin',apres_midi:"L'après-midi",soir:'Le soir',frequents:'Fréquentes'}[p.fringales]||val(p.fringales)}</div></div>
+      <div class="info-item"><div class="info-label">Budget alimentaire</div><div class="info-value ${!p.budget?'empty':''}">${BUDGET_LABELS[p.budget]||val(p.budget)}</div></div>
+    </div>
+  </div>`;
+
+  // ── SECTION 6 : Repas actuels
+  html += `<div class="dossier-section">
+    <div class="dossier-section-title">🍳 Habitudes alimentaires actuelles</div>
+    <div class="info-grid" style="grid-template-columns:1fr;">
+      <div class="info-item"><div class="info-label">Matin</div><div class="info-value ${!p.repas_matin?'empty':''}">${val(p.repas_matin,'Non renseigné')}</div></div>
+      <div class="info-item"><div class="info-label">Midi</div><div class="info-value ${!p.repas_midi?'empty':''}">${val(p.repas_midi,'Non renseigné')}</div></div>
+      <div class="info-item"><div class="info-label">Soir</div><div class="info-value ${!p.repas_soir?'empty':''}">${val(p.repas_soir,'Non renseigné')}</div></div>
+      ${p.aversions?`<div class="info-item"><div class="info-label">Aliments non aimés</div><div class="info-value">${p.aversions}</div></div>`:''}
+    </div>
+  </div>`;
+
+  // ── SECTION 7 : Proposition IA
+  html += `<div class="dossier-section" id="iaSectionModal">
+    <div class="dossier-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>🤖 Proposition de plan IA</span>
+      ${p.plan_ia_date?`<span style="font-size:.65rem;color:var(--text-tertiary,#9ca3af);">Générée le ${new Date(p.plan_ia_date).toLocaleDateString('fr-FR')}</span>`:''}
+    </div>`;
+
+  if (p.plan_ia) {
+    const plan = typeof p.plan_ia === 'string' ? JSON.parse(p.plan_ia) : p.plan_ia;
+    html += `
+    <div style="background:linear-gradient(135deg,#0d2018,#142c1f);border-radius:14px;padding:1rem;color:#fff;margin-bottom:.75rem;">
+      <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-bottom:.4rem;">RÉSUMÉ</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.85);line-height:1.6;">${plan.resume||''}</div>
+    </div>`;
+
+    if (plan.apports_cibles) {
+      const a = plan.apports_cibles;
+      html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem;">
+        <div class="info-item" style="text-align:center;"><div class="info-label">Calories</div><div class="info-value" style="color:#1D9E75;">${a.calories||'—'} kcal</div></div>
+        <div class="info-item" style="text-align:center;"><div class="info-label">Protéines</div><div class="info-value">${a.proteines_g||'—'} g</div></div>
+        <div class="info-item" style="text-align:center;"><div class="info-label">Glucides</div><div class="info-value">${a.glucides_g||'—'} g</div></div>
+        <div class="info-item" style="text-align:center;"><div class="info-label">Lipides</div><div class="info-value">${a.lipides_g||'—'} g</div></div>
+      </div>`;
+    }
+
+    if (plan.semaine?.length) {
+      html += `<div style="font-size:.75rem;font-weight:600;margin-bottom:.5rem;color:var(--text-secondary,#6b7b74);">PLAN 7 JOURS</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;">`;
+      plan.semaine.forEach(j => {
+        html += `<details style="background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.5rem .75rem;">
+          <summary style="cursor:pointer;font-size:.82rem;font-weight:500;list-style:none;">${j.jour}</summary>
+          <div style="margin-top:.5rem;font-size:.78rem;color:var(--text-secondary,#6b7b74);display:flex;flex-direction:column;gap:.3rem;">
+            ${j.matin?.description?`<div><strong>🌅 Matin :</strong> ${j.matin.description}${j.matin.exemple?' ('+j.matin.exemple+')':''}</div>`:''}
+            ${j.midi?.description?`<div><strong>☀️ Midi :</strong> ${j.midi.description}${j.midi.grammages?' — '+j.midi.grammages:''}</div>`:''}
+            ${j.soir?.description?`<div><strong>🌙 Soir :</strong> ${j.soir.description}${j.soir.grammages?' — '+j.soir.grammages:''}</div>`:''}
+          </div>
+        </details>`;
+      });
+      html += `</div>`;
+    }
+
+    if (plan.conseils?.length) {
+      html += `<div style="margin-top:.75rem;padding:.75rem;background:rgba(29,158,117,.06);border-radius:10px;border:1px solid rgba(29,158,117,.15);">
+        <div style="font-size:.72rem;font-weight:600;color:#1D9E75;margin-bottom:.35rem;">CONSEILS DU PLAN</div>
+        ${plan.conseils.map(c=>`<div style="font-size:.78rem;color:var(--text-secondary,#6b7b74);margin-bottom:.2rem;">• ${c}</div>`).join('')}
+      </div>`;
+    }
+
+    // Zone de notes du diet
+    html += `<div style="margin-top:.75rem;">
+      <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.35rem;">📝 Vos notes / modifications (visibles par le patient)</label>
+      <textarea id="dietNotesInput" style="width:100%;padding:.6rem;border-radius:10px;border:1px solid var(--border-light,#e8edeb);font-family:'Outfit',sans-serif;font-size:.82rem;resize:vertical;min-height:80px;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);" placeholder="Ajoutez vos commentaires, modifications ou précisions au patient…">${p.diet_notes||''}</textarea>
+    </div>`;
+
+  } else {
+    html += `<div style="text-align:center;padding:1.5rem;border:2px dashed var(--border-light,#d1ddd7);border-radius:12px;">
+      <div style="font-size:1.8rem;opacity:.3;margin-bottom:.5rem;">🤖</div>
+      <div style="font-size:.85rem;font-weight:500;color:var(--text-secondary,#6b7b74);margin-bottom:.35rem;">Aucune proposition générée</div>
+      <div style="font-size:.75rem;color:var(--text-tertiary,#9ca3af);">Cliquez sur "Générer plan IA" pour créer une proposition de plan alimentaire.</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  document.getElementById('modalBody').innerHTML = html;
+
+  // ── Pied de page
+  let badgeClass2='badge-attente';
+  if(['en_cours','accepted','in_progress'].includes(p.statut)) badgeClass2='badge-cours';
+  if(['valide','valide_rpps','delivered'].includes(p.statut)) badgeClass2='badge-valide';
+
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn-action btn-outline" onclick="fermerModal()">Fermer</button>
+    ${p.plan_ia
+      ? `<button class="btn-action" style="background:#6366f1;color:#fff;"
+           onclick="regenererIA('${p.id}')">🔄 Regénérer</button>`
+      : `<button class="btn-action" style="background:#6366f1;color:#fff;"
+           onclick="genererPlanIA('${p.id}')">🤖 Générer plan IA</button>`
+    }
+    ${!['valide','valide_rpps','delivered'].includes(p.statut)
+      ? `<button class="btn-action" style="background:#0ea5e9;color:#fff;"
+           onclick="mettreEnCours('${p.id}')">▶ Prendre en charge</button>
+         <button class="btn-action btn-primary" onclick="validerEtSauvegarder('${p.id}')">✓ Valider & envoyer</button>`
+      : `<button class="btn-action" style="background:#1D9E75;color:#fff;"
+           onclick="sauvegarderNotes('${p.id}')">💾 Sauvegarder notes</button>
+         <span style="font-size:.78rem;color:#1D9E75;">✅ Plan validé</span>`
+    }`;
+}
+
+// ── ACTIONS SUR UN DOSSIER ────────────────────────────────────
+async function mettreEnCours(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
+  if (!p) return;
+  if (typeof _supa !== 'undefined') {
+    await _supa.from('bilans').update({statut:'in_progress'}).eq('id', id);
+  }
+  p.statut = 'en_cours';
+  renderKanban(patientsData); filtrer();
+  if (dossierCourant) renderModal(p);
+  showToast(`Dossier de ${p.prenom} pris en charge ✓`);
+}
+
+async function validerPlan(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
+  if (!p) return;
+  if (typeof _supa !== 'undefined') {
+    const {error} = await _supa.from('bilans')
+      .update({statut:'valide', dietitian_id: await getDietId()})
+      .eq('id', id);
+    if (error) { showToast('Erreur : '+error.message); return; }
+  }
+  p.statut = 'valide';
+  renderKanban(patientsData); filtrer();
+  if (dossierCourant) renderModal(p);
+  showToast(`Plan de ${p.prenom} validé ✓`);
+}
+
+let _dietId = null;
+async function getDietId() {
+  if (_dietId) return _dietId;
+  const profile = await getProfile();
+  _dietId = profile?.id;
+  return _dietId;
+}
+
+
+// ── GÉNÉRATION PLAN IA ────────────────────────────────────────
+async function genererPlanIA(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  // Mettre le bouton en état de chargement
+  const footer = document.getElementById('modalFooter');
+  const btnIA = footer?.querySelector('[onclick^="genererPlanIA"]') ||
+                footer?.querySelector('[onclick^="regenererIA"]');
+  if (btnIA) { btnIA.textContent = '⏳ Génération…'; btnIA.disabled = true; }
+
+  showToast('Génération du plan IA en cours… (15-30 sec)');
+
+  try {
+    if (typeof _supa === 'undefined') throw new Error('Supabase non connecté');
+
+    // Appeler la Edge Function
+    const { data, error } = await _supa.functions.invoke('generate-plan', {
+      body: { bilan_id: id }
+    });
+
+    if (error) throw new Error(error.message || 'Erreur Edge Function');
+
+    // Mettre à jour les données locales
+    p.plan_ia      = data.plan;
+    p.plan_ia_date = new Date().toISOString();
+
+    // Re-rendre le modal avec le plan
+    renderModal(p);
+    showToast('✅ Plan IA généré avec succès !');
+
+  } catch (err) {
+    console.error('[genererPlanIA]', err);
+    showToast('Erreur : ' + (err.message || 'Impossible de générer le plan'));
+    if (btnIA) { btnIA.textContent = '🤖 Générer plan IA'; btnIA.disabled = false; }
+  }
+}
+
+async function regenererIA(id) { return genererPlanIA(id); }
+
+async function sauvegarderNotes(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const notes = document.getElementById('dietNotesInput')?.value || '';
+  if (typeof _supa !== 'undefined') {
+    await _supa.from('bilans').update({ diet_notes: notes }).eq('id', id);
+  }
+  p.diet_notes = notes;
+  showToast('✅ Notes sauvegardées');
+}
+
+async function validerEtSauvegarder(id) {
+  const p = patientsData.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const notes = document.getElementById('dietNotesInput')?.value || '';
+  const planValide = p.plan_ia || null;
+
+  if (typeof _supa !== 'undefined') {
+    const { error } = await _supa.from('bilans').update({
+      statut:      'valide',
+      diet_notes:  notes,
+      plan_valide: planValide,
+      dietitian_id: await getDietId(),
+    }).eq('id', id);
+    if (error) { showToast('Erreur : ' + error.message); return; }
+  }
+  p.statut     = 'valide';
+  p.diet_notes = notes;
+  renderKanban(patientsData); filtrer();
+  renderModal(p);
+  showToast(`✅ Plan de ${p.prenom} validé et envoyé !`);
+}
+
+// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+async function chargerDonnees() {
+  if (typeof _supa === 'undefined' || !MODE_SUPA) {
+    afficherVide('Connectez-vous pour accéder à vos dossiers.');
+    document.getElementById('navUser').textContent = 'Non connecté';
+    return;
+  }
+
+  const profile = await getProfile();
+  if (!profile) { window.location.href = 'login.html'; return; }
+  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
+
+  _dietId = profile.id;
+  document.getElementById('navUser').textContent =
+    [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  document.getElementById('dietHeader').textContent = `Bonjour ${profile.prenom || ''} 👋`;
+  document.getElementById('dietSubHeader').textContent =
+    [profile.rpps ? 'RPPS '+profile.rpps : null, profile.formule ? 'Formule '+profile.formule : null]
+    .filter(Boolean).join(' · ') || 'Bienvenue sur NutriDoc';
+
+  try {
+    // ── Récupérer TOUS les champs du bilan pour le dossier complet
+    const {data: bilans, error} = await _supa
+      .from('bilans')
+      .select(`
+        id, created_at,
+        prenom, nom, age, sexe, ville,
+        poids, taille, poids_objectif,
+        objectif, activite,
+        regime, allergies, aversions,
+        alertes_sante,
+        sport, sport_freq, sport_duree,
+        travail, sommeil, hydratation, tabagisme, fringales,
+        repas_matin, repas_midi, repas_soir, budget,
+        plan_ia_propose, plan_ia_genere_at, plan_valide, diet_notes,
+        statut, prescriber_id
+      `)
+      .in('statut', ['en_attente','in_progress','attente_validation','valide','valide_rpps'])
+      .order('created_at', {ascending: false})
+      .limit(200);
+
+    if (error) throw error;
+
+    patientsData = (bilans || []).map(b => ({
+      id:          b.id,
+      created_at:  b.created_at,
+      prenom:      b.prenom || 'Patient',
+      nom:         b.nom    || '',
+      age:         b.age,
+      sexe:        b.sexe   || '',
+      ville:       b.ville  || '',
+      poids:       b.poids,
+      taille:      b.taille,
+      poids_objectif: b.poids_objectif,
+      objectif:    b.objectif || 'equilibre',
+      activite:    b.activite || '',
+      regime:      b.regime  || '',
+      allergies:   b.allergies || '',
+      aversions:   b.aversions || '',
+      alertes:     b.alertes_sante || [],
+      source:      b.prescriber_id ? 'prescripteur' : 'patient',
+      statut:      b.statut === 'valide' || b.statut === 'valide_rpps' ? 'valide'
+                 : b.statut === 'in_progress' || b.statut === 'attente_validation' ? 'en_cours'
+                 : 'a_faire',
+      // Habitudes de vie
+      sport:        b.sport        || '',
+      sport_freq:   b.sport_freq,
+      sport_duree:  b.sport_duree,
+      travail:      b.travail      || '',
+      sommeil:      b.sommeil      || '',
+      hydratation:  b.hydratation  || '',
+      tabagisme:    b.tabagisme    || '',
+      fringales:    b.fringales    || '',
+      repas_matin:  b.repas_matin  || '',
+      repas_midi:   b.repas_midi   || '',
+      repas_soir:   b.repas_soir   || '',
+      budget:       b.budget       || '',
+      // Plan IA
+      plan_ia:          b.plan_ia_propose,
+      plan_ia_date:     b.plan_ia_genere_at,
+      plan_valide:      b.plan_valide,
+      diet_notes:       b.diet_notes || '',
+    }));
+
+  } catch (err) {
+    console.warn('[dietitian] Erreur:', err.message);
+    patientsData = [];
+  }
+
+  renderKanban(patientsData);
+  renderFiltres();
+  filtrer();
+}
+
+function afficherVide(message) {
+  const cols = ['À traiter','En cours','Validés'];
+  const colors = ['#f59e0b','#0ea5e9','#1D9E75'];
+  const bgs = ['rgba(245,158,11,.07)','rgba(14,165,233,.07)','rgba(29,158,117,.07)'];
+  document.getElementById('kanbanGrid').innerHTML = cols.map((label,i) =>
+    `<div class="kanban-col" style="background:${bgs[i]};">
+      <div class="kanban-col-header">
+        <span class="kanban-col-title" style="color:${colors[i]};">${label}</span>
+        <span class="kanban-count" style="background:${colors[i]};">0</span>
+      </div>
+      <div class="kanban-empty"><div class="kanban-empty-icon">○</div>Aucun dossier</div>
+    </div>`
+  ).join('');
+  renderFiltres();
+  document.getElementById('dossiersList').innerHTML =
+    `<div class="empty-global">
+      <div class="empty-global-icon">📋</div>
+      <h3>Aucun dossier patient</h3>
+      <p>${message || 'Vos dossiers apparaîtront ici dès qu\'un patient aura soumis un bilan.'}</p>
+    </div>`;
+}
+
+// Fermer le modal avec Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+document.addEventListener('DOMContentLoaded', chargerDonnees);
+</script>
+
+<script defer src="js/error-handler.js"></script>
+<script defer src="js/theme-selector.js"></script>
+</body>
+</html>

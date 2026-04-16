@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="NutriDoc — Conditions générales d'utilisation (Prescripteur)">
+  <meta property="twitter:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/cgu-prescripteur.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Bilan nutritionnel gratuit · Plan alimentaire personnalisé validé par un diététicien certifié RPPS.">
+  <meta property="og:title" content="NutriDoc — Conditions générales d'utilisation (Prescripteur)">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Conditions Générales d'Utilisation prescripteur NutriDoc — CaliDoc Santé. Tarifs packs crédits, commission NutriDoc, flux financiers Stripe Connect, SIRET obligatoire."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Conditions générales d'utilisation (Prescripteur)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color:var(--text-primary,#0d2018);
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL */
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .legal-header {
+      margin-bottom: 2rem;
+    }
+    .legal-profile-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .presc-badge {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+    .legal-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      color:var(--text-primary,#0d2018);
+      margin-bottom: 0.5rem;
+    }
+    .legal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color:var(--text-secondary,#6b7b74);
+    }
+
+    /* SOMMAIRE */
+    .legal-toc {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .legal-toc-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 0.75rem;
+    }
+    .legal-toc ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .legal-toc li {
+      font-size: 0.8rem;
+    }
+    .legal-toc a {
+      color:var(--text-primary,#0d2018);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .legal-toc a:hover { color: #0ea5e9; }
+
+    /* CORPS DU TEXTE */
+    .legal-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      margin: 2rem 0 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eef4ee;
+      scroll-margin-top: 100px;
+    }
+    .legal-body h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .legal-body h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.5rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .legal-body p {
+      font-size: 0.85rem;
+      color:var(--text-primary,#0d2018);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .legal-body ul, .legal-body ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .legal-body li {
+      font-size: 0.82rem;
+      color:var(--text-primary,#0d2018);
+      line-height: 1.6;
+    }
+    .legal-body a {
+      color: #0ea5e9;
+      text-decoration: none;
+    }
+    .legal-body a:hover { text-decoration: underline; }
+
+    /* ALERTE */
+    .legal-alert {
+      background: #fff8e6;
+      border: 1px solid #fcd34d;
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.8rem;
+      color: #633806;
+      line-height: 1.6;
+    }
+    .legal-alert strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* TABLEAUX */
+    .legal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 1rem 0 1.5rem;
+      background:var(--bg-card,#fff);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .legal-table th {
+      background:var(--bg-secondary,#f7f9f7);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .legal-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eef4ee;
+      vertical-align: top;
+    }
+    .legal-table tr:last-child td { border-bottom: none; }
+
+    /* CONTACT */
+    .legal-contact {
+      background: #e0f2fe;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+    .legal-contact a { color: #0284c7; font-weight: 500; }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .legal-container { padding: 6rem 1rem 2rem; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #0ea5e9; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html" class="nd-navlink">Accueil</a>
+        <a href="accueil-prescripteur.html" class="nd-navlink">Espace Prescripteur</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <a href="inscription-prescripteur.html" class="nd-btn-ghost">S'inscrire</a>
+      <a href="login.html?role=prescriber" class="nd-btn-ghost">Se connecter</a>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="legal-container">
+  <div class="legal-header">
+    <div class="legal-profile-badge presc-badge">Profil Prescripteur</div>
+    <h1>Conditions Générales d'Utilisation</h1>
+    <div class="legal-meta">
+      <span>NutriDoc by CaliDoc Santé</span>
+      <span>Version 2.1 — Avril 2026</span>
+      <span>Applicables à compter du 1er mai 2026</span>
+    </div>
+  </div>
+
+  <nav class="legal-toc">
+    <div class="legal-toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#p1">Objet et acceptation</a></li>
+      <li><a href="#p2">Conditions d'inscription — SIRET obligatoire</a></li>
+      <li><a href="#p3">Définition du rôle du Prescripteur</a></li>
+      <li><a href="#p4">Packs de crédits et tarifs</a></li>
+      <li><a href="#p5">Flux financiers — Commission NutriDoc</a></li>
+      <li><a href="#p6">Processus de commande et livraison</a></li>
+      <li><a href="#p7">Responsabilité et garanties</a></li>
+      <li><a href="#p8">Propriété intellectuelle</a></li>
+      <li><a href="#p9">Données personnelles — patients</a></li>
+      <li><a href="#p10">Durée et résiliation</a></li>
+      <li><a href="#p11">Droit applicable et litiges</a></li>
+    </ol>
+  </nav>
+
+  <div class="legal-body">
+
+    <h2 id="p1">Article 1 — Objet et acceptation</h2>
+    <p>Les présentes Conditions Générales d'Utilisation (CGU) régissent les relations contractuelles entre CaliDoc Santé (SIRET 939 166 690 00019), éditeur de la plateforme NutriDoc, et tout professionnel déclaré (ci-après « le Prescripteur ») qui s'inscrit sur la Plateforme afin de commander des plans nutritionnels pour ses patients ou clients.</p>
+    <p>En cochant la case d'acceptation lors de l'inscription, le Prescripteur reconnaît avoir pris connaissance des présentes CGU et les accepter sans réserve. Il reconnaît également exercer une activité professionnelle déclarée sur le territoire français, justifiée par un numéro SIRET valide.</p>
+
+    <div class="legal-alert">
+      <strong>Rappel important :</strong> NutriDoc n'est pas un service de téléconsultation médicale. Le Prescripteur commande un plan nutritionnel, et c'est un diététicien certifié RPPS qui l'élabore, le valide et le signe. Le Prescripteur n'exerce aucun acte diététique ou médical via la Plateforme.
+    </div>
+
+    <h2 id="p2">Article 2 — Conditions d'inscription — SIRET obligatoire</h2>
+    <p>L'inscription sur NutriDoc en qualité de Prescripteur est ouverte à tout professionnel déclaré, quel que soit son métier (médecin, kinésithérapeute, coach sportif, ostéopathe, sage-femme, infirmier, préparateur physique, naturopathe déclaré, etc.), sous réserve de justifier d'un <strong>numéro SIRET valide à 14 chiffres</strong>.</p>
+    <p>CaliDoc Santé procède à la vérification du numéro SIRET via les bases de données publiques (INSEE, annuaire-entreprises.data.gouv.fr) avant toute activation du compte. En cas de SIRET invalide, inexistant ou correspondant à une activité non déclarée, le compte sera immédiatement suspendu.</p>
+    <p>Le Prescripteur s'engage à informer immédiatement CaliDoc Santé de toute modification de sa situation professionnelle (cessation d'activité, changement de SIRET).</p>
+
+    <h2 id="p3">Article 3 — Définition du rôle du Prescripteur</h2>
+    <p>Le Prescripteur agit en tant qu'intermédiaire entre le patient/client et le diététicien certifié RPPS. Son rôle consiste à :</p>
+    <ul>
+      <li>Recueillir les informations du patient (objectifs, habitudes alimentaires, contraintes) ;</li>
+      <li>Soumettre une commande de plan nutritionnel via son espace prescripteur ;</li>
+      <li>Transmettre le plan validé à son patient/client ;</li>
+      <li>Fixer librement le prix de revente du plan à son patient (hors tarif NutriDoc).</li>
+    </ul>
+    <p>Le Prescripteur <strong>n'élabore pas, ne valide pas et ne signe pas</strong> le plan nutritionnel. Ces actes relèvent de la seule responsabilité du diététicien certifié RPPS.</p>
+
+    <div class="legal-alert">
+      <strong>Limite d'exercice :</strong> Le Prescripteur ne doit pas donner de conseils nutritionnels personnalisés relevant du monopole du diététicien ou du médecin nutritionniste. Il se contente de prescrire un service nutritionnel complémentaire.
+    </div>
+
+    <h2 id="p4">Article 4 — Packs de crédits et tarifs</h2>
+
+    <h3>4.1 Packs disponibles</h3>
+    <p>NutriDoc propose des packs de crédits à valoir sur des commandes de plans nutritionnels. 1 crédit = 1 plan validé et livré. Les packs sont les suivants :</p>
+    <table class="legal-table">
+      <thead>
+        <tr><th>Pack</th><th>Crédits inclus</th><th>Prix public HT</th><th>Prix par plan (HT)</th><th>Économie</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Solo</strong></td><td>1 crédit</td><td>24,90 €</td><td>24,90 €</td><td>—</td></tr>
+        <tr><td><strong>Standard</strong> ⭐</td><td>10 crédits</td><td>130,00 €</td><td>13,00 €</td><td>−47%</td></tr>
+        <tr><td><strong>Expert</strong></td><td>50 crédits</td><td>500,00 €</td><td>10,00 €</td><td>−60%</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Offre de lancement — pack 20 crédits :</strong> 99€ HT (soit 4,95€/plan). Cette offre promotionnelle est valable pour une durée limitée et peut être retirée à tout moment sans préavis.</p>
+    <p>Tous les prix s'entendent hors taxes (TVA non applicable, article 293 B du CGI). Les crédits sont valables <strong>12 mois à compter de l'achat</strong>. Passé ce délai, les crédits non utilisés sont perdus sans remboursement.</p>
+
+    <h3>4.2 Diététicien référent</h3>
+    <p>Lors de son inscription, le Prescripteur choisit un diététicien référent parmi les diététiciens partenaires de NutriDoc. Ce diététicien référent :</p>
+    <ul>
+      <li>Est le destinataire des paiements des packs achetés par le Prescripteur ;</li>
+      <li>Valide en priorité les plans commandés par le Prescripteur via les crédits ;</li>
+      <li>Perçoit la rémunération correspondant aux plans validés (incluse dans le prix du pack).</li>
+    </ul>
+    <p>Le Prescripteur peut changer de diététicien référent à tout moment depuis son espace professionnel, sous réserve d'un préavis de 30 jours.</p>
+
+    <h2 id="p5">Article 5 — Flux financiers — Commission NutriDoc</h2>
+
+    <h3>5.1 Principe général</h3>
+    <p>NutriDoc utilise la technologie <strong>Stripe Connect</strong> pour garantir un flux financier transparent et fiscalement optimisé. Le principe est le suivant :</p>
+    <ul>
+      <li>Le Prescripteur paie le prix du pack via Stripe Connect ;</li>
+      <li>Le paiement est encaissé <strong>directement par le diététicien référent</strong> sur son compte Stripe ;</li>
+      <li>NutriDoc prélève <strong>automatiquement sa commission</strong> sur ce paiement ;</li>
+      <li>Le diététicien reçoit le montant du pack diminué de la commission NutriDoc.</li>
+    </ul>
+
+    <div class="legal-alert">
+      <strong>Avantage fiscal :</strong> Ce système permet à NutriDoc de ne facturer et de ne déclarer que sa commission. Le Prescripteur paye directement le diététicien, et NutriDoc n'est qu'un intermédiaire technique prélevant une commission.
+    </div>
+
+    <h3>5.2 Montant des commissions</h3>
+    <p>Les commissions NutriDoc sont dégressives en fonction du volume du pack :</p>
+    <table class="legal-table">
+      <thead>
+        <tr><th>Pack</th><th>Prix public HT</th><th>Commission NutriDoc</th><th>Taux</th><th>Net reversé au diététicien</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Solo (1 crédit)</td><td>24,90 €</td><td>4,98 €</td><td>20%</td><td>19,92 €</td></tr>
+        <tr><td>Standard (10 crédits)</td><td>130,00 €</td><td>26,00 €</td><td>20%</td><td>104,00 €</td></tr>
+        <tr><td>Expert (50 crédits)</td><td>500,00 €</td><td>75,00 €</td><td>15%</td><td>425,00 €</td></tr>
+        <tr><td>Pack promotionnel (20 crédits)</td><td>99,00 €</td><td>19,80 €</td><td>20%</td><td>79,20 €</td></tr>
+      </tbody>
+    </table>
+    <p>Les pourcentages de commission sont dégressifs pour récompenser les achats en volume. NutriDoc se réserve le droit de modifier ces taux à tout moment, sous réserve d'en informer le Prescripteur 30 jours à l'avance.</p>
+
+    <h3>5.3 Modalités de paiement</h3>
+    <p>Le Prescripteur peut régler ses achats par :</p>
+    <ul>
+      <li><strong>Carte bancaire</strong> (Visa, Mastercard, Amex) — paiement sécurisé via Stripe Connect ;</li>
+      <li><strong>Prélèvement SEPA</strong> — mensuel ou à l'unité ;</li>
+      <li><strong>Facture / virement</strong> — paiement sous 30 jours (réservé aux professionnels avec antériorité).</li>
+    </ul>
+    <p>Une <strong>facture électronique conforme</strong> est générée automatiquement après chaque paiement et accessible depuis l'espace prescripteur. Cette facture mentionne distinctement :</p>
+    <ul>
+      <li>Le montant total payé par le Prescripteur ;</li>
+      <li>La commission prélevée par NutriDoc ;</li>
+      <li>Le net reversé au diététicien référent.</li>
+    </ul>
+
+    <h3>5.4 Recharge et remboursement</h3>
+    <p>Les crédits peuvent être rechargés à tout moment, sans minimum ni maximum. Les crédits achetés ne sont pas remboursables, sauf en cas de non-livraison du plan dans les délais impartis (voir article 6).</p>
+
+    <h2 id="p6">Article 6 — Processus de commande et livraison</h2>
+
+    <h3>6.1 Commande d'un plan</h3>
+    <p>Depuis son espace prescripteur, le Prescripteur renseigne :</p>
+    <ul>
+      <li>Les informations du patient (prénom, âge, objectifs, contraintes alimentaires) ;</li>
+      <li>Les coordonnées auxquelles le plan doit être livré (email du patient ou du prescripteur).</li>
+    </ul>
+    <p>1 crédit est immédiatement débité du compte prescripteur lors de la soumission de la commande.</p>
+
+    <h3>6.2 Délai de livraison</h3>
+    <p>Le plan nutritionnel validé par un diététicien certifié RPPS est livré au format PDF dans un délai maximum de <strong>48 heures ouvrées</strong> (du lundi au vendredi, hors jours fériés).</p>
+    <p>Le plan contient :</p>
+    <ul>
+      <li>Les coordonnées du Prescripteur (nom, profession, structure) ;</li>
+      <li>Les coordonnées du diététicien validateur (nom, numéro RPPS, titre) ;</li>
+      <li>Un plan alimentaire détaillé sur 4 semaines, avec grammages et recommandations.</li>
+    </ul>
+
+    <h3>6.3 Retard de livraison</h3>
+    <p>En cas de dépassement du délai de 48 heures ouvrées sans justification valable, le Prescripteur peut demander le <strong>remboursement du crédit</strong> utilisé pour la commande concernée. La demande doit être formulée dans les 7 jours suivant la date de commande.</p>
+
+    <h3>6.4 Dossiers avec alerte santé</h3>
+    <p>Certains dossiers comportent des alertes santé (grossesse, TCA, diabète sous traitement, insuffisance rénale, allergies sévères). Ces dossiers sont automatiquement orientés vers un diététicien spécialisé. Le délai de livraison peut être légèrement prolongé (72h maximum).</p>
+
+    <h2 id="p7">Article 7 — Responsabilité et garanties</h2>
+
+    <h3>7.1 Responsabilité de CaliDoc Santé</h3>
+    <p>CaliDoc Santé s'engage à :</p>
+    <ul>
+      <li>Mettre à disposition une plateforme fonctionnelle et sécurisée ;</li>
+      <li>Garantir que chaque plan est validé par un diététicien certifié RPPS en exercice ;</li>
+      <li>Respecter les délais de livraison annoncés ;</li>
+      <li>Assurer le bon fonctionnement technique des flux financiers via Stripe Connect.</li>
+    </ul>
+    <p>CaliDoc Santé ne saurait être tenu responsable du contenu des plans nutritionnels, qui relève de la seule responsabilité du diététicien validateur. CaliDoc Santé ne peut non plus être tenu responsable de l'usage que le Prescripteur fait des plans ou des conseils qu'il pourrait ajouter.</p>
+
+    <h3>7.2 Responsabilité du Prescripteur</h3>
+    <p>Le Prescripteur est seul responsable :</p>
+    <ul>
+      <li>De la relation commerciale avec son patient/client (prix de revente, facturation, SAV) ;</li>
+      <li>De la transmission du plan à son patient ;</li>
+      <li>Des conseils qu'il pourrait ajouter en sus du plan nutritionnel ;</li>
+      <li>Du respect des obligations légales propres à sa profession.</li>
+    </ul>
+    <p>Le Prescripteur garantit CaliDoc Santé contre toute réclamation d'un patient relative au contenu du plan nutritionnel, dès lors que ce plan a été validé par un diététicien certifié RPPS.</p>
+
+    <h3>7.3 Assurance professionnelle</h3>
+    <p>Le Prescripteur est invité à vérifier que son assurance responsabilité civile professionnelle couvre bien l'activité de prescription de services nutritionnels complémentaires. CaliDoc Santé décline toute responsabilité en cas de défaut de couverture du Prescripteur.</p>
+
+    <h2 id="p8">Article 8 — Propriété intellectuelle</h2>
+    <p>Les plans nutritionnels livrés sont la propriété intellectuelle du diététicien validateur. Le Prescripteur reçoit une licence d'utilisation non exclusive, limitée à la transmission du plan à son patient/client. Le Prescripteur ne peut pas :</p>
+    <ul>
+      <li>Modifier, reproduire ou commercialiser le plan sans l'accord du diététicien ;</li>
+      <li>Extraire ou réutiliser les bases de données ou algorithmes de NutriDoc ;</li>
+      <li>Revendre les crédits à un tiers.</li>
+    </ul>
+
+    <h2 id="p9">Article 9 — Données personnelles — patients</h2>
+    <p>Dans le cadre de l'utilisation de NutriDoc, le Prescripteur communique à la Plateforme des données personnelles de ses patients (nom, email, objectifs, données de santé). Ces données sont traitées conformément au RGPD et à la politique de confidentialité de NutriDoc.</p>
+    <p>Le Prescripteur est responsable de la collecte et du traitement des données de ses patients en amont de la commande. Il s'engage à :</p>
+    <ul>
+      <li>Informer ses patients de la transmission de leurs données à NutriDoc ;</li>
+      <li>Obtenir leur consentement explicite si nécessaire ;</li>
+      <li>Ne pas transmettre de données sensibles sans nécessité.</li>
+    </ul>
+    <p>Les données des patients sont conservées par NutriDoc pour la durée nécessaire à la fourniture du service (12 mois après la livraison du plan).</p>
+
+    <div class="legal-alert">
+      <strong>Responsabilité RGPD :</strong> En cas de non-respect par le Prescripteur de ses obligations en matière de protection des données personnelles, sa responsabilité pourra être engagée.
+    </div>
+
+    <h2 id="p10">Article 10 — Durée et résiliation</h2>
+    <p>Les présentes CGU sont conclues pour une durée indéterminée à compter de l'inscription du Prescripteur.</p>
+    <p>Le Prescripteur peut résilier son compte à tout moment depuis son espace professionnel. Les crédits non utilisés au moment de la résiliation sont définitivement perdus, sans remboursement.</p>
+    <p>CaliDoc Santé peut résilier sans préavis le compte d'un Prescripteur en cas de :</p>
+    <ul>
+      <li>Non-respect des présentes CGU ;</li>
+      <li>SIRET invalide ou frauduleux ;</li>
+      <li>Usage abusif de la Plateforme (spam, harcèlement, tentative de fraude) ;</li>
+      <li>Signalement d'un patient justifié.</li>
+    </ul>
+
+    <h2 id="p11">Article 11 — Droit applicable et litiges</h2>
+    <p>Les présentes CGU sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en premier lieu. À défaut d'accord, le litige sera soumis à la juridiction compétente du ressort de la Cour d'appel d'Angoulême.</p>
+    <p>Le Prescripteur bénéficie des dispositions relatives à la médiation de la consommation. Il peut saisir le médiateur de la consommation dont relève CaliDoc Santé : CNPM Médiation Consommation, dans les conditions prévues par le Code de la consommation.</p>
+
+    <div class="legal-contact">
+      <strong>📧 Contact professionnel</strong><br>
+      CaliDoc Santé — NutriDoc<br>
+      Email : <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a><br>
+      Adresse : 4 rue Saint-André, 16000 Angoulême<br>
+      SIRET : 939 166 690 00019
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Prescripteurs</div>
+        <a href="inscription-prescripteur.html">S'inscrire</a>
+        <a href="login.html?role=prescriber">Se connecter</a>
+        <a href="cgu-prescripteur.html">CGU Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== PROFIL SYSTEM =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+
+function setStoredProfil(profil) {
+  localStorage.setItem(PROFIL_KEY, profil);
+  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
+}
+
+function updateUIForProfil(profilKey) {}
+
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="profil-modal-overlay" onclick="closeProfilModal(event)">
+      <div class="profil-modal" onclick="event.stopPropagation()">
+        <h2>Bienvenue sur NutriDoc</h2>
+        <div class="profil-modal-sub">Je suis...</div>
+        <div class="profil-grid">
+          <div class="profil-card" ><div class="profil-icon">🧑</div><h3>Patient</h3><p>Je cherche un plan alimentaire personnalisé</p></div>
+          <div class="profil-card" ><div class="profil-icon">🥗</div><h3>Diététicien</h3><p>Je veux valider des plans</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏢</div><h3>Prescripteur</h3><p>Je prescris pour mes patients/clients</p></div>
+          <div class="profil-card" ><div class="profil-icon">🏛️</div><h3>Structure</h3><p>Je représente une salle, entreprise</p></div>
+        </div>
+        <div class="profil-modal-footer">
+          <button onclick="closeProfilModal()">Plus tard</button>
+          <button >Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() {
+  localStorage.setItem('nutridoc_profil_dismissed', 'true');
+  closeProfilModal();
+}
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') {
+    window.location.href = target;
+  }
+}
+
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
+}
+
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+</script>
+
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

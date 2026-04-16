@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>NutriDoc — Espace Patient · Plan alimentaire certifié RPPS</title>
+  <meta name="description" content="Plan alimentaire personnalisé validé par un diété. certifié RPPS. Livré sous 48h à partir de 0€."/>
+  <meta name="author" content="CaliDoc Santé"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{--green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--green-light:#E1F5EE;--dark:#0d2018;--bg-primary:#fff;--bg-secondary:#f7f9f7;--bg-card:#fff;--text-primary:#0d2018;--text-secondary:#4b5563;--text-muted:#6b7280;--border-color:var(--border-light,#e5e7eb);--shadow:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);}
+    [data-theme="dark"]{--bg-primary:#0a0f0d;--bg-secondary:#111816;--bg-card:#141c19;--text-primary:#e5e7eb;--text-secondary:#9ca3af;--text-muted:#6b7280;--border-color:#2a3430;--green-light:rgba(29,158,117,.12);}
+    body{font-family:'Outfit',sans-serif;background:var(--bg-secondary);color:var(--text-primary);line-height:1.5;}
+    *{transition:background-color .2s,border-color .2s,color .2s;}
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem;transition:all .3s;}
+    .nd-header.scrolled{padding:.5rem 2rem;background:rgba(13,32,24,.98);backdrop-filter:blur(10px);}
+    .hc{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .hl{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:#5DCAA5;}
+    .nd-nav{display:flex;gap:1.5rem;}
+    .nd-navlink{font-size:.8rem;color:rgba(255,255,255,.65);text-decoration:none;}
+    .nd-navlink:hover{color:#fff;}
+    .ha{display:flex;align-items:center;gap:1rem;}
+    .nd-btn-ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.4rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;}
+    .nd-btn-primary{background:#1D9E75;color:#fff;padding:.4rem 1.2rem;border-radius:999px;font-size:.75rem;font-weight:500;text-decoration:none;}
+    .nd-btn-primary:hover{background:#0f6e56;}
+    .cw{position:relative;}
+    .cm{display:none;position:absolute;top:100%;right:0;background:var(--bg-primary);border:1px solid rgba(29,158,117,.2);border-radius:12px;width:200px;margin-top:.5rem;z-index:101;overflow:hidden;}
+    .cm.open{display:block;}
+    .ci{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;}
+    .ci:hover{background:rgba(29,158,117,.1);color:#fff;}
+    @media(max-width:900px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}}
+
+    /* ============================================================
+       CAROUSEL PUB — styles
+    ============================================================ */
+    .nd-carousel{
+      position:relative;background:#0d2018;
+      min-height:88vh;display:flex;flex-direction:column;justify-content:center;
+      overflow:hidden;padding-top:60px;
+    }
+    .nd-carousel::before{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 70% at 70% 40%,rgba(29,158,117,.18) 0%,transparent 65%),
+        radial-gradient(ellipse 35% 50% at 10% 80%,rgba(93,202,165,.1) 0%,transparent 60%);
+    }
+    .nd-car-progress{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);z-index:10;}
+    .nd-car-progress-bar{height:100%;background:#5DCAA5;width:0%;transition:width .1s linear;}
+    .nd-slides{position:relative;width:100%;min-height:inherit;}
+    .nd-slide{
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      padding:3rem 2rem;opacity:0;pointer-events:none;
+      transition:opacity .55s ease,transform .55s ease;
+      transform:translateY(20px);
+    }
+    .nd-slide.active{opacity:1;pointer-events:auto;position:relative;transform:translateY(0);}
+    .nd-slide-inner{
+      max-width:1100px;width:100%;margin:0 auto;
+      display:grid;grid-template-columns:1fr 420px;gap:4rem;align-items:center;
+    }
+    .nd-slide-badge{
+      display:inline-flex;align-items:center;gap:.4rem;
+      font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;
+      color:#5DCAA5;border:1px solid rgba(93,202,165,.3);
+      border-radius:999px;padding:.3rem 1rem;margin-bottom:1.25rem;
+    }
+    .nd-slide-badge .dot{width:5px;height:5px;background:#5DCAA5;border-radius:50%;animation:cPulse 2s infinite;}
+    @keyframes cPulse{0%,100%{box-shadow:0 0 0 0 rgba(93,202,165,.5);}50%{box-shadow:0 0 0 5px rgba(93,202,165,0);}}
+    .nd-slide-title{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1.9rem,3.8vw,2.9rem);
+      color:#fff;line-height:1.15;margin-bottom:1rem;
+    }
+    .nd-slide-title em{font-style:italic;color:#5DCAA5;}
+    .nd-slide-sub{font-size:.95rem;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:1.75rem;max-width:520px;}
+    .nd-slide-chips{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.75rem;}
+    .nd-chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:500;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.35rem .9rem;color:rgba(255,255,255,.85);}
+    .nd-chip-g{background:rgba(29,158,117,.18);border-color:rgba(29,158,117,.35);color:#5DCAA5;}
+    .nd-slide-cta{
+      display:inline-flex;align-items:center;gap:.5rem;
+      background:#1D9E75;color:#fff;
+      padding:.8rem 2rem;border-radius:999px;
+      font-size:.9rem;font-weight:600;text-decoration:none;
+      transition:all .25s;box-shadow:0 4px 18px rgba(29,158,117,.35);
+    }
+    .nd-slide-cta:hover{background:#0f6e56;transform:translateX(4px);}
+    .nd-slide-cta2{display:inline-flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.45);font-size:.82rem;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:1px;transition:color .2s;align-self:center;}
+    .nd-slide-cta2:hover{color:rgba(255,255,255,.85);}
+    .nd-slide-ctas{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+    .nd-slide-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(93,202,165,.2);border-radius:24px;padding:1.75rem;position:relative;overflow:hidden;}
+    .nd-slide-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(93,202,165,.1),transparent 70%);pointer-events:none;}
+    .sc-label{font-size:.65rem;color:#5DCAA5;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;}
+    .sc-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.8rem;}
+    .sc-row:last-of-type{border-bottom:none;}
+    .sc-row-l{color:rgba(255,255,255,.7);}
+    .sc-row-r{color:#5DCAA5;font-weight:600;}
+    .sc-footer{margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+    .sc-diet{display:flex;align-items:center;gap:.6rem;}
+    .sc-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0f6e56);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .sc-di{font-size:.68rem;color:rgba(255,255,255,.55);}
+    .sc-di strong{color:#fff;display:block;}
+    .sc-badge-g{font-size:.62rem;background:rgba(29,158,117,.2);color:#5DCAA5;border:1px solid rgba(29,158,117,.3);border-radius:999px;padding:.2rem .65rem;white-space:nowrap;}
+    .sc-big{text-align:center;padding:.75rem 0;}
+    .sc-big-n{font-family:'Playfair Display',serif;font-size:3.2rem;color:#5DCAA5;line-height:1;}
+    .sc-big-l{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;}
+    .sc-big-s{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.4rem;}
+    .sc-2g{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+    .sc-g-item{background:rgba(255,255,255,.05);border-radius:12px;padding:.75rem;text-align:center;}
+    .sc-g-v{font-size:1.3rem;font-weight:700;color:#5DCAA5;}
+    .sc-g-l{font-size:.63rem;color:rgba(255,255,255,.45);margin-top:.15rem;}
+    .sc-divider{border:none;border-top:1px solid rgba(255,255,255,.08);margin:.75rem 0;}
+    .nd-car-nav{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.6rem;z-index:10;}
+    .nd-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s;border:none;}
+    .nd-dot.active{background:#5DCAA5;width:28px;}
+    .nd-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px);}
+    .nd-arrow:hover{background:rgba(29,158,117,.4);border-color:#1D9E75;}
+    .nd-arrow.prev{left:1.5rem;}
+    .nd-arrow.next{right:1.5rem;}
+    @media(max-width:960px){
+      .nd-slide-inner{grid-template-columns:1fr;gap:2rem;}
+      .nd-slide-card{max-width:400px;margin:0 auto;}
+      .nd-slide{padding:3.5rem 1.5rem 4.5rem;}
+      .nd-arrow{display:none;}
+      .nd-carousel{min-height:auto;}
+    }
+    .nd-section{padding:3rem 0;}
+    .nd-section-light{background:var(--bg-secondary);}
+    .nd-section-dark{background:#0d2018;}
+    [data-theme="dark"] .nd-section-dark{background:#0a0f0d;}
+    .nd-section-inner{max-width:1100px;margin:0 auto;padding:0 2rem;}
+    .nd-section-header{text-align:center;margin-bottom:2rem;}
+    .nd-tag{display:inline-block;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:#1D9E75;background:rgba(29,158,117,.1);padding:.2rem .8rem;border-radius:999px;margin-bottom:.75rem;}
+    .nd-tag-l{color:#5DCAA5;background:rgba(93,202,165,.1);}
+    .nd-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);color:var(--text-primary);}
+    .nd-title-l{color:#fff;}
+    .nd-sub{font-size:.9rem;color:var(--text-secondary);margin-top:.5rem;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;}
+    .nd-sub-l{color:rgba(255,255,255,.55);}
+    .obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
+    @media(max-width:768px){.obj-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:480px){.obj-grid{grid-template-columns:1fr;}}
+    .obj-card{background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:18px;padding:1.5rem;text-align:center;transition:all .2s;text-decoration:none;display:block;}
+    .obj-card:hover{border-color:#1D9E75;transform:translateY(-4px);box-shadow:var(--shadow-md);}
+    .obj-icon{font-size:2.5rem;margin-bottom:.75rem;}
+    .obj-card h3{font-size:.95rem;font-weight:600;color:var(--text-primary);margin-bottom:.4rem;}
+    .obj-card p{font-size:.75rem;color:var(--text-secondary);line-height:1.5;}
+    .obj-tag{display:inline-block;font-size:.6rem;background:rgba(29,158,117,.1);color:#1D9E75;border-radius:999px;padding:.15rem .6rem;margin-top:.6rem;}
+    .etapes{display:flex;flex-direction:column;max-width:720px;margin:0 auto;}
+    .etape{display:grid;grid-template-columns:52px 1fr;gap:1.25rem;padding:1.25rem 0;border-bottom:1px solid var(--border-color);}
+    .etape:last-child{border-bottom:none;}
+    .etape-n{width:46px;height:46px;background:#1D9E75;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;}
+    .etape h3{font-size:.95rem;font-weight:600;color:var(--text-primary);margin-bottom:.3rem;}
+    .etape p{font-size:.8rem;color:var(--text-secondary);line-height:1.6;}
+    .etape-badge{display:inline-block;font-size:.65rem;background:rgba(29,158,117,.1);color:#1D9E75;border-radius:999px;padding:.15rem .6rem;margin-top:.4rem;}
+    .tarifs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto;}
+    @media(max-width:768px){.tarifs-grid{grid-template-columns:1fr;max-width:380px;}}
+    .t-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.5rem;transition:transform .2s;}
+    .t-card:hover{transform:translateY(-4px);}
+    .t-card.t-feat{background:linear-gradient(135deg,#0d2018,#1a3a2a);border:2px solid #1D9E75;}
+    [data-theme="dark"] .t-card.t-feat{background:linear-gradient(135deg,#0a0f0d,#141c19);}
+    .t-tier{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.5rem;}
+    .t-feat .t-tier{color:#5DCAA5;}
+    .t-prix{font-size:2rem;font-weight:800;color:#1D9E75;margin-bottom:.25rem;}
+    .t-feat .t-prix{color:#5DCAA5;}
+    .t-desc{font-size:.75rem;color:var(--text-secondary);margin-bottom:1rem;}
+    .t-feat .t-desc{color:rgba(255,255,255,.6);}
+    .t-list{list-style:none;margin:.75rem 0 1.25rem;display:flex;flex-direction:column;gap:.4rem;}
+    .t-list li{font-size:.75rem;color:var(--text-primary);display:flex;align-items:flex-start;gap:.4rem;line-height:1.4;}
+    .t-feat .t-list li{color:rgba(255,255,255,.9);}
+    .t-list li::before{content:"✓";color:#1D9E75;font-weight:600;flex-shrink:0;}
+    .t-btn{display:block;text-align:center;padding:.7rem;border-radius:999px;font-size:.8rem;font-weight:600;text-decoration:none;font-family:'Outfit',sans-serif;}
+    .t-btn-o{background:transparent;border:1.5px solid #1D9E75;color:#1D9E75;}
+    .t-btn-o:hover{background:rgba(29,158,117,.08);}
+    .t-btn-p{background:#1D9E75;color:#fff;}
+    .t-btn-p:hover{background:#0f6e56;}
+    .t-note{text-align:center;margin-top:1.5rem;padding:.75rem;background:var(--green-light);border-radius:12px;max-width:600px;margin-left:auto;margin-right:auto;}
+    .t-note p{font-size:.75rem;color:var(--green2);}
+    [data-theme="dark"] .t-note p{color:#5DCAA5;}
+    .gar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    @media(max-width:768px){.gar-grid{grid-template-columns:1fr 1fr;}}
+    .gar-card{background:rgba(255,255,255,.05);border:1px solid rgba(29,158,117,.15);border-radius:16px;padding:1.25rem;text-align:center;}
+    .gar-icon{font-size:1.75rem;margin-bottom:.6rem;}
+    .gar-card h3{font-size:.85rem;font-weight:600;color:#fff;margin-bottom:.35rem;}
+    .gar-card p{font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.5;}
+    .faq-l{max-width:700px;margin:0 auto;}
+    .faq-i{border-bottom:1px solid var(--border-color);}
+    .faq-q{padding:.9rem 0;font-weight:500;font-size:.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--text-primary);}
+    .faq-q:hover{color:#1D9E75;}
+    .faq-q .ar{font-size:.7rem;transition:transform .2s;color:var(--text-muted);}
+    .faq-q.open .ar{transform:rotate(180deg);}
+    .faq-a{display:none;padding:0 0 .9rem 1rem;font-size:.82rem;color:var(--text-secondary);line-height:1.7;}
+    .faq-a.open{display:block;}
+    .cta-bas{background:linear-gradient(135deg,#0d2018,#0f4a33);border-radius:24px;padding:3rem 2rem;text-align:center;border:1px solid rgba(29,158,117,.3);position:relative;overflow:hidden;}
+    .cta-bas::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(29,158,117,.15),transparent 70%);pointer-events:none;}
+    .cta-bas h2{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,2rem);color:#fff;margin-bottom:.75rem;}
+    .cta-bas p{font-size:.88rem;color:rgba(255,255,255,.6);max-width:460px;margin:0 auto 1.75rem;line-height:1.7;}
+    .cta-bas-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
+    .btn-hero{background:#1D9E75;color:#fff;padding:.75rem 1.75rem;border-radius:999px;text-decoration:none;font-size:.9rem;font-weight:600;transition:all .2s;}
+    .btn-hero:hover{background:#0f6e56;transform:translateX(3px);}
+    .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:3rem 2rem 1.5rem;margin-top:3rem;}
+    .nd-footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 2fr;gap:2rem;}
+    .nd-logo-footer{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;margin-bottom:.5rem;}
+    .nd-logo-footer em{font-style:italic;color:#5DCAA5;}
+    .nd-footer-brand p{font-size:.7rem;line-height:1.6;max-width:280px;}
+    .nd-footer-by{font-size:.65rem;color:rgba(255,255,255,.25);margin-top:.75rem;}
+    .nd-footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .nd-footer-col-title{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:.5rem;}
+    .nd-footer-col a{display:block;font-size:.7rem;color:rgba(255,255,255,.5);text-decoration:none;margin-bottom:.3rem;}
+    .nd-footer-col a:hover{color:#fff;}
+    .nd-footer-bottom{text-align:center;font-size:.65rem;padding-top:2rem;margin-top:2rem;border-top:1px solid rgba(255,255,255,.05);}
+    @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:40px;height:40px;background:#1D9E75;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn.visible{opacity:1;}
+    [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
+    [data-reveal].revealed{opacity:1;transform:translateY(0);}
+  </style>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-patient.html"/>
+  <meta property="og:title" content="NutriDoc — Votre plan alimentaire légal en 48h"/>
+  <meta property="og:description" content="Bilan nutritionnel gratuit. Plan alimentaire personnalisé validé par un diététicien certifié RPPS. Livré sous 48h."/>
+  <meta property="og:image" content="assets/images/og-image.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="NutriDoc — Votre plan alimentaire légal en 48h"/>
+  <meta name="twitter:description" content="Bilan nutritionnel gratuit. Plan alimentaire personnalisé validé par un diététicien certifié RPPS. Livré sous 48h."/>
+</head>
+<body>
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="hc">
+    <div class="hl">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="#objectifs" class="nd-navlink">Mes objectifs</a>
+        <a href="#etapes" class="nd-navlink">Comment ça marche</a>
+        <a href="#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="#faq" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    <div class="ha">
+      <button id="themeHeaderBtn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;">
+        <span id="themeIcon">🌙</span><span id="themeLabel">Sombre</span>
+      </button>
+      <div class="cw" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <div class="cm" id="ndConnMenu">
+          <a href="login.html?role=patient" class="ci">👤 Patient</a>
+          <a href="login.html?role=dietitian" class="ci">🥗 Diététicien</a>
+          <a href="login.html?role=prescriber" class="ci">🏢 Prescripteur</a>
+        </div>
+      </div>
+      <a href="bilan.html" class="nd-btn-primary">Démarrer mon bilan →</a>
+    </div>
+  </div>
+</header>
+
+  <div class="nd-carousel" id="ndCarousel">
+    <div class="nd-car-progress"><div class="nd-car-progress-bar" id="progressBar"></div></div>
+    <div class="nd-slides">
+
+      <div class="nd-slide active">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>⚖️ Saviez-vous que…</div>
+            <h1 class="nd-slide-title">Votre coach vous a fait un plan ?<br><em>Il n'en a légalement pas le droit.</em></h1>
+            <p class="nd-slide-sub">En France, seul un diététicien certifié RPPS peut valider un plan alimentaire. Avec NutriDoc, régularisez la situation — et obtenez un programme <strong style="color:#fff;">vraiment construit pour vous</strong> — en 48h, à partir de 0€.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">✓ 100% légal & certifié</span>
+              <span class="nd-chip">⏱ Livraison sous 48h</span>
+              <span class="nd-chip">💳 À partir de 0€</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="bilan.html" class="nd-slide-cta">Obtenir mon plan légal →</a>
+              <a href="#etapes" class="nd-slide-cta2">Comment ça marche ?</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">📋 Plan validé · RPPS vérifié</div>
+            <div class="sc-row"><span class="sc-row-l">🍳 Petit-déjeuner</span><span class="sc-row-r">Précis & adapté</span></div>
+            <div class="sc-row"><span class="sc-row-l">🥗 Déjeuner J actif</span><span class="sc-row-r">Grammages exacts</span></div>
+            <div class="sc-row"><span class="sc-row-l">🍎 Collation pré-sport</span><span class="sc-row-r">Périodisé</span></div>
+            <div class="sc-row"><span class="sc-row-l">🍽 Dîner récupération</span><span class="sc-row-r">4 semaines</span></div>
+            <div class="sc-footer">
+              <div class="sc-diet"><div class="sc-av">GM</div><div class="sc-di"><strong>Grégoire Martin</strong>Diét. RPPS · Angoulême</div></div>
+              <div class="sc-badge-g">✓ Signé RPPS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nd-slide">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>📊 Finis les plans génériques</div>
+            <h1 class="nd-slide-title">Chaque repas, chaque gramme.<br><em>Calculé uniquement pour vous.</em></h1>
+            <p class="nd-slide-sub">Votre diét. calcule vos macros sur la <strong style="color:#fff;">table CIQUAL nationale</strong>, périodise vos jours d'entraînement vs repos, et adapte chaque repas à vos contraintes alimentaires. Pas un régime sorti de Google.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">Table CIQUAL 2020</span>
+              <span class="nd-chip">🔄 J actif / J repos</span>
+              <span class="nd-chip">4 semaines complètes</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="bilan.html" class="nd-slide-cta">Commander mon plan — 24,90€ →</a>
+              <a href="#objectifs" class="nd-slide-cta2">Choisir mon objectif</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">📊 Macros journaliers — Prise de masse</div>
+            <div class="sc-2g">
+              <div class="sc-g-item"><div class="sc-g-v">3 100</div><div class="sc-g-l">kcal · J actif</div></div>
+              <div class="sc-g-item"><div class="sc-g-v">195g</div><div class="sc-g-l">Protéines</div></div>
+              <div class="sc-g-item"><div class="sc-g-v">380g</div><div class="sc-g-l">Glucides</div></div>
+              <div class="sc-g-item"><div class="sc-g-v">72g</div><div class="sc-g-l">Lipides</div></div>
+            </div>
+            <div class="sc-row"><span class="sc-row-l">🔄 Périodisation</span><span class="sc-row-r">J actif vs J repos</span></div>
+            <div class="sc-row"><span class="sc-row-l">🌱 Allergies</span><span class="sc-row-r">Prises en compte</span></div>
+            <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Source : CIQUAL 2020 · ANSES</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nd-slide">
+        <div class="nd-slide-inner">
+          <div>
+            <div class="nd-slide-badge"><span class="dot"></span>🎁 Zéro risque, zéro excuse</div>
+            <h1 class="nd-slide-title">Commencez à 0€.<br><em>Aucune carte bancaire requise.</em></h1>
+            <p class="nd-slide-sub">Le bilan et les recommandations sont <strong style="color:#fff;">gratuits pour toujours</strong>. Le plan complet avec signature RPPS est à 24,90€ — une seule fois, sans abonnement, sans engagement. Vous décidez si et quand vous commandez.</p>
+            <div class="nd-slide-chips">
+              <span class="nd-chip nd-chip-g">🎁 0€ pour démarrer</span>
+              <span class="nd-chip">⏱ Bilan en 5 minutes</span>
+              <span class="nd-chip">Sans abonnement</span>
+            </div>
+            <div class="nd-slide-ctas">
+              <a href="bilan.html" class="nd-slide-cta">Faire mon bilan gratuit →</a>
+              <a href="#tarifs" class="nd-slide-cta2">Voir tous les tarifs</a>
+            </div>
+          </div>
+          <div class="nd-slide-card">
+            <div class="sc-label">💳 Ce que vous payez réellement</div>
+            <div class="sc-big">
+              <div class="sc-big-n">0 €</div>
+              <div class="sc-big-l">Pour commencer · Sans carte bancaire</div>
+              <div class="sc-big-s">Bilan + recommandations + menus · Gratuit pour toujours</div>
+            </div>
+            <hr class="sc-divider"/>
+            <div class="sc-row"><span class="sc-row-l">Plan complet 4 semaines</span><span class="sc-row-r">24,90€ · une seule fois</span></div>
+            <div class="sc-row"><span class="sc-row-l">Abonnement mensuel</span><span class="sc-row-r" style="color:rgba(255,255,255,.4);">Aucun</span></div>
+            <div class="sc-row"><span class="sc-row-l">Visio de suivi (optionnel)</span><span class="sc-row-r">55€ TTC</span></div>
+            <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Sans engagement · Aucune surprise</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <button class="nd-arrow prev" onclick="slideNav(-1)">◀</button>
+    <button class="nd-arrow next" onclick="slideNav(1)">▶</button>
+    <div class="nd-car-nav" id="carouselNav"></div>
+  </div>
+<!-- OBJECTIFS -->
+<section class="nd-section nd-section-light" id="objectifs">
+  <div class="nd-section-inner">
+    <div class="nd-section-header">
+      <span class="nd-tag">Votre objectif</span>
+      <h2 class="nd-title">Quel est votre objectif ?</h2>
+      <p class="nd-sub">Chaque plan est construit sur mesure selon votre profil, votre objectif et votre mode de vie.</p>
+    </div>
+    <div class="obj-grid">
+      <a href="bilan.html?objectif=perte_poids" class="obj-card" data-reveal><div class="obj-icon">⚖️</div><h3>Perte de poids</h3><p>Déficit intelligent, rassasiant, adapté à vos goûts et à votre rythme de vie.</p><span class="obj-tag">Le plus demandé</span></a>
+      <a href="bilan.html?objectif=prise_masse" class="obj-card" data-reveal><div class="obj-icon">💪</div><h3>Prise de masse</h3><p>Surplus propre, protéines optimisées, périodisation J entraînement / J repos.</p><span class="obj-tag">Sport & musculation</span></a>
+      <a href="bilan.html?objectif=reequilibrage" class="obj-card" data-reveal><div class="obj-icon">🥦</div><h3>Rééquilibrage alimentaire</h3><p>Améliorer ses habitudes durablement, sans frustration ni régime drastique.</p><span class="obj-tag">Santé long terme</span></a>
+      <a href="bilan.html?objectif=performance" class="obj-card" data-reveal><div class="obj-icon">🏃</div><h3>Performance sportive</h3><p>Nutrition périodisée pour runners, triathlètes, cyclistes.</p><span class="obj-tag">Sport d'endurance</span></a>
+      <a href="bilan.html?objectif=seche" class="obj-card" data-reveal><div class="obj-icon">🔥</div><h3>Sèche / Définition</h3><p>Conserver le muscle en réduisant la masse grasse. Plan précis à la semaine.</p><span class="obj-tag">Bodybuilding</span></a>
+      <a href="bilan.html" class="obj-card" data-reveal><div class="obj-icon">🩺</div><h3>Pathologie / Médical</h3><p>Diabète, cholestérol, HTA — redirection vers un diét. spécialisé adapté.</p><span class="obj-tag">Sur prescription</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ÉTAPES -->
+<section class="nd-section nd-section-dark" id="etapes">
+  <div class="nd-section-inner">
+    <div class="nd-section-header">
+      <span class="nd-tag nd-tag-l">Votre parcours</span>
+      <h2 class="nd-title nd-title-l">De 0€ à votre plan en 48h</h2>
+      <p class="nd-sub nd-sub-l">Aucun rendez-vous, aucune attente en cabinet. Tout se passe en ligne.</p>
+    </div>
+    <div class="etapes">
+      <div class="etape" data-reveal><div class="etape-n">1</div><div><h3>Remplissez le bilan nutritionnel gratuit</h3><p>5 minutes : habitudes, sport, préférences, objectifs, allergies.</p><span class="etape-badge">Gratuit · Aucune CB</span></div></div>
+      <div class="etape" data-reveal><div class="etape-n">2</div><div><h3>Accédez immédiatement à vos recommandations</h3><p>Dès la soumission, vous recevez conseils personnalisés et menus hebdomadaires. Tout de suite.</p><span class="etape-badge">Immédiat · Toujours gratuit</span></div></div>
+      <div class="etape" data-reveal><div class="etape-n">3</div><div><h3>Commandez votre plan complet (si vous le souhaitez)</h3><p>Plan 4 semaines avec grammages précis, macros détaillés et signature RPPS. 24,90€ une seule fois.</p><span class="etape-badge">24,90€ · Paiement sécurisé</span></div></div>
+      <div class="etape" data-reveal><div class="etape-n">4</div><div><h3>Un diét. certifié RPPS valide et signe</h3><p>Un diét. de votre région analyse votre dossier, personnalise le plan, et le signe électroniquement.</p></div></div>
+      <div class="etape" data-reveal><div class="etape-n">5</div><div><h3>Téléchargez et échangez avec votre diét.</h3><p>Votre plan PDF est disponible sous 48h ouvrées. Messagerie incluse 30 jours.</p><span class="etape-badge">⏱ Sous 48h max</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFS -->
+<section class="nd-section nd-section-light" id="tarifs">
+  <div class="nd-section-inner">
+    <div class="nd-section-header">
+      <span class="nd-tag">Tarifs</span>
+      <h2 class="nd-title">Transparent. Sans surprise.</h2>
+      <p class="nd-sub">Commencez gratuitement. Le plan complet est à tarif unique, sans abonnement.</p>
+    </div>
+    <div class="tarifs-grid">
+      <div class="t-card" data-reveal>
+        <div class="t-tier">DÉCOUVERTE</div><div class="t-prix">0 €</div>
+        <div class="t-desc">Pour toujours · Sans carte bancaire</div>
+        <ul class="t-list"><li>Bilan nutritionnel complet</li><li>Recommandations personnalisées</li><li>Menus hebdomadaires adaptés</li><li>Accès aux outils libres</li></ul>
+        <a href="bilan.html" class="t-btn t-btn-o">Commencer gratuitement</a>
+      </div>
+      <div class="t-card t-feat" data-reveal>
+        <div class="t-tier">⭐ PLAN COMPLET</div><div class="t-prix">24,90 €</div>
+        <div class="t-desc">Paiement unique · Livraison sous 48h</div>
+        <ul class="t-list"><li>Plan 4 semaines avec grammages précis</li><li>Signé par un diét. certifié RPPS</li><li>Macros par repas (P / G / L)</li><li>Périodisation J actif / J repos</li><li><strong>Messagerie avec votre diét. 30j</strong></li></ul>
+        <a href="bilan.html" class="t-btn t-btn-p">Commander mon plan</a>
+      </div>
+      <div class="t-card" data-reveal>
+        <div class="t-tier">VISIO DE SUIVI</div><div class="t-prix">55 €</div>
+        <div class="t-desc">TTC · Consultation 45 min</div>
+        <ul class="t-list"><li>Échange direct avec votre diét.</li><li>Ajustement du plan si besoin</li><li>Attestation mutuelle automatique</li><li>Remboursement partiel possible</li></ul>
+        <a href="bilan.html" class="t-btn t-btn-o">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="t-note"><p>💚 Les 55€ de la visio sont intégralement reversés au diét. · Remboursement partiel selon votre mutuelle</p></div>
+  </div>
+</section>
+
+<!-- GARANTIES -->
+<section class="nd-section nd-section-dark">
+  <div class="nd-section-inner">
+    <div class="nd-section-header">
+      <span class="nd-tag nd-tag-l">Nos garanties</span>
+      <h2 class="nd-title nd-title-l">Vous êtes entre de bonnes mains.</h2>
+    </div>
+    <div class="gar-grid">
+      <div class="gar-card" data-reveal><div class="gar-icon">🏥</div><h3>RPPS vérifié</h3><p>Chaque diét. est vérifié via l'Annuaire Santé national. RPPS visible sur votre plan.</p></div>
+      <div class="gar-card" data-reveal><div class="gar-icon">📍</div><h3>Diét. de votre région</h3><p>Notre algorithme localise un diét. dans votre zone géographique en priorité.</p></div>
+      <div class="gar-card" data-reveal><div class="gar-icon">🔒</div><h3>Données sécurisées</h3><p>Chiffrées, conformes au RGPD. Hébergement données de santé certifié HDS.</p></div>
+      <div class="gar-card" data-reveal><div class="gar-icon">↩️</div><h3>Satisfait ou revu</h3><p>Plan pas adapté ? Nous le faisons réviser par un autre diét. sans frais supplémentaires.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="nd-section nd-section-light" id="faq">
+  <div class="nd-section-inner">
+    <div class="nd-section-header">
+      <span class="nd-tag">Questions fréquentes</span>
+      <h2 class="nd-title">Vous avez des questions ?</h2>
+    </div>
+    <div class="faq-l">
+      <div class="faq-i"><div class="faq-q" onclick="tFaq(this)">Le plan est-il vraiment signé par un vrai diét. ? <span class="ar">▼</span></div><div class="faq-a">Oui, sans exception. Chaque plan est signé électroniquement par un diét.-nutritionniste dont le RPPS est vérifié via l'Annuaire Santé officiel. Son nom et RPPS figurent sur votre PDF.</div></div>
+      <div class="faq-i"><div class="faq-q" onclick="tFaq(this)">Combien de temps pour recevoir mon plan ? <span class="ar">▼</span></div><div class="faq-a">Nous nous engageons à livrer sous 48h ouvrées. En pratique, la majorité des plans sont livrés en moins de 24h ouvrées.</div></div>
+      <div class="faq-i"><div class="faq-q" onclick="tFaq(this)">Puis-je avoir un plan si j'ai des allergies ? <span class="ar">▼</span></div><div class="faq-a">Absolument. Le bilan recueille toutes vos contraintes : allergies, intolérances, végétarien/végétalien… Le diét. en tient compte dans chaque repas.</div></div>
+      <div class="faq-i"><div class="faq-q" onclick="tFaq(this)">Que se passe-t-il si j'ai une pathologie ? <span class="ar">▼</span></div><div class="faq-a">Si votre bilan indique une pathologie (diabète, IRC, TCA, grossesse…), notre système vous redirige vers un diét. spécialisé dans ce domaine.</div></div>
+      <div class="faq-i"><div class="faq-q" onclick="tFaq(this)">Puis-je contacter mon diét. après réception ? <span class="ar">▼</span></div><div class="faq-a">Oui. La messagerie est incluse 30 jours. Vous pouvez poser vos questions, demander un ajustement ou prendre un RDV visio.</div></div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;"><a href="faq.html" style="font-size:.82rem;color:#1D9E75;text-decoration:none;border-bottom:1px solid rgba(29,158,117,.3);">Voir toutes les questions →</a></div>
+  </div>
+</section>
+
+<!-- CTA BAS -->
+<section class="nd-section nd-section-light">
+  <div class="nd-section-inner">
+    <div class="cta-bas" data-reveal>
+      <h2>Prêt à obtenir votre plan alimentaire légal ?</h2>
+      <p>Commencez par le bilan gratuit. 5 minutes. Aucune carte bancaire. Recommandations immédiates.</p>
+      <div class="cta-bas-btns">
+        <a href="bilan.html" class="btn-hero">Faire mon bilan gratuit →</a>
+        <a href="index.html" style="color:rgba(255,255,255,.45);text-decoration:none;font-size:.82rem;align-self:center;">← Retour à l'accueil</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand"><div class="nd-logo-footer">Nutri<em>Doc</em></div><p>Plateforme sécurisée de bilan nutritionnel avec validation par des diét. certifiés RPPS.</p><div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div></div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Patients</div><a href="bilan.html">Faire mon bilan</a><a href="dashboard.html">Mon espace</a><a href="cgu-patient.html">CGU Patient</a></div>
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Professionnels</div><a href="accueil-dieteticien.html">Espace Diét.</a><a href="accueil-prescripteur.html">Espace Prescripteur</a><a href="partenariats.html">Partenaires B2B</a></div>
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Légal</div><a href="politique-confidentialite.html">Politique RGPD</a><a href="faq.html">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a></div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script src="js/auth.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/error-handler.js"></script>
+<script src="js/cookies.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/main.js"></script>
+<script>
+(function(){const b=document.getElementById('themeHeaderBtn'),i=document.getElementById('themeIcon'),l=document.getElementById('themeLabel'),s=localStorage.getItem('nutridoc_theme');if(s==='dark'){document.documentElement.setAttribute('data-theme','dark');if(i)i.textContent='☀️';if(l)l.textContent='Clair';}else{document.documentElement.setAttribute('data-theme','light');if(i)i.textContent='🌙';if(l)l.textContent='Sombre';localStorage.setItem('nutridoc_theme','light');}window.toggleDarkMode=function(){const isDark=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',isDark?'light':'dark');localStorage.setItem('nutridoc_theme',isDark?'light':'dark');if(i)i.textContent=isDark?'🌙':'☀️';if(l)l.textContent=isDark?'Sombre':'Clair';};if(b)b.onclick=window.toggleDarkMode;})();
+window.toggleConn=()=>document.getElementById('ndConnMenu')?.classList.toggle('open');
+document.addEventListener('click',(e)=>{const w=document.getElementById('ndConnWrap'),m=document.getElementById('ndConnMenu');if(w&&m&&!w.contains(e.target))m.classList.remove('open');});
+
+// ==================== CAROUSEL ====================
+(function(){
+  let cur=0,tot=0,pTimer,progress=0;
+  const DURATION=6000;
+  function init(){
+    tot=document.querySelectorAll('.nd-slide').length;
+    const nav=document.getElementById('carouselNav');
+    if(!nav)return;
+    nav.innerHTML='';
+    for(let i=0;i<tot;i++){
+      const d=document.createElement('button');
+      d.className='nd-dot';
+      d.onclick=(()=>{const idx=i;return()=>goTo(idx);})();
+      nav.appendChild(d);
+    }
+    updateDots();startProgress();
+  }
+  function updateDots(){document.querySelectorAll('.nd-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));}
+  function showSlide(n){document.querySelectorAll('.nd-slide').forEach((s,i)=>s.classList.toggle('active',i===n));updateDots();}
+  function goTo(n){cur=(n+tot)%tot;showSlide(cur);resetProgress();}
+  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
+  function resetProgress(){clearInterval(pTimer);startProgress();}
+  window.slideNav=function(d){goTo(cur+d);};
+  document.addEventListener('DOMContentLoaded',init);
+})();
+function tFaq(el){const a=el.nextElementSibling,op=a.classList.contains('open');document.querySelectorAll('.faq-a.open').forEach(x=>{x.classList.remove('open');x.previousElementSibling.classList.remove('open');});if(!op){a.classList.add('open');el.classList.add('open');}}
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('revealed');});},{threshold:.1});
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+window.addEventListener('scroll',()=>{document.getElementById('ndHeader')?.classList.toggle('scrolled',window.scrollY>50);document.getElementById('scrollTopBtn')?.classList.toggle('visible',window.scrollY>300);});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+</script>
+</body>
+</html>

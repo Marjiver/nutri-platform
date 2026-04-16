@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Espace Partenaire — Bientôt disponible · NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0d2018;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo em { font-style: italic; color: #5DCAA5; }
+    .logo-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-left: 0.5rem;
+    }
+    .back-btn {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* ── CONTENU PRINCIPAL ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .card {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .icon-wrap {
+      width: 80px;
+      height: 80px;
+      background: rgba(29,158,117,0.12);
+      border: 1px solid rgba(29,158,117,0.25);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.75rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #5DCAA5;
+      background: rgba(29,158,117,0.12);
+      border: 1px solid rgba(29,158,117,0.25);
+      border-radius: 999px;
+      padding: 0.25rem 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    h1 em { font-style: italic; color: #5DCAA5; }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── LISTE FEATURES À VENIR ── */
+    .features {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+    .features-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 1rem;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(29,158,117,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* ── CTA ── */
+    .cta-group {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-main {
+      background: #1D9E75;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-main:hover { background: #17875f; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.2);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.75rem; }
+      .cta-group { flex-direction: column; align-items: stretch; }
+      .btn-main, .btn-ghost { text-align: center; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<header>
+  <a href="partenariats.html" class="logo">
+    Nutri<em>Doc</em><span class="logo-badge">Partenaires</span>
+  </a>
+  <a href="partenariats.html" class="back-btn">← Retour</a>
+</header>
+
+<main>
+  <div class="card">
+
+    <div class="icon-wrap">🏢</div>
+
+    <span class="badge">Bientôt disponible</span>
+
+    <h1>L'espace partenaire<br>est en <em>construction</em></h1>
+
+    <p class="subtitle">
+      Le CRM multi-praticien pour maisons de santé, salles de sport et structures de santé
+      est en cours de développement. Laissez-nous vos coordonnées pour être notifié en priorité.
+    </p>
+
+    <div class="features">
+      <div class="features-title">Ce qui arrive prochainement</div>
+      <div class="feature-item">
+        <div class="feature-icon">👥</div>
+        <span>Gestion multi-praticiens au sein d'une même structure</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📦</div>
+        <span>Commandes groupées de plans alimentaires</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <span>Tableau de bord & statistiques structure</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💳</div>
+        <span>Facturation centralisée et export comptable</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <span>API dédiée pour intégration à vos outils métier</span>
+      </div>
+    </div>
+
+    <div class="cta-group">
+      <a href="partenariats.html#contact" class="btn-main">Être notifié en priorité →</a>
+      <a href="partenariats.html" class="btn-ghost">Découvrir l'offre partenaire</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  NutriDoc by CaliDoc Santé · <a href="mentions-legales.html" style="color:inherit;">Mentions légales</a>
+</footer>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

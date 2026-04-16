@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Gérez vos crédits de plans alimentaires sur NutriDoc. Consultez votre solde, votre historique et rechargez des crédits en toute sécurité."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestion crédits — Prescripteur NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc Credits">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== BIBLIOTHÈQUES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- ==================== PERFORMANCE ==================== -->
+  <script defer src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== -->
+  <script defer src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script defer src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script defer src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== AUTO-SAVE JS ==================== -->
+  <script defer src="js/utils/auto-save.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== */
+  <script defer src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/constants.js"></script>
+  <script defer src="js/core/validation.js"></script>
+  
+  <!-- ==================== STRIPE ==================== -->
+  <script src="js/payments/stripe.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .credits-header {
+      background: #0d2018;
+      padding: 0.75rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .credits-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .credits-logo em { font-style: italic; color: #5DCAA5; }
+    .credits-nav { display: flex; gap: 1.5rem; }
+    .credits-nav a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .credits-nav a:hover, .credits-nav a.active { color: #fff; }
+    .credits-user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .user-badge {
+      background: rgba(29,158,117,0.15);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.75rem;
+      color: #5DCAA5;
+    }
+
+    /* THEME SELECTOR */
+
+    /* MAIN CONTENT */
+    .credits-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 3rem;
+    }
+
+    /* SOLDE CARD */
+    .solde-card {
+      background: linear-gradient(135deg, #0d2018, #142c1f);
+      border-radius: 32px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      color: #fff;
+      text-align: center;
+    }
+    .solde-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .solde-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: #5DCAA5;
+      line-height: 1;
+    }
+    .solde-unite {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+      margin-left: 0.5rem;
+    }
+    .solde-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.5rem;
+    }
+    .solde-bar {
+      max-width: 300px;
+      margin: 1rem auto 0;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .solde-fill {
+      height: 100%;
+      background: #5DCAA5;
+      border-radius: 999px;
+      transition: width 0.5s;
+    }
+
+    /* KPIs */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 700px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .kpi-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .kpi-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 0.5rem;
+    }
+    .kpi-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1D9E75;
+      line-height: 1;
+    }
+    .kpi-sub {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.25rem;
+    }
+
+    /* PACKS GRID */
+    .packs-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin: 1.5rem 0 1rem;
+    }
+    .packs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 900px) {
+      .packs-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 500px) {
+      .packs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .pack-card {
+      background:var(--bg-card,#fff);
+      border: 2px solid #eef4ee;
+      border-radius: 24px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .pack-card:hover {
+      transform: translateY(-4px);
+      border-color: #1D9E75;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+    }
+    .pack-card.selected {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,0.05);
+    }
+    .pack-card.recommended {
+      border-color: #f59e0b;
+    }
+    .pack-card.recommended::before {
+      content: "⭐ RECOMMANDÉ";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .pack-credits {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 0.5rem;
+    }
+    .pack-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1D9E75;
+    }
+    .pack-price span {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .pack-per-plan {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.25rem;
+    }
+    .pack-economy {
+      font-size: 0.7rem;
+      color: #22c55e;
+      margin-top: 0.5rem;
+    }
+    .pack-btn {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+      transition: background 0.2s;
+    }
+    .pack-btn:hover {
+      background: #0f6e56;
+    }
+    .pack-btn:disabled {
+      background:var(--bg-tertiary,#eef4ee);
+      color:var(--text-secondary,#6b7b74);
+      cursor: not-allowed;
+    }
+
+    /* RÉCAPITULATIF COMMANDE */
+    .recap-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .recap-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .recap-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      font-size: 0.85rem;
+    }
+    .recap-row.total {
+      font-weight: 700;
+      font-size: 1rem;
+      border-top: 1px solid #eef4ee;
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+      color: #1D9E75;
+    }
+    .recap-note {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    /* HISTORIQUE */
+    .historique-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.5rem;
+    }
+    .historique-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .historique-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .historique-table th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+      color:var(--text-secondary,#6b7b74);
+      font-weight: 500;
+    }
+    .historique-table td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .badge-credit {
+      background: #e1f5ee;
+      color: #1D9E75;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+    }
+    .badge-debit {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+    }
+
+    /* MODAL PAIEMENT */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background:var(--bg-card,#fff);
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 450px;
+      width: 90%;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-desc {
+      font-size: 0.85rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 1.5rem;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    .toast.error {
+      background: #ef4444;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+
+<!-- HEADER -->
+<header class="credits-header">
+  <div class="header-container">
+    <a href="prescripteur-dashboard.html" class="credits-logo">Nutri<em>Doc</em></a>
+    <nav class="credits-nav">
+      <a href="prescripteur-dashboard.html">Dashboard</a>
+      <a href="prescripteur-crm.html">CRM Clients</a>
+      <a href="gestion-credits-prescripteur.html" class="active">Crédits</a>
+      <a href="compta-prescripteur.html">Comptabilité</a>
+    </nav>
+    <div class="credits-user">
+      <span class="user-badge" id="userName">Antoine D.</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Gestion des crédits</h1>
+<main class="credits-container">
+
+  <!-- SOLDE CARD -->
+  <div class="solde-card">
+    <div class="solde-label">💰 SOLDE DE CRÉDITS</div>
+    <div class="solde-value" id="soldeCredits">—</div>
+    <div class="solde-unite">crédits</div>
+    <div class="solde-sub">1 crédit = 1 plan alimentaire validé par un diététicien RPPS</div>
+    <div class="solde-bar">
+      <div class="solde-fill" id="soldeFill" style="width: 0%;"></div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Crédits utilisés</div>
+      <div class="kpi-value" id="creditsUtilises">—</div>
+      <div class="kpi-sub">ce mois</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Plans commandés</div>
+      <div class="kpi-value" id="plansCommandes">—</div>
+      <div class="kpi-sub">total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total dépensé</div>
+      <div class="kpi-value" id="totalDepense">— €</div>
+      <div class="kpi-sub">HT</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Économie réalisée</div>
+      <div class="kpi-value" id="economieRealisee">— €</div>
+      <div class="kpi-sub">vs tarif solo</div>
+    </div>
+  </div>
+
+  <!-- PACKS -->
+  <h2 class="packs-title">📦 Recharger mes crédits</h2>
+  <div class="packs-grid">
+    <div class="pack-card" data-pack="solo" data-credits="1" data-price="24.90" data-economy="0">
+      <div class="pack-credits">1 crédit</div>
+      <div class="pack-price">24,90<span>€</span></div>
+      <div class="pack-per-plan">24,90 € / plan</div>
+      <button class="pack-btn" onclick="selectPack('solo')">Choisir</button>
+    </div>
+    <div class="pack-card recommended" data-pack="standard" data-credits="10" data-price="130" data-economy="119">
+      <div class="pack-credits">10 crédits</div>
+      <div class="pack-price">130<span>€</span></div>
+      <div class="pack-per-plan">13,00 € / plan</div>
+      <div class="pack-economy">💰 Économisez 119€</div>
+      <button class="pack-btn" onclick="selectPack('standard')">Choisir</button>
+    </div>
+    <div class="pack-card" data-pack="expert" data-credits="50" data-price="500" data-economy="745">
+      <div class="pack-credits">50 crédits</div>
+      <div class="pack-price">500<span>€</span></div>
+      <div class="pack-per-plan">10,00 € / plan</div>
+      <div class="pack-economy">💰 Économisez 745€</div>
+      <button class="pack-btn" onclick="selectPack('expert')">Choisir</button>
+    </div>
+    <div class="pack-card" data-pack="volume" data-credits="100" data-price="900" data-economy="1590">
+      <div class="pack-credits">100 crédits</div>
+      <div class="pack-price">900<span>€</span></div>
+      <div class="pack-per-plan">9,00 € / plan</div>
+      <div class="pack-economy">💰 Économisez 1590€</div>
+      <button class="pack-btn" onclick="selectPack('volume')">Choisir</button>
+    </div>
+  </div>
+
+  <!-- RÉCAPITULATIF COMMANDE -->
+  <div class="recap-card" id="recapCard" style="display: none;">
+    <div class="recap-title">📋 Récapitulatif de votre commande</div>
+    <div class="recap-row">
+      <span>Pack choisi</span>
+      <span id="recapPack">—</span>
+    </div>
+    <div class="recap-row">
+      <span>Crédits</span>
+      <span id="recapCredits">—</span>
+    </div>
+    <div class="recap-row">
+      <span>Prix unitaire par plan</span>
+      <span id="recapPrixUnitaire">—</span>
+    </div>
+    <div class="recap-row total">
+      <span>Total TTC</span>
+      <span id="recapTotal">—</span>
+    </div>
+    <div class="recap-row">
+      <span>TVA (non applicable)</span>
+      <span>Art. 293 B CGI</span>
+    </div>
+    <div class="recap-note">
+      💳 Paiement sécurisé par Stripe Connect — Les crédits sont valables 12 mois
+    </div>
+    <button class="pack-btn" id="btnPayer" style="margin-top: 1rem; background: #0ea5e9;" onclick="initierPaiement()">💳 Procéder au paiement</button>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="historique-card">
+    <div class="historique-title">
+      <span>📜 Historique des transactions</span>
+      <button class="pack-btn" style="width: auto; padding: 0.3rem 1rem; font-size: 0.7rem; background: #f7f9f7; color:var(--text-primary,#0d2018);" onclick="exportHistoriqueCSV()">📎 Exporter CSV</button>
+    </div>
+    <table class="historique-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Crédits</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Facture</th>
+        </tr>
+      </thead>
+      <tbody id="historiqueBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- MODAL PAIEMENT -->
+<div class="modal-overlay" id="modalPaiement">
+  <div class="modal">
+    <div class="modal-title">💳 Paiement sécurisé</div>
+    <div class="modal-desc" id="modalDesc">Redirection vers Stripe Connect en cours...</div>
+    <div class="modal-btns">
+      <button class="pack-btn" style="background: #eef4ee; color:var(--text-primary,#0d2018);" onclick="fermerModalPaiement()">Annuler</button>
+      <button class="pack-btn" id="modalConfirmBtn" onclick="confirmerPaiement()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ==================== SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<script>
+// ==================== DONNÉES SIMULÉES ====================
+let creditsData = {
+  solde: 25,
+  credits_utilises_mois: 12,
+  plans_commandes_total: 47,
+  total_depense: 610,
+  packs: {
+    solo: { credits: 1, prix: 24.90, perPlan: 24.90 },
+    standard: { credits: 10, prix: 130, perPlan: 13.00 },
+    expert: { credits: 50, prix: 500, perPlan: 10.00 },
+    volume: { credits: 100, prix: 900, perPlan: 9.00 }
+  }
+};
+
+let historique = [
+  { date: '2026-04-01', type: 'achat', description: 'Pack Standard - 10 crédits', credits: 10, montant: 130, statut: 'payé', facture: 'FAC-2026-001' },
+  { date: '2026-03-15', type: 'achat', description: 'Pack Solo - 1 crédit', credits: 1, montant: 24.90, statut: 'payé', facture: 'FAC-2026-002' },
+  { date: '2026-03-10', type: 'consommation', description: 'Plan pour Marie D.', credits: -1, montant: 0, statut: 'consommé', facture: null },
+  { date: '2026-03-05', type: 'consommation', description: 'Plan pour Thomas K.', credits: -1, montant: 0, statut: 'consommé', facture: null },
+  { date: '2026-02-20', type: 'achat', description: 'Pack Standard - 10 crédits', credits: 10, montant: 130, statut: 'payé', facture: 'FAC-2026-003' },
+  { date: '2026-02-15', type: 'consommation', description: 'Plan pour Sophie M.', credits: -1, montant: 0, statut: 'consommé', facture: null },
+  { date: '2026-02-10', type: 'consommation', description: 'Plan pour Lucas B.', credits: -1, montant: 0, statut: 'consommé', facture: null },
+  { date: '2026-01-20', type: 'achat', description: 'Pack Expert - 50 crédits', credits: 50, montant: 500, statut: 'payé', facture: 'FAC-2026-004' }
+];
+
+let packSelectionne = null;
+let prixSelectionne = 0;
+let creditsSelectionnes = 0;
+
+// Charger les données
+function chargerDonnees() {
+  document.getElementById('soldeCredits').textContent = creditsData.solde;
+  document.getElementById('creditsUtilises').textContent = creditsData.credits_utilises_mois;
+  document.getElementById('plansCommandes').textContent = creditsData.plans_commandes_total;
+  document.getElementById('totalDepense').textContent = creditsData.total_depense.toFixed(2);
+  
+  // Calcul de l'économie réalisée
+  const soloPrice = 24.90;
+  const economie = (creditsData.plans_commandes_total * soloPrice) - creditsData.total_depense;
+  document.getElementById('economieRealisee').textContent = economie.toFixed(2);
+  
+  // Barre de progression (basée sur le pack standard)
+  const maxCredits = 100;
+  const pourcentage = (creditsData.solde / maxCredits) * 100;
+  document.getElementById('soldeFill').style.width = Math.min(100, pourcentage) + '%';
+  
+  renderHistorique();
+}
+
+function renderHistorique() {
+  const tbody = document.getElementById('historiqueBody');
+  tbody.innerHTML = historique.map(h => `
+    <tr>
+      <td style="font-size:0.75rem;">${new Date(h.date).toLocaleDateString('fr-FR')}</td>
+      <td><span class="${h.type === 'achat' ? 'badge-credit' : 'badge-debit'}">${h.type === 'achat' ? '➕ Achat' : '➖ Consommation'}</span></td>
+      <td>${h.description}</td>
+      <td style="font-weight:600;color:${h.credits > 0 ? '#1D9E75' : '#dc2626'};">${h.credits > 0 ? '+' : ''}${h.credits}</td>
+      <td>${h.montant > 0 ? h.montant.toFixed(2) + ' €' : '—'}</td>
+      <td><span class="badge-credit">${h.statut}</span></td>
+      <td>${h.facture ? `<button class="pack-btn" style="padding:0.2rem 0.6rem; font-size:0.65rem;" onclick="telechargerFacture('${h.facture}')">PDF</button>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function selectPack(packKey) {
+  const pack = creditsData.packs[packKey];
+  if (!pack) return;
+  
+  packSelectionne = packKey;
+  prixSelectionne = pack.prix;
+  creditsSelectionnes = pack.credits;
+  
+  // Mettre à jour l'affichage des packs
+  document.querySelectorAll('.pack-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.querySelector(`.pack-card[data-pack="${packKey}"]`).classList.add('selected');
+  
+  // Afficher le récapitulatif
+  const packNames = { solo: 'Solo', standard: 'Standard', expert: 'Expert', volume: 'Volume' };
+  document.getElementById('recapPack').textContent = packNames[packKey];
+  document.getElementById('recapCredits').textContent = pack.credits + ' crédits';
+  document.getElementById('recapPrixUnitaire').textContent = pack.perPlan.toFixed(2) + ' € / plan';
+  document.getElementById('recapTotal').textContent = pack.prix.toFixed(2) + ' €';
+  
+  document.getElementById('recapCard').style.display = 'block';
+  window.scrollTo({ top: document.getElementById('recapCard').offsetTop - 100, behavior: 'smooth' });
+}
+
+function initierPaiement() {
+  if (!packSelectionne) {
+    showToast('Veuillez d\'abord sélectionner un pack', 'error');
+    return;
+  }
+  
+  document.getElementById('modalDesc').innerHTML = `
+    Vous allez procéder à l'achat de <strong>${creditsSelectionnes} crédits</strong> pour <strong>${prixSelectionne.toFixed(2)} €</strong>.<br><br>
+    Le paiement est sécurisé par Stripe Connect. Le diététicien référent encaisse directement.
+  `;
+  document.getElementById('modalPaiement').classList.add('open');
+}
+
+function fermerModalPaiement() {
+  document.getElementById('modalPaiement').classList.remove('open');
+}
+
+function confirmerPaiement() {
+  fermerModalPaiement();
+  
+  // Simulation de paiement (à remplacer par Stripe Checkout)
+  showToast('Redirection vers Stripe Connect...', 'success');
+  
+  setTimeout(() => {
+    // Mettre à jour le solde
+    creditsData.solde += creditsSelectionnes;
+    creditsData.plans_commandes_total += creditsSelectionnes;
+    creditsData.total_depense += prixSelectionne;
+    
+    // Ajouter à l'historique
+    const now = new Date();
+    historique.unshift({
+      date: now.toISOString().split('T')[0],
+      type: 'achat',
+      description: `Pack ${packSelectionne.charAt(0).toUpperCase() + packSelectionne.slice(1)} - ${creditsSelectionnes} crédits`,
+      credits: creditsSelectionnes,
+      montant: prixSelectionne,
+      statut: 'payé',
+      facture: `FAC-${now.getFullYear()}-${Math.floor(Math.random() * 1000)}`
+    });
+    
+    chargerDonnees();
+    showToast(`✅ Achat confirmé ! ${creditsSelectionnes} crédits ajoutés.`, 'success');
+    
+    // Réinitialiser la sélection
+    packSelectionne = null;
+    document.getElementById('recapCard').style.display = 'none';
+    document.querySelectorAll('.pack-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+  }, 1500);
+}
+
+function telechargerFacture(num) {
+  showToast(`📎 Téléchargement de la facture ${num}.pdf`, 'success');
+}
+
+function exportHistoriqueCSV() {
+  let csv = 'Date,Type,Description,Crédits,Montant,Statut,Facture\n';
+  historique.forEach(h => {
+    csv += `${h.date},${h.type},${h.description},${h.credits},${h.montant},${h.statut},${h.facture || ''}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `historique_credits_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Export CSV effectué', 'success');
+}
+
+function showToast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  chargerDonnees();
+  
+  // Initialiser la sauvegarde auto
+  if (typeof initAutoSave === 'function') {
+    initAutoSave();
+  }
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+window.selectPack = selectPack;
+window.initierPaiement = initierPaiement;
+window.fermerModalPaiement = fermerModalPaiement;
+window.confirmerPaiement = confirmerPaiement;
+window.telechargerFacture = telechargerFacture;
+window.exportHistoriqueCSV = exportHistoriqueCSV;
+</script>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

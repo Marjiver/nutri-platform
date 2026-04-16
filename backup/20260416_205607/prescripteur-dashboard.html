@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace prescripteur — NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/support.js"></script>
+  <script src="js/payments/stripe.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color:var(--text-primary,#0d2018);
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL DYNAMIQUE */
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+    }
+    .sidebar-nav {
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      border: 1px solid var(--border-light,#eef4ee);
+      overflow: hidden;
+      position: sticky;
+      top: 100px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 1px solid #eef4ee;
+      color:var(--text-secondary,#6b7b74);
+      font-size: 0.85rem;
+    }
+    .sidebar-item:last-child { border-bottom: none; }
+    .sidebar-item:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
+    .sidebar-item.active {
+      background: rgba(29,158,117,0.1);
+      color: #1D9E75;
+      border-left: 3px solid #1D9E75;
+    }
+    .sidebar-icon { font-size: 1.2rem; width: 28px; }
+
+    /* MAIN CONTENT */
+    .main-content { flex: 1; min-width: 0; }
+    .section { display: none; animation: fadeIn 0.3s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .section-header {
+      margin-bottom: 1.5rem;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .section-header p {
+      font-size: 0.85rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.2rem;
+    }
+
+    /* MÉTRIQUES */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .metric-label {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metric-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1D9E75;
+      line-height: 1;
+    }
+    .metric-alert { color: #f59e0b; }
+
+    /* JAUGE DE MARGE - Pour le prescripteur (simulateur de marge personnelle) */
+    .marge-gauge {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .gauge-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .gauge-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .gauge-percent {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1D9E75;
+    }
+    .gauge-bar {
+      height: 12px;
+      background:var(--bg-tertiary,#eef4ee);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    .gauge-fill.high { background: #1D9E75; }
+    .gauge-fill.medium { background: #f59e0b; }
+    .gauge-fill.low { background: #ef4444; }
+    .gauge-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .gauge-value {
+      font-weight: 700;
+      color:var(--text-primary,#0d2018);
+    }
+
+    /* FORMULAIRES */
+    .form-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      background:var(--bg-card,#fff);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #1D9E75;
+      outline: none;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    .btn-submit {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background: #0f6e56; }
+    .btn-secondary {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
+      color:var(--text-primary,#0d2018);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: #1D9E75; color: #1D9E75; }
+
+    /* PATIENTS GRID */
+    .patients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+    }
+    .patient-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .patient-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #1D9E75;
+    }
+    .patient-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .patient-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .patient-info h4 { font-size: 0.9rem; font-weight: 600; }
+    .patient-info p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
+    .patient-status {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .status-valide { background: #e1f5ee; color: #1D9E75; }
+    .status-en-cours { background: #eff6ff; color: #0ea5e9; }
+    .status-en-attente { background: #fff8e6; color: #f59e0b; }
+    .patient-notes {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #eef4ee;
+    }
+
+    /* PROFIL PATIENT */
+    .patient-profile {
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      padding: 1.25rem;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .profile-name h3 { font-size: 1.1rem; font-weight: 600; }
+    .profile-name p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .profile-stat {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .profile-stat-label { font-size: 0.6rem; color:var(--text-secondary,#6b7b74); text-transform: uppercase; }
+    .profile-stat-value { font-size: 0.9rem; font-weight: 600; color:var(--text-primary,#0d2018); }
+    .profile-section {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eef4ee;
+    }
+    .profile-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1D9E75;
+      margin-bottom: 0.5rem;
+    }
+    .btn-commander {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-commander:hover { background: #0f6e56; }
+    .btn-commander:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* RECHARGE GRID - Sans commission visible */
+    .recharge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 700px) { .recharge-grid { grid-template-columns: 1fr; } }
+    .recharge-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .recharge-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: #1D9E75; }
+    .recharge-card.featured { 
+      border: 2px solid #1D9E75; 
+      background: linear-gradient(135deg, #fff, #f0f9f5);
+    }
+    .recharge-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .recharge-nb { font-size: 1rem; font-weight: 600; color:var(--text-primary,#0d2018); margin-bottom: 0.25rem; }
+    .recharge-prix { font-size: 1.3rem; font-weight: 700; color: #1D9E75; }
+    .recharge-unitaire { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.2rem; }
+
+    /* TABLEAUX COMPTA */
+    .compta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .compta-table th {
+      background:var(--bg-secondary,#f7f9f7);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .compta-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eef4ee;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .badge-ok { background: #e1f5ee; color: #1D9E75; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
+
+    /* SIMULATEUR BULLE - Pour la marge du prescripteur */
+    .sim-bubble {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 300;
+    }
+    .sim-toggle {
+      width: 56px;
+      height: 56px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
+    .sim-window {
+      display: none;
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      width: 320px;
+      background:var(--bg-card,#fff);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(29,158,117,0.2);
+    }
+    .sim-window.open { display: block; }
+    .sim-header {
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sim-close {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .sim-body { padding: 1rem; }
+    .sim-field { margin-bottom: 1rem; }
+    .sim-field-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background:var(--bg-tertiary,#eef4ee);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #1D9E75;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .sim-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.3rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .sim-abtn {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 10px;
+      padding: 0.4rem 0.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.7rem;
+    }
+    .sim-abtn.active {
+      background: #e1f5ee;
+      border-color: #1D9E75;
+    }
+    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
+    .sim-results {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+    }
+    .sim-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
+    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
+
+    /* MODALS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background:var(--bg-card,#fff);
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 0;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+      .dashboard-layout { flex-direction: column; padding: 6rem 1rem 2rem; }
+      .sidebar { width: 100%; }
+      .sidebar-nav { display: flex; overflow-x: auto; }
+      .sidebar-item { white-space: nowrap; border-bottom: none; border-right: 1px solid #eef4ee; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="accueil-prescripteur.html" class="nd-navlink">Accueil</a>
+        <a href="prescripteur-dashboard.html" class="nd-navlink active">Dashboard</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="#" class="nd-conn-item">👤 Mon profil</a>
+          <a href="#" class="nd-conn-item" onclick="deconnecter()">🔓 Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT AVEC SIDEBAR -->
+<div class="dashboard-layout">
+  
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-nav">
+      <div class="sidebar-item active" data-section="dashboard">
+        <span class="sidebar-icon">📊</span>
+        <span>Tableau de bord</span>
+      </div>
+      <div class="sidebar-item" data-section="patients">
+        <span class="sidebar-icon">👥</span>
+        <span>Mes patients</span>
+      </div>
+      <div class="sidebar-item" data-section="compta">
+        <span class="sidebar-icon">💰</span>
+        <span>Comptabilité</span>
+      </div>
+      <div class="sidebar-item" data-section="nutridoc">
+        <span class="sidebar-icon">📄</span>
+        <span>Mes achats</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Tableau de bord Prescripteur</h1>
+<main class="main-content">
+
+    <!-- SECTION DASHBOARD -->
+    <div id="section-dashboard" class="section active">
+      <div class="section-header">
+        <h2>Tableau de bord</h2>
+        <p>Vue d'ensemble de votre activité prescripteur.</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">Plans restants</div><div class="metric-value" id="metricCredits">—</div></div>
+        <div class="metric-card"><div class="metric-label">Patients</div><div class="metric-value" id="metricPatients">0</div></div>
+        <div class="metric-card"><div class="metric-label">Plans validés</div><div class="metric-value" id="metricValides">0</div></div>
+        <div class="metric-card"><div class="metric-label">Alerte santé</div><div class="metric-value metric-alert" id="metricFlags">0</div></div>
+      </div>
+
+      <!-- RECHARGER - Sans commission visible -->
+      <div class="form-card">
+        <h3 style="font-size:1rem; margin-bottom:1rem;">💰 Recharger des crédits</h3>
+        <div class="recharge-grid">
+          <div class="recharge-card" onclick="recharger(1, 24.90)">
+            <div class="recharge-nb">1 plan</div>
+            <div class="recharge-prix">24,90 € HT</div>
+            <div class="recharge-unitaire">24,90 € / plan</div>
+          </div>
+          <div class="recharge-card featured" onclick="recharger(10, 130)">
+            <div class="recharge-badge">⭐ RECOMMANDÉ</div>
+            <div class="recharge-nb">10 plans</div>
+            <div class="recharge-prix">130 € HT</div>
+            <div class="recharge-unitaire">13,00 € / plan</div>
+          </div>
+          <div class="recharge-card" onclick="recharger(50, 500)">
+            <div class="recharge-nb">50 plans</div>
+            <div class="recharge-prix">500 € HT</div>
+            <div class="recharge-unitaire">10,00 € / plan</div>
+          </div>
+        </div>
+        <p style="font-size:0.7rem; color:#6b7b74; text-align:center; margin-top:1rem;">
+          💳 Paiement sécurisé Stripe Connect — Votre diététicien référent encaisse directement<br>
+          📋 Crédits valables 12 mois · TVA non applicable (art. 293 B du CGI)
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION PATIENTS -->
+    <div id="section-patients" class="section">
+      <div class="section-header">
+        <h2>Mes patients</h2>
+        <p>Gérez vos patients et commandez des plans nutritionnels.</p>
+      </div>
+
+      <div style="margin-bottom:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <input type="text" id="searchPatient" placeholder="🔍 Rechercher un patient..." style="flex:1; padding:0.7rem 1rem; border:1px solid #eef4ee; border-radius:999px; font-size:0.8rem;">
+        <button class="btn-secondary" onclick="openAjoutPatientModal()">➕ Nouveau patient</button>
+      </div>
+
+      <div id="patientsGrid" class="patients-grid"></div>
+    </div>
+
+    <!-- SECTION COMPTABILITÉ - Marge du prescripteur -->
+    <div id="section-compta" class="section">
+      <div class="section-header">
+        <h2>Comptabilité</h2>
+        <p>Suivi de vos revenus, dépenses et marge.</p>
+      </div>
+
+      <!-- JAUGE DE MARGE PRESCRIPTEUR -->
+      <div class="marge-gauge">
+        <div class="gauge-header">
+          <span class="gauge-title">📈 Marge par plan</span>
+          <span class="gauge-percent" id="margePercent">0%</span>
+        </div>
+        <div class="gauge-bar">
+          <div class="gauge-fill" id="margeFill" style="width:0%"></div>
+        </div>
+        <div class="gauge-stats">
+          <span>💰 Prix facturé: <span class="gauge-value" id="prixFacture">35€</span></span>
+          <span>📦 Coût crédit: <span class="gauge-value" id="coutCredit">13,00€</span></span>
+          <span>💵 Marge: <span class="gauge-value" id="margeValue">0€</span></span>
+        </div>
+        <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <input type="range" id="sliderPrix" min="15" max="80" value="35" step="1" style="flex:1" oninput="updateMargeGauge()">
+          <select id="selectCoutCredit" onchange="updateMargeGauge()" style="padding:0.4rem; border-radius:12px; border:1px solid #eef4ee;">
+            <option value="24.90">24,90€ (Solo - 1 crédit)</option>
+            <option value="13.00" selected>13,00€ (Standard - 10 crédits) ⭐</option>
+            <option value="10.00">10,00€ (Expert - 50 crédits)</option>
+          </select>
+        </div>
+        <p class="gauge-stats" style="margin-top:0.5rem;">💡 Ajustez les curseurs pour visualiser votre marge par plan</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">CA total</div><div class="metric-value" id="comptaCa">—</div></div>
+        <div class="metric-card"><div class="metric-label">Dépenses crédits</div><div class="metric-value" id="comptaDepenses">—</div></div>
+        <div class="metric-card"><div class="metric-label">Marge nette</div><div class="metric-value" id="comptaMarge">—</div></div>
+        <div class="metric-card"><div class="metric-label">TVA collectée</div><div class="metric-value" id="comptaTva">—</div></div>
+      </div>
+
+      <div class="form-card">
+        <h3 style="font-size:1rem; margin-bottom:1rem;">📊 Récapitulatif mensuel</h3>
+        <canvas id="comptaChart" height="200" style="max-height:200px; width:100%;"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION MES ACHATS (ex Paiements NutriDoc) - Sans commission visible -->
+    <div id="section-nutridoc" class="section">
+      <div class="section-header">
+        <h2>Mes achats</h2>
+        <p>Suivi de vos achats de crédits et factures.</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">Total dépensé</div><div class="metric-value" id="nutridocTotal">—</div></div>
+        <div class="metric-card"><div class="metric-label">Dernier achat</div><div class="metric-value" id="nutridocDernier">—</div></div>
+      </div>
+
+      <div class="form-card">
+        <table class="compta-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Montant HT</th>
+              <th>Facture</th>
+            </tr>
+          </thead>
+          <tbody id="nutridocPaymentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- SIMULATEUR BULLE - Pour la marge du prescripteur -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()">💰</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-header">
+      <span>💰 Simulateur de marge</span>
+      <button class="sim-close" onclick="toggleSim()">✕</button>
+    </div>
+    <div class="sim-body">
+      <div class="sim-field">
+        <div class="sim-field-header"><span>👥 Clients / mois</span><span id="simClientsVal">25</span></div>
+        <input type="range" min="5" max="200" value="25" step="5" id="simClients" oninput="updateSimulator()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span>📈 Taux conversion</span><span id="simTauxVal">30%</span></div>
+        <input type="range" min="5" max="80" value="30" step="5" id="simTaux" oninput="updateSimulator()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span>💰 Prix facturé (€)</span><span id="simPrixVal">35€</span></div>
+        <input type="range" min="15" max="80" value="35" step="1" id="simPrix" oninput="updateSimulator()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span>📦 Coût crédit</span></div>
+        <div class="sim-btns">
+          <div class="sim-abtn" onclick="setCoutPlan(24.90, this)"><div>Solo</div><div class="sim-abtn-price">24,90€</div></div>
+          <div class="sim-abtn active" onclick="setCoutPlan(13.00, this)"><div>Standard</div><div class="sim-abtn-price">13,00€</div></div>
+          <div class="sim-abtn" onclick="setCoutPlan(10.00, this)"><div>Expert</div><div class="sim-abtn-price">10,00€</div></div>
+        </div>
+      </div>
+      <div class="sim-results">
+        <div class="sim-row"><span>📋 Plans / mois</span><strong id="simPlans">—</strong></div>
+        <div class="sim-row"><span>💰 CA mensuel</span><strong id="simCa">—</strong></div>
+        <div class="sim-row"><span>📉 Coût crédits</span><strong id="simCouts">—</strong></div>
+        <div class="sim-row highlight"><span>📈 Marge nette</span><strong id="simMarge">—</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUT PATIENT -->
+<div class="modal-overlay" id="modalAjoutOverlay" onclick="fermerAjoutModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="fermerAjoutModal()">✕</button>
+    <div class="modal-title">➕ Nouveau patient</div>
+    <form id="ajoutPatientForm">
+      <div class="form-row">
+        <div class="form-group"><label>Prénom *</label><input type="text" id="ajoutPrenom" required></div>
+        <div class="form-group"><label>Nom *</label><input type="text" id="ajoutNom" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Âge</label><input type="number" id="ajoutAge"></div>
+        <div class="form-group"><label>Sexe</label><select id="ajoutSexe"><option>Femme</option><option>Homme</option><option>Autre</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Taille (cm)</label><input type="number" id="ajoutTaille" step="1"></div>
+        <div class="form-group"><label>Poids (kg)</label><input type="number" id="ajoutPoids" step="0.1"></div>
+      </div>
+      <div class="form-group">
+        <label>Objectif principal</label>
+        <select id="ajoutObjectif">
+          <option>Perte de poids / de gras</option><option>Prise de masse / muscle</option>
+          <option>Alimentation équilibrée</option><option>Améliorer mon énergie</option>
+          <option>Prévention santé</option><option>Performance sportive</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Niveau d'activité physique</label>
+        <select id="ajoutActivite">
+          <option value="Sédentaire">Sédentaire (peu ou pas d'exercice)</option>
+          <option value="Légèrement actif">Légèrement actif (1-2x/semaine)</option>
+          <option value="Modérément actif">Modérément actif (3-4x/semaine)</option>
+          <option value="Très actif">Très actif (5+x/semaine)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Régime alimentaire</label>
+        <select id="ajoutRegime">
+          <option value="">Aucune restriction</option>
+          <option value="Végétarien">Végétarien</option>
+          <option value="Vegan">Vegan</option>
+          <option value="Sans gluten">Sans gluten</option>
+          <option value="Sans lactose">Sans lactose</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Allergies ou intolérances</label><textarea id="ajoutAllergies" rows="1"></textarea></div>
+      <div class="form-group"><label>Aliments que vous n'aimez pas</label><textarea id="ajoutAversions" rows="1"></textarea></div>
+      <div class="form-group"><label>Email</label><input type="email" id="ajoutEmail"></div>
+      <div class="form-group"><label>Téléphone</label><input type="tel" id="ajoutTel"></div>
+      <div class="form-group"><label>Notes supplémentaires</label><textarea id="ajoutNotes" rows="2"></textarea></div>
+      <div class="modal-btns">
+        <button type="button" class="btn-secondary" onclick="fermerAjoutModal()">Annuler</button>
+        <button type="submit" class="btn-submit" style="width:auto;">Créer le patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL PROFIL PATIENT -->
+<div class="modal-overlay" id="modalProfilOverlay" onclick="fermerProfilModal(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width: 550px;">
+    <button class="modal-close" onclick="fermerProfilModal()">✕</button>
+    <div id="patientProfilContent"></div>
+  </div>
+</div>
+
+<!-- MODAL RECHARGE - Sans commission visible -->
+<div class="modal-overlay" id="modalRechargeOverlay" onclick="fermerRechargeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Confirmer l'achat</div>
+    <p id="modalRechargeDesc"></p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="fermerRechargeModal()">Annuler</button>
+      <button class="btn-submit" id="modalRechargeConfirm" style="width:auto;">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Prescripteurs</div><a href="accueil-prescripteur.html">Espace prescripteur</a><a href="inscription-prescripteur.html">S'inscrire</a><a href="cgu-prescripteur.html">CGU Prescripteur</a></div>
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Patients</div><a href="index.html">Accueil patient</a><a href="bilan.html">Faire mon bilan</a><a href="cgu-patient.html">CGU Patient</a></div>
+      <div class="nd-footer-col"><div class="nd-footer-col-title">Légal</div><a href="politique-confidentialite.html">Politique RGPD</a><a href="faq.html">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a></div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== PROFIL SYSTEM =====
+const PROFIL_KEY = 'nutridoc_profil';
+const PROFIL_DATE_KEY = 'nutridoc_profil_date';
+const PROFIL_EXPIRY_DAYS = 30;
+const PROFILS = {
+  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
+  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
+  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
+  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
+};
+
+function getStoredProfil() {
+  const profil = localStorage.getItem(PROFIL_KEY);
+  const date = localStorage.getItem(PROFIL_DATE_KEY);
+  if (!profil || !date) return null;
+  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
+  if (daysSince > PROFIL_EXPIRY_DAYS) {
+    localStorage.removeItem(PROFIL_KEY);
+    localStorage.removeItem(PROFIL_DATE_KEY);
+    return null;
+  }
+  return profil;
+}
+function setStoredProfil(profil) { localStorage.setItem(PROFIL_KEY, profil); localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString()); }
+function updateUIForProfil(profilKey) {}
+function openProfilModal() {
+  const container = document.getElementById('profilModalContainer');
+  if (!container) return;
+  container.innerHTML = `<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" >Ne plus afficher</button></div></div></div>`;
+}
+function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
+function dismissProfilForever() { localStorage.setItem('nutridoc_profil_dismissed', 'true'); closeProfilModal(); }
+function selectProfil(profilKey) {
+  if (!PROFILS[profilKey]) return;
+  setStoredProfil(profilKey);
+  closeProfilModal();
+  const target = PROFILS[profilKey].redirectUrl;
+  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') window.location.href = target;
+}
+function initProfilSystem() {
+  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
+  const stored = getStoredProfil();
+  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
+}
+window.selectProfil = selectProfil;
+window.closeProfilModal = closeProfilModal;
+window.dismissProfilForever = dismissProfilForever;
+window.openProfilModal = openProfilModal;
+function toggleConn() { document.getElementById('ndConnMenu').classList.toggle('open'); }
+window.toggleConn = toggleConn;
+function deconnecter() { localStorage.clear(); window.location.href = 'index.html'; }
+window.deconnecter = deconnecter;
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('ndConnWrap');
+  const menu = document.getElementById('ndConnMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+});
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ===== SIDEBAR NAVIGATION =====
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const section = item.dataset.section;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`section-${section}`).classList.add('active');
+  });
+});
+
+// ===== DONNÉES =====
+let credits = 25;
+let patients = [
+  { id: 'p1', prenom: 'Julien', nom: 'Dubois', age: 34, sexe: 'Homme', taille: 180, poids: 78, objectif: 'Prise de masse / muscle', activite: 'Très actif', regime: '', allergies: '', aversions: '', email: 'julien@mail.fr', tel: '06 12 34 56 78', notes: 'Sportif confirmé, 5 séances/semaine.', statut: 'valide', avatar: '#1D9E75', commande_en_cours: false },
+  { id: 'p2', prenom: 'Sophie', nom: 'Martin', age: 28, sexe: 'Femme', taille: 165, poids: 65, objectif: 'Perte de poids / de gras', activite: 'Légèrement actif', regime: 'Végétarien', allergies: '', aversions: '', email: 'sophie@mail.fr', tel: '06 98 76 54 32', notes: 'Débutante, 2 séances/semaine.', statut: 'en_attente', avatar: '#5DCAA5', commande_en_cours: false },
+  { id: 'p3', prenom: 'Thomas', nom: 'Laurent', age: 42, sexe: 'Homme', taille: 175, poids: 85, objectif: 'Alimentation équilibrée', activite: 'Sédentaire', regime: '', allergies: '', aversions: '', email: 'thomas@mail.fr', tel: '06 55 66 77 88', notes: 'Sédentaire, souhaite reprendre le sport.', statut: 'en_attente', avatar: '#f59e0b', commande_en_cours: false },
+];
+
+// PAIEMENTS NUTRIDOC - Sans commission visible
+const NUTRIDOC_PAYMENTS = [
+  { date: '15/03/2025', type: 'Achat', description: 'Pack Standard - 10 crédits', montant: 130, facture: 'FAC-2025-001' },
+  { date: '15/02/2025', type: 'Achat', description: 'Pack Solo - 1 crédit', montant: 24.90, facture: 'FAC-2025-002' },
+];
+
+let coutCreditActuel = 13.00;
+let prixFactureActuel = 35;
+
+function updateMargeGauge() {
+  prixFactureActuel = parseInt(document.getElementById('sliderPrix').value);
+  coutCreditActuel = parseFloat(document.getElementById('selectCoutCredit').value);
+  const margeUnitaire = prixFactureActuel - coutCreditActuel;
+  const pourcentage = Math.round((margeUnitaire / prixFactureActuel) * 100);
+  document.getElementById('prixFacture').textContent = prixFactureActuel + '€';
+  document.getElementById('coutCredit').textContent = coutCreditActuel.toFixed(2) + '€';
+  document.getElementById('margeValue').textContent = margeUnitaire.toFixed(2) + '€';
+  document.getElementById('margePercent').textContent = pourcentage + '%';
+  const fill = document.getElementById('margeFill');
+  fill.style.width = Math.min(100, Math.max(0, pourcentage)) + '%';
+  fill.className = 'gauge-fill ' + (pourcentage >= 40 ? 'high' : (pourcentage >= 20 ? 'medium' : 'low'));
+}
+
+function updateMetrics() {
+  document.getElementById('metricCredits').textContent = credits;
+  document.getElementById('metricPatients').textContent = patients.length;
+  document.getElementById('metricValides').textContent = patients.filter(p => p.statut === 'valide').length;
+}
+
+function renderPatients() {
+  const searchTerm = document.getElementById('searchPatient')?.value.toLowerCase() || '';
+  let filtered = patients;
+  if (searchTerm) filtered = filtered.filter(p => (p.prenom + ' ' + p.nom).toLowerCase().includes(searchTerm));
+  const statusLabels = { valide: '✅ Validé', en_cours: '🔄 En cours', en_attente: '⏳ En attente' };
+  const statusClasses = { valide: 'status-valide', en_cours: 'status-en-cours', en_attente: 'status-en-attente' };
+  const container = document.getElementById('patientsGrid');
+  container.innerHTML = filtered.map(p => `
+    <div class="patient-card" onclick="ouvrirProfilPatient('${p.id}')">
+      <div class="patient-header">
+        <div class="patient-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        <div class="patient-info"><h4>${p.prenom} ${p.nom} · ${p.age} ans</h4><p>${p.objectif}</p></div>
+        <div class="patient-status ${statusClasses[p.statut]}">${statusLabels[p.statut]}</div>
+      </div>
+      <div class="patient-notes">📝 ${p.notes}</div>
+    </div>
+  `).join('');
+}
+
+function ouvrirProfilPatient(id) {
+  const p = patients.find(p => p.id === id);
+  if (!p) return;
+  const imc = p.poids && p.taille ? (p.poids / ((p.taille/100)*(p.taille/100))).toFixed(1) : '—';
+  const statusLabels = { valide: '✅ Validé', en_cours: '🔄 En cours', en_attente: '⏳ En attente' };
+  const isCommandePossible = p.statut !== 'en_cours' && credits > 0 && !p.commande_en_cours;
+  
+  document.getElementById('patientProfilContent').innerHTML = `
+    <div class="patient-profile">
+      <div class="profile-header">
+        <div class="profile-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
+        <div class="profile-name"><h3>${p.prenom} ${p.nom}</h3><p>${p.objectif}</p></div>
+      </div>
+      <div class="profile-stats">
+        <div class="profile-stat"><div class="profile-stat-label">Âge</div><div class="profile-stat-value">${p.age} ans</div></div>
+        <div class="profile-stat"><div class="profile-stat-label">Taille</div><div class="profile-stat-value">${p.taille || '—'} cm</div></div>
+        <div class="profile-stat"><div class="profile-stat-label">Poids</div><div class="profile-stat-value">${p.poids || '—'} kg</div></div>
+      </div>
+      <div class="profile-stats">
+        <div class="profile-stat"><div class="profile-stat-label">IMC</div><div class="profile-stat-value">${imc}</div></div>
+        <div class="profile-stat"><div class="profile-stat-label">Activité</div><div class="profile-stat-value">${p.activite || '—'}</div></div>
+        <div class="profile-stat"><div class="profile-stat-label">Statut</div><div class="profile-stat-value">${statusLabels[p.statut]}</div></div>
+      </div>
+      <div class="profile-section"><div class="profile-section-title">🥗 Régime / Allergies</div><p>${p.regime || 'Aucune restriction'}${p.allergies ? ' · Allergies: ' + p.allergies : ''}</p></div>
+      <div class="profile-section"><div class="profile-section-title">📞 Contact</div><p>📧 ${p.email}<br>📞 ${p.tel}</p></div>
+      <div class="profile-section"><div class="profile-section-title">📝 Notes</div><p>${p.notes}</p></div>
+      ${p.statut === 'valide' ? `<div class="profile-section"><button class="btn-secondary" onclick="telechargerPDF('${p.id}')">📄 Télécharger le plan</button></div>` : ''}
+      <div style="margin-top:1rem;">
+        <button class="btn-commander" onclick="commanderPlan('${p.id}')" ${!isCommandePossible ? 'disabled' : ''}>
+          ${p.statut === 'en_cours' ? '🔄 Plan en cours...' : (credits <= 0 ? '❌ Crédits insuffisants' : '🎯 Commander un plan — 1 crédit')}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modalProfilOverlay').classList.add('open');
+}
+
+function fermerProfilModal(e) {
+  if (!e || e.target === document.getElementById('modalProfilOverlay') || e.target.classList.contains('modal-close')) {
+    document.getElementById('modalProfilOverlay').classList.remove('open');
+  }
+}
+
+function commanderPlan(id) {
+  const p = patients.find(p => p.id === id);
+  if (!p) return;
+  if (credits <= 0) { showToast('❌ Crédits insuffisants. Veuillez recharger.'); return; }
+  if (p.commande_en_cours) { showToast('🔄 Une commande est déjà en cours pour ce patient.'); return; }
+  credits--;
+  p.commande_en_cours = true;
+  p.statut = 'en_cours';
+  updateMetrics();
+  renderPatients();
+  showToast(`📦 Commande de plan envoyée pour ${p.prenom} ${p.nom} !`);
+  setTimeout(() => {
+    p.commande_en_cours = false;
+    p.statut = 'valide';
+    updateMetrics();
+    renderPatients();
+    fermerProfilModal();
+    setTimeout(() => ouvrirProfilPatient(id), 100);
+    showToast(`✅ Le plan de ${p.prenom} ${p.nom} est disponible !`);
+  }, 5000);
+}
+
+function openAjoutPatientModal() {
+  document.getElementById('ajoutPatientForm').reset();
+  document.getElementById('modalAjoutOverlay').classList.add('open');
+}
+function fermerAjoutModal(e) {
+  if (!e || e.target === document.getElementById('modalAjoutOverlay') || e.target.classList.contains('modal-close')) {
+    document.getElementById('modalAjoutOverlay').classList.remove('open');
+  }
+}
+
+document.getElementById('ajoutPatientForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const newPatient = {
+    id: 'p' + (patients.length + 1),
+    prenom: document.getElementById('ajoutPrenom').value,
+    nom: document.getElementById('ajoutNom').value,
+    age: parseInt(document.getElementById('ajoutAge').value) || 30,
+    sexe: document.getElementById('ajoutSexe').value,
+    taille: parseInt(document.getElementById('ajoutTaille').value) || null,
+    poids: parseFloat(document.getElementById('ajoutPoids').value) || null,
+    objectif: document.getElementById('ajoutObjectif').value,
+    activite: document.getElementById('ajoutActivite').value,
+    regime: document.getElementById('ajoutRegime').value || '',
+    allergies: document.getElementById('ajoutAllergies').value || '',
+    aversions: document.getElementById('ajoutAversions').value || '',
+    email: document.getElementById('ajoutEmail').value || 'non renseigné',
+    tel: document.getElementById('ajoutTel').value || 'non renseigné',
+    notes: document.getElementById('ajoutNotes').value || '',
+    statut: 'en_attente',
+    avatar: ['#1D9E75', '#5DCAA5', '#f59e0b', '#0ea5e9', '#8b5cf6'][Math.floor(Math.random()*5)],
+    commande_en_cours: false,
+  };
+  patients.push(newPatient);
+  renderPatients();
+  updateMetrics();
+  fermerAjoutModal();
+  showToast(`✅ Patient ${newPatient.prenom} ${newPatient.nom} ajouté !`);
+});
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// RECHARGE - Sans mention de commission
+let pendingRecharge = null;
+function recharger(nb, prix) {
+  pendingRecharge = { nb, prix };
+  document.getElementById('modalRechargeDesc').innerHTML = `
+    <strong>${nb} crédit${nb > 1 ? 's' : ''}</strong> · ${prix.toFixed(2)}€ HT<br><br>
+    Le paiement est sécurisé par Stripe Connect — votre diététicien référent encaisse directement.<br>
+    Les crédits sont valables 12 mois.
+  `;
+  document.getElementById('modalRechargeOverlay').classList.add('open');
+}
+function fermerRechargeModal(e) {
+  if (!e || e.target === document.getElementById('modalRechargeOverlay')) {
+    document.getElementById('modalRechargeOverlay').classList.remove('open');
+    pendingRecharge = null;
+  }
+}
+document.getElementById('modalRechargeConfirm')?.addEventListener('click', () => {
+  if (pendingRecharge) {
+    credits += pendingRecharge.nb;
+    updateMetrics();
+    showToast(`✅ ${pendingRecharge.nb} crédit${pendingRecharge.nb > 1 ? 's' : ''} ajouté${pendingRecharge.nb > 1 ? 's' : ''} !`);
+    pendingRecharge = null;
+  }
+  document.getElementById('modalRechargeOverlay').classList.remove('open');
+});
+
+// COMPTABILITÉ
+let comptaChart = null;
+function renderCompta() {
+  const caTotal = patients.filter(p => p.statut === 'valide').length * prixFactureActuel;
+  const depenses = (25 - credits) * coutCreditActuel;
+  const marge = caTotal - depenses;
+  document.getElementById('comptaCa').textContent = Math.round(caTotal) + '€';
+  document.getElementById('comptaDepenses').textContent = Math.max(0, Math.round(depenses)) + '€';
+  document.getElementById('comptaMarge').textContent = Math.round(marge) + '€';
+  document.getElementById('comptaTva').textContent = Math.round(caTotal * 0.2) + '€';
+  const ctx = document.getElementById('comptaChart');
+  if (ctx && typeof Chart !== 'undefined') {
+    if (comptaChart) comptaChart.destroy();
+    comptaChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'], datasets: [{ label: 'CA (€)', data: [120, 150, 180, 220, 250, 280], backgroundColor: '#1D9E75', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } } });
+  }
+}
+
+// PAIEMENTS NUTRIDOC - Sans commission visible
+function renderNutridocPayments() {
+  const total = NUTRIDOC_PAYMENTS.reduce((s, p) => s + p.montant, 0);
+  const dernier = NUTRIDOC_PAYMENTS[0]?.date || '—';
+  document.getElementById('nutridocTotal').textContent = total.toFixed(2) + '€';
+  document.getElementById('nutridocDernier').textContent = dernier;
+  const tbody = document.getElementById('nutridocPaymentsBody');
+  tbody.innerHTML = NUTRIDOC_PAYMENTS.map(p => `
+    <tr>
+      <td>${p.date}</td>
+      <td>${p.type}</td>
+      <td>${p.description}</td>
+      <td>${p.montant.toFixed(2)}€</td>
+      <td><button class="btn-secondary" onclick="telechargerFacture('${p.facture}')">PDF</button></td>
+    </tr>
+  `).join('');
+}
+function telechargerFacture(num) { showToast(`📎 Téléchargement de ${num}.pdf`); }
+function telechargerPDF(id) { showToast('📄 Téléchargement du plan alimentaire...'); }
+
+// SIMULATEUR
+let coutPlanSim = 13.00;
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+function setCoutPlan(val, btn) {
+  coutPlanSim = val;
+  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSimulator();
+}
+function updateSimulator() {
+  const clients = parseInt(document.getElementById('simClients').value);
+  const taux = parseInt(document.getElementById('simTaux').value) / 100;
+  const prix = parseInt(document.getElementById('simPrix').value);
+  document.getElementById('simClientsVal').textContent = clients;
+  document.getElementById('simTauxVal').textContent = (taux * 100) + '%';
+  document.getElementById('simPrixVal').textContent = prix + '€';
+  const plans = Math.round(clients * taux);
+  const ca = plans * prix;
+  const couts = plans * coutPlanSim;
+  const marge = ca - couts;
+  document.getElementById('simPlans').textContent = plans;
+  document.getElementById('simCa').textContent = Math.round(ca) + '€';
+  document.getElementById('simCouts').textContent = Math.round(couts) + '€';
+  document.getElementById('simMarge').textContent = (marge >= 0 ? '+' : '') + Math.round(marge) + '€';
+}
+
+document.getElementById('searchPatient')?.addEventListener('input', () => renderPatients());
+document.getElementById('sliderPrix')?.addEventListener('input', () => { updateMargeGauge(); renderCompta(); });
+document.getElementById('selectCoutCredit')?.addEventListener('change', () => { updateMargeGauge(); renderCompta(); });
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateMetrics();
+  renderPatients();
+  renderCompta();
+  renderNutridocPayments();
+  updateMargeGauge();
+  updateSimulator();
+  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidget_prescriber', 'prescriber');
+});
+
+</script>
+
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

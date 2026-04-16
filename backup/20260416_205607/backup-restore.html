@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Gestion des sauvegardes et restaurations des données NutriDoc. Export/import des bases de données, fichiers et configurations."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sauvegarde & Restauration — Administration NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Backup NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== BIBLIOTHÈQUES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- ==================== PERFORMANCE ==================== -->
+  <script defer src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== -->
+  <script defer src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script defer src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script defer src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== -->
+  <script defer src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script defer src="js/core/auth.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER ADMIN */
+    .admin-header {
+      background: #0d2018;
+      padding: 0.75rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .admin-logo em { font-style: italic; color: #5DCAA5; }
+    .admin-nav { display: flex; gap: 1.5rem; }
+    .admin-nav a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .admin-nav a:hover, .admin-nav a.active { color: #fff; }
+
+    /* THEME SELECTOR */
+
+    /* MAIN CONTENT */
+    .backup-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 3rem;
+    }
+
+    /* SECTION */
+    .section {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-sub {
+      font-size: 0.8rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+
+    /* STATS CARD */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 700px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .stat-card {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: #1D9E75;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+    }
+
+    /* BACKUP LIST */
+    .backup-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .backup-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 16px;
+      transition: all 0.2s;
+    }
+    .backup-item:hover {
+      background:var(--bg-card,#fff);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .backup-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .backup-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .backup-date {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+    }
+    .backup-size {
+      font-size: 0.7rem;
+      color: #1D9E75;
+    }
+    .backup-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 8px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .btn-icon.danger:hover {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar {
+      height: 8px;
+      background:var(--bg-tertiary,#eef4ee);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #1D9E75;
+      border-radius: 999px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover {
+      background: #0f6e56;
+    }
+    .btn-secondary {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .btn-danger {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background:var(--bg-card,#fff);
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 450px;
+      width: 90%;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-desc {
+      font-size: 0.85rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 1.5rem;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    .toast.error {
+      background: #ef4444;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+
+<!-- HEADER ADMIN -->
+<header class="admin-header">
+  <div class="header-container">
+    <a href="admin.html" class="admin-logo">Nutri<em>Doc</em> Admin</a>
+    <nav class="admin-nav">
+      <a href="admin.html">Dashboard</a>
+      <a href="statistiques-admin.html">Statistiques</a>
+      <a href="webhooks.html">Webhooks</a>
+      <a href="seo.html">SEO</a>
+      <a href="backup-restore.html" class="active">Backup</a>
+      <a href="admin.html#settings">Paramètres</a>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="backup-container">
+
+  <!-- STATISTIQUES -->
+  <div class="section">
+    <div class="section-title">
+      <span>📊</span> Statistiques des données
+    </div>
+    <div class="section-sub">
+      Aperçu du volume de données stockées dans NutriDoc.
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="statUsers">—</div>
+        <div class="stat-label">Utilisateurs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statPatients">—</div>
+        <div class="stat-label">Patients</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statPlans">—</div>
+        <div class="stat-label">Plans générés</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statSize">—</div>
+        <div class="stat-label">Taille base (Mo)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRÉER UNE SAUVEGARDE -->
+  <div class="section">
+    <div class="section-title">
+      <span>💾</span> Créer une sauvegarde
+    </div>
+    <div class="section-sub">
+      Exportez l'intégralité des données (utilisateurs, plans, transactions, configurations).
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="creerBackupComplet()">📦 Sauvegarde complète</button>
+      <button class="btn-secondary" onclick="creerBackupUtilisateurs()">👥 Sauvegarde utilisateurs</button>
+      <button class="btn-secondary" onclick="creerBackupPlans()">📋 Sauvegarde plans</button>
+      <button class="btn-secondary" onclick="creerBackupConfig()">⚙️ Sauvegarde configuration</button>
+    </div>
+
+    <div class="progress-bar" id="backupProgressBar" style="display: none;">
+      <div class="progress-fill" id="backupProgressFill" style="width: 0%;"></div>
+    </div>
+    <div id="backupStatus" style="margin-top: 0.75rem; font-size: 0.8rem; color: #6b7b74;"></div>
+  </div>
+
+  <!-- SAUVEGARDES EXISTANTES -->
+  <div class="section">
+    <div class="section-title">
+      <span>📀</span> Sauvegardes existantes
+    </div>
+    <div class="section-sub">
+      Liste des sauvegardes disponibles. Chaque sauvegarde peut être restaurée ou téléchargée.
+    </div>
+
+    <div id="backupList" class="backup-list">
+      <!-- Rempli par JS -->
+    </div>
+  </div>
+
+  <!-- RESTAURATION -->
+  <div class="section">
+    <div class="section-title">
+      <span>🔄</span> Restaurer une sauvegarde
+    </div>
+    <div class="section-sub">
+      Importez un fichier de sauvegarde pour restaurer vos données.
+    </div>
+
+    <div class="form-group">
+      <label>Fichier de sauvegarde (.json ou .zip)</label>
+      <input type="file" id="restoreFile" accept=".json,.zip">
+      <span class="field-hint">Formats acceptés: JSON, ZIP (max 50 Mo)</span>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+      <button class="btn-primary" onclick="restaurerFichier()">🔄 Restaurer ce fichier</button>
+      <button class="btn-secondary" onclick="resetRestoreFile()">🗑️ Annuler</button>
+    </div>
+
+    <div id="restoreStatus" style="margin-top: 0.75rem;"></div>
+  </div>
+
+  <!-- SAUVEGARDE AUTOMATIQUE -->
+  <div class="section">
+    <div class="section-title">
+      <span>⏰</span> Sauvegarde automatique
+    </div>
+    <div class="section-sub">
+      Configurez les sauvegardes automatiques périodiques.
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fréquence</label>
+        <select id="autoBackupFreq">
+          <option value="daily">Quotidienne (à 02:00)</option>
+          <option value="weekly">Hebdomadaire (dimanche 02:00)</option>
+          <option value="monthly">Mensuelle (1er du mois 02:00)</option>
+          <option value="disabled">Désactivée</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Conservation</label>
+        <select id="autoBackupRetention">
+          <option value="7">7 jours</option>
+          <option value="30">30 jours</option>
+          <option value="90">90 jours</option>
+          <option value="365">365 jours</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Destination (optionnel)</label>
+      <input type="text" id="autoBackupDestination" placeholder="bucket/s3/path" value="supabase/storage/backups/">
+    </div>
+
+    <button class="btn-primary" onclick="sauvegarderConfigAuto()">💾 Sauvegarder configuration</button>
+
+    <div id="lastAutoBackup" style="margin-top: 1rem; font-size: 0.75rem; color: #6b7b74;">
+      Dernière sauvegarde auto: <span id="lastAutoBackupDate">—</span>
+    </div>
+  </div>
+
+  <!-- ZONE DANGEREUSE -->
+  <div class="section">
+    <div class="section-title">
+      <span>⚠️</span> Zone dangereuse
+    </div>
+    <div class="section-sub">
+      Actions irréversibles à utiliser avec précaution.
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <button class="btn-secondary btn-danger" onclick="viderLogs()">🗑️ Vider les logs</button>
+      <button class="btn-secondary btn-danger" onclick="anonymiserDonneesTest()">🔒 Anonymiser les données de test</button>
+      <button class="btn-secondary btn-danger" onclick="resetComplet()">💣 Réinitialisation complète</button>
+    </div>
+  </div>
+
+</main>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- MODAL CONFIRMATION -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal">
+    <div class="modal-title">⚠️ Confirmation</div>
+    <div class="modal-desc" id="modalConfirmDesc">Êtes-vous sûr de vouloir effectuer cette action ?</div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="fermerModalConfirm()">Annuler</button>
+      <button class="btn-primary" id="modalConfirmBtn" onclick="executerActionConfirm()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DONNÉES SIMULÉES ====================
+let backups = [
+  { id: 'b1', name: 'backup_complet_2026-04-13.json', type: 'complet', size: '2.4 MB', date: '2026-04-13 02:00:00' },
+  { id: 'b2', name: 'backup_utilisateurs_2026-04-12.json', type: 'utilisateurs', size: '0.8 MB', date: '2026-04-12 02:00:00' },
+  { id: 'b3', name: 'backup_plans_2026-04-11.json', type: 'plans', size: '1.2 MB', date: '2026-04-11 02:00:00' },
+  { id: 'b4', name: 'backup_config_2026-04-10.json', type: 'config', size: '0.1 MB', date: '2026-04-10 02:00:00' }
+];
+
+let actionConfirm = null;
+
+// Initialisation
+function init() {
+  document.getElementById('statUsers').textContent = '1,284';
+  document.getElementById('statPatients').textContent = '847';
+  document.getElementById('statPlans').textContent = '1,256';
+  document.getElementById('statSize').textContent = '12.4';
+  
+  renderBackups();
+  document.getElementById('lastAutoBackupDate').textContent = '2026-04-13 02:00:00';
+}
+
+function renderBackups() {
+  const container = document.getElementById('backupList');
+  const typeLabels = { complet: '📦 Complet', utilisateurs: '👥 Utilisateurs', plans: '📋 Plans', config: '⚙️ Configuration' };
+  
+  container.innerHTML = backups.map(b => `
+    <div class="backup-item">
+      <div class="backup-info">
+        <div class="backup-name">${typeLabels[b.type]} - ${b.name}</div>
+        <div class="backup-date">📅 ${b.date}</div>
+        <div class="backup-size">💾 ${b.size}</div>
+      </div>
+      <div class="backup-actions">
+        <button class="btn-icon" onclick="restaurerBackup('${b.id}')">🔄 Restaurer</button>
+        <button class="btn-icon" onclick="telechargerBackup('${b.id}')">⬇ Télécharger</button>
+        <button class="btn-icon danger" onclick="supprimerBackup('${b.id}')">🗑 Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== SAUVEGARDES ====================
+function creerBackupComplet() {
+  showProgress(true);
+  document.getElementById('backupStatus').innerHTML = '📦 Création de la sauvegarde complète...';
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 10;
+    document.getElementById('backupProgressFill').style.width = progress + '%';
+    if (progress >= 100) {
+      clearInterval(interval);
+      const newBackup = {
+        id: 'b' + (backups.length + 1),
+        name: `backup_complet_${new Date().toISOString().slice(0,10)}.json`,
+        type: 'complet',
+        size: '2.5 MB',
+        date: new Date().toLocaleString('fr-FR')
+      };
+      backups.unshift(newBackup);
+      renderBackups();
+      document.getElementById('backupStatus').innerHTML = '✅ Sauvegarde complète créée avec succès !';
+      setTimeout(() => {
+        showProgress(false);
+        document.getElementById('backupStatus').innerHTML = '';
+      }, 2000);
+      showToast('Sauvegarde complète créée ✓', 'success');
+    }
+  }, 300);
+}
+
+function creerBackupUtilisateurs() {
+  showToast('Sauvegarde des utilisateurs en cours...', 'success');
+  setTimeout(() => {
+    const newBackup = {
+      id: 'b' + (backups.length + 1),
+      name: `backup_utilisateurs_${new Date().toISOString().slice(0,10)}.json`,
+      type: 'utilisateurs',
+      size: '0.9 MB',
+      date: new Date().toLocaleString('fr-FR')
+    };
+    backups.unshift(newBackup);
+    renderBackups();
+    showToast('Sauvegarde utilisateurs créée ✓', 'success');
+  }, 1000);
+}
+
+function creerBackupPlans() {
+  showToast('Sauvegarde des plans en cours...', 'success');
+  setTimeout(() => {
+    const newBackup = {
+      id: 'b' + (backups.length + 1),
+      name: `backup_plans_${new Date().toISOString().slice(0,10)}.json`,
+      type: 'plans',
+      size: '1.3 MB',
+      date: new Date().toLocaleString('fr-FR')
+    };
+    backups.unshift(newBackup);
+    renderBackups();
+    showToast('Sauvegarde plans créée ✓', 'success');
+  }, 1000);
+}
+
+function creerBackupConfig() {
+  showToast('Sauvegarde de la configuration en cours...', 'success');
+  setTimeout(() => {
+    const newBackup = {
+      id: 'b' + (backups.length + 1),
+      name: `backup_config_${new Date().toISOString().slice(0,10)}.json`,
+      type: 'config',
+      size: '0.1 MB',
+      date: new Date().toLocaleString('fr-FR')
+    };
+    backups.unshift(newBackup);
+    renderBackups();
+    showToast('Sauvegarde configuration créée ✓', 'success');
+  }, 1000);
+}
+
+function showProgress(show) {
+  const bar = document.getElementById('backupProgressBar');
+  const fill = document.getElementById('backupProgressFill');
+  if (show) {
+    bar.style.display = 'block';
+    fill.style.width = '0%';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function restaurerBackup(id) {
+  const backup = backups.find(b => b.id === id);
+  if (backup) {
+    actionConfirm = () => {
+      showToast(`Restauration de ${backup.name} en cours...`, 'success');
+      setTimeout(() => {
+        showToast(`✅ Restauration terminée : ${backup.name}`, 'success');
+      }, 2000);
+    };
+    document.getElementById('modalConfirmDesc').textContent = `Êtes-vous sûr de vouloir restaurer la sauvegarde "${backup.name}" ? Les données actuelles seront remplacées.`;
+    document.getElementById('modalConfirm').classList.add('open');
+  }
+}
+
+function telechargerBackup(id) {
+  const backup = backups.find(b => b.id === id);
+  if (backup) {
+    const content = JSON.stringify({ backup: backup.name, data: 'contenu simulé', date: new Date() }, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = backup.name;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Téléchargement de ${backup.name}`, 'success');
+  }
+}
+
+function supprimerBackup(id) {
+  actionConfirm = () => {
+    backups = backups.filter(b => b.id !== id);
+    renderBackups();
+    showToast('Sauvegarde supprimée', 'warning');
+  };
+  document.getElementById('modalConfirmDesc').textContent = 'Êtes-vous sûr de vouloir supprimer cette sauvegarde ? Cette action est irréversible.';
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+// ==================== RESTAURATION FICHIER ====================
+function restaurerFichier() {
+  const fileInput = document.getElementById('restoreFile');
+  const file = fileInput.files[0];
+  
+  if (!file) {
+    showToast('Veuillez sélectionner un fichier', 'error');
+    return;
+  }
+  
+  showToast(`Restauration de ${file.name} en cours...`, 'success');
+  setTimeout(() => {
+    showToast(`✅ Restauration terminée : ${file.name}`, 'success');
+    fileInput.value = '';
+  }, 2000);
+}
+
+function resetRestoreFile() {
+  document.getElementById('restoreFile').value = '';
+  showToast('Fichier annulé', 'warning');
+}
+
+// ==================== CONFIGURATION AUTO ====================
+function sauvegarderConfigAuto() {
+  const freq = document.getElementById('autoBackupFreq').value;
+  const retention = document.getElementById('autoBackupRetention').value;
+  const destination = document.getElementById('autoBackupDestination').value;
+  
+  showToast(`Configuration sauvegardée : ${freq}, conservation ${retention} jours`, 'success');
+}
+
+// ==================== ZONE DANGEREUSE ====================
+function viderLogs() {
+  actionConfirm = () => {
+    showToast('Logs vidés avec succès', 'warning');
+  };
+  document.getElementById('modalConfirmDesc').textContent = 'Êtes-vous sûr de vouloir vider tous les logs ? Cette action est irréversible.';
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function anonymiserDonneesTest() {
+  actionConfirm = () => {
+    showToast('Données de test anonymisées', 'warning');
+  };
+  document.getElementById('modalConfirmDesc').textContent = 'Êtes-vous sûr de vouloir anonymiser les données de test ? Les emails et noms seront remplacés.';
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function resetComplet() {
+  actionConfirm = () => {
+    showToast('⚠️ Réinitialisation complète demandée. Contactez le support pour confirmer.', 'error');
+  };
+  document.getElementById('modalConfirmDesc').textContent = '⚠️ ACTION IRREVERSIBLE : Cette opération supprime TOUTES les données. Êtes-vous ABSOLUMENT sûr ?';
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+// ==================== MODAL ====================
+function fermerModalConfirm() {
+  document.getElementById('modalConfirm').classList.remove('open');
+  actionConfirm = null;
+}
+
+function executerActionConfirm() {
+  if (actionConfirm) {
+    actionConfirm();
+  }
+  fermerModalConfirm();
+}
+
+function showToast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+window.creerBackupComplet = creerBackupComplet;
+window.creerBackupUtilisateurs = creerBackupUtilisateurs;
+window.creerBackupPlans = creerBackupPlans;
+window.creerBackupConfig = creerBackupConfig;
+window.restaurerBackup = restaurerBackup;
+window.telechargerBackup = telechargerBackup;
+window.supprimerBackup = supprimerBackup;
+window.restaurerFichier = restaurerFichier;
+window.resetRestoreFile = resetRestoreFile;
+window.sauvegarderConfigAuto = sauvegarderConfigAuto;
+window.viderLogs = viderLogs;
+window.anonymiserDonneesTest = anonymiserDonneesTest;
+window.resetComplet = resetComplet;
+window.fermerModalConfirm = fermerModalConfirm;
+window.executar

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Inscription prescripteur — NutriDoc">
+  <meta property="twitter:description" content="Devenez prescripteur NutriDoc et proposez des plans alimentaires à vos clients.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/inscription-prescripteur.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Devenez prescripteur NutriDoc et proposez des plans alimentaires à vos clients.">
+  <meta property="og:title" content="Inscription prescripteur — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="inscription prescripteur, médecin nutrition, kiné, coach sportif">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Inscrivez-vous sur NutriDoc en tant que prescripteur. Coach sportif, kiné, infirmière… SIRET requis. Plans validés par un diététicien RPPS sous 48h."/>
+  <title>NutriDoc — Inscription prescripteur (médecin, kiné, coach)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0d2018"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <!-- dark-mode.js crée le bouton flottant 🌙/☀️ en bas à droite et applique data-theme sur <html> -->
+  <script defer src="js/ui/dark-mode.js"></script>
+
+  <style>
+    /* ════════════════════════════════════════════════════════
+       RÈGLE FONDAMENTALE :
+       - Toutes les couleurs utilisent des variables CSS
+       - Exception : header toujours #0d2018 (identité visuelle fixe)
+       - input::placeholder → var(--text-tertiary) = gris
+       - input (valeur saisie) → var(--text-primary) = noir/blanc
+    ════════════════════════════════════════════════════════ */
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* ── HEADER (toujours sombre — identité visuelle fixe) ── */
+    .nd-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #0d2018 !important;
+      border-bottom: 1px solid rgba(29,158,117,.2);
+      padding: .75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .header-left  { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo      { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #fff; text-decoration: none; }
+    .nd-logo em   { font-style: italic; color: #5DCAA5; }
+    .nd-nav       { display: flex; gap: 1.5rem; }
+    .nd-navlink   { font-size: .8rem; color: rgba(255,255,255,.65); text-decoration: none; transition: color .2s; }
+    .nd-navlink:hover { color: #fff; }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px; padding: .4rem 1rem;
+      color: rgba(255,255,255,.85); font-size: .75rem;
+      cursor: pointer; font-family: 'Outfit', sans-serif; transition: all .2s;
+    }
+    .nd-btn-ghost:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .nd-btn-primary {
+      background: #1D9E75; color: #fff;
+      padding: .4rem 1.2rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 500; text-decoration: none;
+    }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #0d2018; border: 1px solid rgba(29,158,117,.2);
+      border-radius: 12px; width: 180px; z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+    .nd-conn-item {
+      display: block; padding: .5rem 1rem;
+      color: rgba(255,255,255,.7); text-decoration: none; font-size: .75rem;
+    }
+    .nd-conn-item:hover { color: #5DCAA5; }
+    @media (max-width: 900px) { .nd-nav { display: none; } }
+
+    /* ── SPLIT SCREEN ── */
+    .split-container {
+      display: flex;
+      min-height: calc(100vh - 60px);
+      margin-top: 60px;
+    }
+    @media (max-width: 900px) {
+      .split-container { flex-direction: column; }
+    }
+
+    /* ── COLONNE GAUCHE : PACKS ── */
+    .pricing-col {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-light);
+    }
+    @media (max-width: 900px) {
+      .pricing-col { border-right: none; border-bottom: 1px solid var(--border-light); }
+    }
+    .pricing-col h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; color: var(--text-primary); margin-bottom: .5rem;
+    }
+    .hero-sub { font-size: .85rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .pricing-stack { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Cartes pack */
+    .price-row {
+      background-color: var(--bg-card);
+      border-radius: 20px; padding: 1rem 1.25rem;
+      border: 1.5px solid var(--border-light);
+      transition: all .2s; cursor: pointer;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .price-row:hover      { transform: translateX(4px); border-color: #0ea5e9; }
+    .price-row.selected   { border: 2px solid #0ea5e9; background-color: var(--accent-blue-bg); }
+    /* featured : toujours sombre, indépendant du thème */
+    .price-row.featured   { background: linear-gradient(135deg, #0d2018, #0c1e2e); border: 2px solid #0ea5e9; color: #fff; }
+    .price-badge { background: #0ea5e9; color: #fff; font-size: .6rem; font-weight: 600; padding: .15rem .6rem; border-radius: 999px; margin-left: .5rem; }
+
+    .price-info { flex: 1; }
+    .price-name  { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+    .price-row.featured .price-name  { color: #7dd3fc; }
+    .price-value { font-size: 1.3rem; font-weight: 800; color: #0ea5e9; }
+    .price-unit  { font-size: .8rem; color: var(--text-secondary); }
+    .price-row.featured .price-unit  { color: rgba(255,255,255,.6); }
+    .price-desc  { font-size: .7rem; color: var(--text-secondary); margin-top: .2rem; }
+    .price-row.featured .price-desc  { color: rgba(255,255,255,.6); }
+
+    .price-features { font-size: .7rem; color: var(--text-secondary); margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .3rem; }
+    .price-features span { background-color: var(--bg-tertiary); padding: .1rem .4rem; border-radius: 999px; }
+    .price-row.featured .price-features span { background: rgba(125,211,252,.15); color: #7dd3fc; }
+    .price-check { width: 24px; height: 24px; background: #0ea5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: .7rem; flex-shrink: 0; }
+
+    .pricing-info-box {
+      margin-top: 2rem; padding: 1rem;
+      background-color: var(--accent-blue-bg);
+      border: 1px solid rgba(14,165,233,.25);
+      border-radius: 16px; text-align: center;
+    }
+    .pricing-info-box p { font-size: .75rem; color: #0284c7; margin-bottom: .25rem; }
+    .form-col h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; color: var(--text-primary); margin-bottom: .25rem;
+    }
+    .form-sub { font-size: .8rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+    /* ── BARRE DE PROGRESSION ── */
+    .insc-progress-bar { display: flex; align-items: center; margin-bottom: 1.5rem; }
+    .insc-progress-step { display: flex; align-items: center; gap: .5rem; }
+    .insc-prog-dot {
+      width: 30px; height: 30px; border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 500;
+      color: var(--text-secondary); flex-shrink: 0; transition: all .25s;
+    }
+    .insc-progress-step.active .insc-prog-dot { background: #0ea5e9; color: #fff; }
+    .insc-progress-step.done   .insc-prog-dot { background: var(--accent-blue-bg); color: #0ea5e9; }
+    .insc-progress-step span { font-size: .72rem; color: var(--text-secondary); }
+    .insc-progress-step.active span { color: var(--text-primary); font-weight: 500; }
+    .insc-progress-line { flex: 1; height: 2px; background-color: var(--border-light); margin: 0 .5rem; }
+
+    /* ── ÉTAPES ── */
+    .insc-step { display: none; animation: fadeIn .3s ease; }
+    .insc-step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* ── CHAMPS DE FORMULAIRE ── */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block; font-size: .8rem; font-weight: 500;
+      margin-bottom: .4rem; color: var(--text-primary);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ─── INPUT / SELECT / TEXTAREA ───
+       text-primary  = couleur du texte saisi par l'utilisateur
+       text-tertiary = couleur du placeholder (gris discret)
+       bg-input      = fond du champ
+       border-light  = bordure au repos
+    */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--border-light);
+      border-radius: 12px;
+      font-size: .9rem;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-input);
+      color: var(--text-primary);           /* ← texte saisi : noir/blanc selon mode */
+      transition: border-color .2s, background-color .2s, color .2s;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-tertiary);           /* ← placeholder : gris clair en mode clair */
+      opacity: 1;
+    }
+    /* Renforcement dark mode pour placeholder (certains navigateurs) */
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #0ea5e9;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+    }
+    /* Options de select en dark mode */
+    .form-group select option {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .req         { color: #ef4444; }
+    .field-hint  { font-size: .7rem; color: var(--text-secondary); margin-top: .25rem; display: block; }
+
+    /* ── EXPLAINER SIRET ── */
+    .siret-explainer {
+      display: flex; gap: .75rem;
+      background-color: var(--accent-blue-bg);
+      border: 1px solid rgba(14,165,233,.2);
+      border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1rem;
+    }
+    .siret-explainer-icon {
+      width: 28px; height: 28px; background: #0ea5e9; color: #fff;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-weight: 700; flex-shrink: 0;
+    }
+    .siret-explainer strong { color: var(--text-primary); }
+    .siret-explainer p      { font-size: .8rem; color: var(--text-secondary); margin-top: .2rem; }
+
+    .siret-feedback       { font-size: .75rem; margin-top: .25rem; }
+    .siret-feedback.valid { color: #1D9E75; }
+    .siret-feedback.error { color: #ef4444; }
+
+    /* ── CHECKBOX ── */
+    .checkbox-option {
+      display: flex; align-items: flex-start; gap: .5rem;
+      font-size: .8rem; color: var(--text-primary);
+      margin: 1rem 0; line-height: 1.5; cursor: pointer;
+    }
+    .checkbox-option input { margin-top: 3px; flex-shrink: 0; }
+
+    /* ── RÉCAP PACK ── */
+    .pack-recap {
+      display: flex; align-items: center; justify-content: space-between;
+      background-color: var(--accent-blue-bg);
+      border: 1px solid rgba(14,165,233,.3);
+      border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1rem;
+    }
+    .pack-recap-name { font-weight: 600; color: #0284c7; }
+
+    /* ── BOUTONS ── */
+    .btn-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn-next, .btn-back, .btn-submit {
+      padding: .7rem 1.5rem; border-radius: 999px;
+      font-size: .85rem; font-weight: 500;
+      cursor: pointer; border: none;
+      font-family: 'Outfit', sans-serif; transition: all .2s;
+    }
+    .btn-next, .btn-submit { background: #0ea5e9; color: #fff; }
+    .btn-next:hover, .btn-submit:hover { background: #0284c7; }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-back {
+      background: transparent;
+      border: 1.5px solid var(--border-light);
+      color: var(--text-primary);
+    }
+    .btn-back:hover { border-color: #0ea5e9; color: #0ea5e9; }
+
+    /* ── IDENTITÉ NUMÉRIQUE ── */
+    .id-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .85rem; margin-bottom: 1rem;
+    }
+    @media (max-width: 500px) { .id-grid { grid-template-columns: 1fr; } }
+
+    .id-card {
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px; padding: 1rem;
+      text-align: center; cursor: pointer;
+      background-color: var(--bg-card);
+      transition: border-color .2s, background-color .2s;
+    }
+    .id-card:hover,
+    .id-card.selected { border-color: #0ea5e9; background-color: var(--accent-blue-bg); }
+
+    .id-card-icon  { font-size: 1.75rem; margin-bottom: .35rem; }
+    .id-card-title { font-size: .85rem; font-weight: 600; color: var(--text-primary); margin-bottom: .2rem; }
+    .id-card-desc  { font-size: .7rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: .4rem; }
+    .id-status {
+      display: inline-block; font-size: .67rem; font-weight: 600;
+      padding: .15rem .55rem; border-radius: 999px;
+      background-color: var(--accent-yellow-bg); color: #92400e;
+    }
+    .pwd-strength-label { font-size: .72rem; margin-top: .2rem; color: var(--text-secondary); }
+
+    /* ── ERREUR ── */
+    .insc-error {
+      background-color: var(--accent-red-bg);
+      border: 1px solid var(--accent-red-light);
+      border-radius: 10px; padding: .65rem 1rem;
+      font-size: .82rem; color: var(--accent-red);
+      margin-bottom: 1rem;
+    }
+
+    /* ── CONFIRMATION ── */
+    .inscription-confirmation { text-align: center; padding: 2rem; }
+    .confirm-icon {
+      width: 60px; height: 60px;
+      background-color: var(--accent-blue-bg); color: #0ea5e9;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem;
+    }
+    .confirm-h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; margin-bottom: .5rem;
+      color: var(--text-primary);
+    }
+    .confirm-sub { font-size: .85rem; color: var(--text-secondary); }
+    .confirm-steps { display: flex; flex-direction: column; gap: .5rem; margin: 1.5rem auto; max-width: 280px; }
+    .confirm-step { display: flex; align-items: center; gap: .75rem; font-size: .8rem; color: var(--text-primary); }
+    .conf-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--border-light); }
+    .conf-dot.done    { background: #0ea5e9; }
+    .conf-dot.pending { background: #f59e0b; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+
+    .hidden { display: none !important; }
+
+    /* ── FOOTER ── */
+    .nd-footer { background: #080f0b; color: rgba(255,255,255,.5); padding: 3rem 2rem 1.5rem; }
+    .nd-footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 2fr; gap: 2rem; }
+    .nd-logo-footer { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #fff; margin-bottom: .5rem; }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: .7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .nd-footer-col-title { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.3); margin-bottom: .5rem; }
+    .nd-footer-col a { display: block; font-size: .7rem; color: rgba(255,255,255,.5); text-decoration: none; margin-bottom: .3rem; }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom { text-align: center; font-size: .65rem; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,.05); }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="index.html#comment" class="nd-navlink">Comment ça marche</a>
+        <a href="index.html#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="login.html" class="nd-conn-item">🥗 Diététicien</a>
+          <a href="login.html" class="nd-conn-item">👤 Patient</a>
+          <a href="login.html" class="nd-conn-item">🏢 Prescripteur</a>
+        </div>
+      </div>
+      <a href="bilan.html" class="nd-btn-primary">Commencer gratuit →</a>
+    </div>
+  </div>
+</header>
+
+<!-- SPLIT SCREEN -->
+<div class="split-container">
+
+  <!-- ══════════════════════════════════════
+       COLONNE GAUCHE — PACKS
+  ══════════════════════════════════════ -->
+  <div class="pricing-col">
+    <h1>Choisissez votre pack de crédits</h1>
+    <p class="hero-sub">1 crédit = 1 plan nutritionnel validé par un diététicien certifié RPPS. Livraison sous 48h.</p>
+
+    <div class="pricing-stack">
+
+      <div class="price-row" data-pack="solo" data-prix="24.90" data-credits="1">
+        <div class="price-info">
+          <div class="price-name">Solo <span class="price-badge">À l'unité</span></div>
+          <div class="price-value">24,90 € <span class="price-unit">HT</span></div>
+          <div class="price-desc">1 crédit · 24,90€/plan</div>
+          <div class="price-features">
+            <span>1 plan validé RPPS</span><span>PDF signé sous 48h</span><span>CRM inclus</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <div class="price-row featured" data-pack="standard" data-prix="130" data-credits="10">
+        <div class="price-info">
+          <div class="price-name">Standard <span class="price-badge">⭐ RECOMMANDÉ</span></div>
+          <div class="price-value">130 € <span class="price-unit">HT</span></div>
+          <div class="price-desc">10 crédits · 13€/plan · Économisez 47%</div>
+          <div class="price-features">
+            <span>10 plans validés</span><span>CRM illimité</span><span>Valables 12 mois</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <div class="price-row" data-pack="expert" data-prix="500" data-credits="50">
+        <div class="price-info">
+          <div class="price-name">Expert</div>
+          <div class="price-value">500 € <span class="price-unit">HT</span></div>
+          <div class="price-desc">50 crédits · 10€/plan · Économisez 60%</div>
+          <div class="price-features">
+            <span>50 plans validés</span><span>Support prioritaire</span><span>12 mois</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+      <div class="price-row" data-pack="volume" data-prix="900" data-credits="100">
+        <div class="price-info">
+          <div class="price-name">Volume</div>
+          <div class="price-value">900 € <span class="price-unit">HT</span></div>
+          <div class="price-desc">100 crédits · 9€/plan · Économisez 64%</div>
+          <div class="price-features">
+            <span>100 plans validés</span><span>Multi-utilisateurs</span><span>12 mois</span>
+          </div>
+        </div>
+        <div class="price-check">✓</div>
+      </div>
+
+    </div>
+
+    <div class="pricing-info-box">
+      <p>💡 Vous prescrivez, un diététicien certifié RPPS valide et signe le plan</p>
+      <p>📋 Tous les packs valables 12 mois · Rechargez à tout moment</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       COLONNE DROITE — FORMULAIRE
+  ══════════════════════════════════════ -->
+  <div class="form-col">
+    <h2>Créer mon compte prescripteur</h2>
+    <p class="form-sub">Remplissez vos informations professionnelles · SIRET obligatoire</p>
+
+    <!-- Barre 4 étapes -->
+    <div class="insc-progress-bar">
+      <div class="insc-progress-step active" id="progStep1">
+        <div class="insc-prog-dot">1</div><span>Identité</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep2">
+        <div class="insc-prog-dot">2</div><span>SIRET + métier</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep3">
+        <div class="insc-prog-dot">3</div><span>Vérification</span>
+      </div>
+      <div class="insc-progress-line"></div>
+      <div class="insc-progress-step" id="progStep4">
+        <div class="insc-prog-dot">4</div><span>Pack & MDP</span>
+      </div>
+    </div>
+
+    <div id="inscError" class="insc-error hidden"></div>
+
+    <form id="inscriptionForm" novalidate>
+
+      <!-- ── ÉTAPE 1 : IDENTITÉ ── -->
+      <div class="insc-step active" data-step="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom <span class="req">*</span></label>
+            <input type="text" id="prenom" placeholder="Ex : Lucas" required autocomplete="given-name"/>
+          </div>
+          <div class="form-group">
+            <label>Nom <span class="req">*</span></label>
+            <input type="text" id="nom" placeholder="Ex : Martin" required autocomplete="family-name"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email professionnel <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="l.martin@cabinet.fr" required autocomplete="email"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" id="tel" placeholder="06 xx xx xx xx" autocomplete="tel"/>
+          </div>
+          <div class="form-group">
+            <label>Site web / Doctolib</label>
+            <input type="url" id="siteWeb" placeholder="https://..."/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cabinet / structure / salle</label>
+          <input type="text" id="cabinet" placeholder="Ex : Cabinet médical Saint-Médard"/>
+        </div>
+        <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+      </div>
+
+      <!-- ── ÉTAPE 2 : SIRET + MÉTIER ── -->
+      <div class="insc-step" data-step="2">
+        <div class="siret-explainer">
+          <div class="siret-explainer-icon">?</div>
+          <div>
+            <strong>Numéro SIRET</strong>
+            <p>14 chiffres identifiant votre établissement. Visible sur vos documents administratifs ou sur societe.com.</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Numéro SIRET <span class="req">*</span></label>
+          <input type="text" id="siret" placeholder="Ex : 12345678901234" maxlength="14" inputmode="numeric" required/>
+          <div class="siret-feedback" id="siretFeedback"></div>
+          <span class="field-hint">14 chiffres · Vérifié via l'INSEE</span>
+        </div>
+        <div class="form-group">
+          <label>Profession / activité <span class="req">*</span></label>
+          <select id="profession" required>
+            <option value="">— Choisir —</option>
+            <optgroup label="Santé">
+              <option value="medecin">Médecin généraliste</option>
+              <option value="infirmier">Infirmier(ière)</option>
+              <option value="kine">Kinésithérapeute</option>
+              <option value="osteo">Ostéopathe</option>
+              <option value="sage_femme">Sage-femme</option>
+              <option value="pharmacien">Pharmacien(ne)</option>
+            </optgroup>
+            <optgroup label="Sport & bien-être">
+              <option value="coach_sportif">Coach sportif</option>
+              <option value="prep_physique">Préparateur physique</option>
+              <option value="naturopathe">Naturopathe</option>
+            </optgroup>
+            <optgroup label="Autre">
+              <option value="entreprise">Entreprise / DRH</option>
+              <option value="autre">Autre professionnel</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ville d'exercice</label>
+          <input type="text" id="ville" placeholder="Ex : Angoulême"/>
+          <span class="field-hint">Permet d'assigner un diététicien proche de vos clients</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="validateSiretAndContinue()">Vérifier & continuer →</button>
+        </div>
+      </div>
+
+      <!-- ── ÉTAPE 3 : IDENTITÉ NUMÉRIQUE ── -->
+      <div class="insc-step" data-step="3">
+        <div class="siret-explainer">
+          <div class="siret-explainer-icon">🔐</div>
+          <div>
+            <strong>Vérification d'identité</strong>
+            <p>Optionnel — recommandé. Ajoute un <strong>badge de confiance</strong> sur votre profil prescripteur.</p>
+          </div>
+        </div>
+
+        <div class="id-grid">
+
+          <div class="id-card" id="cardFC" onclick="selectionnerVerif('fc',this)">
+            <div class="id-card-icon">🇫🇷</div>
+            <div class="id-card-title">FranceConnect</div>
+            <div class="id-card-desc">Via Ameli, impots.gouv ou autres services de l'État</div>
+            <span class="id-status" id="statusFC">Non vérifié</span>
+          </div>
+
+          <div class="id-card" id="cardFI" onclick="selectionnerVerif('fi',this)">
+            <div class="id-card-icon">🪪</div>
+            <div class="id-card-title">France Identité</div>
+            <div class="id-card-desc">Via votre carte nationale d'identité numérique</div>
+            <span class="id-status" id="statusFI">Non vérifié</span>
+          </div>
+
+          <div class="id-card" id="cardLP" onclick="selectionnerVerif('lp',this)">
+            <div class="id-card-icon">📬</div>
+            <div class="id-card-title">La Poste — IDN</div>
+            <div class="id-card-desc">Identité Numérique La Poste, vérifiée en bureau de poste</div>
+            <span class="id-status" id="statusLP">Non vérifié</span>
+          </div>
+
+          <div class="id-card" id="cardPSC" onclick="selectionnerVerif('psc',this)">
+            <div class="id-card-icon">🏥</div>
+            <div class="id-card-title">Pro Santé Connect</div>
+            <div class="id-card-desc">Avec votre carte CPS ou e-CPS (professions de santé)</div>
+            <span class="id-status" id="statusPSC">Non vérifié</span>
+          </div>
+
+        </div>
+
+        <div class="id-note">
+          ⚠️ Ces services sont <strong>en cours d'intégration</strong>. Vous pouvez ignorer cette étape — la vérification sera disponible depuis votre profil après inscription.
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Ignorer / Continuer →</button>
+        </div>
+      </div>
+
+      <!-- ── ÉTAPE 4 : PACK + MDP ── -->
+      <div class="insc-step" data-step="4">
+        <div class="form-group">
+          <label>Pack choisi <span class="req">*</span></label>
+          <div class="pack-recap" id="packRecap">
+            <div class="pack-recap-name" id="packRecapName">Standard — 130€ HT (10 crédits)</div>
+            <button type="button" class="pack-change" onclick="scrollToPricing()">Modifier ↑</button>
+          </div>
+          <input type="hidden" id="packHidden" name="pack" value="standard"/>
+        </div>
+        <div class="form-group">
+          <label>Mot de passe <span class="req">*</span></label>
+          <input type="password" id="password" placeholder="Minimum 8 caractères" required autocomplete="new-password"/>
+          <div id="pwdBar" class="pwd-strength-bar"></div>
+          <div id="pwdLabel" class="pwd-strength-label"></div>
+        </div>
+        <div class="form-group">
+          <label>Confirmer le mot de passe <span class="req">*</span></label>
+          <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required autocomplete="new-password"/>
+        </div>
+        <label class="checkbox-option">
+          <input type="checkbox" id="cgu" required/>
+          <span>J'accepte les <a href="cgu-prescripteur.html" target="_blank" style="color:#0ea5e9;">CGU Prescripteur</a> et la <a href="politique-confidentialite.html" target="_blank" style="color:#0ea5e9;">politique de confidentialité</a> <span class="req">*</span></span>
+        </label>
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
+          <button type="submit" class="btn-submit" id="btnSubmit">Créer mon compte →</button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- CONFIRMATION -->
+    <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
+      <div class="confirm-icon">✓</div>
+      <h3 class="confirm-h3">Bienvenue sur NutriDoc !</h3>
+      <p class="confirm-sub">Votre compte prescripteur a été créé avec succès.</p>
+      <div class="confirm-steps">
+        <div class="confirm-step"><span class="conf-dot done"></span><span>Compte créé</span></div>
+        <div class="confirm-step"><span class="conf-dot pending"></span><span>SIRET en cours de vérification</span></div>
+        <div class="confirm-step"><span class="conf-dot"></span><span>Accès CRM activé sous 24h</span></div>
+      </div>
+      <a href="prescripteur-dashboard.html" class="btn-next" style="display:inline-block;margin-top:1.5rem;">Accéder à mon espace →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plans alimentaires légaux en 48h, validés par des diététiciens certifiés RPPS.</p>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="cgu-prescripteur.html">CGU Prescripteur</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<script>
+// ── MENU CONNEXION ────────────────────────────────────────────
+function toggleConn() {
+  const m = document.getElementById('ndConnMenu');
+  if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', e => {
+  const w = document.getElementById('ndConnWrap');
+  const m = document.getElementById('ndConnMenu');
+  if (w && m && !w.contains(e.target)) m.style.display = 'none';
+});
+
+// ── SÉLECTION PACK ────────────────────────────────────────────
+let selectedPack = 'standard';
+const PACK_LABELS = {
+  solo:     'Solo — 24,90€ HT (1 crédit)',
+  standard: 'Standard — 130€ HT (10 crédits)',
+  expert:   'Expert — 500€ HT (50 crédits)',
+  volume:   'Volume — 900€ HT (100 crédits)',
+};
+
+document.querySelectorAll('.price-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('.price-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    selectedPack = row.dataset.pack;
+    document.getElementById('packHidden').value = selectedPack;
+    document.getElementById('packRecapName').textContent = PACK_LABELS[selectedPack] || selectedPack;
+  });
+});
+document.querySelector('.price-row.featured')?.classList.add('selected');
+
+function scrollToPricing() {
+  document.querySelector('.pricing-col')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────
+let currentStep = 1;
+const TOTAL_STEPS = 4;
+
+function updateProgress() {
+  document.querySelectorAll('.insc-step').forEach((s, i) =>
+    s.classList.toggle('active', i + 1 === currentStep)
+  );
+  document.querySelectorAll('.insc-progress-step').forEach((s, i) => {
+    s.classList.toggle('active', i + 1 === currentStep);
+    s.classList.toggle('done',   i + 1 < currentStep);
+  });
+  document.getElementById('inscError')?.classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep1Presc() {
+  const fields = [
+    { id:'prenom', label:'Prénom' },
+    { id:'nom',    label:'Nom' },
+    { id:'email',  label:'Email professionnel' },
+  ];
+  for (const f of fields) {
+    const el = document.getElementById(f.id);
+    if (!el) continue;
+    const empty = !el.value.trim();
+    el.style.borderColor = empty ? '#ef4444' : '';
+    if (empty) { showError(`⚠️ Le champ « ${f.label} » est obligatoire.`); el.focus(); return false; }
+  }
+  const emailVal = document.getElementById('email')?.value.trim();
+  if (emailVal && !emailVal.includes('@')) {
+    document.getElementById('email').style.borderColor = '#ef4444';
+    showError('⚠️ Veuillez entrer une adresse email valide.'); return false;
+  }
+  return true;
+}
+
+function nextStep() {
+  if (currentStep === 1 && !validateStep1Presc()) return;
+  if (currentStep < TOTAL_STEPS) { currentStep++; updateProgress(); }
+}
+function prevStep() { if (currentStep > 1) { currentStep--; updateProgress(); } }
+
+// ── VALIDATION SIRET ──────────────────────────────────────────
+function validateSiretAndContinue() {
+  const siret = document.getElementById('siret').value.replace(/\s/g, '');
+  const fb    = document.getElementById('siretFeedback');
+  if (!siret || siret.length !== 14 || !/^\d+$/.test(siret)) {
+    fb.textContent = '✗ SIRET invalide (14 chiffres requis)';
+    fb.className = 'siret-feedback error'; return;
+  }
+  if (!document.getElementById('profession').value) {
+    showError('Veuillez choisir votre profession.'); return;
+  }
+  fb.textContent = '✓ Format valide';
+  fb.className = 'siret-feedback valid';
+  nextStep();
+}
+
+// ── IDENTITÉ NUMÉRIQUE ────────────────────────────────────────
+const VERIF_STATUS = { fc:'statusFC', fi:'statusFI', lp:'statusLP', psc:'statusPSC' };
+
+function selectionnerVerif(type, el) {
+  document.querySelectorAll('.id-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const sid = VERIF_STATUS[type];
+  if (sid) {
+    const s = document.getElementById(sid);
+    s.textContent = '⚙️ Bientôt disponible';
+    s.style.background = 'var(--accent-blue-bg)';
+    s.style.color = '#0284c7';
+  }
+}
+
+// ── MOT DE PASSE ──────────────────────────────────────────────
+document.getElementById('password')?.addEventListener('input', e => {
+  const v   = e.target.value;
+  const bar = document.getElementById('pwdBar');
+  const lbl = document.getElementById('pwdLabel');
+  if (!bar || !lbl) return;
+
+  let score = 0;
+  if (v.length >= 8)          score++;
+  if (/[A-Z]/.test(v))        score++;
+  if (/[0-9]/.test(v))        score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+
+  const COLORS = ['', '#ef4444', '#f97316', '#22c55e', '#16a34a'];
+  const LABELS = ['', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+
+  if (v.length === 0) {
+    bar.style.setProperty('--fill', 'var(--border-light)');
+    bar.style.background = 'var(--border-light)';
+    lbl.textContent = '';
+  } else {
+    bar.style.background = `linear-gradient(to right, ${COLORS[score]} ${score * 25}%, var(--border-light) ${score * 25}%)`;
+    lbl.textContent  = LABELS[score];
+    lbl.style.color  = COLORS[score];
+  }
+});
+
+// ── ERREUR ────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('inscError');
+  if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+  else alert(msg);
+}
+
+// ── SOUMISSION ────────────────────────────────────────────────
+document.getElementById('inscriptionForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  document.getElementById('inscError')?.classList.add('hidden');
+
+  const password = document.getElementById('password').value;
+  const confirm  = document.getElementById('passwordConfirm').value;
+
+  if (password.length < 8) { showError('Mot de passe trop court (8 caractères minimum).'); return; }
+  if (password !== confirm) { showError('Les mots de passe ne correspondent pas.'); return; }
+  if (!document.getElementById('cgu').checked) { showError('Vous devez accepter les CGU.'); return; }
+
+  const payload = {
+    email:      document.getElementById('email').value.trim(),
+    password,
+    prenom:     document.getElementById('prenom').value.trim(),
+    nom:        document.getElementById('nom').value.trim(),
+    tel:        document.getElementById('tel').value.trim(),
+    siteWeb:    document.getElementById('siteWeb').value.trim(),
+    cabinet:    document.getElementById('cabinet').value.trim(),
+    siret:      document.getElementById('siret').value.trim(),
+    profession: document.getElementById('profession').value,
+    ville:      document.getElementById('ville').value.trim(),
+    pack:       selectedPack,
+  };
+
+  const btn = document.getElementById('btnSubmit');
+  if (btn) { btn.textContent = 'Création en cours…'; btn.disabled = true; }
+
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof inscrirePrescripteur !== 'undefined') {
+    const result = await inscrirePrescripteur(payload);
+    if (result && result.error) {
+      const msg = result.error.message === 'User already registered'
+        ? 'Un compte existe déjà avec cet email.'
+        : (result.error.message || 'Erreur lors de la création du compte.');
+      showError(msg);
+      if (btn) { btn.textContent = 'Créer mon compte →'; btn.disabled = false; }
+      return;
+    }
+  } else {
+    localStorage.setItem('nutridoc_prescripteur', JSON.stringify({
+      ...payload, statut: 'actif', created_at: new Date().toISOString()
+    }));
+  }
+
+  document.getElementById('inscriptionForm').style.display = 'none';
+  document.getElementById('inscriptionConfirmation').classList.remove('hidden');
+});
+</script>
+
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

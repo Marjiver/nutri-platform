@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="FAQ — NutriDoc">
+  <meta property="twitter:description" content="Questions fréquentes sur NutriDoc.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/faq.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Questions fréquentes sur NutriDoc.">
+  <meta property="og:title" content="FAQ — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="FAQ, questions, réponses, aide">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <meta charset="UTF-8"/>
+    <meta name="description" content="Toutes vos questions sur NutriDoc — fonctionnement, tarifs, diététiciens certifiés RPPS, plans alimentaires, remboursement mutuelle."/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>NutriDoc — Foire aux questions</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="js/ui/nav.js" defer></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<header class="header">
+  <a href="index.html" class="logo">Nutri<span>Doc</span></a>
+  <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
+</header>
+
+<main style="max-width:760px;margin:0 auto;padding:6rem 2rem 5rem;">
+  <div class="legal-header">
+    <h1>Questions fréquentes</h1>
+    <p style="color:var(--gray);font-size:.95rem;">Tout ce qu'il faut savoir sur NutriDoc</p>
+  </div>
+
+  <div id="faqList"></div>
+</main>
+
+<footer class="footer-main">
+  <div class="footer-bottom" style="padding:1.5rem 2rem;">
+    <p>© 2025 NutriDoc by CaliDoc Santé · <a href="cgu-patient.html" style="color:rgba(255,255,255,.5);">CGU</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,.5);">Confidentialité</a></p>
+  </div>
+</footer>
+
+<script>
+const FAQ = [
+  {
+    cat: "Général",
+    items: [
+      { q: "C'est quoi NutriDoc ?", a: "NutriDoc est une plateforme de pré-bilan nutritionnel. Vous remplissez un formulaire de 5 minutes, recevez des recommandations gratuites, et pouvez commander un plan alimentaire personnalisé validé et signé par un diététicien certifié RPPS." },
+      { q: "NutriDoc remplace-t-il un médecin ?", a: "Non. NutriDoc est un outil d'accompagnement nutritionnel pour des objectifs de bien-être (rééquilibrage, prise de masse, perte de gras). Il ne réalise aucun diagnostic médical. En cas de pathologie, consultez votre médecin." },
+      { q: "Est-ce que mes données sont sécurisées ?", a: "Oui. Vos données sont chiffrées (AES-256), hébergées dans l'Union Européenne sur une infrastructure conforme aux exigences HDS (Hébergement Données de Santé). Nous ne revendons aucune donnée personnelle." },
+    ]
+  },
+  {
+    cat: "Patients",
+    items: [
+      { q: "Le bilan est-il vraiment gratuit ?", a: "Oui, entièrement. Vous accédez aux recommandations personnalisées et aux menus hebdomadaires sans payer. Le plan avec grammages précis, validé par un diététicien, est payant (24,90 €)." },
+      { q: "Combien de temps pour recevoir mon plan ?", a: "Maximum 48 heures ouvrées après validation de votre paiement. Un diététicien certifié RPPS analyse, personnalise et signe votre plan. En moyenne, les plans sont livrés en moins de 24h." },
+      { q: "Que se passe-t-il si j'ai une situation médicale particulière (alerte santé) ?", a: "Si vous déclarez une grossesse, un TCA, un diabète traité, une insuffisance rénale, une chirurgie bariatrique ou d'autres pathologies, la génération automatique est bloquée. Votre dossier est transmis à un diététicien pour une prise en charge personnalisée sécurisée." },
+      { q: "Puis-je modifier mon profil après le bilan ?", a: "Oui. Depuis votre tableau de bord, vous pouvez mettre à jour votre profil de vie (sport, sommeil, repas types, etc.) à tout moment. Ces modifications sont transmises au diététicien lors du prochain plan." },
+      { q: "La visio est-elle remboursée par ma mutuelle ?", a: "Selon votre contrat, la consultation visio (55€) peut être partiellement remboursée au titre de la prévention ou de la diététique (généralement 20 à 55€ selon les mutuelles, dans la limite de 2 à 4 séances/an). NutriDoc génère automatiquement une attestation de consultation téléchargeable." },
+      { q: "Puis-je avoir un remboursement si je ne suis pas satisfait ?", a: "En cas de non-livraison du plan dans un délai de 5 jours ouvrés, vous êtes remboursé intégralement. Conformément au droit de rétractation, vous disposez de 14 jours calendaires sauf si la prestation a été exécutée avec votre accord." },
+    ]
+  },
+  {
+    cat: "Diététiciens",
+    items: [
+      { q: "Comment m'inscrire comme diététicien ?", a: "Rendez-vous sur la page d'inscription diététicien. Votre numéro RPPS (11 chiffres) est obligatoire et vérifié via l'Annuaire Santé national. L'activation intervient sous 24h." },
+      { q: "Combien est-ce que je gagne par plan validé ?", a: "De 10 à 15 € selon le pack de crédits choisi à 8 € net (pack Expert, 59 €/mois annuel). Pour les visios, vous percevez 55€ intégralement (0% commission NutriDoc)." },
+      { q: "Comment reçois-je les demandes de plans ?", a: "Les demandes sont notifiées par email et notification dans votre espace. La priorité est donnée aux diét. dans un rayon de 80km du patient. Le premier à accepter prend le dossier. Si aucune réponse sous 4h, la demande est diffusée nationalement." },
+      { q: "Suis-je responsable du contenu des plans ?", a: "Oui. En validant un plan, vous engagez votre responsabilité professionnelle. Vous certifiez avoir analysé le dossier patient. Votre nom, titre et RPPS figurent sur chaque plan signé. Souscrivez une assurance RCP adaptée à la téléconsultation diététique." },
+      { q: "Comment fonctionne la facturation ?", a: "Une facture électronique conforme est générée automatiquement chaque mois récapitulant tous vos actes. Les reversements sont effectués par virement sous 30 jours après fin de mois." },
+    ]
+  },
+  {
+    cat: "Prescripteurs",
+    items: [
+      { q: "Qui peut s'inscrire comme prescripteur ?", a: "Tout professionnel de santé ou du sport exerçant légalement une activité déclarée en France. Un numéro SIRET valide est requis (vérifié via l'API annuaire-entreprises.data.gouv.fr). Médecin, kiné, coach sportif, ostéopathe, infirmier, sage-femme, naturopathe, etc." },
+      { q: "Quelle est la différence avec le profil diététicien ?", a: "Le prescripteur initie des demandes de plans pour ses clients/patients, mais c'est toujours un diététicien certifié RPPS qui valide et signe le plan. Le prescripteur ne peut pas valider lui-même." },
+      { q: "Les crédits expirent-ils ?", a: "Non. Les crédits n'ont pas de date d'expiration et peuvent être rechargés à tout moment depuis votre tableau de bord." },
+      { q: "Que se passe-t-il si mon client a un alerte santé ?", a: "Le système bloque automatiquement la génération et redirige le dossier. 1 crédit est consommé (remboursé sur demande si le blocage est avéré). Orientez votre client vers un professionnel de santé compétent." },
+      { q: "Le diététicien reçoit-il une commission différente sur mes demandes ?", a: "Oui. Quand vous passez commande via vos crédits, le diététicien perçoit la même rémunération que pour les patients directs. La plateforme prélève sa commission sur le prix de votre crédit." },
+    ]
+  }
+];
+
+const container = document.getElementById('faqList');
+FAQ.forEach(section => {
+  const catEl = document.createElement('div');
+  catEl.style.cssText = 'margin-bottom:2.5rem';
+  catEl.innerHTML = `<div style="font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--green-light);">${section.cat}</div>`;
+  section.items.forEach((item, i) => {
+    const id = `faq-${section.cat}-${i}`;
+    catEl.innerHTML += `
+      <div class="faq-item" id="${id}">
+        <button class="faq-q" onclick="toggleFaq('${id}')">
+          <span>${item.q}</span>
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-a">${item.a}</div>
+      </div>`;
+  });
+  container.appendChild(catEl);
+});
+
+function toggleFaq(id) {
+  const item = document.getElementById(id);
+  const isOpen = item.classList.toggle('open');
+}
+</script>
+
+<style>
+.faq-item { border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:.5rem; overflow:hidden; }
+.faq-q {
+  width:100%; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+  padding:.9rem 1rem; background:var(--bg-card,#fff); border:none; cursor:pointer; font-size:.9rem;
+  font-family:var(--font-body); font-weight:500; color:var(--dark); text-align:left;
+  transition:background .15s;
+}
+.faq-q:hover { background:var(--green-light); }
+.faq-item.open .faq-q { background:var(--green-light); color:var(--green2); }
+.faq-arrow { transition:transform .25s; font-size:.75rem; flex-shrink:0; }
+.faq-item.open .faq-arrow { transform:rotate(180deg); }
+.faq-a {
+  max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s;
+  font-size:.875rem; color:var(--gray); line-height:1.7; padding:0 1rem;
+  background:#fafafa; border-top:0 solid var(--border);
+}
+.faq-item.open .faq-a { max-height:200px; padding:.75rem 1rem; border-top:1px solid var(--border); }
+@media(max-width:768px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}.dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}.sidebar{width:100%;}.sidebar-nav{display:flex;overflow-x:auto;}.sidebar-back{display:none;}.main-content{min-width:0;}}@media(max-width:480px){.page-title{font-size:1.3rem;}.metrics-grid{grid-template-columns:1fr 1fr;}.card-block{padding:1rem;}.compta-table{font-size:.72rem;}}
+</style>
+  
+
+  <section style="padding:3rem 2rem;background:var(--cream,#f7f9f7);" id="faq-diet">
+    <div style="max-width:760px;margin:0 auto;">
+      <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green,#1D9E75);font-weight:500;">Diététiciens</span>
+      <h2 style="font-family:var(--font-d,'DM Serif Display',serif);font-size:1.75rem;color:var(--dark,#0d2018);margin:.5rem 0 1.5rem;">Déontologie & exercice</h2>
+      <div style="border-bottom:1px solid var(--border,#e8edeb);padding:1rem 0;">
+        <div style="font-weight:500;cursor:pointer;display:flex;justify-content:space-between;font-size:.9rem;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+          <span>NutriDoc est-il compatible avec un poste salarié hospitalier ?</span><span>+</span>
+        </div>
+        <div style="display:none;font-size:.83rem;color:var(--gray,#6b7b74);line-height:1.7;margin-top:.6rem;">
+          Oui. NutriDoc est une activité libérale complémentaire, distincte de votre activité salariée. Vous exercez en dehors de vos heures de travail à l'hôpital, avec votre propre numéro RPPS. L'hôpital n'a pas à être informé tant que vous n'êtes pas en situation de conflit d'intérêt (ex : patients communs). Vérifiez votre contrat pour la clause d'exclusivité — elle est rare dans le secteur public.
+        </div>
+      </div>
+      <div style="border-bottom:1px solid var(--border,#e8edeb);padding:1rem 0;">
+        <div style="font-weight:500;cursor:pointer;display:flex;justify-content:space-between;font-size:.9rem;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+          <span>La formule Essentielle (gratuite) a-t-elle des obligations déontologiques particulières ?</span><span>+</span>
+        </div>
+        <div style="display:none;font-size:.83rem;color:var(--gray,#6b7b74);line-height:1.7;margin-top:.6rem;">
+          Non. La formule Essentielle vous donne accès à la plateforme et au référencement. Vous validez les plans via votre numéro RPPS comme dans votre exercice libéral habituel. Aucune obligation de volume, aucun engagement. Vous pouvez passer en Pro ou Expert à tout moment depuis votre espace.
+        </div>
+      </div>
+      <div style="padding:1rem 0;">
+        <div style="font-weight:500;cursor:pointer;display:flex;justify-content:space-between;font-size:.9rem;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+          <span>Suis-je responsable des plans que je valide ?</span><span>+</span>
+        </div>
+        <div style="display:none;font-size:.83rem;color:var(--gray,#6b7b74);line-height:1.7;margin-top:.6rem;">
+          Oui — comme dans tout exercice libéral. En signant un plan via NutriDoc, vous en êtes le professionnel de santé référent. C'est pour cela que votre RPPS est vérifié. Nous vous recommandons de vérifier que votre assurance RCP (responsabilité civile professionnelle) couvre la téléconsultation et les plans à distance. La majorité des RCP libérales incluent cela.
+        </div>
+      </div>
+    </div>
+  </section>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="NutriDoc"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="robots" content="noindex"/>
+  <meta name="description" content="NutriDoc — Comptabilité Prescripteur"/>
+  <meta name="author" content="CaliDoc Santé"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <title>Comptabilité — NutriDoc Prescripteur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);line-height:1.5;}
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem;}
+    .header-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .header-left{display:flex;align-items:center;gap:1.5rem;}
+    .nd-logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:#5DCAA5;}
+    .nd-nav{display:flex;gap:1.25rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .header-actions{display:flex;align-items:center;gap:.75rem;}
+    .nd-user-badge{font-size:.72rem;color:rgba(255,255,255,.55);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.3rem .85rem;}
+    .nd-btn-ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.35rem .9rem;color:rgba(255,255,255,.85);font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .nd-btn-ghost:hover{background:rgba(255,255,255,.16);color:#fff;}
+    @media(max-width:900px){.nd-nav{display:none;}}
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .dashboard-layout{display:flex;max-width:1400px;margin:0 auto;padding:5.5rem 2rem 3rem;gap:1.5rem;}
+    @media(max-width:768px){.dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}}
+    .sidebar{width:240px;flex-shrink:0;}
+    .sidebar-nav{background:var(--bg-card,#fff);border-radius:20px;border:1px solid var(--border-light,#eef4ee);overflow:hidden;position:sticky;top:80px;}
+    .sidebar-back{display:flex;align-items:center;gap:.4rem;padding:.7rem 1.25rem;font-size:.78rem;color:var(--text-secondary,#6b7b74);text-decoration:none;border-bottom:1px solid var(--border-light,#eef4ee);transition:color .2s;}
+    .sidebar-back:hover{color:#1D9E75;}
+    .sidebar-section-label{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted,#9ca3af);padding:.6rem 1.25rem .3rem;border-bottom:none;}
+    .sidebar-item{display:flex;align-items:center;gap:.75rem;padding:.8rem 1.25rem;cursor:pointer;transition:all .2s;border-bottom:1px solid var(--border-light,#eef4ee);color:var(--text-secondary,#6b7b74);font-size:.83rem;}
+    .sidebar-item:last-child{border-bottom:none;}
+    .sidebar-item:hover{background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);}
+    .sidebar-item.active{background:rgba(29,158,117,.08);color:#1D9E75;border-left:3px solid #1D9E75;}
+    .sidebar-icon{font-size:1.1rem;width:26px;}
+    @media(max-width:768px){.sidebar{width:100%;}.sidebar-nav{display:flex;overflow-x:auto;}.sidebar-back,.sidebar-section-label{display:none;}.sidebar-item{white-space:nowrap;border-bottom:none;border-right:1px solid var(--border-light,#eef4ee);}}
+    .main-content{flex:1;min-width:0;}
+    .section{display:none;animation:fadeIn .3s ease;}
+    .section.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* ── COMPOSANTS ──────────────────────────────────────────── */
+    .page-header{margin-bottom:1.5rem;}
+    .page-title{font-family:'Playfair Display',serif;font-size:1.6rem;}
+    .page-sub{font-size:.85rem;color:var(--text-secondary,#6b7b74);margin-top:.2rem;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+    @media(max-width:1000px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:500px){.metrics-grid{grid-template-columns:1fr 1fr;}}
+    .metric-card{background:var(--bg-card,#fff);border:1px solid var(--border-light,#eef4ee);border-radius:20px;padding:1rem 1.25rem;}
+    .metric-card.dark{background:linear-gradient(135deg,#0d2018,#142c1f);border-color:rgba(93,202,165,.2);}
+    .metric-card.accent-green{border-left:3px solid #1D9E75;}
+    .metric-card.accent-blue{border-left:3px solid #0ea5e9;}
+    .metric-card.accent-amber{border-left:3px solid #f59e0b;}
+    .metric-icon{font-size:1.3rem;margin-bottom:.35rem;}
+    .metric-val{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;color:#1D9E75;line-height:1;}
+    .metric-card.dark .metric-val{color:#5DCAA5;}
+    .metric-val-amber{color:#f59e0b !important;}
+    .metric-val-blue{color:#0ea5e9 !important;}
+    .metric-label{font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-top:.2rem;}
+    .metric-card.dark .metric-label{color:rgba(255,255,255,.45);}
+    .metric-delta{font-size:.65rem;margin-top:.25rem;display:flex;align-items:center;gap:.25rem;}
+    .delta-up{color:#1D9E75;}
+    .delta-down{color:#ef4444;}
+    .card-block{background:var(--bg-card,#fff);border:1px solid var(--border-light,#eef4ee);border-radius:20px;padding:1.25rem;margin-bottom:1.5rem;}
+    .card-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border-light,#eef4ee);}
+    .card-header h3{font-size:1rem;font-weight:600;}
+    .card-header-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
+    .btn-sm-action{background:transparent;border:1px solid var(--border-light,#eef4ee);border-radius:999px;padding:.3rem .8rem;font-size:.72rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;color:var(--text-secondary,#6b7b74);text-decoration:none;display:inline-block;}
+    .btn-sm-action:hover{border-color:#1D9E75;color:#1D9E75;}
+    .btn-green-sm{background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s;text-decoration:none;display:inline-block;}
+    .btn-green-sm:hover{background:#0f6e56;}
+    .btn-blue-sm{background:#0ea5e9;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s;text-decoration:none;}
+    .btn-blue-sm:hover{background:#0284c7;}
+
+    /* ── TABLEAUX ────────────────────────────────────────────── */
+    .compta-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+    .compta-table th{background:var(--bg-secondary,#f7f9f7);padding:.65rem 1rem;text-align:left;font-weight:600;font-size:.75rem;border-bottom:1px solid var(--border-light,#eef4ee);white-space:nowrap;color:var(--text-secondary,#6b7b74);text-transform:uppercase;letter-spacing:.04em;}
+    .compta-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border-light,#eef4ee);color:var(--text-secondary,#6b7b74);}
+    .compta-table tr:last-child td{border-bottom:none;}
+    .compta-table tr:hover td{background:var(--bg-secondary,#f7f9f7);}
+    .table-scroll{overflow-x:auto;}
+    .badge-ok{background:#e1f5ee;color:#1D9E75;font-size:.68rem;padding:.2rem .65rem;border-radius:999px;white-space:nowrap;font-weight:500;}
+    .badge-pending{background:#fff8e6;color:#d97706;font-size:.68rem;padding:.2rem .65rem;border-radius:999px;white-space:nowrap;font-weight:500;}
+    .badge-waiting{background:#f1f5f9;color:#64748b;font-size:.68rem;padding:.2rem .65rem;border-radius:999px;white-space:nowrap;font-weight:500;}
+    .badge-refund{background:#fef2f2;color:#ef4444;font-size:.68rem;padding:.2rem .65rem;border-radius:999px;white-space:nowrap;font-weight:500;}
+    .text-green{color:#1D9E75;font-weight:600;}
+    .text-bold{font-weight:600;color:var(--text-primary,#0d2018);}
+    .text-muted{color:var(--text-muted,#9ca3af);}
+    .text-right{text-align:right;}
+    .chart-wrapper{position:relative;height:240px;}
+
+    /* ── ALERTE CRÉDITS ─────────────────────────────────────── */
+    .alert-credits{background:#fff8e6;border:1px solid #fcd34d;border-radius:16px;padding:.9rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .alert-credits-text{font-size:.85rem;color:#633806;}
+    .btn-upgrade{background:#1D9E75;color:#fff;padding:.45rem 1.1rem;border-radius:999px;font-size:.78rem;font-weight:500;text-decoration:none;transition:background .2s;}
+    .btn-upgrade:hover{background:#0f6e56;}
+
+    /* ── BLOC CRÉDITS ────────────────────────────────────────── */
+    .credits-block{background:linear-gradient(135deg,#0d2018,#142c1f);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem;color:#fff;}
+    .credits-big{font-family:'Playfair Display',serif;font-size:3.5rem;color:#5DCAA5;line-height:1;}
+    .credits-sub{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.25rem;}
+    .credits-bar-wrap{height:8px;background:rgba(255,255,255,.1);border-radius:999px;margin:1rem 0 .5rem;overflow:hidden;}
+    .credits-bar-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#5DCAA5);border-radius:999px;transition:width .6s ease;}
+    .credits-bar-label{font-size:.72rem;color:rgba(255,255,255,.4);}
+    .credits-actions{display:flex;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap;}
+    .btn-recharge{background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;transition:background .2s;}
+    .btn-recharge:hover{background:#0f6e56;}
+    .btn-recharge-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.5rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;transition:all .2s;}
+    .btn-recharge-ghost:hover{background:rgba(255,255,255,.14);}
+
+    /* ── PACKS ───────────────────────────────────────────────── */
+    .packs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1rem;}
+    @media(max-width:900px){.packs-grid{grid-template-columns:repeat(2,1fr);}}
+    .pack-card{background:var(--bg-secondary,#f7f9f7);border:1.5px solid var(--border-light,#eef4ee);border-radius:16px;padding:1rem;text-align:center;transition:all .2s;cursor:pointer;}
+    .pack-card:hover{border-color:#1D9E75;transform:translateY(-3px);}
+    .pack-card.featured{background:linear-gradient(135deg,#0d2018,#142c1f);border-color:rgba(93,202,165,.4);}
+    .pack-name{font-size:.82rem;font-weight:600;margin-bottom:.25rem;}
+    .pack-card.featured .pack-name{color:#fff;}
+    .pack-credits{font-family:'Playfair Display',serif;font-size:1.6rem;color:#1D9E75;}
+    .pack-card.featured .pack-credits{color:#5DCAA5;}
+    .pack-prix{font-size:.72rem;color:var(--text-secondary,#6b7b74);margin-top:.2rem;}
+    .pack-card.featured .pack-prix{color:rgba(255,255,255,.5);}
+    .pack-unit{font-size:.65rem;color:var(--text-muted,#9ca3af);margin-top:.15rem;}
+    .pack-card.featured .pack-unit{color:rgba(255,255,255,.3);}
+
+    /* ── BLOC REVENUS ────────────────────────────────────────── */
+    .revenus-banner{background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .revenus-banner-left{}
+    .revenus-banner-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:.25rem;}
+    .revenus-banner-amount{font-family:'Playfair Display',serif;font-size:2.8rem;line-height:1;}
+    .revenus-banner-sub{font-size:.78rem;color:rgba(255,255,255,.55);margin-top:.3rem;}
+    .revenus-banner-stats{display:flex;gap:1.5rem;}
+    .revenus-stat{text-align:center;}
+    .revenus-stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;}
+    .revenus-stat-label{font-size:.65rem;color:rgba(255,255,255,.5);}
+    .marge-bar-wrap{height:10px;background:rgba(255,255,255,.15);border-radius:999px;margin:1rem 0 .35rem;overflow:hidden;width:100%;}
+    .marge-bar-fill{height:100%;background:rgba(255,255,255,.7);border-radius:999px;transition:width .6s ease;}
+    .marge-bar-label{font-size:.7rem;color:rgba(255,255,255,.5);}
+
+    /* ── BILAN FISCAL ────────────────────────────────────────── */
+    .fiscal-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;}
+    @media(max-width:700px){.fiscal-grid{grid-template-columns:1fr;}}
+    .fiscal-box{background:var(--bg-card,#fff);border:1px solid var(--border-light,#eef4ee);border-radius:16px;padding:1.25rem;}
+    .fiscal-box h4{font-size:.88rem;font-weight:600;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-light,#eef4ee);}
+    .fiscal-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;font-size:.82rem;}
+    .fiscal-row:not(:last-child){border-bottom:1px dotted var(--border-light,#eef4ee);}
+    .fiscal-row-label{color:var(--text-secondary,#6b7b74);}
+    .fiscal-row-val{font-weight:600;color:var(--text-primary,#0d2018);}
+    .fiscal-row-val.green{color:#1D9E75;}
+    .fiscal-row-val.blue{color:#0ea5e9;}
+    .fiscal-row-val.amber{color:#d97706;}
+    .fiscal-total{background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.75rem 1rem;margin-top:.75rem;display:flex;justify-content:space-between;align-items:center;}
+    .fiscal-total-label{font-size:.8rem;font-weight:600;}
+    .fiscal-total-val{font-family:'Playfair Display',serif;font-size:1.3rem;color:#1D9E75;font-weight:700;}
+    .notice-box{background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);border-radius:12px;padding:.85rem 1rem;font-size:.78rem;color:var(--text-secondary,#6b7b74);line-height:1.6;margin-top:1rem;}
+    .notice-box strong{color:#0ea5e9;}
+
+    /* ── VIDE ────────────────────────────────────────────────── */
+    .empty-dashed{border:2px dashed var(--border-light,#d1ddd7);border-radius:14px;padding:2.5rem 1rem;text-align:center;color:var(--text-muted,#9ca3af);}
+    .empty-dashed-icon{font-size:2.2rem;opacity:.3;margin-bottom:.6rem;}
+    .empty-dashed h4{font-size:.9rem;font-weight:500;color:var(--text-secondary,#6b7b74);margin-bottom:.3rem;}
+    .empty-dashed p{font-size:.78rem;}
+
+    /* ── SIMULATEUR ──────────────────────────────────────────── */
+    .sim-bubble{position:fixed;bottom:1.5rem;left:1.5rem;z-index:300;}
+    .sim-toggle{width:52px;height:52px;background:#1D9E75;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:1.4rem;transition:transform .2s;}
+    .sim-toggle:hover{transform:scale(1.05);background:#0f6e56;}
+    .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--bg-card,#fff);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid rgba(29,158,117,.2);overflow:hidden;}
+    .sim-window.open{display:block;}
+    .sim-header{background:#1D9E75;color:#fff;padding:.7rem 1rem;font-size:.88rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
+    .sim-body{padding:1rem;}
+    .sim-field{margin-bottom:.85rem;}
+    .sim-field-header{display:flex;justify-content:space-between;margin-bottom:.3rem;}
+    .sim-field-label{font-size:.73rem;color:var(--text-secondary,#6b7b74);font-weight:500;}
+    .sim-field-val{font-size:.78rem;font-weight:600;}
+    input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:999px;background:var(--bg-tertiary,#eef4ee);outline:none;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#1D9E75;border:2px solid #fff;cursor:pointer;}
+    .sim-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:.25rem;margin:.4rem 0 .75rem;}
+    .sim-abtn{background:var(--bg-secondary,#f7f9f7);border:1px solid var(--border-light,#eef4ee);border-radius:8px;padding:.35rem .1rem;text-align:center;cursor:pointer;font-size:.65rem;transition:all .15s;}
+    .sim-abtn.active{background:#e1f5ee;border-color:#1D9E75;}
+    .sim-abtn-price{font-weight:700;color:#1D9E75;font-size:.68rem;}
+    .sim-results{background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.65rem;margin:.6rem 0;}
+    .sim-row{display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.25rem;}
+    .sim-row.highlight{font-weight:700;color:#1D9E75;font-size:.82rem;}
+    .sim-note{font-size:.63rem;color:var(--text-secondary,#6b7b74);text-align:center;margin-top:.4rem;}
+
+    /* ── FILTRES ─────────────────────────────────────────────── */
+    .filtres-bar{background:var(--bg-card,#fff);border:1px solid var(--border-light,#eef4ee);border-radius:16px;padding:.75rem 1.25rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;}
+    .filtres-bar label{font-size:.78rem;font-weight:500;color:var(--text-secondary,#6b7b74);}
+    .filtres-bar select,.filtres-bar input{padding:.3rem .75rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.78rem;background:var(--bg-card,#fff);color:var(--text-primary,#0d2018);}
+
+    /* ── RÉSUMÉ MOIS ─────────────────────────────────────────── */
+    .recap-mois-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem;}
+    @media(max-width:700px){.recap-mois-grid{grid-template-columns:1fr 1fr;}}
+    .recap-mois-card{background:var(--bg-secondary,#f7f9f7);border-radius:14px;padding:.85rem;text-align:center;}
+    .recap-mois-val{font-family:'Playfair Display',serif;font-size:1.35rem;color:#1D9E75;}
+    .recap-mois-label{font-size:.68rem;color:var(--text-muted,#9ca3af);margin-top:.15rem;}
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:3rem 2rem 1.5rem;margin-top:2rem;}
+    .nd-footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 2fr;gap:2rem;}
+    .nd-logo-footer{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;margin-bottom:.5rem;}
+    .nd-logo-footer em{font-style:italic;color:#5DCAA5;}
+    .nd-footer-brand p{font-size:.7rem;line-height:1.6;max-width:280px;}
+    .nd-footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .nd-footer-col-title{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:.5rem;}
+    .nd-footer-col a{display:block;font-size:.7rem;color:rgba(255,255,255,.5);text-decoration:none;margin-bottom:.3rem;}
+    .nd-footer-col a:hover{color:#fff;}
+    .nd-footer-bottom{text-align:center;font-size:.65rem;padding-top:2rem;margin-top:2rem;border-top:1px solid rgba(255,255,255,.05);}
+    @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:40px;height:40px;background:#1D9E75;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;font-size:1rem;}
+    .scroll-top-btn.visible{opacity:1;}
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────────── -->
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="accueil-prescripteur.html" class="nd-navlink">Mon espace</a>
+        <a href="prescripteur-dashboard.html" class="nd-navlink">Dashboard</a>
+        <a href="prescripteur-crm.html" class="nd-navlink">Mes clients</a>
+        <a href="compta-prescripteur.html" class="nd-navlink active">Comptabilité</a>
+        <a href="gestion-credits-prescripteur.html" class="nd-navlink">Crédits</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── LAYOUT ───────────────────────────────────────────────────── -->
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-nav">
+      <a href="prescripteur-dashboard.html" class="sidebar-back">← Mon espace</a>
+      <div class="sidebar-section-label">Vue globale</div>
+      <div class="sidebar-item active" data-section="dashboard"><span class="sidebar-icon">📊</span><span>Tableau de bord</span></div>
+      <div class="sidebar-item" data-section="revenus"><span class="sidebar-icon">💼</span><span>Mes revenus</span></div>
+      <div class="sidebar-section-label">Documents</div>
+      <div class="sidebar-item" data-section="factures"><span class="sidebar-icon">📄</span><span>Factures NutriDoc</span></div>
+      <div class="sidebar-item" data-section="historique"><span class="sidebar-icon">📋</span><span>Historique plans</span></div>
+      <div class="sidebar-section-label">Gestion</div>
+      <div class="sidebar-item" data-section="credits"><span class="sidebar-icon">🪙</span><span>Crédits</span></div>
+      <div class="sidebar-item" data-section="fiscal"><span class="sidebar-icon">🧾</span><span>Bilan fiscal</span></div>
+    </div>
+  </aside>
+
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Comptabilité Prescripteur</h1>
+<main class="main-content">
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — TABLEAU DE BORD
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h2 class="page-title">Tableau de bord comptable</h2>
+        <p class="page-sub">Synthèse de vos dépenses, revenus de revente et marge nette.</p>
+      </div>
+
+      <div id="alertCredits" class="alert-credits" style="display:none;">
+        <div class="alert-credits-text"><strong>⚠️ Crédits bientôt épuisés</strong> — Il vous reste moins de 3 crédits. Rechargez pour continuer à prescrire.</div>
+        <a href="gestion-credits-prescripteur.html" class="btn-upgrade">Recharger →</a>
+      </div>
+
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card"><div class="metric-icon">📋</div><div class="metric-val">—</div><div class="metric-label">Plans commandés (total)</div></div>
+        <div class="metric-card accent-blue"><div class="metric-icon">💶</div><div class="metric-val metric-val-blue">—</div><div class="metric-label">CA de revente (TTC)</div></div>
+        <div class="metric-card accent-amber"><div class="metric-icon">🪙</div><div class="metric-val metric-val-amber">—</div><div class="metric-label">Crédits restants</div></div>
+        <div class="metric-card dark"><div class="metric-icon">📈</div><div class="metric-val">—</div><div class="metric-label">Marge nette cumulée</div></div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📈 CA de revente vs Coût des crédits (€ TTC)</h3>
+          <div class="card-header-actions">
+            <select id="selectAnnee" onchange="renderChart()" style="padding:.3rem .8rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.8rem;background:var(--bg-card,#fff);">
+              <option value="2026">2026</option><option value="2025">2025</option>
+            </select>
+          </div>
+        </div>
+        <div id="chartZone">
+          <div class="empty-dashed"><div class="empty-dashed-icon">📈</div><h4>Pas encore de données</h4><p>Le graphique apparaîtra dès votre premier achat de crédits.</p></div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📅 Activité du mois en cours</h3>
+          <button class="btn-sm-action" onclick="showSection('historique')">Voir tout →</button>
+        </div>
+        <div id="recapMoisZone">
+          <div class="empty-dashed"><div class="empty-dashed-icon">📅</div><h4>Aucun plan ce mois</h4><p>Les plans commandés ce mois s'afficheront ici.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — MES REVENUS (REVENTE)
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-revenus" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Mes revenus de revente</h2>
+        <p class="page-sub">Suivez ce que vous encaissez de vos clients, votre coût NutriDoc et votre marge nette.</p>
+      </div>
+
+      <div class="revenus-banner" id="revenusBanner">
+        <div class="revenus-banner-left">
+          <div class="revenus-banner-title">CA DE REVENTE CUMULÉ</div>
+          <div class="revenus-banner-amount" id="revenuCA">—</div>
+          <div class="revenus-banner-sub">Montant total encaissé de vos clients</div>
+          <div class="marge-bar-wrap"><div class="marge-bar-fill" id="margeBar" style="width:0%;"></div></div>
+          <div class="marge-bar-label" id="margeBarLabel">Marge : —%</div>
+        </div>
+        <div class="revenus-banner-stats">
+          <div class="revenus-stat"><div class="revenus-stat-val" id="revenuCout">—</div><div class="revenus-stat-label">Coût NutriDoc</div></div>
+          <div class="revenus-stat"><div class="revenus-stat-val" id="revenuMarge">—</div><div class="revenus-stat-label">Marge nette</div></div>
+          <div class="revenus-stat"><div class="revenus-stat-val" id="revenuPlans">—</div><div class="revenus-stat-label">Plans revendus</div></div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header">
+          <h3>💼 Détail des reventes par client</h3>
+          <div class="card-header-actions">
+            <select id="filtreRevenusMois" onchange="filtrerRevenus()" style="padding:.3rem .75rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.78rem;background:var(--bg-card,#fff);">
+              <option value="">Tous les mois</option>
+              <option value="2026-04">Avril 2026</option>
+              <option value="2026-03">Mars 2026</option>
+              <option value="2026-02">Février 2026</option>
+              <option value="2026-01">Janvier 2026</option>
+              <option value="2025-12">Décembre 2025</option>
+            </select>
+            <button class="btn-sm-action" onclick="exportRevenusCSV()">↓ CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="compta-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Objectif</th>
+                <th>Prix vendu</th>
+                <th>Coût crédit</th>
+                <th>Marge</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="revenusBody">
+              <tr><td colspan="7" class="text-muted" style="text-align:center;padding:2rem;">Aucune revente enregistrée.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:1rem;border-top:1px solid var(--border-light,#eef4ee);margin-top:.5rem;flex-wrap:wrap;gap:.5rem;">
+          <span style="font-size:.78rem;color:var(--text-secondary,#6b7b74);" id="revenusTotauxLine">—</span>
+          <a href="prescripteur-crm.html" class="btn-blue-sm">+ Enregistrer une revente</a>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header"><h3>📊 Marge mensuelle</h3></div>
+        <div id="margeChartZone">
+          <div class="empty-dashed"><div class="empty-dashed-icon">📊</div><h4>Pas encore de données</h4><p>Le graphique de marge apparaîtra après vos premières reventes.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 3 — FACTURES NUTRIDOC
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-factures" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Factures NutriDoc</h2>
+        <p class="page-sub">Vos factures d'achat de crédits — téléchargeables en PDF.</p>
+      </div>
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📄 Historique des factures</h3>
+          <div class="card-header-actions">
+            <select id="filtreFacturesAnnee" onchange="filtrerFactures()" style="padding:.3rem .75rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.78rem;background:var(--bg-card,#fff);">
+              <option value="">Toutes les années</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+            </select>
+            <button class="btn-sm-action" onclick="exportFacturesCSV()">↓ Exporter CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="compta-table">
+            <thead>
+              <tr>
+                <th>N° Facture</th>
+                <th>Date</th>
+                <th>Pack</th>
+                <th>Crédits</th>
+                <th>Montant HT</th>
+                <th>TVA 20%</th>
+                <th>TTC</th>
+                <th>Statut</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody id="facturesBody">
+              <tr><td colspan="9" class="text-muted" style="text-align:center;padding:2rem;">Aucune facture disponible.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-light,#eef4ee);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+          <span style="font-size:.78rem;color:var(--text-secondary,#6b7b74);">Les factures sont générées automatiquement après chaque achat de crédits via Stripe.</span>
+          <a href="gestion-credits-prescripteur.html" class="btn-green-sm">+ Acheter des crédits</a>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header"><h3>💰 Récapitulatif des achats</h3></div>
+        <div id="facturesRecapZone">
+          <div class="empty-dashed"><div class="empty-dashed-icon">💰</div><h4>Aucun achat enregistré</h4><p>Le récapitulatif apparaîtra après votre premier achat.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 4 — HISTORIQUE DES PLANS
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-historique" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Historique des plans commandés</h2>
+        <p class="page-sub">Tous les plans alimentaires commandés pour vos clients.</p>
+      </div>
+
+      <div class="filtres-bar">
+        <label>Filtrer :</label>
+        <select id="filtreStatut" onchange="filtrerPlans()">
+          <option value="">Tous les statuts</option>
+          <option value="livré">✅ Livré</option>
+          <option value="en cours">⏳ En cours</option>
+          <option value="en attente">🕐 En attente</option>
+        </select>
+        <select id="filtreMois" onchange="filtrerPlans()">
+          <option value="">Tous les mois</option>
+          <option value="2026-04">Avril 2026</option>
+          <option value="2026-03">Mars 2026</option>
+          <option value="2026-02">Février 2026</option>
+          <option value="2026-01">Janvier 2026</option>
+          <option value="2025-12">Décembre 2025</option>
+        </select>
+        <button class="btn-sm-action" onclick="exportPlansCSV()">↓ Exporter CSV</button>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📋 Plans commandés</h3>
+          <span id="plansCount" style="font-size:.78rem;color:var(--text-secondary,#6b7b74);"></span>
+        </div>
+        <div class="table-scroll">
+          <table class="compta-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Objectif</th>
+                <th>Diététicien RPPS</th>
+                <th>Crédit utilisé</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="plansBody">
+              <tr><td colspan="7" class="text-muted" style="text-align:center;padding:2rem;">Aucun plan commandé.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 5 — CRÉDITS
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-credits" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Gestion des crédits</h2>
+        <p class="page-sub">1 crédit = 1 plan alimentaire validé par un diététicien RPPS sous 48h.</p>
+      </div>
+
+      <div class="credits-block">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.08em;">Crédits disponibles</div>
+            <div class="credits-big" id="creditsRestants">—</div>
+            <div class="credits-sub">crédits · 1 crédit = 1 plan validé RPPS sous 48h</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);">Pack actuel</div>
+            <div id="packActuel" style="font-size:.95rem;font-weight:600;color:#5DCAA5;margin-top:.15rem;">—</div>
+            <div id="creditsExpiry" style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:.3rem;">Les crédits n'expirent pas</div>
+          </div>
+        </div>
+        <div class="credits-bar-wrap"><div class="credits-bar-fill" id="creditsBar" style="width:0%;"></div></div>
+        <div class="credits-bar-label" id="creditsBarLabel">— crédits utilisés sur le pack</div>
+        <div class="credits-actions">
+          <a href="gestion-credits-prescripteur.html" class="btn-recharge">+ Recharger mes crédits</a>
+          <button class="btn-recharge-ghost" onclick="showSection('historique')">Voir l'historique</button>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header"><h3>🛒 Packs disponibles</h3><a href="gestion-credits-prescripteur.html" class="btn-green-sm">Acheter →</a></div>
+        <div class="packs-grid">
+          <div class="pack-card">
+            <div class="pack-name">Solo</div>
+            <div class="pack-credits">1</div>
+            <div class="pack-prix">24,90 € TTC</div>
+            <div class="pack-unit">24,90 € / crédit</div>
+          </div>
+          <div class="pack-card featured">
+            <div class="pack-name">Standard ⭐</div>
+            <div class="pack-credits">10</div>
+            <div class="pack-prix">130 € TTC</div>
+            <div class="pack-unit">13,00 € / crédit</div>
+          </div>
+          <div class="pack-card">
+            <div class="pack-name">Expert</div>
+            <div class="pack-credits">50</div>
+            <div class="pack-prix">500 € TTC</div>
+            <div class="pack-unit">10,00 € / crédit</div>
+          </div>
+          <div class="pack-card">
+            <div class="pack-name">Volume</div>
+            <div class="pack-credits">100</div>
+            <div class="pack-prix">900 € TTC</div>
+            <div class="pack-unit">9,00 € / crédit</div>
+          </div>
+        </div>
+        <p style="font-size:.72rem;color:var(--text-secondary,#6b7b74);margin-top:1rem;">💳 Les crédits n'expirent pas. Paiement sécurisé via Stripe.</p>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header"><h3>🔄 Historique des recharges</h3><button class="btn-sm-action" onclick="exportFacturesCSV()">↓ CSV</button></div>
+        <div class="table-scroll">
+          <table class="compta-table">
+            <thead><tr><th>Date</th><th>Pack</th><th>Crédits ajoutés</th><th>Montant TTC</th><th>Solde après</th></tr></thead>
+            <tbody id="rechargesBody">
+              <tr><td colspan="5" class="text-muted" style="text-align:center;padding:2rem;">Aucune recharge enregistrée.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 6 — BILAN FISCAL
+    ══════════════════════════════════════════════════════ -->
+    <div id="section-fiscal" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Bilan fiscal annuel</h2>
+        <p class="page-sub">Récapitulatif de vos charges et revenus pour votre déclaration fiscale.</p>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header">
+          <h3>🧾 Exercice fiscal</h3>
+          <div class="card-header-actions">
+            <select id="selectAnneeFiscal" onchange="renderFiscal()" style="padding:.3rem .8rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.8rem;background:var(--bg-card,#fff);">
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+            </select>
+            <button class="btn-sm-action" onclick="exportFiscalCSV()">↓ Exporter</button>
+          </div>
+        </div>
+        <div id="fiscalZone">
+          <div class="empty-dashed"><div class="empty-dashed-icon">🧾</div><h4>Aucune donnée</h4><p>Le bilan fiscal apparaîtra après votre premier achat de crédits.</p></div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="card-header"><h3>📊 Répartition mensuelle</h3></div>
+        <div class="table-scroll">
+          <table class="compta-table" id="fiscalTable">
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th>Crédits achetés</th>
+                <th>Coût HT</th>
+                <th>CA revente</th>
+                <th>Marge brute</th>
+                <th>Plans livrés</th>
+              </tr>
+            </thead>
+            <tbody id="fiscalMoisBody">
+              <tr><td colspan="6" class="text-muted" style="text-align:center;padding:2rem;">Sélectionnez une année.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="notice-box">
+        <strong>📌 Note fiscale</strong> — Ce bilan est fourni à titre indicatif. Les achats de crédits NutriDoc constituent des <strong>charges déductibles</strong> de votre activité professionnelle (BNC / BIC selon votre statut). Rapprochez-vous de votre expert-comptable pour votre déclaration. Les factures officielles sont disponibles dans l'onglet <strong>Factures NutriDoc</strong>.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── SIMULATEUR ROI ──────────────────────────────────────────── -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()" title="Simulateur ROI">💡</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-header"><span>💡 Simulateur ROI</span><button class="sim-close" onclick="toggleSim()">✕</button></div>
+    <div class="sim-body">
+      <p style="font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-bottom:.75rem;">Projetez votre marge selon le pack choisi.</p>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">👥 Clients / mois</span><span class="sim-field-val" id="simClientsVal">10</span></div>
+        <input type="range" min="1" max="100" value="10" id="simClients" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">📈 Taux conversion</span><span class="sim-field-val" id="simTauxVal">40%</span></div>
+        <input type="range" min="10" max="100" step="5" value="40" id="simTaux" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">💶 Prix de revente</span><span class="sim-field-val" id="simPrixVal">39€</span></div>
+        <input type="range" min="25" max="80" step="1" value="39" id="simPrix" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">📦 Pack</span></div>
+        <div class="sim-btns">
+          <div class="sim-abtn" onclick="setPack(24.9,1,this)"><div>Solo</div><div class="sim-abtn-price">24,9€</div></div>
+          <div class="sim-abtn active" onclick="setPack(13,10,this)"><div>Std</div><div class="sim-abtn-price">13€</div></div>
+          <div class="sim-abtn" onclick="setPack(10,50,this)"><div>Expert</div><div class="sim-abtn-price">10€</div></div>
+          <div class="sim-abtn" onclick="setPack(9,100,this)"><div>Vol.</div><div class="sim-abtn-price">9€</div></div>
+        </div>
+      </div>
+      <div class="sim-results">
+        <div class="sim-row"><span>📋 Plans vendus/mois</span><strong id="simPlans">—</strong></div>
+        <div class="sim-row"><span>💰 CA brut</span><strong id="simCa">—</strong></div>
+        <div class="sim-row"><span>📉 Coût crédits</span><strong id="simCouts">—</strong></div>
+        <div class="sim-row highlight"><span>📈 Marge mensuelle</span><strong id="simMarge">—</strong></div>
+      </div>
+      <div class="sim-note" id="simNote"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ──────────────────────────────────────────────────── -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Prescripteur</div>
+        <a href="prescripteur-dashboard.html">Dashboard</a>
+        <a href="prescripteur-crm.html">Mes clients</a>
+        <a href="compta-prescripteur.html">Comptabilité</a>
+        <a href="gestion-credits-prescripteur.html">Crédits</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">NutriDoc</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-patient.html">Espace Patient</a>
+        <a href="partenariats.html">Partenaires B2B</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="cgu-prescripteur.html">CGU Prescripteur</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ── ÉTAT INITIAL VIDE (rempli par Supabase) ───────────────────────
+let TOUS_LES_PLANS = [];   // {date, client, objectif, diet, prixVente, credits, statut}
+let FACTURES = [];          // {num, date, pack, credits, ht, tva}
+let CREDITS = {restants: 0, total: 0, pack: '—'};
+let coutCredit = 13;        // coût moyen / crédit — recalculé depuis les factures
+let chartInstance = null;
+let margeChartInstance = null;
+
+// ── NAVIGATION SIDEBAR ────────────────────────────────────────────
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => showSection(item.dataset.section));
+});
+function showSection(s) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+  document.querySelector(`.sidebar-item[data-section="${s}"]`)?.classList.add('active');
+  document.getElementById('section-' + s)?.classList.add('active');
+  // Rendu lazy selon section
+  if (s === 'revenus') renderRevenus();
+  if (s === 'fiscal') renderFiscal();
+  if (s === 'factures') { renderFactures(); renderFacturesRecap(); }
+}
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ── CHARGEMENT PRINCIPAL ──────────────────────────────────────────
+async function chargerDonnees() {
+  // ── Auth ──────────────────────────────────────────────────────
+  let profile = null;
+  try {
+    if (typeof getProfile === 'function') profile = await getProfile();
+  } catch(e) { console.warn('auth non disponible', e); }
+
+  if (!profile) {
+    // Pas connecté → affiche les états vides sans rediriger brutalement
+    document.getElementById('navUser').textContent = 'Non connecté';
+    renderMetriques(); renderChart(); renderRecapMois();
+    renderPlans(); renderCredits(); renderRecharges();
+    return;
+  }
+  if (profile.role !== 'prescriber') {
+    window.location.href = 'login.html?role=prescriber'; return;
+  }
+  document.getElementById('navUser').textContent =
+    [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+
+  if (typeof _supa === 'undefined') {
+    console.warn('Client Supabase non initialisé');
+    renderMetriques(); renderChart(); renderRecapMois();
+    renderPlans(); renderCredits(); renderRecharges();
+    return;
+  }
+
+  // ── Plans commandés ───────────────────────────────────────────
+  try {
+    const {data: plans, error} = await _supa
+      .from('plans')
+      .select('id, created_at, patient_name, objectif, dietitian_name, prix_vente, statut')
+      .eq('prescriber_id', profile.id)
+      .order('created_at', {ascending: false});
+    if (!error && plans) {
+      TOUS_LES_PLANS = plans.map(p => ({
+        date:      p.created_at?.split('T')[0] || '—',
+        client:    p.patient_name || 'Patient',
+        objectif:  p.objectif || '—',
+        diet:      p.dietitian_name || '—',
+        prixVente: Number(p.prix_vente) || 0,
+        credits:   1,
+        statut:    p.statut || 'en attente'
+      }));
+    }
+  } catch(e) { console.warn('plans :', e); }
+
+  // ── Achats de crédits / factures ──────────────────────────────
+  try {
+    const {data: factures, error} = await _supa
+      .from('credit_purchases')
+      .select('id, created_at, pack_name, credits_bought, amount_ht, amount_tva, stripe_invoice_id, statut')
+      .eq('prescriber_id', profile.id)
+      .order('created_at', {ascending: false});
+    if (!error && factures) {
+      FACTURES = factures.map((f, i) => ({
+        num:     f.stripe_invoice_id || `PRESC-${new Date(f.created_at).getFullYear()}-${String(i+1).padStart(3,'0')}`,
+        date:    f.created_at?.split('T')[0] || '—',
+        pack:    f.pack_name || '—',
+        credits: Number(f.credits_bought) || 0,
+        ht:      Number(f.amount_ht) || 0,
+        tva:     Number(f.amount_tva) || 0,
+        statut:  f.statut || 'payé'
+      }));
+      const tot = FACTURES.reduce((a, f) => a + f.credits, 0);
+      const ttc = FACTURES.reduce((a, f) => a + f.ht + f.tva, 0);
+      if (tot > 0) coutCredit = ttc / tot;
+    }
+  } catch(e) { console.warn('credit_purchases :', e); }
+
+  // ── Crédits prescripteur ──────────────────────────────────────
+  try {
+    const {data: presc, error} = await _supa
+      .from('prescribers')
+      .select('credits, credits_total, pack')
+      .eq('id', profile.id)
+      .single();
+    if (!error && presc) {
+      CREDITS.restants = Number(presc.credits) || 0;
+      CREDITS.total    = Number(presc.credits_total) || CREDITS.restants;
+      CREDITS.pack     = presc.pack || '—';
+    }
+  } catch(e) { console.warn('prescribers :', e); }
+
+  renderMetriques();
+  renderChart();
+  renderRecapMois();
+  renderPlans();
+  renderCredits();
+  renderRecharges();
+}
+
+// ── MÉTRIQUES DASHBOARD ───────────────────────────────────────────
+function renderMetriques() {
+  const livres = TOUS_LES_PLANS.filter(p => p.statut === 'livré');
+  const encours = TOUS_LES_PLANS.filter(p => p.statut === 'en cours').length;
+  const caTotal = livres.reduce((a, p) => a + (p.prixVente || 0), 0);
+  const coutTotal = FACTURES.reduce((a, f) => a + f.ht + f.tva, 0);
+  const margeTotale = caTotal - coutTotal;
+
+  if (CREDITS.restants <= 3) document.getElementById('alertCredits').style.display = 'flex';
+
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-icon">📋</div>
+      <div class="metric-val">${TOUS_LES_PLANS.length}</div>
+      <div class="metric-label">Plans commandés (total)</div>
+      <div class="metric-delta"><span style="color:#64748b;">dont ${encours} en cours</span></div>
+    </div>
+    <div class="metric-card accent-blue">
+      <div class="metric-icon">💶</div>
+      <div class="metric-val metric-val-blue">${caTotal.toFixed(0)} €</div>
+      <div class="metric-label">CA de revente (TTC)</div>
+      <div class="metric-delta delta-up">↑ ${livres.length} plans livrés</div>
+    </div>
+    <div class="metric-card accent-amber">
+      <div class="metric-icon">🪙</div>
+      <div class="metric-val metric-val-amber">${CREDITS.restants}</div>
+      <div class="metric-label">Crédits restants</div>
+      <div class="metric-delta"><span style="color:#64748b;">Pack : ${CREDITS.pack}</span></div>
+    </div>
+    <div class="metric-card dark">
+      <div class="metric-icon">📈</div>
+      <div class="metric-val">${margeTotale >= 0 ? '+' : ''}${margeTotale.toFixed(0)} €</div>
+      <div class="metric-label">Marge nette cumulée</div>
+      <div class="metric-delta" style="color:rgba(255,255,255,.4);">CA − Coût crédits</div>
+    </div>`;
+}
+
+// ── GRAPHIQUE DASHBOARD (CA vs Coût) ──────────────────────────────
+function renderChart() {
+  const annee = parseInt(document.getElementById('selectAnnee').value);
+  const now = new Date();
+  const labels = [], dataCA = [], dataCout = [];
+
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(annee, now.getMonth() - i, 1);
+    const mKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    labels.push(d.toLocaleDateString('fr-FR', {month:'short', year:'2-digit'}));
+    // CA = somme des prix de vente des plans livrés ce mois
+    const plansMois = TOUS_LES_PLANS.filter(p => p.date?.startsWith(mKey) && p.statut === 'livré');
+    dataCA.push(plansMois.reduce((a, p) => a + (p.prixVente || 0), 0));
+    // Coût = achats de crédits ce mois
+    dataCout.push(Math.round(FACTURES.filter(f => f.date.startsWith(mKey)).reduce((a, f) => a + f.ht + f.tva, 0) * 100) / 100);
+  }
+
+  const zone = document.getElementById('chartZone');
+  if (!dataCA.some(v => v > 0) && !dataCout.some(v => v > 0)) {
+    zone.innerHTML = '<div class="empty-dashed"><div class="empty-dashed-icon">📈</div><h4>Pas encore de données</h4><p>Le graphique apparaîtra dès votre premier achat de crédits.</p></div>';
+    return;
+  }
+  zone.innerHTML = '<div class="chart-wrapper"><canvas id="depensesChart"></canvas></div>';
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('depensesChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label: 'CA revente (€)', data: dataCA, backgroundColor: 'rgba(14,165,233,.75)', borderRadius: 6, borderSkipped: false},
+        {label: 'Coût crédits (€)', data: dataCout, backgroundColor: 'rgba(29,158,117,.65)', borderRadius: 6, borderSkipped: false}
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: true, position: 'top', labels: {font: {family:'Outfit', size:11}, boxWidth:12, padding:12}}},
+      scales: {
+        x: {grid: {display:false}, ticks: {font:{family:'Outfit',size:11}}},
+        y: {beginAtZero: true, ticks: {font:{family:'Outfit',size:11}, callback: v => v + ' €'}, grid: {color:'rgba(0,0,0,.04)'}}
+      }
+    }
+  });
+}
+
+// ── RECAP MOIS (DASHBOARD) ────────────────────────────────────────
+function renderRecapMois() {
+  const mois = new Date().toISOString().slice(0, 7);
+  const plansMois = TOUS_LES_PLANS.filter(p => p.date?.startsWith(mois));
+  const zone = document.getElementById('recapMoisZone');
+  if (!plansMois.length) {
+    zone.innerHTML = '<div class="empty-dashed"><div class="empty-dashed-icon">📅</div><h4>Aucun plan ce mois</h4><p>Les plans commandés ce mois s\'afficheront ici.</p></div>';
+    return;
+  }
+  const livresMois = plansMois.filter(p => p.statut === 'livré');
+  const caMois = livresMois.reduce((a, p) => a + (p.prixVente || 0), 0);
+  const coutMois = FACTURES.filter(f => f.date?.startsWith(mois)).reduce((a, f) => a + f.ht + f.tva, 0);
+  zone.innerHTML = `
+    <div class="recap-mois-grid">
+      <div class="recap-mois-card"><div class="recap-mois-val">${plansMois.length}</div><div class="recap-mois-label">Plans commandés</div></div>
+      <div class="recap-mois-card"><div class="recap-mois-val" style="color:#0ea5e9;">${caMois.toFixed(0)} €</div><div class="recap-mois-label">CA revente</div></div>
+      <div class="recap-mois-card"><div class="recap-mois-val">${(caMois - coutMois).toFixed(0)} €</div><div class="recap-mois-label">Marge nette</div></div>
+    </div>
+    <div class="table-scroll">
+      <table class="compta-table">
+        <thead><tr><th>Date</th><th>Client</th><th>Objectif</th><th>Prix vendu</th><th>Statut</th></tr></thead>
+        <tbody>
+          ${plansMois.map(p => `<tr>
+            <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
+            <td class="text-bold">${p.client}</td>
+            <td>${p.objectif}</td>
+            <td>${p.prixVente ? p.prixVente + ' €' : '—'}</td>
+            <td><span class="${p.statut==='livré'?'badge-ok':p.statut==='en cours'?'badge-pending':'badge-waiting'}">${p.statut}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── SECTION REVENUS ────────────────────────────────────────────────
+let TOUS_LES_REVENUS = [...TOUS_LES_PLANS];
+function renderRevenus() {
+  TOUS_LES_REVENUS = [...TOUS_LES_PLANS];
+  const livres = TOUS_LES_REVENUS.filter(p => p.statut === 'livré');
+  const caTotal = livres.reduce((a, p) => a + (p.prixVente || 0), 0);
+  const coutTotal = livres.length * coutCredit;
+  const marge = caTotal - coutTotal;
+  const pctMarge = caTotal > 0 ? Math.round((marge / caTotal) * 100) : 0;
+
+  document.getElementById('revenuCA').textContent = caTotal.toFixed(0) + ' €';
+  document.getElementById('revenuCout').textContent = coutTotal.toFixed(0) + ' €';
+  document.getElementById('revenuMarge').textContent = (marge >= 0 ? '+' : '') + marge.toFixed(0) + ' €';
+  document.getElementById('revenuPlans').textContent = livres.length;
+  document.getElementById('margeBar').style.width = Math.min(pctMarge, 100) + '%';
+  document.getElementById('margeBarLabel').textContent = `Marge : ${pctMarge}% (${marge.toFixed(0)} € nets)`;
+
+  filtrerRevenus();
+  renderMargeChart();
+}
+
+function filtrerRevenus() {
+  const mo = document.getElementById('filtreRevenusMois').value;
+  let data = TOUS_LES_PLANS.filter(p => p.statut === 'livré');
+  if (mo) data = data.filter(p => p.date?.startsWith(mo));
+
+  const tbody = document.getElementById('revenusBody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="text-align:center;padding:2rem;">Aucune revente pour cette période.</td></tr>';
+    document.getElementById('revenusTotauxLine').textContent = '—';
+    return;
+  }
+  const caFiltre = data.reduce((a, p) => a + (p.prixVente || 0), 0);
+  const coutFiltre = data.length * coutCredit;
+  const margeFiltre = caFiltre - coutFiltre;
+
+  tbody.innerHTML = data.map(p => {
+    const marge = (p.prixVente || 0) - coutCredit;
+    return `<tr>
+      <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
+      <td class="text-bold">${p.client}</td>
+      <td>${p.objectif}</td>
+      <td class="text-bold" style="color:#0ea5e9;">${p.prixVente || '—'} €</td>
+      <td class="text-muted">${coutCredit.toFixed(2)} €</td>
+      <td class="${marge >= 0 ? 'text-green' : ''}">${marge >= 0 ? '+' : ''}${marge.toFixed(2)} €</td>
+      <td><span class="badge-ok">Livré</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('revenusTotauxLine').textContent =
+    `${data.length} plan${data.length > 1 ? 's' : ''} · CA : ${caFiltre.toFixed(0)} € · Coût : ${coutFiltre.toFixed(0)} € · Marge : ${margeFiltre >= 0 ? '+' : ''}${margeFiltre.toFixed(0)} €`;
+}
+
+function renderMargeChart() {
+  const months = {};
+  TOUS_LES_PLANS.filter(p => p.statut === 'livré').forEach(p => {
+    const m = p.date?.slice(0, 7);
+    if (!m) return;
+    if (!months[m]) months[m] = {ca: 0, cout: 0};
+    months[m].ca += p.prixVente || 0;
+    months[m].cout += coutCredit;
+  });
+
+  const keys = Object.keys(months).sort();
+  if (!keys.length) return;
+
+  const labels = keys.map(k => {
+    const d = new Date(k + '-01');
+    return d.toLocaleDateString('fr-FR', {month:'short', year:'2-digit'});
+  });
+  const dataMarges = keys.map(k => +(months[k].ca - months[k].cout).toFixed(2));
+
+  const zone = document.getElementById('margeChartZone');
+  zone.innerHTML = '<div class="chart-wrapper"><canvas id="margeChart"></canvas></div>';
+  if (margeChartInstance) margeChartInstance.destroy();
+  margeChartInstance = new Chart(document.getElementById('margeChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Marge nette mensuelle (€)',
+        data: dataMarges,
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14,165,233,.1)',
+        fill: true,
+        tension: .4,
+        pointBackgroundColor: '#0ea5e9',
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: false}},
+      scales: {
+        x: {grid:{display:false}, ticks:{font:{family:'Outfit',size:11}}},
+        y: {beginAtZero: true, ticks: {font:{family:'Outfit',size:11}, callback: v => v + ' €'}, grid:{color:'rgba(0,0,0,.04)'}}
+      }
+    }
+  });
+}
+
+// ── SECTION FACTURES ──────────────────────────────────────────────
+function filtrerFactures() {
+  const annee = document.getElementById('filtreFacturesAnnee').value;
+  let data = [...FACTURES];
+  if (annee) data = data.filter(f => f.date.startsWith(annee));
+  renderFactures(data);
+}
+
+function renderFactures(data) {
+  const src = data || FACTURES;
+  const tbody = document.getElementById('facturesBody');
+  if (!src.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="text-align:center;padding:2rem;">Aucune facture disponible.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = src.map(f => `<tr>
+    <td class="text-bold">${f.num}</td>
+    <td>${new Date(f.date).toLocaleDateString('fr-FR')}</td>
+    <td>${f.pack}</td>
+    <td style="text-align:center;">${f.credits}</td>
+    <td>${f.ht.toFixed(2)} €</td>
+    <td>${f.tva.toFixed(2)} €</td>
+    <td class="text-green">${(f.ht + f.tva).toFixed(2)} €</td>
+    <td><span class="badge-ok">Payé</span></td>
+    <td><button class="btn-sm-action" onclick="telechargerFacture('${f.num}')">📄 PDF</button></td>
+  </tr>`).join('');
+}
+
+function renderFacturesRecap() {
+  const zone = document.getElementById('facturesRecapZone');
+  if (!FACTURES.length) return;
+  const tHT = FACTURES.reduce((a, f) => a + f.ht, 0);
+  const tTVA = FACTURES.reduce((a, f) => a + f.tva, 0);
+  const tTTC = tHT + tTVA;
+  const tCred = FACTURES.reduce((a, f) => a + f.credits, 0);
+  zone.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1rem;">
+    <div class="metric-card"><div class="metric-val">${FACTURES.length}</div><div class="metric-label">Factures émises</div></div>
+    <div class="metric-card"><div class="metric-val">${tCred}</div><div class="metric-label">Crédits achetés</div></div>
+    <div class="metric-card dark"><div class="metric-val">${tTTC.toFixed(0)} €</div><div class="metric-label">Total payé à NutriDoc</div></div>
+  </div>
+  <div style="background:var(--bg-secondary,#f7f9f7);border-radius:12px;padding:1rem;font-size:.82rem;color:var(--text-secondary,#6b7b74);">
+    <div class="fiscal-row"><span class="fiscal-row-label">Montant total HT</span><strong class="fiscal-row-val">${tHT.toFixed(2)} €</strong></div>
+    <div class="fiscal-row"><span class="fiscal-row-label">TVA 20%</span><strong class="fiscal-row-val">${tTVA.toFixed(2)} €</strong></div>
+    <div class="fiscal-row"><span class="fiscal-row-label">Total TTC payé</span><strong class="fiscal-row-val green">${tTTC.toFixed(2)} €</strong></div>
+    <div class="fiscal-row"><span class="fiscal-row-label">Coût moyen / crédit</span><strong class="fiscal-row-val">${tCred > 0 ? (tTTC/tCred).toFixed(2) : '—'} €</strong></div>
+  </div>`;
+}
+
+function telechargerFacture(num) {
+  alert(`📄 Téléchargement de la facture ${num}.pdf\n\nEn production, ce PDF est généré par Stripe et stocké dans Supabase Storage.`);
+}
+
+// ── SECTION HISTORIQUE PLANS ─────────────────────────────────────
+function renderPlans(plans) {
+  const data = plans || TOUS_LES_PLANS;
+  const tbody = document.getElementById('plansBody');
+  const cpt = document.getElementById('plansCount');
+  if (cpt) cpt.textContent = `${data.length} plan${data.length > 1 ? 's' : ''}`;
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="text-align:center;padding:2rem;">Aucun résultat.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(p => `<tr>
+    <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
+    <td class="text-bold">${p.client}</td>
+    <td>${p.objectif}</td>
+    <td>${p.diet}</td>
+    <td style="text-align:center;">1</td>
+    <td><span class="${p.statut==='livré'?'badge-ok':p.statut==='en cours'?'badge-pending':'badge-waiting'}">${p.statut}</span></td>
+    <td>${p.statut === 'livré' ? '<button class="btn-sm-action" onclick="voirPlan()">📋 Voir</button>' : '—'}</td>
+  </tr>`).join('');
+}
+
+function filtrerPlans() {
+  const st = document.getElementById('filtreStatut').value;
+  const mo = document.getElementById('filtreMois').value;
+  let f = [...TOUS_LES_PLANS];
+  if (st) f = f.filter(p => p.statut === st);
+  if (mo) f = f.filter(p => p.date?.startsWith(mo));
+  renderPlans(f);
+}
+
+function voirPlan() { alert('📋 En production : ouverture du PDF du plan alimentaire signé par le diététicien RPPS.'); }
+
+// ── SECTION CRÉDITS ───────────────────────────────────────────────
+function renderCredits() {
+  const {restants, total, pack} = CREDITS;
+  document.getElementById('creditsRestants').textContent = restants;
+  document.getElementById('packActuel').textContent = pack;
+  const pct = total > 0 ? Math.round((restants / total) * 100) : 0;
+  document.getElementById('creditsBar').style.width = pct + '%';
+  const u = total - restants;
+  document.getElementById('creditsBarLabel').textContent = `${u} crédit${u > 1 ? 's' : ''} utilisé${u > 1 ? 's' : ''} sur ${total} au total`;
+}
+
+function renderRecharges() {
+  const tbody = document.getElementById('rechargesBody');
+  if (!FACTURES.length) return;
+  let solde = 0;
+  const rows = [...FACTURES].reverse().map(f => {
+    solde += f.credits;
+    return `<tr>
+      <td>${new Date(f.date).toLocaleDateString('fr-FR')}</td>
+      <td>${f.pack}</td>
+      <td style="text-align:center;" class="text-green">+${f.credits}</td>
+      <td>${(f.ht + f.tva).toFixed(2)} €</td>
+      <td>${solde} crédits</td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.reverse().join('');
+}
+
+// ── SECTION BILAN FISCAL ──────────────────────────────────────────
+function renderFiscal() {
+  const annee = document.getElementById('selectAnneeFiscal').value;
+  const facturesAnnee = FACTURES.filter(f => f.date.startsWith(annee));
+  const plansAnnee = TOUS_LES_PLANS.filter(p => p.date?.startsWith(annee) && p.statut === 'livré');
+
+  const tHT = facturesAnnee.reduce((a, f) => a + f.ht, 0);
+  const tTVA = facturesAnnee.reduce((a, f) => a + f.tva, 0);
+  const tTTC = tHT + tTVA;
+  const tCred = facturesAnnee.reduce((a, f) => a + f.credits, 0);
+  const caRevente = plansAnnee.reduce((a, p) => a + (p.prixVente || 0), 0);
+  const margeNette = caRevente - tTTC;
+
+  const zone = document.getElementById('fiscalZone');
+  if (!facturesAnnee.length && !plansAnnee.length) {
+    zone.innerHTML = `<div class="empty-dashed"><div class="empty-dashed-icon">🧾</div><h4>Aucune donnée pour ${annee}</h4><p>Le bilan fiscal apparaîtra après votre premier achat.</p></div>`;
+    renderFiscalMois(annee);
+    return;
+  }
+
+  zone.innerHTML = `
+    <div class="fiscal-grid">
+      <div class="fiscal-box">
+        <h4>💸 Charges (achats de crédits)</h4>
+        <div class="fiscal-row"><span class="fiscal-row-label">Crédits achetés</span><span class="fiscal-row-val">${tCred} crédits</span></div>
+        <div class="fiscal-row"><span class="fiscal-row-label">Montant HT</span><span class="fiscal-row-val">${tHT.toFixed(2)} €</span></div>
+        <div class="fiscal-row"><span class="fiscal-row-label">TVA 20% (non déductible si non assujetti)</span><span class="fiscal-row-val">${tTVA.toFixed(2)} €</span></div>
+        <div class="fiscal-total">
+          <span class="fiscal-total-label">Total TTC décaissé</span>
+          <span class="fiscal-total-val">${tTTC.toFixed(2)} €</span>
+        </div>
+      </div>
+      <div class="fiscal-box">
+        <h4>💰 Revenus (revente de plans)</h4>
+        <div class="fiscal-row"><span class="fiscal-row-label">Plans revendus</span><span class="fiscal-row-val">${plansAnnee.length} plans</span></div>
+        <div class="fiscal-row"><span class="fiscal-row-label">CA total encaissé</span><span class="fiscal-row-val blue">${caRevente.toFixed(2)} €</span></div>
+        <div class="fiscal-row"><span class="fiscal-row-label">Prix moyen / plan</span><span class="fiscal-row-val">${plansAnnee.length ? (caRevente / plansAnnee.length).toFixed(2) : '—'} €</span></div>
+        <div class="fiscal-total">
+          <span class="fiscal-total-label">Marge nette estimée</span>
+          <span class="fiscal-total-val" style="color:${margeNette >= 0 ? '#1D9E75' : '#ef4444'}">${margeNette >= 0 ? '+' : ''}${margeNette.toFixed(2)} €</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1rem;">
+      <div class="metric-card"><div class="metric-val">${facturesAnnee.length}</div><div class="metric-label">Achats de crédits</div></div>
+      <div class="metric-card"><div class="metric-val">${plansAnnee.length}</div><div class="metric-label">Plans revendus</div></div>
+      <div class="metric-card accent-blue"><div class="metric-val metric-val-blue">${caRevente.toFixed(0)} €</div><div class="metric-label">CA brut</div></div>
+      <div class="metric-card dark"><div class="metric-val">${margeNette >= 0 ? '+' : ''}${margeNette.toFixed(0)} €</div><div class="metric-label">Marge nette</div></div>
+    </div>`;
+
+  renderFiscalMois(annee);
+}
+
+function renderFiscalMois(annee) {
+  const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const tbody = document.getElementById('fiscalMoisBody');
+  const rows = [];
+  for (let m = 1; m <= 12; m++) {
+    const mKey = `${annee}-${String(m).padStart(2, '0')}`;
+    const factures = FACTURES.filter(f => f.date.startsWith(mKey));
+    const plans = TOUS_LES_PLANS.filter(p => p.date?.startsWith(mKey) && p.statut === 'livré');
+    const credAchetes = factures.reduce((a, f) => a + f.credits, 0);
+    const coutHT = factures.reduce((a, f) => a + f.ht, 0);
+    const ca = plans.reduce((a, p) => a + (p.prixVente || 0), 0);
+    const marge = ca - (coutHT * 1.2); // TTC
+    if (!credAchetes && !plans.length) continue;
+    rows.push(`<tr>
+      <td class="text-bold">${MOIS_FR[m-1]} ${annee}</td>
+      <td style="text-align:center;">${credAchetes || '—'}</td>
+      <td>${coutHT > 0 ? coutHT.toFixed(2) + ' €' : '—'}</td>
+      <td style="color:#0ea5e9;font-weight:600;">${ca > 0 ? ca.toFixed(2) + ' €' : '—'}</td>
+      <td class="${marge >= 0 ? 'text-green' : ''}">${ca > 0 || coutHT > 0 ? (marge >= 0 ? '+' : '') + marge.toFixed(2) + ' €' : '—'}</td>
+      <td style="text-align:center;">${plans.length || '—'}</td>
+    </tr>`);
+  }
+  tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="text-muted" style="text-align:center;padding:2rem;">Aucune activité cette année.</td></tr>';
+}
+
+// ── EXPORTS CSV ───────────────────────────────────────────────────
+function exportCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+}
+
+function exportPlansCSV() {
+  const rows = [['Date','Client','Objectif','Diététicien','Prix vendu','Crédit','Statut']];
+  TOUS_LES_PLANS.forEach(p => rows.push([p.date, p.client, p.objectif, p.diet, p.prixVente || '', p.credits, p.statut]));
+  exportCSV(rows, 'nutridoc-plans-prescripteur.csv');
+}
+
+function exportFacturesCSV() {
+  const rows = [['N° Facture','Date','Pack','Crédits','Montant HT','TVA','TTC']];
+  FACTURES.forEach(f => rows.push([f.num, f.date, f.pack, f.credits, f.ht.toFixed(2), f.tva.toFixed(2), (f.ht + f.tva).toFixed(2)]));
+  exportCSV(rows, 'nutridoc-factures-prescripteur.csv');
+}
+
+function exportRevenusCSV() {
+  const rows = [['Date','Client','Objectif','Prix vendu','Coût crédit','Marge','Statut']];
+  TOUS_LES_PLANS.filter(p => p.statut === 'livré').forEach(p => {
+    const marge = (p.prixVente || 0) - coutCredit;
+    rows.push([p.date, p.client, p.objectif, p.prixVente || 0, coutCredit.toFixed(2), marge.toFixed(2), p.statut]);
+  });
+  exportCSV(rows, 'nutridoc-revenus-prescripteur.csv');
+}
+
+function exportFiscalCSV() {
+  const annee = document.getElementById('selectAnneeFiscal').value;
+  const rows = [['Mois','Crédits achetés','Coût HT','CA Revente','Marge brute','Plans livrés']];
+  const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  for (let m = 1; m <= 12; m++) {
+    const mKey = `${annee}-${String(m).padStart(2,'0')}`;
+    const factures = FACTURES.filter(f => f.date.startsWith(mKey));
+    const plans = TOUS_LES_PLANS.filter(p => p.date?.startsWith(mKey) && p.statut === 'livré');
+    const credAchetes = factures.reduce((a, f) => a + f.credits, 0);
+    const coutHT = factures.reduce((a, f) => a + f.ht, 0);
+    const ca = plans.reduce((a, p) => a + (p.prixVente || 0), 0);
+    const marge = ca - coutHT * 1.2;
+    rows.push([`${MOIS_FR[m-1]} ${annee}`, credAchetes, coutHT.toFixed(2), ca.toFixed(2), marge.toFixed(2), plans.length]);
+  }
+  exportCSV(rows, `nutridoc-bilan-fiscal-${annee}.csv`);
+}
+
+// ── SIMULATEUR ROI ────────────────────────────────────────────────
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+function setPack(cout, nb, btn) {
+  coutCredit = cout;
+  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSim();
+}
+function updateSim() {
+  const clients = parseInt(document.getElementById('simClients').value);
+  const taux = parseInt(document.getElementById('simTaux').value) / 100;
+  const prix = parseInt(document.getElementById('simPrix').value);
+  document.getElementById('simClientsVal').textContent = clients;
+  document.getElementById('simTauxVal').textContent = Math.round(taux * 100) + '%';
+  document.getElementById('simPrixVal').textContent = prix + '€';
+  const plans = Math.round(clients * taux);
+  const ca = plans * prix, couts = plans * coutCredit, marge = ca - couts;
+  document.getElementById('simPlans').textContent = plans + ' plan' + (plans > 1 ? 's' : '');
+  document.getElementById('simCa').textContent = ca + ' €';
+  document.getElementById('simCouts').textContent = couts.toFixed(0) + ' €';
+  document.getElementById('simMarge').textContent = (marge >= 0 ? '+' : '') + marge.toFixed(0) + ' €';
+  document.getElementById('simNote').textContent = `Marge annuelle estimée : ${(marge * 12).toLocaleString('fr-FR')} €`;
+}
+
+// ── DÉCONNEXION ───────────────────────────────────────────────────
+function deconnecter() {
+  if (typeof _supa !== 'undefined') _supa.auth.signOut();
+  localStorage.removeItem('nutridoc_profil');
+  window.location.href = 'index.html';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  chargerDonnees();
+  updateSim();
+});
+</script>
+<script src="js/error-handler.js"></script>
+<script src="js/theme-selector.js"></script>
+</body>
+</html>

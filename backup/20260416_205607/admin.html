@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin CaliDoc Santé — NutriDoc</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+/* ── Reset & base ─────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:    #0d2018;
+  --dark2:   #142c1f;
+  --green:   #1D9E75;
+  --green2:  #0f6e56;
+  --green3:  #5DCAA5;
+  --cream:   #f7f9f7;
+  --white:   #ffffff;
+  --gray:    #6b7b74;
+  --border-color:var(--border-light,#e8edeb);
+  --sidebar: 220px;
+  --header:  60px;
+  --red:     #ef4444;
+  --amber:   #f59e0b;
+  --blue:    #3b82f6;
+  --purple:  #8b5cf6;
+  --font-d:  'DM Serif Display', Georgia, serif;
+  --font-b:  'DM Sans', system-ui, sans-serif;
+  --radius:  10px;
+  --ease:    cubic-bezier(.16,1,.3,1);
+}
+html,body{height:100%;font-family:var(--font-b);background:var(--cream);color:var(--dark);overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--font-b);cursor:pointer}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.admin-layout{display:flex;min-height:100vh}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--dark);position:fixed;top:0;left:0;bottom:0;
+  display:flex;flex-direction:column;z-index:100;
+  transition:transform .3s var(--ease);
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:.6rem;
+  padding:0 1.25rem;height:var(--header);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-family:var(--font-d);font-size:1.25rem;color:#fff;
+}
+.sidebar-logo em{font-style:italic;color:var(--green3)}
+.sidebar-logo-sub{font-size:.62rem;color:rgba(255,255,255,.3);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.sidebar-section{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.28);padding:.75rem 1.25rem .3rem;margin-top:.25rem}
+.sidebar-nav{display:flex;flex-direction:column;padding:.5rem .75rem;flex:1;overflow-y:auto}
+.nav-item{
+  display:flex;align-items:center;gap:.65rem;
+  padding:.6rem .75rem;border-radius:8px;
+  font-size:.82rem;color:rgba(255,255,255,.6);
+  transition:background .15s,color .15s;position:relative;
+  border:none;background:transparent;text-align:left;width:100%;
+}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(29,158,117,.2);color:#fff}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2.5px;background:var(--green3);border-radius:999px}
+.nav-icon{width:18px;height:18px;opacity:.8;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:.6rem;font-weight:600;min-width:16px;height:16px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.nav-badge.green{background:var(--green)}
+.nav-badge.amber{background:var(--amber);color:#fff}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.07)}
+.sidebar-user{display:flex;align-items:center;gap:.6rem}
+.sidebar-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;flex-shrink:0}
+.sidebar-user-info{flex:1;min-width:0}
+.sidebar-user-name{font-size:.8rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-user-role{font-size:.68rem;color:rgba(255,255,255,.35)}
+
+/* ── Main ─────────────────────────────────────────────────── */
+.main-content{
+  margin-left:var(--sidebar);flex:1;
+  display:flex;flex-direction:column;min-height:100vh;
+}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  height:var(--header);padding:0 1.75rem;
+  background:rgba(247,249,247,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-left{display:flex;align-items:center;gap:1rem}
+.topbar-title{font-family:var(--font-d);font-size:1.15rem;color:var(--dark)}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.topbar-btn{background:var(--green);color:#fff;border:none;padding:.45rem 1rem;border-radius:999px;font-size:.8rem;font-weight:500;transition:background .2s}
+.topbar-btn:hover{background:var(--green2)}
+.topbar-btn.ghost{background:transparent;color:var(--gray);border:1px solid var(--border)}
+.topbar-btn.ghost:hover{background:var(--bg-card,#fff);color:var(--dark)}
+.topbar-notif{position:relative;width:34px;height:34px;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s}
+.topbar-notif:hover{background:var(--cream)}
+.topbar-notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--cream)}
+.date-pill{background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:6px;padding:.3rem .75rem;font-size:.78rem;color:var(--gray)}
+
+/* ── Content area ─────────────────────────────────────────── */
+.content{padding:1.5rem 1.75rem;flex:1}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .3s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page-title{font-family:var(--font-d);font-size:1.6rem;color:var(--dark);margin-bottom:.25rem}
+.page-sub  {font-size:.82rem;color:var(--gray);margin-bottom:1.5rem}
+
+/* ── KPI Cards ────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi-card{
+  background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,32,24,.06)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--green))}
+.kpi-label{font-size:.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem}
+.kpi-value{font-family:var(--font-d);font-size:2rem;color:var(--dark);line-height:1;margin-bottom:.3rem}
+.kpi-delta{font-size:.75rem;display:flex;align-items:center;gap:.25rem}
+.kpi-delta.up  {color:#16a34a}
+.kpi-delta.down{color:var(--red)}
+.kpi-icon{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+
+/* ── Charts ───────────────────────────────────────────────── */
+.charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
+.charts-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem}
+.chart-card{background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.chart-title{font-size:.875rem;font-weight:500;color:var(--dark)}
+.chart-sub  {font-size:.72rem;color:var(--gray);margin-top:2px}
+.chart-wrap {position:relative}
+.chart-filter{display:flex;gap:.25rem;background:var(--cream);border-radius:6px;padding:2px}
+.chart-filter-btn{background:transparent;border:none;padding:.25rem .65rem;border-radius:4px;font-size:.72rem;color:var(--gray);transition:all .15s}
+.chart-filter-btn.active{background:var(--bg-card,#fff);color:var(--dark);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+
+/* ── Tables ───────────────────────────────────────────────── */
+.table-card{background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.table-title{font-size:.875rem;font-weight:500;color:var(--dark)}
+.table-search{display:flex;align-items:center;gap:.5rem}
+.table-search input{border:1px solid var(--border);border-radius:6px;padding:.35rem .75rem;font-size:.78rem;font-family:var(--font-b);background:var(--cream);color:var(--dark);transition:border .15s}
+.table-search input:focus{outline:none;border-color:var(--green);background:var(--bg-card,#fff)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{background:var(--cream);padding:.6rem 1rem;text-align:left;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);border-bottom:1px solid var(--border)}
+tbody td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--dark)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafcfa}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.67rem;font-weight:500;padding:2px 8px;border-radius:999px}
+.badge.green {background:#e1f5ee;color:#0f6e56}
+.badge.amber {background:#fff8e6;color:#92400e}
+.badge.red   {background:#fef2f2;color:#dc2626}
+.badge.blue  {background:#eff6ff;color:#1d4ed8}
+.badge.gray  {background:#f3f4f6;color:var(--text-secondary,#4b5563)}
+.badge.purple{background:#f5f3ff;color:#5b21b6}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── Action buttons ───────────────────────────────────────── */
+.btn-sm{border:none;padding:.35rem .85rem;border-radius:6px;font-size:.75rem;font-weight:500;font-family:var(--font-b);transition:all .15s}
+.btn-sm.green{background:var(--green);color:#fff}.btn-sm.green:hover{background:var(--green2)}
+.btn-sm.red  {background:#fef2f2;color:var(--red);border:1px solid #fca5a5}.btn-sm.red:hover{background:#fee2e2}
+.btn-sm.gray {background:var(--cream);color:var(--gray);border:1px solid var(--border)}.btn-sm.gray:hover{background:var(--bg-card,#fff)}
+
+/* ── Alert bar ────────────────────────────────────────────── */
+.alert-bar{background:#fff8e6;border:1px solid #fed7aa;border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-size:.82rem;color:#92400e}
+.alert-bar.red{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.alert-bar.green{background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56}
+
+/* ── Stats inline ─────────────────────────────────────────── */
+.inline-stats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.inline-stat{background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.8rem;display:flex;align-items:center;gap:.4rem}
+.inline-stat strong{color:var(--dark);font-weight:600}
+
+/* ── Progress bars ────────────────────────────────────────── */
+.pbar-wrap{display:flex;align-items:center;gap:.5rem}
+.pbar{flex:1;height:5px;background:var(--cream);border-radius:999px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:999px;transition:width .5s}
+.pbar-val{font-size:.7rem;color:var(--gray);min-width:28px;text-align:right}
+
+/* ── Activity feed ────────────────────────────────────────── */
+.activity-feed{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot-wrap{display:flex;flex-direction:column;align-items:center;padding-top:3px}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.activity-line{width:1px;background:var(--border);flex:1;min-height:12px;margin-top:3px}
+.activity-content{flex:1;min-width:0}
+.activity-text{font-size:.8rem;color:var(--dark);line-height:1.4}
+.activity-text strong{font-weight:500}
+.activity-time{font-size:.7rem;color:var(--gray);margin-top:2px}
+
+/* ── Saturation jauge ─────────────────────────────────────── */
+.sat-gauge{display:flex;flex-direction:column;align-items:center;padding:1rem 0}
+.sat-num{font-family:var(--font-d);font-size:2.5rem;line-height:1}
+.sat-label{font-size:.72rem;color:var(--gray);margin-top:.25rem}
+.sat-ring{width:100px;height:100px;position:relative;margin:.75rem auto}
+.sat-ring canvas{transform:rotate(-90deg)}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media(max-width:1024px){
+  .charts-grid{grid-template-columns:1fr}
+  .charts-grid-3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .main-content{margin-left:0}
+  .charts-grid-3{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<div class="admin-layout">
+
+<!-- ══ SIDEBAR ═══════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div>
+      <div>Nutri<em>Doc</em></div>
+      <div class="sidebar-logo-sub">CaliDoc Santé · Admin</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Vue d'ensemble</div>
+    <button class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">📊</span> Tableau de bord
+    </button>
+    <button class="nav-item" onclick="showPage('revenus')">
+      <span class="nav-icon">💶</span> Revenus & finances
+    </button>
+    <button class="nav-item" onclick="showPage('queue')">
+      <span class="nav-icon">⏱</span> File d'attente
+      <span class="nav-badge">3</span>
+    </button>
+
+    <div class="sidebar-section">Utilisateurs</div>
+    <button class="nav-item" onclick="showPage('patients')">
+      <span class="nav-icon">🧑</span> Patients
+    </button>
+    <button class="nav-item" onclick="showPage('dietitians')">
+      <span class="nav-icon">🩺</span> Diététiciens
+      <span class="nav-badge green">2</span>
+    </button>
+    <button class="nav-item" onclick="showPage('prescribers')">
+      <span class="nav-icon">🏥</span> Prescripteurs
+    </button>
+
+    <div class="sidebar-section">Comptabilité & Fiscal</div>
+    <button class="nav-item" onclick="showPage('urssaf')">
+      <span class="nav-icon">🏛</span> URSSAF & Déclarations
+    </button>
+    <button class="nav-item" onclick="showPage('tva')">
+      <span class="nav-icon">📑</span> TVA
+      <span class="nav-badge amber" style="background:#f59e0b;">Franchise</span>
+    </button>
+    <div class="sidebar-section">Opérations</div>
+    <button class="nav-item" onclick="showPage('plans')">
+      <span class="nav-icon">📋</span> Plans alimentaires
+    </button>
+    <button class="nav-item" onclick="showPage('tickets')">
+      <span class="nav-icon">🎫</span> Tickets support
+      <span class="nav-badge">5</span>
+    </button>
+    <button class="nav-item" onclick="showPage('commissions')">
+      <span class="nav-icon">💰</span> Commissions & tarifs
+    </button>
+    <button class="nav-item" onclick="showPage('parrainage')">
+      <span class="nav-icon">🎁</span> Parrainage
+    </button>
+    <button class="nav-item" onclick="showPage('emailing')">
+      <span class="nav-icon">✉</span> Emailing & relances
+    </button>
+    <button class="nav-item" onclick="showPage('settings')">
+      <span class="nav-icon">⚙</span> Paramètres
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">CS</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">CaliDoc Santé</div>
+        <div class="sidebar-user-role">Administrateur</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<div class="main-content">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbarTitle">Tableau de bord</div>
+    </div>
+    <div class="topbar-right">
+      <div class="date-pill" id="datePill"></div>
+      <div class="topbar-notif" title="Alertes">
+        🔔<div class="topbar-notif-dot"></div>
+      </div>
+      <button class="topbar-btn" onclick="exportRapport()">↓ Rapport PDF</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ PAGE : DASHBOARD ══════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Vue d'ensemble</div>
+      <div class="page-sub" id="pageSubDate"></div>
+
+      <!-- Alertes -->
+      <div class="alert-bar">
+        ⚠ <strong>3 dossiers</strong> dans la file d'attente depuis plus de 4h — diffusion nationale déclenchée.
+        <button class="btn-sm gray" style="margin-left:auto;" onclick="showPage('queue')">Voir →</button>
+      </div>
+
+      <!-- KPIs principaux -->
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-icon" style="background:#e1f5ee">💶</div>
+          <div class="kpi-label">Revenus ce mois</div>
+          <div class="kpi-value" id="kpiRevMois">4 720 €</div>
+          <div class="kpi-delta up">↑ +18% vs mois dernier</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#3b82f6">
+          <div class="kpi-icon" style="background:#eff6ff">🧑</div>
+          <div class="kpi-label">Patients actifs</div>
+          <div class="kpi-value" id="kpiPatients">247</div>
+          <div class="kpi-delta up">↑ +32 ce mois</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6">
+          <div class="kpi-icon" style="background:#f5f3ff">📋</div>
+          <div class="kpi-label">Plans livrés</div>
+          <div class="kpi-value" id="kpiPlans">89</div>
+          <div class="kpi-delta up">↑ +12 vs mois dernier</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b">
+          <div class="kpi-icon" style="background:#fff8e6">⏱</div>
+          <div class="kpi-label">Délai moyen livraison</div>
+          <div class="kpi-value" id="kpiDelai">14h</div>
+          <div class="kpi-delta up">↓ −3h vs mois dernier</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#ef4444">
+          <div class="kpi-icon" style="background:#fef2f2">🚨</div>
+          <div class="kpi-label">Alerte santé</div>
+          <div class="kpi-value" id="kpiRedFlags">7</div>
+          <div class="kpi-delta down">↑ +2 ce mois</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-icon" style="background:#e1f5ee">📅</div>
+          <div class="kpi-label">Visios réalisées</div>
+          <div class="kpi-value" id="kpiVisios">23</div>
+          <div class="kpi-delta up">× 55€ = 1 265 €</div>
+        </div>
+      </div>
+
+      <!-- Graphiques -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Revenus — 12 mois</div>
+              <div class="chart-sub">Plans + visios + abonnements diét.</div>
+            </div>
+            <div class="chart-filter">
+              <button class="chart-filter-btn active" onclick="switchPeriod('12m',this)">12M</button>
+              <button class="chart-filter-btn" onclick="switchPeriod('6m',this)">6M</button>
+              <button class="chart-filter-btn" onclick="switchPeriod('3m',this)">3M</button>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:220px"><canvas id="chartRevenus"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Sources revenus</div>
+              <div class="chart-sub">Répartition ce mois</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:180px;display:flex;align-items:center;gap:1rem">
+            <canvas id="chartSources" style="max-width:140px;max-height:140px"></canvas>
+            <div id="chartSourcesLegend" style="font-size:.75rem;display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activité récente + saturation -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Activité récente</div>
+          </div>
+          <div class="activity-feed" id="activityFeed"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">File d'attente</div>
+              <div class="chart-sub">Saturation temps réel</div>
+            </div>
+            <button class="btn-sm gray" onclick="showPage('queue')">Détails →</button>
+          </div>
+          <div id="queueGauge"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : REVENUS ════════════════════════════════════ -->
+    <div class="page" id="page-revenus">
+      <div class="page-title">Revenus & finances</div>
+      <div class="page-sub">Détail des flux financiers NutriDoc</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-label">MRR (Revenu mensuel récurrent)</div>
+          <div class="kpi-value">2 156 €</div>
+          <div class="kpi-delta up">↑ +8% — abonnements diét. actifs</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6">
+          <div class="kpi-label">ARR (Projection annuelle)</div>
+          <div class="kpi-value">56 640 €</div>
+          <div class="kpi-delta up">↑ Trajectoire actuelle</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b">
+          <div class="kpi-label">Panier moyen plan</div>
+          <div class="kpi-value">24,90 €</div>
+          <div class="kpi-delta" style="color:var(--gray)">Stable</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#3b82f6">
+          <div class="kpi-label">Marge nette estimée</div>
+          <div class="kpi-value">61%</div>
+          <div class="kpi-delta up">Après reversements diét.</div>
+        </div>
+      </div>
+
+      <div class="charts-grid-3">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Plans 24,90 €</div></div>
+          <div class="chart-wrap" style="height:150px"><canvas id="chartPlansRev"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Visios 55€</div></div>
+          <div class="chart-wrap" style="height:150px"><canvas id="chartVisiosRev"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Crédits prescripteurs</div></div>
+          <div class="chart-wrap" style="height:150px"><canvas id="chartCreditsRev"></canvas></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Transactions récentes</div>
+          <button class="btn-sm green" onclick="exportCSV('revenus')">↓ CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Montant</th><th>De</th><th>Reversé</th><th>Net</th><th>Statut</th></tr></thead>
+          <tbody id="transactionsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : FILE D'ATTENTE ══════════════════════════════ -->
+    <div class="page" id="page-queue">
+      <div class="page-title">File d'attente</div>
+      <div class="page-sub">Gestion des demandes de plans en attente</div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="kpi-card" style="--kpi-color:#f59e0b">
+          <div class="kpi-label">En attente</div>
+          <div class="kpi-value">8</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#3b82f6">
+          <div class="kpi-label">Acceptés</div>
+          <div class="kpi-value">12</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6">
+          <div class="kpi-label">En cours</div>
+          <div class="kpi-value">7</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-label">Livrés (mois)</div>
+          <div class="kpi-value">89</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#ef4444">
+          <div class="kpi-label">Expirés</div>
+          <div class="kpi-value">2</div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:1rem">
+        <div class="chart-header">
+          <div><div class="chart-title">Délai moyen & saturation — 30 jours</div></div>
+        </div>
+        <div class="chart-wrap" style="height:160px"><canvas id="chartQueue"></canvas></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Demandes en cours</div>
+          <button class="btn-sm gray" onclick="exportCSV('queue')">↓ CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Patient</th><th>Ville</th><th>Objectif</th><th>Soumis le</th><th>Diét. assigné</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody id="queueBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PATIENTS ════════════════════════════════════ -->
+    <div class="page" id="page-patients">
+      <div class="page-title">Patients</div>
+      <div class="page-sub">247 comptes actifs · 32 nouveaux ce mois</div>
+
+      <div class="inline-stats">
+        <div class="inline-stat">📋 Plans achetés : <strong>89</strong></div>
+        <div class="inline-stat">🚨 Alerte santé : <strong>7</strong></div>
+        <div class="inline-stat">📅 Visios : <strong>23</strong></div>
+        <div class="inline-stat">🆓 Gratuits seuls : <strong>181</strong> (73%)</div>
+      </div>
+
+      <div class="charts-grid-3" style="margin-bottom:1rem">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Objectifs</div></div>
+          <div class="chart-wrap" style="height:130px"><canvas id="chartObjectifs"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Taux conversion gratuit → payant</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;padding:.25rem 0">
+            <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px"><span>Conversion plan premium</span><strong>27%</strong></div><div class="pbar"><div class="pbar-fill" style="width:27%;background:var(--green)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px"><span>Réachat plan</span><strong>41%</strong></div><div class="pbar"><div class="pbar-fill" style="width:41%;background:#8b5cf6"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px"><span>Ajout visio</span><strong>19%</strong></div><div class="pbar"><div class="pbar-fill" style="width:19%;background:#3b82f6"></div></div></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Inscrip. / mois</div></div>
+          <div class="chart-wrap" style="height:130px"><canvas id="chartInscrip"></canvas></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Liste patients</div>
+          <div class="table-search">
+            <input type="text" id="searchPat" placeholder="Rechercher…" oninput="filterTable('patients')"/>
+            <button class="btn-sm green" onclick="exportCSV('patients')">↓ CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Nom</th><th>Ville</th><th>Objectif</th><th>Plan</th><th>Inscription</th><th>Statut</th></tr></thead>
+          <tbody id="patientsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : DIÉTÉTICIENS ════════════════════════════════ -->
+    <div class="page" id="page-dietitians">
+      <div class="page-title">Diététiciens</div>
+      <div class="page-sub">Gestion des diét. certifiés RPPS inscrits sur la plateforme</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-label">Diét. actifs</div><div class="kpi-value">8</div>
+          <div class="kpi-delta up">2 en attente de validation</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6">
+          <div class="kpi-label">Plans validés (mois)</div><div class="kpi-value">89</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b">
+          <div class="kpi-label">Reversements (mois)</div><div class="kpi-value">1 602 €</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#3b82f6">
+          <div class="kpi-label">Note moy. patients</div><div class="kpi-value">4,8 ★</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Diététiciens inscrits</div>
+          <button class="btn-sm gray" onclick="exportCSV('diets')">↓ CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Nom</th><th>RPPS</th><th>Formule</th><th>Zone</th><th>Plans/mois</th><th>Reversement</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="dietsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PRESCRIPTEURS ═══════════════════════════════ -->
+    <div class="page" id="page-prescribers">
+      <div class="page-title">Prescripteurs</div>
+      <div class="page-sub">Professionnels déclarés — SIRET vérifié</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#1D9E75">
+          <div class="kpi-label">Prescripteurs actifs</div><div class="kpi-value">14</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b">
+          <div class="kpi-label">Crédits consommés</div><div class="kpi-value">63</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6">
+          <div class="kpi-label">CA prescripteurs</div><div class="kpi-value">891 €</div>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#3b82f6">
+          <div class="kpi-label">Panier moyen pack</div><div class="kpi-value">89 €</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header"><div class="chart-title">Liste prescripteurs</div></div>
+        <table>
+          <thead><tr><th>Nom</th><th>Profession</th><th>SIRET</th><th>Pack</th><th>Crédits restants</th><th>CA généré</th><th>Statut</th></tr></thead>
+          <tbody id="prescBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PLANS ═══════════════════════════════════════ -->
+    <div class="page" id="page-plans">
+      <div class="page-title">Plans alimentaires</div>
+      <div class="page-sub">Suivi de tous les plans générés et validés</div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Tous les plans</div>
+          <div class="table-search">
+            <input type="text" id="searchPlans" placeholder="Rechercher…" oninput="filterTable('plans')"/>
+            <button class="btn-sm green" onclick="exportCSV('plans')">↓ CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Patient</th><th>Objectif</th><th>Diét.</th><th>Créé le</th><th>Livré le</th><th>Délai</th><th>Statut</th><th>PDF</th></tr></thead>
+          <tbody id="plansBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : TICKETS SUPPORT ════════════════════════════ -->
+    <div class="page" id="page-tickets">
+      <div class="page-title">Tickets support</div>
+      <div class="page-sub">5 tickets ouverts · 2 urgents</div>
+
+      <div class="alert-bar red">🚨 <strong>2 tickets urgents</strong> non traités depuis plus de 12h</div>
+
+      <div class="table-card">
+        <div class="table-header"><div class="chart-title">Tickets en cours</div></div>
+        <table>
+          <thead><tr><th>ID</th><th>Profil</th><th>Catégorie</th><th>Titre</th><th>Priorité</th><th>Soumis le</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody id="ticketsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- ══ PAGE : URSSAF & DÉCLARATIONS ══════════════════════ -->
+    <div class="page" id="page-urssaf">
+      <div class="page-title">URSSAF & Déclarations sociales</div>
+      <div class="page-sub">Suivi du chiffre d'affaires pour vos obligations déclaratives — Auto-entrepreneur / Micro-entreprise</div>
+
+      <!-- Alerte seuil -->
+      <div class="alert-bar" style="background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;margin-bottom:1rem">
+        ℹ️ <strong>Base de déclaration URSSAF :</strong> En micro-BIC, vous déclarez votre <strong>CA encaissé HT</strong> (prix TTC ÷ 1,20). Le reversement aux diét. ne se déduit PAS du CA déclaré — il s'agit d'une charge d'exploitation comptabilisée séparément. Exemple : 100 plans à 24,90€ TTC = CA HT déclaré de <strong>2 075€</strong> (et non 2 490€ ni 875€ après reversement).
+      </div>
+      <div class="alert-bar" id="urssafAlert" style="display:none"></div>
+
+      <!-- Note activité -->
+      <div class="alert-bar green" style="margin-bottom:1rem;">
+        ℹ️ <strong>Votre activité :</strong> Exploitation d'une plateforme numérique d'intermédiation entre patients et diététiciens. Code APE probable : <strong>6311Z</strong> (Traitement de données, hébergement) ou <strong>7490B</strong> (Activités spécialisées, scientifiques). Régime : micro-BIC services.
+      </div>
+      <!-- Paramètres du régime -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Régime fiscal actuel</div></div>
+            <span class="badge green">Micro-entreprise</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">Activité</span>
+              <strong>Plateforme numérique d'intermédiation</strong>
+            </div>
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">Taux cotisations URSSAF</span>
+              <strong style="color:var(--green)">21,20 %</strong>
+            </div>
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">CFP (formation)</span>
+              <strong>0,20 %</strong>
+            </div>
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">Périodicité déclaration</span>
+              <strong>Trimestrielle</strong>
+            </div>
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">Abattement forfaitaire</span>
+              <strong>50 % (BIC — achat/revente/services)</strong>
+            </div>
+            <div class="inline-stat" style="flex-direction:column;align-items:flex-start;gap:2px">
+              <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em">Versement libératoire</span>
+              <strong id="vlStatut">Non</strong>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card" style="background:linear-gradient(135deg,#0d2018 0%,#142c1f 100%);border-color:rgba(29,158,117,.2)">
+          <div class="chart-header" style="border:none;margin-bottom:.5rem">
+            <div><div class="chart-title" style="color:#fff">Prochain échéance</div></div>
+          </div>
+          <div style="text-align:center;padding:.5rem 0">
+            <div id="countdownDays" style="font-family:var(--font-d);font-size:3rem;color:var(--green3);line-height:1">—</div>
+            <div style="color:rgba(255,255,255,.5);font-size:.78rem;margin-top:.25rem">jours avant déclaration</div>
+            <div id="nextEcheance" style="color:rgba(255,255,255,.7);font-size:.82rem;margin-top:.75rem;font-weight:500"></div>
+            <div style="color:rgba(255,255,255,.4);font-size:.72rem;margin-top:.25rem">T2 2025 — à déclarer avant le 30 avril</div>
+          </div>
+          <div style="margin-top:1rem;padding:.75rem;background:rgba(29,158,117,.15);border-radius:8px;border:1px solid rgba(29,158,117,.25)">
+            <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem">Cotisations estimées T2</div>
+            <div id="cotisT2" style="font-family:var(--font-d);font-size:1.5rem;color:#5DCAA5">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CA par trimestre -->
+      <div class="chart-card" style="margin-bottom:1rem">
+        <div class="chart-header">
+          <div><div class="chart-title">Chiffre d'affaires — Détail trimestriel 2025</div>
+          <div class="chart-sub">Base de déclaration URSSAF · CA encaissé hors TVA</div></div>
+          <button class="btn-sm green" onclick="exportCSV('urssaf')">↓ Exporter pour comptable</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="min-width:700px">
+            <thead>
+              <tr>
+                <th>Trimestre</th>
+                <th>Période</th>
+                <th>CA Plans (24,90€)</th>
+                <th>CA Visios (55€)</th>
+                <th>CA Abonnements diét.</th>
+                <th>CA Crédits pro</th>
+                <th style="color:var(--green)">CA Total</th>
+                <th style="color:#ef4444">Cotisations (22%)</th>
+                <th style="color:var(--blue)">CFP (0,2%)</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="urssafTableBody"></tbody>
+            <tfoot id="urssafTableFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Calcul auto -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Simulateur déclaration</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div>
+              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem">CA du trimestre (€)</label>
+              <input type="number" id="simCA" value="4720" oninput="calculerSimu()"
+                style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;font-size:1rem;font-family:var(--font-b)"/>
+            </div>
+            <div style="background:var(--cream);border-radius:8px;padding:1rem;display:flex;flex-direction:column;gap:.6rem" id="simuResult">
+            </div>
+            <div style="background:#fff8e6;border:1px solid #fed7aa;border-radius:8px;padding:.75rem;font-size:.78rem;color:#92400e">
+              ⚠ Ces calculs sont indicatifs. Consultez votre expert-comptable ou un conseiller URSSAF pour votre situation spécifique.
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Évolution CA cumulé 2025</div></div>
+          <div style="height:180px;position:relative"><canvas id="chartCACumul"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Déclarations passées -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Historique des déclarations</div>
+          <button class="btn-sm gray" onclick="exportCSV('declarations')">↓ PDF récapitulatif</button>
+        </div>
+        <table>
+          <thead><tr><th>Trimestre</th><th>Date déclaration</th><th>CA déclaré</th><th>Cotisations versées</th><th>CFP versé</th><th>Total versé</th><th>Statut</th><th>Référence</th></tr></thead>
+          <tbody id="declarationsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : TVA ═════════════════════════════════════════ -->
+    <div class="page" id="page-tva">
+      <div class="page-title">Gestion TVA</div>
+      <div class="page-sub">Franchise en base TVA · Suivi des seuils et préparation au régime réel</div>
+
+      <!-- Statut TVA actuel -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <div class="chart-card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0">
+          <div class="kpi-label">Régime TVA actuel</div>
+          <div style="font-family:var(--font-d);font-size:1.5rem;color:var(--green);margin:.3rem 0">Franchise en base</div>
+          <div style="font-size:.78rem;color:var(--gray)">Art. 293 B CGI — Pas de TVA collectée ni déductible</div>
+          <div style="margin-top:.75rem;padding:.5rem .75rem;background:var(--green-light,#e1f5ee);border-radius:6px;font-size:.78rem;color:var(--green2)">
+            ✓ La mention "TVA non applicable, art. 293 B CGI" doit figurer sur vos factures
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="kpi-label">Seuil franchise TVA (services)</div>
+          <div style="font-family:var(--font-d);font-size:1.5rem;color:var(--dark);margin:.3rem 0">36 800 €</div>
+          <div style="font-size:.78rem;color:var(--gray);margin-bottom:.5rem">CA annuel N-1 ou N · Seuil 2024-2025</div>
+          <div style="height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.3rem">
+            <div id="tvaSeuil1Bar" style="height:100%;background:var(--green);border-radius:999px;transition:width .5s"></div>
+          </div>
+          <div id="tvaSeuil1Label" style="font-size:.72rem;color:var(--gray)">Calcul en cours…</div>
+        </div>
+        <div class="chart-card">
+          <div class="kpi-label">Seuil majoré (tolérance)</div>
+          <div style="font-family:var(--font-d);font-size:1.5rem;color:var(--dark);margin:.3rem 0">39 100 €</div>
+          <div style="font-size:.78rem;color:var(--gray);margin-bottom:.5rem">Si dépassé → TVA obligatoire dès le 1er jour du mois de dépassement</div>
+          <div style="height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.3rem">
+            <div id="tvaSeuil2Bar" style="height:100%;background:#f59e0b;border-radius:999px;transition:width .5s"></div>
+          </div>
+          <div id="tvaSeuil2Label" style="font-size:.72rem;color:var(--gray)">Calcul en cours…</div>
+        </div>
+      </div>
+
+      <!-- Jauge seuil CA -->
+      <div class="chart-card" style="margin-bottom:1rem">
+        <div class="chart-header">
+          <div><div class="chart-title">Suivi du CA par rapport aux seuils TVA</div>
+          <div class="chart-sub">CA encaissé 2025 vs. seuil franchise 36 800 € et seuil majoré 39 100 €</div></div>
+        </div>
+        <div style="position:relative;height:160px"><canvas id="chartTVASeuil"></canvas></div>
+      </div>
+
+      <!-- Préparation TVA réelle -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">🔔 Préparation au régime TVA réel</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.82rem">
+            <div style="display:flex;align-items:flex-start;gap:.5rem;padding:.5rem;background:#f5f3ff;border-radius:6px">
+              <span>📋</span>
+              <div><strong>Numéro TVA intracommunautaire</strong><br><span style="color:var(--gray)">À demander au SIE (Service des Impôts des Entreprises) dès dépassement du seuil. Format : FR XX XXXXXXXXX</span></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:.5rem;padding:.5rem;background:#eff6ff;border-radius:6px">
+              <span>💶</span>
+              <div><strong>Taux TVA applicable</strong><br><span style="color:var(--gray)">Services numériques et de santé : TVA à <strong>20%</strong> (taux normal). À appliquer sur le prix HT.</span></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:.5rem;padding:.5rem;background:#e1f5ee;border-radius:6px">
+              <span>🧾</span>
+              <div><strong>Mentions obligatoires sur factures</strong><br><span style="color:var(--gray)">N° TVA, taux appliqué, montant HT, TVA collectée, montant TTC.</span></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:.5rem;padding:.5rem;background:#fff8e6;border-radius:6px">
+              <span>📅</span>
+              <div><strong>Déclaration TVA</strong><br><span style="color:var(--gray)">Mensuelle ou trimestrielle selon le CA. Formulaire CA3 (mensuelle) ou CA12 (annuelle).</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Simulateur TVA réelle</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div>
+              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem">CA mensuel HT estimé (€)</label>
+              <input type="number" id="simuTVACA" value="4720" oninput="calculerTVA()"
+                style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;font-size:1rem;font-family:var(--font-b)"/>
+            </div>
+            <div style="background:var(--cream);border-radius:8px;padding:1rem;display:flex;flex-direction:column;gap:.5rem" id="tvaSimuResult"></div>
+            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:.75rem;font-size:.78rem;color:#5b21b6">
+              💡 En régime TVA réel, vous pourrez <strong>déduire la TVA</strong> sur vos achats professionnels (hébergement, logiciels, etc.), ce qui peut être avantageux si vos charges sont importantes.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sources taxables -->
+      <div class="chart-card" style="margin-bottom:1rem">
+        <div class="chart-header"><div class="chart-title">Ce qui est soumis à TVA 20% — Détail par source</div></div>
+        <table>
+          <thead><tr><th>Source de revenu</th><th>Description</th><th>TVA applicable</th><th>Base de calcul</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Commission plans (16-20€)</strong></td><td>Commission prélevée sur chaque plan validé par un diét.</td><td><span class="badge green">20% ✓</span></td><td>Montant HT de la commission</td></tr>
+            <tr><td><strong>Abonnements diét. (39-29€/mois)</strong></td><td>Accès à la plateforme pour les diét. inscrits</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
+            <tr><td><strong>Crédits prescripteurs (4,38-4,90€/cr.)</strong></td><td>Vente de packs de crédits aux professionnels</td><td><span class="badge green">20% ✓</span></td><td>Prix HT du pack</td></tr>
+<!-- visio déjà incluse ci-dessus -->
+            <tr><td><strong>Plan patient 24,90€</strong></td><td>Paiement patient — dont 18-20€ reversés au diét.</td><td><span class="badge green">20% ✓</span></td><td>Prix total HT (pas seulement la marge)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Tableau TVA prévisionnelle -->
+      <div class="table-card">
+        <div class="table-header">
+          <div><div class="chart-title">Simulation TVA collectée — 2025 (si soumise)</div>
+          <div style="font-size:.72rem;color:var(--gray);margin-top:2px">Projection basée sur les revenus actuels · Taux 20%</div></div>
+          <button class="btn-sm gray" onclick="exportCSV('tva')">↓ Exporter</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>CA HT</th>
+              <th>TVA collectée (20%)</th>
+              <th>CA TTC</th>
+              <th>TVA déductible (charges)</th>
+              <th style="color:var(--green)">TVA nette à reverser</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="tvaTableBody"></tbody>
+          <tfoot id="tvaTableFoot"></tfoot>
+        </table>
+      </div>
+
+      <!-- Note important -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+        <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:1rem;font-size:.82rem">
+          <div style="font-weight:600;color:#dc2626;margin-bottom:.5rem">⚠ Modèle "en nom propre" — Implications TVA</div>
+          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 55€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
+          <div style="background:#fee2e2;border-radius:6px;padding:.6rem .8rem;margin-top:.5rem">
+            <div>Plan 24,90€ TTC → base HT : <strong>20,75€</strong> · TVA : <strong>4,15€</strong></div>
+            <div>Visio 55€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
+          </div>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:1rem;font-size:.82rem">
+          <div style="font-weight:600;color:#1d4ed8;margin-bottom:.5rem">💡 Reversements diét. : déductibles ?</div>
+          <p style="color:#1e3a8a;line-height:1.6;margin-bottom:.5rem">Les sommes reversées aux diét. sont des <strong>charges d'exploitation</strong> déductibles de votre résultat. Si les diét. sont eux-mêmes soumis à TVA, leur TVA facturée vous sera déductible. Sinon, le reversement est une charge nette.</p>
+          <p style="color:#1e3a8a;line-height:1.6">À confirmer avec votre expert-comptable : la qualification juridique du reversement (sous-traitance ? salaire ? commission ?).</p>
+        </div>
+      </div>
+      <div class="alert-bar" style="background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;margin-top:1rem">
+        📌 <strong>Votre situation :</strong> Opératrice de plateforme numérique, modèle en nom propre. TVA <strong>20%</strong> sur tous les encaissements bruts. Aucune exonération applicable. Code APE probable : <strong>6311Z</strong>. Confirmez avec votre expert-comptable.
+      </div>
+    </div>
+
+
+    <!-- ══ PAGE : COMMISSIONS ════════════════════════════════ -->
+    <div class="page" id="page-commissions">
+      <div class="page-title">Commissions & tarifs</div>
+      <div class="page-sub">Modifier les commissions reversées aux diét. et les tarifs patients</div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Commissions diét. par plan (€ net)</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Essentiel</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="16" min="0" max="25" id="commEssentiel"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('essentiel')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Pro (29€/mois)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="18" min="0" max="25" id="commPro"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('pro')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Formule Expert (59€/mois annuel)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="20" min="0" max="25" id="commExpert"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('expert')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Reversement visio (patient paie 55€)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="49" min="0" max="55" id="commVisio"
+                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€</span>
+                <button class="btn-sm green" onclick="saveComm('visio')">Sauver</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Tarifs patients & prescripteurs</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Plan premium patient (TTC)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="24.90" step="0.10" id="tarifPlan"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
+                <button class="btn-sm green" onclick="saveTarif('plan')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Visio patient (TTC)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="55" step="1" id="tarifVisio"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
+                <button class="btn-sm green" onclick="saveTarif('visio')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Abonnement diét. Pro (HT/mois)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="49" step="1" id="tarifAboPro"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ HT</span>
+                <button class="btn-sm green" onclick="saveTarif('aboPro')">Sauver</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-header" style="margin-top:1.25rem;"><div class="chart-title">Packs plans prescripteurs</div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.75rem;">
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>24,90€</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Équipe — 10 plans</span><strong>180 € (24,90€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Clinique — 20 plans</span><strong>340 € (12€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Volume — 50 plans</span><strong>840 € (10€/plan)</strong></div>
+        </div>
+        <div class="alert-bar" style="margin-top:.5rem;background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56;font-size:.78rem;">ℹ Les packs sont réglés directement aux diét. — NutriDoc ne perçoit que l'abonnement 29€.</div>
+        <div class="alert-bar" style="margin-top:.5rem;background:#fff8e6;border-color:#fed7aa;">
+            ⚠ La modification des tarifs met à jour les affichages. Les prix Stripe doivent être mis à jour manuellement dans le Dashboard Stripe.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode pilote -->
+      <div class="chart-card" style="margin-top:1rem;">
+        <div class="chart-header">
+          <div><div class="chart-title">Mode pilote — Diét. gratuits</div>
+          <div class="chart-sub">Accès gratuit à la plateforme pour les diét. en phase de test</div></div>
+        </div>
+        <div id="piloteDietList" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;"></div>
+        <button class="btn-sm green" style="margin-top:.75rem;" onclick="ajouterDietPilote()">+ Ajouter un diét. pilote</button>
+        <div style="font-size:.75rem;color:var(--gray);margin-top:.5rem;">Les diét. pilotes ont accès à toutes les fonctionnalités Pro gratuitement. Leur abonnement n'est pas prélevé.</div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PARRAINAGE ══════════════════════════════════ -->
+    <div class="page" id="page-parrainage">
+      <div class="page-title">Programme de parrainage</div>
+      <div class="page-sub">Crédits cumulables · Récompenses automatiques</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#8b5cf6"><div class="kpi-label">Parrainages actifs</div><div class="kpi-value">23</div></div>
+        <div class="kpi-card" style="--kpi-color:#1D9E75"><div class="kpi-label">Crédits distribués</div><div class="kpi-value">115</div></div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b"><div class="kpi-label">Plans offerts</div><div class="kpi-value">8</div></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Règles de parrainage</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;">
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Crédits offerts au parrain (patient inscrit)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="5" id="credParrainPatient" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Crédits offerts au parrain (pro inscrit)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="10" id="credParrainPro" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;">
+              <span>Seuil plan offert (patient)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="20" id="seuilPlanOffert" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:.3rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">crédits</span>
+              </div>
+            </div>
+            <button class="btn-sm green" onclick="saveParrainageRules()">Enregistrer les règles</button>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Comment ça fonctionne</div></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.82rem;color:var(--gray);">
+            <div>1️⃣ Chaque utilisateur reçoit un <strong>code de parrainage unique</strong> à son inscription.</div>
+            <div>2️⃣ Il partage son lien : <code style="background:var(--cream);padding:2px 6px;border-radius:4px;">nutridoc.fr?ref=XXXXXXXX</code></div>
+            <div>3️⃣ Quand un filleul s'inscrit et effectue son premier achat → le parrain reçoit des crédits.</div>
+            <div>4️⃣ Au seuil défini, le patient obtient automatiquement un plan offert.</div>
+            <div>5️⃣ Pour les pros : crédits supplémentaires ou réduction sur le prochain pack.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : EMAILING ════════════════════════════════════ -->
+    <div class="page" id="page-emailing">
+      <div class="page-title">Emailing & relances</div>
+      <div class="page-sub">Templates modifiables · Campagnes · Relances automatiques</div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="chart-title">Templates emails</div>
+          <button class="btn-sm green" onclick="nouveauTemplate()">+ Nouveau template</button>
+        </div>
+        <table>
+          <thead><tr><th>Slug</th><th>Nom</th><th>Sujet</th><th>Type</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="templatesBody"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-card" style="margin-top:1rem;">
+        <div class="chart-header"><div class="chart-title">Relances automatiques actives</div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;">
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Patient sans plan après 48h de conseils gratuits</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Diét. sans activité depuis 7 jours</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Prescripteur avec crédits insuffisants</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Actif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Rappel abonnement diét. Pro J-3 avant prélèvement</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Inactif</span></label></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span style="font-size:.8rem;">Plan commandé non livré sous 24h</span><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;"><input type="checkbox" style="accent-color:var(--green);"/><span style="font-size:.75rem;color:var(--gray);">Inactif</span></label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PARAMÈTRES ══════════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="page-title">Paramètres plateforme</div>
+      <div class="page-sub">Configuration globale NutriDoc</div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Tarifs</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div class="inline-stat" style="justify-content:space-between"><span>Plan premium patient</span><strong>24,90 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Visio patient</span><strong>50,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Reversement visio diét.</span><strong>50,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Essentiel)</span><strong>16,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Pro)</span><strong>18,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Expert)</span><strong>20,00 €</strong></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Paramètres file d'attente</div></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div class="inline-stat" style="justify-content:space-between"><span>SLA livraison</span><strong>48h ouvrées</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Rayon géo prioritaire</span><strong>80 km</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Délai avant diffusion nationale</span><strong>4h</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Rate limit client</span><strong>3 req / min</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Capacité / diét. / 48h</span><strong>10 plans</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-top:1rem">
+        <div class="chart-header"><div class="chart-title">Statut des services</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem">
+          <div class="inline-stat"><span class="dot" style="background:#22c55e"></span> Supabase DB</div>
+          <div class="inline-stat"><span class="dot" style="background:#22c55e"></span> Edge Functions</div>
+          <div class="inline-stat"><span class="dot" style="background:#22c55e"></span> Resend Email</div>
+          <div class="inline-stat"><span class="dot" style="background:#22c55e"></span> Auth Supabase</div>
+          <div class="inline-stat"><span class="dot" style="background:#f59e0b"></span> Stripe (demo)</div>
+          <div class="inline-stat"><span class="dot" style="background:#22c55e"></span> GitHub Pages</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-content -->
+</div><!-- /admin-layout -->
+
+<script>
+// ── DONNÉES DEMO ─────────────────────────────────────────────
+const MONTHS = ['Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc','Jan','Fév','Mar'];
+
+const PATIENTS_DATA = [
+  { nom:'Marie Dupont',  ville:'Angoulême', objectif:'Perte de gras', plan:'Premium', date:'15/03/2025', statut:'actif'  },
+  { nom:'Thomas Klein',  ville:'Poitiers',  objectif:'Prise de masse', plan:'Premium', date:'18/03/2025', statut:'actif'  },
+  { nom:'Sophie Martin', ville:'Bordeaux',  objectif:'Équilibre',      plan:'Gratuit', date:'20/03/2025', statut:'actif'  },
+  { nom:'Lucas Bernard', ville:'La Rochelle',objectif:'Sport & perf.', plan:'Premium', date:'10/03/2025', statut:'actif'  },
+  { nom:'Emma Rousseau', ville:'Niort',     objectif:'Perte de gras', plan:'Gratuit', date:'05/03/2025', statut:'actif'  },
+  { nom:'Paul Laurent',  ville:'Périgueux', objectif:'Prévention',    plan:'Premium', date:'28/02/2025', statut:'actif'  },
+  { nom:'Julie Morin',   ville:'Angoulême', objectif:'Énergie',       plan:'Gratuit', date:'22/02/2025', statut:'inactif'},
+];
+const DIETS_DATA = [
+  { nom:'Dr. A. Lemaire', rpps:'10 008 019 381', formule:'Pro 29€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
+  { nom:'Dr. B. Mercier', rpps:'10 008 123 456', formule:'Expert 59€', zone:'Bordeaux 80km',  plans:24, reversement:'480 €', statut:'actif'    },
+  { nom:'C. Fontaine',    rpps:'10 012 987 654', formule:'Essentiel',  zone:'Poitiers 80km',  plans:18, reversement:'288 €', statut:'actif'    },
+  { nom:'Dr. D. Simon',   rpps:'10 007 654 321', formule:'Pro 29€',    zone:'La Rochelle',    plans:16, reversement:'288 €', statut:'actif'    },
+  { nom:'E. Blanc',       rpps:'10 015 222 333', formule:'Essentiel',  zone:'Périgueux',      plans:0,  reversement:'0 €',   statut:'en attente'},
+  { nom:'F. Petit',       rpps:'10 009 111 222', formule:'Pro 29€',    zone:'Niort 80km',     plans:0,  reversement:'0 €',   statut:'en attente'},
+];
+const PRESC_DATA = [
+  { nom:'Dr. G. Rolland',  prof:'Médecin généraliste', siret:'123 456 789 00012', pack:'Pro 20cr',    credits:6,  ca:'89 €'  },
+  { nom:'K. Moreau',       prof:'Kinésithérapeute',    siret:'234 567 890 00034', pack:'Volume 50cr', credits:34, ca:'219 €' },
+  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'55€'  },
+  { nom:'Dr. M. Perret',   prof:'Médecin du sport',    siret:'456 789 012 00078', pack:'Pro 20cr',    credits:14, ca:'89 €'  },
+];
+const PLANS_DATA = [
+  { id:'PLN-001', patient:'Marie D.',  objectif:'Perte de gras', diet:'Grégoire Martin', cree:'15/03', livre:'16/03', delai:'22h', statut:'livré'   },
+  { id:'PLN-002', patient:'Thomas K.', objectif:'Prise de masse', diet:'Dr. Mercier', cree:'18/03', livre:'19/03', delai:'18h', statut:'livré'   },
+  { id:'PLN-003', patient:'Sophie M.', objectif:'Équilibre',      diet:'Grégoire Martin', cree:'20/03', livre:null,    delai:'—',   statut:'en cours' },
+  { id:'PLN-004', patient:'Lucas B.',  objectif:'Sport & perf.',  diet:'C. Fontaine', cree:'21/03', livre:null,    delai:'—',   statut:'en attente'},
+  { id:'PLN-005', patient:'Emma R.',   objectif:'Perte de gras', diet:'Dr. Simon',   cree:'22/03', livre:'22/03', delai:'9h',  statut:'livré'   },
+];
+const QUEUE_DATA = [
+  { id:'Q-031', patient:'Noah R.',   ville:'Angoulême',  objectif:'Perte de gras', soumis:'27/03 09:14', diet:'Grégoire Martin', statut:'accepted'  },
+  { id:'Q-032', patient:'Léa M.',    ville:'Bordeaux',   objectif:'Équilibre',     soumis:'27/03 08:55', diet:'Dr. Mercier', statut:'in_progress'},
+  { id:'Q-033', patient:'Hugo L.',   ville:'Poitiers',   objectif:'Prise de masse',soumis:'27/03 07:30', diet:'—',           statut:'pending'   },
+  { id:'Q-034', patient:'Clara D.',  ville:'Niort',      objectif:'Sport & perf.', soumis:'27/03 06:45', diet:'—',           statut:'pending'   },
+  { id:'Q-035', patient:'Théo P.',   ville:'Périgueux',  objectif:'Énergie',       soumis:'27/03 06:10', diet:'—',           statut:'pending'   },
+];
+const TICKETS_DATA = [
+  { id:'TKT-001', profil:'Patient',      cat:'Plan non reçu',        titre:'Plan commandé il y a 3 jours, rien reçu', prio:'urgente', soumis:'25/03', statut:'ouvert'   },
+  { id:'TKT-002', profil:'Diététicien',  cat:'Rémunération',         titre:'Reversement de février manquant',         prio:'haute',   soumis:'26/03', statut:'ouvert'   },
+  { id:'TKT-003', profil:'Prescripteur', cat:'Crédits',              titre:'Crédits non débités après paiement',      prio:'haute',   soumis:'26/03', statut:'en_cours' },
+  { id:'TKT-004', profil:'Patient',      cat:'Compte',               titre:'Impossible de me connecter',              prio:'normale', soumis:'27/03', statut:'ouvert'   },
+  { id:'TKT-005', profil:'Diététicien',  cat:'Notification',         titre:'Je ne reçois plus les alertes dossiers',  prio:'normale', soumis:'27/03', statut:'ouvert'   },
+];
+const TRANSACTIONS_DATA = [
+  { date:'27/03', type:'Plan premium',   montant:'24,90 €', de:'Marie D.',   reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
+  { date:'27/03', type:'Visio',          montant:'50,00 €', de:'Thomas K.',  reverse:'50,00 €', net:'6,00 €',  statut:'payé'    },
+  { date:'26/03', type:'Pack Pro',       montant:'89,00 €', de:'Dr. Rolland',reverse:'—',       net:'89,00 €', statut:'payé'    },
+  { date:'26/03', type:'Plan premium',   montant:'24,90 €', de:'Sophie M.',  reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
+  { date:'25/03', type:'Abonnement Pro', montant:'50,00 €', de:'Grégoire Martin',reverse:'—',       net:'50,00 €', statut:'payé'    },
+  { date:'24/03', type:'Plan premium',   montant:'24,90 €', de:'Lucas B.',   reverse:'16,00 €', net:'8,90 €',  statut:'payé'    },
+];
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id)?.classList.add('active');
+  const btn = [...document.querySelectorAll('.nav-item')].find(b => b.getAttribute('onclick')?.includes("'"+id+"'"));
+  if (btn) btn.classList.add('active');
+  const TITLES = { dashboard:'Tableau de bord', revenus:'Revenus & finances', queue:'File d\'attente', patients:'Patients', dietitians:'Diététiciens', prescribers:'Prescripteurs', plans:'Plans alimentaires', tickets:'Tickets support', settings:'Paramètres' };
+  document.getElementById('topbarTitle').textContent = TITLES[id] || id;
+}
+
+// ── DATE ──────────────────────────────────────────────────────
+function initDate() {
+  const now = new Date();
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('datePill').textContent = now.toLocaleDateString('fr-FR', opts);
+  document.getElementById('pageSubDate').textContent = `Données au ${now.toLocaleDateString('fr-FR')} — Mise à jour en temps réel`;
+}
+
+// ── CHARTS ────────────────────────────────────────────────────
+let chartRevenus;
+const REVENUS_DATA = {
+  '12m': { plans:[890,1020,780,1340,1560,1890,2100,1780,2340,2890,3560,4720], visios:[0,0,55,110,55,165,220,110,275,330,495,1265], abo:[380,380,380,430,430,490,490,490,540,540,590,680] },
+  '6m':  { plans:[1890,2100,1780,2340,2890,3560], visios:[165,220,110,275,330,495], abo:[490,490,490,540,540,590] },
+  '3m':  { plans:[2340,2890,3560], visios:[275,330,495], abo:[540,540,590] },
+};
+const MONTHS_MAP = { '12m': MONTHS, '6m': MONTHS.slice(6), '3m': MONTHS.slice(9) };
+
+function initChartRevenus(period = '12m') {
+  const d   = REVENUS_DATA[period];
+  const mo  = MONTHS_MAP[period];
+  if (chartRevenus) chartRevenus.destroy();
+  const ctx = document.getElementById('chartRevenus');
+  if (!ctx) return;
+  chartRevenus = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mo,
+      datasets: [
+        { label:'Plans', data: d.plans, backgroundColor:'rgba(29,158,117,.75)', borderRadius:4, stack:'a' },
+        { label:'Visios', data: d.visios, backgroundColor:'rgba(93,202,165,.65)', borderRadius:4, stack:'a' },
+        { label:'Abonnements', data: d.abo, backgroundColor:'rgba(139,92,246,.5)', borderRadius:4, stack:'a' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ font:{ size:11 }, boxWidth:10 } } },
+      scales:{
+        x:{ stacked:true, grid:{ display:false }, ticks:{ color:'#6b7b74', font:{size:10} } },
+        y:{ stacked:true, grid:{ color:'rgba(0,0,0,.04)' }, ticks:{ color:'#6b7b74', callback:v=>v+'€', font:{size:10} } }
+      }
+    }
+  });
+}
+
+function switchPeriod(p, btn) {
+  document.querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initChartRevenus(p);
+}
+
+function initChartSources() {
+  const ctx = document.getElementById('chartSources');
+  if (!ctx) return;
+  const sources = [
+    { label:'Plans premium', val:2100, color:'#1D9E75' },
+    { label:'Abonnements diét.', val:680, color:'#8b5cf6' },
+    { label:'Visios', val:1265, color:'#5DCAA5' },
+    { label:'Crédits pro', val:675, color:'#f59e0b' },
+  ];
+  new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:sources.map(s=>s.label), datasets:[{ data:sources.map(s=>s.val), backgroundColor:sources.map(s=>s.color), borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, cutout:'68%' }
+  });
+  const total = sources.reduce((a,s)=>a+s.val,0);
+  document.getElementById('chartSourcesLegend').innerHTML = sources.map(s=>
+    `<div style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:${s.color};flex-shrink:0"></span>${s.label}<span style="margin-left:auto;font-weight:500">${Math.round(s.val/total*100)}%</span></div>`
+  ).join('');
+}
+
+function initSmallCharts() {
+  const make = (id, data, color, type='bar') => {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    new Chart(ctx, {
+      type,
+      data:{ labels:MONTHS.slice(-6), datasets:[{ data, backgroundColor:color+'99', borderColor:color, borderWidth:type==='line'?2:0, borderRadius:4, fill:type==='line', tension:.4, pointRadius:2 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}}, y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}} } }
+    });
+  };
+  make('chartPlansRev',  [22,28,18,32,41,50], '#1D9E75');
+  make('chartVisiosRev', [3,4,2,5,6,9],       '#5DCAA5');
+  make('chartCreditsRev',[14,10,8,16,22,27],  '#f59e0b');
+  make('chartObjectifs', [38,24,16,12,7,3],   null, 'doughnut');
+  make('chartInscrip',   [12,18,14,22,28,32], '#3b82f6', 'line');
+
+  const qCtx = document.getElementById('chartQueue');
+  if (qCtx) new Chart(qCtx, {
+    type:'line',
+    data:{
+      labels:Array.from({length:30},(_,i)=>i+1+'j'),
+      datasets:[
+        { label:'Délai moy (h)', data:Array.from({length:30},()=>Math.round(10+Math.random()*8)), borderColor:'#1D9E75', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
+        { label:'Saturation %',  data:Array.from({length:30},()=>Math.round(40+Math.random()*35)), borderColor:'#f59e0b', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{size:10},boxWidth:10}}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af',maxTicksLimit:10}}, y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}} } }
+  });
+}
+
+// ── TABLEAUX ──────────────────────────────────────────────────
+const STATUS_BADGES = {
+  actif:       '<span class="badge green"><span class="dot" style="background:#1D9E75"></span>Actif</span>',
+  inactif:     '<span class="badge gray"><span class="dot" style="background:#9ca3af"></span>Inactif</span>',
+  'en attente':'<span class="badge amber"><span class="dot" style="background:#f59e0b"></span>En attente</span>',
+  livré:       '<span class="badge green">✓ Livré</span>',
+  'en cours':  '<span class="badge blue">⏳ En cours</span>',
+  'en_cours':  '<span class="badge blue">⏳ En cours</span>',
+  'en attente2':'<span class="badge amber">⌛ En attente</span>',
+  accepted:    '<span class="badge blue">✓ Accepté</span>',
+  in_progress: '<span class="badge purple">⚙ En cours</span>',
+  pending:     '<span class="badge amber">⌛ Pending</span>',
+  ouvert:      '<span class="badge amber">Ouvert</span>',
+  resolu:      '<span class="badge green">Résolu</span>',
+  payé:        '<span class="badge green">Payé</span>',
+};
+const PRIO_BADGES = {
+  urgente: '<span class="badge red">🔴 Urgente</span>',
+  haute:   '<span class="badge amber">🟠 Haute</span>',
+  normale: '<span class="badge gray">Normale</span>',
+  basse:   '<span class="badge gray">Basse</span>',
+};
+
+function renderTables() {
+  // Patients
+  const pb = document.getElementById('patientsBody');
+  if (pb) pb.innerHTML = PATIENTS_DATA.map(p=>`<tr>
+    <td><strong>${p.nom}</strong></td><td>${p.ville}</td><td>${p.objectif}</td>
+    <td><span class="badge ${p.plan==='Premium'?'green':'gray'}">${p.plan}</span></td>
+    <td>${p.date}</td><td>${STATUS_BADGES[p.statut]||p.statut}</td>
+  </tr>`).join('');
+
+  // Diets
+  const db = document.getElementById('dietsBody');
+  if (db) db.innerHTML = DIETS_DATA.map(d=>`<tr>
+    <td><strong>${d.nom}</strong></td><td style="font-size:.75rem;color:var(--gray)">${d.rpps}</td>
+    <td><span class="badge purple">${d.formule}</span></td><td>${d.zone}</td>
+    <td style="font-weight:500">${d.plans}</td><td style="color:var(--green);font-weight:500">${d.reversement}</td>
+    <td>${STATUS_BADGES[d.statut]||d.statut}</td>
+    <td><button class="btn-sm ${d.statut==='actif'?'red':'green'}" onclick="toggleDiet('${d.nom}')">${d.statut==='actif'?'Suspendre':'Activer'}</button></td>
+  </tr>`).join('');
+
+  // Prescripteurs
+  const prb = document.getElementById('prescBody');
+  if (prb) prb.innerHTML = PRESC_DATA.map(p=>`<tr>
+    <td><strong>${p.nom}</strong></td><td>${p.prof}</td>
+    <td style="font-size:.75rem;color:var(--gray)">${p.siret}</td>
+    <td><span class="badge amber">${p.pack}</span></td>
+    <td>${p.credits} créd.</td>
+    <td style="color:var(--green);font-weight:500">${p.ca}</td>
+    <td><span class="badge green">Actif</span></td>
+  </tr>`).join('');
+
+  // Plans
+  const plb = document.getElementById('plansBody');
+  if (plb) plb.innerHTML = PLANS_DATA.map(p=>`<tr>
+    <td style="font-size:.72rem;color:var(--gray)">${p.id}</td>
+    <td><strong>${p.patient}</strong></td><td>${p.objectif}</td><td>${p.diet}</td>
+    <td>${p.cree}</td><td>${p.livre||'—'}</td>
+    <td style="font-weight:500;color:${p.delai==='—'?'var(--gray)':parseFloat(p.delai)>24?'var(--red)':'var(--green)'}">${p.delai}</td>
+    <td>${STATUS_BADGES[p.statut]||p.statut}</td>
+    <td>${p.statut==='livré'?'<button class="btn-sm gray" onclick="alert(\'PDF téléchargé\')">PDF</button>':'—'}</td>
+  </tr>`).join('');
+
+  // Queue
+  const qb = document.getElementById('queueBody');
+  if (qb) qb.innerHTML = QUEUE_DATA.map(q=>`<tr>
+    <td style="font-size:.72rem;color:var(--gray)">${q.id}</td>
+    <td><strong>${q.patient}</strong></td><td>${q.ville}</td><td>${q.objectif}</td>
+    <td style="font-size:.75rem">${q.soumis}</td>
+    <td>${q.diet}</td>
+    <td>${STATUS_BADGES[q.statut]||q.statut}</td>
+    <td>${q.statut==='pending'?'<button class="btn-sm green" onclick="assignManually(\''+q.id+'\')">Assigner</button>':''}</td>
+  </tr>`).join('');
+
+  // Tickets
+  const tkb = document.getElementById('ticketsBody');
+  if (tkb) tkb.innerHTML = TICKETS_DATA.map(t=>`<tr>
+    <td style="font-size:.72rem;color:var(--gray)">${t.id}</td>
+    <td><span class="badge ${t.profil==='Patient'?'blue':t.profil==='Diététicien'?'green':'purple'}">${t.profil}</span></td>
+    <td>${t.cat}</td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.titre}</td>
+    <td>${PRIO_BADGES[t.prio]||t.prio}</td>
+    <td>${t.soumis}</td>
+    <td>${STATUS_BADGES[t.statut]||t.statut}</td>
+    <td><button class="btn-sm green" onclick="repondreTicket('${t.id}')">Répondre</button></td>
+  </tr>`).join('');
+
+  // Transactions
+  const trb = document.getElementById('transactionsBody');
+  if (trb) trb.innerHTML = TRANSACTIONS_DATA.map(t=>`<tr>
+    <td>${t.date}</td>
+    <td>${t.type}</td>
+    <td style="font-weight:500">${t.montant}</td>
+    <td>${t.de}</td>
+    <td style="color:var(--red)">${t.reverse}</td>
+    <td style="font-weight:600;color:var(--green)">${t.net}</td>
+    <td>${STATUS_BADGES[t.statut]||t.statut}</td>
+  </tr>`).join('');
+}
+
+// ── ACTIVITÉ FEED ─────────────────────────────────────────────
+function renderActivity() {
+  const events = [
+    { color:'#1D9E75', text:'<strong>Marie Dupont</strong> a reçu son plan alimentaire (perte de gras)', time:'Il y a 12 min' },
+    { color:'#8b5cf6', text:'<strong>Grégoire Martin</strong> a validé 2 plans ce matin', time:'Il y a 45 min' },
+    { color:'#f59e0b', text:'Nouvelle demande de plan — <strong>Hugo Laurent</strong> · Poitiers (en attente)', time:'Il y a 1h20' },
+    { color:'#3b82f6', text:'<strong>K. Moreau</strong> (kiné) a rechargé 50 crédits — Pack Volume', time:'Il y a 2h' },
+    { color:'#ef4444', text:'Alerte santé détecté — <strong>Emma R.</strong> · Grossesse déclarée → redirigée', time:'Il y a 3h' },
+    { color:'#1D9E75', text:'Visio <strong>Thomas Klein / Dr. Mercier</strong> confirmée pour demain 10h', time:'Il y a 4h' },
+  ];
+  document.getElementById('activityFeed').innerHTML = events.map((e,i)=>`
+    <div class="activity-item">
+      <div class="activity-dot-wrap">
+        <div class="activity-dot" style="background:${e.color}"></div>
+        ${i<events.length-1?'<div class="activity-line"></div>':''}
+      </div>
+      <div class="activity-content">
+        <div class="activity-text">${e.text}</div>
+        <div class="activity-time">${e.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── FILE D'ATTENTE GAUGE ──────────────────────────────────────
+function renderQueueGauge() {
+  const saturation = 42;
+  const color = saturation < 60 ? '#1D9E75' : saturation < 85 ? '#f59e0b' : '#ef4444';
+  const status = saturation < 60 ? 'Nominal' : saturation < 85 ? 'Chargé' : 'Saturé';
+  document.getElementById('queueGauge').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;padding:.5rem 0">
+      <div style="position:relative;width:100px;height:100px;margin:.5rem auto">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#e8edeb" stroke-width="8"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="${color}" stroke-width="8"
+            stroke-dasharray="${saturation*2.51} 251" stroke-dashoffset="63"
+            stroke-linecap="round" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-family:var(--font-d);font-size:1.5rem;line-height:1;color:${color}">${saturation}%</div>
+          <div style="font-size:.6rem;color:var(--gray)">${status}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;width:100%;margin-top:.5rem">
+        <div style="text-align:center;padding:.5rem;background:var(--cream);border-radius:8px">
+          <div style="font-size:1.1rem;font-weight:600;color:var(--dark)">8</div>
+          <div style="font-size:.65rem;color:var(--gray)">en attente</div>
+        </div>
+        <div style="text-align:center;padding:.5rem;background:var(--cream);border-radius:8px">
+          <div style="font-size:1.1rem;font-weight:600;color:var(--dark)">14h</div>
+          <div style="font-size:.65rem;color:var(--gray)">délai moy.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────
+function toggleDiet(nom)      { alert(`Action : modifier le statut de ${nom}`); }
+function assignManually(id)   { alert(`Attribution manuelle de la demande ${id} à un diét. disponible.`); }
+function repondreTicket(id)   { alert(`Ouverture de la réponse au ticket ${id}…`); }
+function exportRapport()      { alert('Génération du rapport PDF mensuel… (nécessite jsPDF)'); }
+function exportCSV(type)      { alert(`Export CSV : ${type}`); }
+function filterTable(type)    { /* à brancher sur Supabase */ }
+
+
+// ════════════════════════════════════════════════
+// FISCAL : URSSAF & TVA
+// ════════════════════════════════════════════════
+
+// ── Données CA mensuel 2025 ───────────────────────────────────
+const CA_MENSUEL = {
+  // CA réel ou estimé par mois (HT = prix TTC / 1.20)
+  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 55€ TTC → 45,83€ HT
+  // Abonnements diét. : 55€ TTC → 40,83€ HT · Crédits pro : prix HT
+  Jan: { plans: 890,  visios: 330, abo: 540, credits: 120 },
+  Fév: { plans: 1020, visios: 495, abo: 540, credits: 160 },
+  Mar: { plans: 1340, visios: 550, abo: 590, credits: 240 },
+  Avr: { plans: 1560, visios: 605, abo: 590, credits: 280 },
+  Mai: { plans: 0,    visios: 0,   abo: 0,   credits: 0   }, // à venir
+  Jun: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Jul: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Aoû: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Sep: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Oct: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Nov: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Déc: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+};
+
+const TAUX_COTISATIONS = 0.212;  // URSSAF micro-entreprise BIC services commerciaux
+const TAUX_CFP         = 0.002;  // Contribution à la formation professionnelle
+const TAUX_TVA         = 0.20;   // Taux normal
+const SEUIL_FRANCHISE  = 36800;  // Seuil franchise TVA 2024-2025
+const SEUIL_MAJORE     = 39100;  // Seuil majoré
+
+function totalCA(m) { return (m.plans || 0) + (m.visios || 0) + (m.abo || 0) + (m.credits || 0); }
+
+// ── CA trimestriel ────────────────────────────────────────────
+function getTrimestreData() {
+  const mois = Object.keys(CA_MENSUEL);
+  return [
+    { trim:'T1 2025', periode:'Janvier – Mars',  mois:['Jan','Fév','Mar'], echeance:'30 avr. 2025', statut:'à déclarer' },
+    { trim:'T2 2025', periode:'Avril – Juin',    mois:['Avr','Mai','Jun'], echeance:'31 juil. 2025', statut:'futur'     },
+    { trim:'T3 2025', periode:'Juillet – Sept.', mois:['Jul','Aoû','Sep'], echeance:'31 oct. 2025',  statut:'futur'     },
+    { trim:'T4 2025', periode:'Octobre – Déc.',  mois:['Oct','Nov','Déc'], echeance:'31 jan. 2026',  statut:'futur'     },
+  ].map(t => {
+    const plans   = t.mois.reduce((s,m) => s + (CA_MENSUEL[m]?.plans   || 0), 0);
+    const visios  = t.mois.reduce((s,m) => s + (CA_MENSUEL[m]?.visios  || 0), 0);
+    const abo     = t.mois.reduce((s,m) => s + (CA_MENSUEL[m]?.abo     || 0), 0);
+    const credits = t.mois.reduce((s,m) => s + (CA_MENSUEL[m]?.credits || 0), 0);
+    const total   = plans + visios + abo + credits;
+    return { ...t, plans, visios, abo, credits, total,
+      cotisations: Math.round(total * TAUX_COTISATIONS * 100) / 100,
+      cfp:         Math.round(total * TAUX_CFP         * 100) / 100 };
+  });
+}
+
+// ── Render tableau URSSAF ─────────────────────────────────────
+function renderURSSAF() {
+  const trims = getTrimestreData();
+  const STATUS_STYLE = {
+    'à déclarer': 'badge amber',
+    'déclaré':    'badge green',
+    'futur':      'badge gray',
+  };
+
+  const tbody = document.getElementById('urssafTableBody');
+  const tfoot = document.getElementById('urssafTableFoot');
+  if (!tbody) return;
+
+  tbody.innerHTML = trims.map(t => `
+    <tr style="${t.statut==='à déclarer'?'background:#fff8e6;':''}">
+      <td><strong>${t.trim}</strong></td>
+      <td style="color:var(--gray);font-size:.78rem">${t.periode}</td>
+      <td>${t.plans.toLocaleString('fr-FR')} €</td>
+      <td>${t.visios.toLocaleString('fr-FR')} €</td>
+      <td>${t.abo.toLocaleString('fr-FR')} €</td>
+      <td>${t.credits.toLocaleString('fr-FR')} €</td>
+      <td style="font-weight:600;color:var(--green)">${t.total.toLocaleString('fr-FR')} €</td>
+      <td style="font-weight:600;color:#ef4444">${t.cotisations.toLocaleString('fr-FR')} €</td>
+      <td style="color:var(--blue)">${t.cfp.toLocaleString('fr-FR')} €</td>
+      <td>
+        <span class="${STATUS_STYLE[t.statut]||'badge gray'}">${t.statut}</span>
+        ${t.statut==='à déclarer' ? '<br><a href="https://www.autoentrepreneur.urssaf.fr" target="_blank" style="font-size:.7rem;color:var(--green);margin-top:2px;display:inline-block">Déclarer sur URSSAF →</a>' : ''}
+      </td>
+    </tr>`).join('');
+
+  const totCA = trims.reduce((s,t) => s + t.total, 0);
+  const totCot = trims.reduce((s,t) => s + t.cotisations, 0);
+  const totCFP = trims.reduce((s,t) => s + t.cfp, 0);
+  tfoot.innerHTML = `
+    <tr style="background:var(--cream);font-weight:600">
+      <td colspan="6">Total annuel 2025</td>
+      <td style="color:var(--green)">${totCA.toLocaleString('fr-FR')} €</td>
+      <td style="color:#ef4444">${totCot.toLocaleString('fr-FR')} €</td>
+      <td style="color:var(--blue)">${totCFP.toLocaleString('fr-FR')} €</td>
+      <td></td>
+    </tr>`;
+
+  // Compte à rebours T1
+  const t1 = trims[0];
+  const el = document.getElementById('cotisT2');
+  if (el) el.textContent = t1.cotisations.toLocaleString('fr-FR') + ' €';
+
+  const echeance = new Date('2025-04-30');
+  const today    = new Date();
+  const jours    = Math.max(0, Math.ceil((echeance - today) / 86400000));
+  const cdEl = document.getElementById('countdownDays');
+  if (cdEl) { cdEl.textContent = jours; cdEl.style.color = jours < 10 ? '#ef4444' : '#5DCAA5'; }
+  const nextEl = document.getElementById('nextEcheance');
+  if (nextEl) nextEl.textContent = 'Prochaine : 30 avril 2025';
+
+  // Alerte si proche
+  const alertEl = document.getElementById('urssafAlert');
+  if (alertEl) {
+    if (jours <= 15 && jours > 0) {
+      alertEl.style.display = 'flex';
+      alertEl.innerHTML = `⚠ <strong>Dans ${jours} jours</strong> — Déclaration URSSAF T1 2025 à effectuer avant le 30 avril. CA à déclarer : <strong>${t1.total.toLocaleString('fr-FR')} €</strong> · Cotisations dues : <strong>${t1.cotisations.toLocaleString('fr-FR')} €</strong>
+        <a href="https://www.autoentrepreneur.urssaf.fr" target="_blank" class="btn-sm green" style="margin-left:auto">Déclarer →</a>`;
+    }
+  }
+
+  renderDeclarations();
+}
+
+// ── Déclarations passées ─────────────────────────────────────
+function renderDeclarations() {
+  const PAST = [
+    { trim:'T4 2024', date:'27/01/2025', ca:'3 560', cot:'783,20', cfp:'7,12', total:'790,32', ref:'URSSAF-2025-01-4872' },
+    { trim:'T3 2024', date:'28/10/2024', ca:'2 890', cot:'635,80', cfp:'5,78', total:'641,58', ref:'URSSAF-2024-10-3341' },
+    { trim:'T2 2024', date:'30/07/2024', ca:'1 890', cot:'415,80', cfp:'3,78', total:'419,58', ref:'URSSAF-2024-07-2210' },
+  ];
+  const el = document.getElementById('declarationsBody');
+  if (!el) return;
+  el.innerHTML = PAST.map(d => `
+    <tr>
+      <td><strong>${d.trim}</strong></td>
+      <td>${d.date}</td>
+      <td>${d.ca} €</td>
+      <td style="color:#ef4444;font-weight:500">${d.cot} €</td>
+      <td style="color:var(--blue)">${d.cfp} €</td>
+      <td style="font-weight:600">${d.total} €</td>
+      <td><span class="badge green">✓ Déclaré</span></td>
+      <td style="font-size:.72rem;color:var(--gray);font-family:monospace">${d.ref}</td>
+    </tr>`).join('');
+}
+
+// ── Simulateur URSSAF ────────────────────────────────────────
+function calculerSimu() {
+  const ca  = parseFloat(document.getElementById('simCA')?.value) || 0;
+  const cot = ca * TAUX_COTISATIONS;
+  const cfp = ca * TAUX_CFP;
+  const net = ca - cot - cfp;
+  const abattement = ca * 0.50; // abattement forfaitaire BIC (micro-entreprise services)
+  const baseImposable = ca - abattement;
+
+  document.getElementById('simuResult').innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border)">
+      <span>CA déclaré</span><strong>${ca.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:#ef4444">
+      <span>Cotisations URSSAF (21,2%)</span><strong>− ${cot.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:var(--blue)">
+      <span>CFP (0,2%)</span><strong>− ${cfp.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:var(--gray)">
+      <span>Abattement forfaitaire BIC (50%)</span><strong>− ${abattement.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:var(--gray)">
+      <span>Base imposable IR estimée</span><strong>${baseImposable.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:#ef4444">
+      <span>TVA collectée à reverser (20% sur CA TTC)</span><strong>− ${(ca/1.2*0.2).toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.9rem;padding:.4rem 0;font-weight:600;color:var(--green)">
+      <span>Net disponible estimé (hors IR)</span><strong>${(net - ca/1.2*0.2).toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem">* Si CA saisi en TTC · Hors IR · Hors charges déductibles · Hors reversements diét.</div>
+  `;
+}
+
+// ── Graphique CA cumulé ───────────────────────────────────────
+function initChartCACumul() {
+  const ctx = document.getElementById('chartCACumul');
+  if (!ctx) return;
+  const mois = Object.keys(CA_MENSUEL);
+  const caMensuel = mois.map(m => totalCA(CA_MENSUEL[m]));
+  let cumul = 0;
+  const caCumul = caMensuel.map(v => { cumul += v; return cumul; });
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: mois,
+      datasets: [
+        { label:'CA cumulé', data: caCumul, borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,.08)', fill:true, tension:.4, pointRadius:4, pointBackgroundColor:'#1D9E75' },
+        { label:'Seuil franchise', data: mois.map(() => SEUIL_FRANCHISE), borderColor:'#f59e0b', borderDash:[6,3], borderWidth:1.5, pointRadius:0, fill:false },
+        { label:'Seuil majoré', data: mois.map(() => SEUIL_MAJORE), borderColor:'#ef4444', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ font:{size:10}, boxWidth:12 } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#9ca3af',font:{size:9}} },
+        y:{ grid:{color:'rgba(0,0,0,.04)'}, ticks:{color:'#9ca3af',font:{size:9},callback:v=>v+'€'} }
+      }
+    }
+  });
+}
+
+// ── TVA ─────────────────────────────────────────────────────
+function renderTVA() {
+  const mois = Object.keys(CA_MENSUEL);
+  const caAnnuel = Object.values(CA_MENSUEL).reduce((s,m) => s + totalCA(m), 0);
+
+  // Barres seuil
+  const pct1 = Math.min(100, Math.round(caAnnuel / SEUIL_FRANCHISE * 100));
+  const pct2 = Math.min(100, Math.round(caAnnuel / SEUIL_MAJORE    * 100));
+  const b1 = document.getElementById('tvaSeuil1Bar');
+  const b2 = document.getElementById('tvaSeuil2Bar');
+  const l1 = document.getElementById('tvaSeuil1Label');
+  const l2 = document.getElementById('tvaSeuil2Label');
+  if (b1) { b1.style.width = pct1+'%'; b1.style.background = pct1 > 85 ? '#ef4444' : '#1D9E75'; }
+  if (b2) { b2.style.width = pct2+'%'; b2.style.background = pct2 > 85 ? '#ef4444' : '#f59e0b'; }
+  if (l1) l1.textContent = `${caAnnuel.toLocaleString('fr-FR')} € / ${SEUIL_FRANCHISE.toLocaleString('fr-FR')} € — ${pct1}% du seuil`;
+  if (l2) l2.textContent = `${caAnnuel.toLocaleString('fr-FR')} € / ${SEUIL_MAJORE.toLocaleString('fr-FR')} € — ${pct2}% du seuil majoré`;
+
+  // Tableau TVA simulée
+  const CHARGES_MENSUELLES = 320; // estimation charges déductibles avec TVA (hébergement, logiciels...)
+  const tbody = document.getElementById('tvaTableBody');
+  const tfoot = document.getElementById('tvaTableFoot');
+  if (!tbody) return;
+
+  let totHT = 0, totColl = 0, totDed = 0, totNette = 0;
+  tbody.innerHTML = Object.entries(CA_MENSUEL).map(([m, vals]) => {
+    const ht      = totalCA(vals);
+    const collecte = Math.round(ht * TAUX_TVA * 100) / 100;
+    const deductible = ht > 0 ? Math.round(CHARGES_MENSUELLES * TAUX_TVA * 100) / 100 : 0;
+    const nette    = Math.round((collecte - deductible) * 100) / 100;
+    const ttc      = Math.round((ht + collecte) * 100) / 100;
+    totHT += ht; totColl += collecte; totDed += deductible; totNette += nette;
+    const avenir = ht === 0;
+    return `<tr style="${avenir?'color:var(--gray);font-style:italic;':''}">
+      <td>${m}</td>
+      <td>${ht > 0 ? ht.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '—'}</td>
+      <td style="color:#ef4444">${collecte > 0 ? collecte.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '—'}</td>
+      <td>${ttc > 0 ? ttc.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '—'}</td>
+      <td style="color:var(--green)">${deductible > 0 ? '− '+deductible.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '—'}</td>
+      <td style="font-weight:600;color:${nette>0?'#ef4444':'var(--green)'}">${nette > 0 ? nette.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '—'}</td>
+      <td><span class="badge ${avenir?'gray':ht>0?'amber':'gray'}">${avenir?'Prévisionnel':ht>0?'Simulé':'—'}</span></td>
+    </tr>`;
+  }).join('');
+
+  if (tfoot) tfoot.innerHTML = `
+    <tr style="background:var(--cream);font-weight:600">
+      <td>Total annuel</td>
+      <td>${totHT.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="color:#ef4444">${totColl.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td>${(totHT+totColl).toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="color:var(--green)">− ${totDed.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="color:#ef4444;font-weight:700">${totNette.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td></td>
+    </tr>`;
+}
+
+// ── Simulateur TVA ────────────────────────────────────────────
+function calculerTVA() {
+  const ht = parseFloat(document.getElementById('simuTVACA')?.value) || 0;
+  const collecte   = Math.round(ht * TAUX_TVA * 100) / 100;
+  const ttc        = Math.round((ht + collecte) * 100) / 100;
+  const deductible = Math.round(320 * TAUX_TVA * 100) / 100; // charges fixes estimées
+  const nette      = Math.round((collecte - deductible) * 100) / 100;
+
+  const el = document.getElementById('tvaSimuResult');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border)">
+      <span>CA HT</span><strong>${ht.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:#ef4444">
+      <span>TVA collectée (20%)</span><strong>+ ${collecte.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);font-weight:600">
+      <span>Prix TTC (à afficher sur factures)</span><strong>${ttc.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);color:var(--green)">
+      <span>TVA déductible charges (~320€/mois)</span><strong>− ${deductible.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.9rem;padding:.4rem 0;font-weight:600;color:#ef4444">
+      <span>TVA nette à reverser à l'État</span><strong>${nette.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+    </div>
+  `;
+}
+
+// ── Graphique TVA seuil ───────────────────────────────────────
+function initChartTVASeuil() {
+  const ctx = document.getElementById('chartTVASeuil');
+  if (!ctx) return;
+  const mois = Object.keys(CA_MENSUEL);
+  let cumul = 0;
+  const caCumul = Object.values(CA_MENSUEL).map(m => { cumul += totalCA(m); return cumul; });
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mois,
+      datasets: [
+        { label:'CA mensuel', data: Object.values(CA_MENSUEL).map(m => totalCA(m)), backgroundColor:'rgba(29,158,117,.6)', borderRadius:4, yAxisID:'y1' },
+        { label:'CA cumulé',  data: caCumul, type:'line', borderColor:'#1D9E75', fill:false, tension:.4, pointRadius:3, yAxisID:'y' },
+        { label:'Franchise 36 800€', data: mois.map(()=>SEUIL_FRANCHISE), type:'line', borderColor:'#f59e0b', borderDash:[6,3], borderWidth:2, pointRadius:0, fill:false, yAxisID:'y' },
+        { label:'Seuil majoré 39 100€', data: mois.map(()=>SEUIL_MAJORE), type:'line', borderColor:'#ef4444', borderDash:[4,4], borderWidth:2, pointRadius:0, fill:false, yAxisID:'y' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ font:{size:10}, boxWidth:12 } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#9ca3af',font:{size:9}} },
+        y:{ position:'left', grid:{color:'rgba(0,0,0,.04)'}, ticks:{color:'#9ca3af',font:{size:9},callback:v=>v.toLocaleString('fr-FR')+'€'} },
+        y1:{ position:'right', grid:{display:false}, ticks:{color:'rgba(29,158,117,.6)',font:{size:9},callback:v=>v.toLocaleString('fr-FR')+'€'} },
+      }
+    }
+  });
+}
+
+// Brancher sur DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  renderURSSAF();
+  renderTVA();
+  calculerSimu();
+  calculerTVA();
+  initChartCACumul();
+  initChartTVASeuil();
+});
+
+
+function saveComm(type) {
+  const vals = { essentiel: document.getElementById('commEssentiel')?.value, pro: document.getElementById('commPro')?.value, expert: document.getElementById('commExpert')?.value, visio: document.getElementById('commVisio')?.value };
+  showToast(`Commission ${type} mise à jour : ${vals[type]} € ✓`);
+}
+function saveTarif(type) { showToast(`Tarif ${type} sauvegardé ✓ — pensez à mettre à jour Stripe`); }
+function saveParrainageRules() { showToast('Règles de parrainage enregistrées ✓'); }
+function ajouterDietPilote() {
+  const email = prompt('Email du diét. pilote :');
+  if (!email) return;
+  const el = document.getElementById('piloteDietList');
+  if (el) {
+    const item = document.createElement('div');
+    item.className = 'inline-stat';
+    item.style.justifyContent = 'space-between';
+    item.innerHTML = `<span>${email}</span><span class="badge green">Mode pilote · Gratuit</span>`;
+    el.appendChild(item);
+    showToast(`${email} ajouté en mode pilote ✓`);
+  }
+}
+function renderTemplates() {
+  const TEMPLATES = [
+    { slug:'confirmation_bilan', nom:'Confirmation bilan', sujet:'✓ Votre bilan NutriDoc a bien été reçu', type:'Transactionnel' },
+    { slug:'plan_livre', nom:'Plan livré', sujet:'🎉 Votre plan alimentaire est prêt !', type:'Transactionnel' },
+    { slug:'relance_plan', nom:'Relance plan', sujet:'Votre plan alimentaire personnalisé vous attend 🥗', type:'Relance' },
+    { slug:'alerte_prelevement', nom:'Alerte prélèvement diét.', sujet:'Votre abonnement NutriDoc Pro sera prélevé dans 3 jours', type:'Alerte' },
+    { slug:'parrainage', nom:'Invitation parrainage', sujet:'${prenom} vous invite sur NutriDoc 🎁', type:'Marketing' },
+    { slug:'newsletter', nom:'Newsletter mensuelle', sujet:'Actualités NutriDoc · ${mois}', type:'Newsletter' },
+  ];
+  const el = document.getElementById('templatesBody');
+  if (!el) return;
+  el.innerHTML = TEMPLATES.map(t => `<tr>
+    <td style="font-family:monospace;font-size:.75rem;color:var(--gray)">${t.slug}</td>
+    <td><strong>${t.nom}</strong></td>
+    <td style="max-width:250px;font-size:.8rem;">${t.sujet}</td>
+    <td><span class="badge ${t.type==='Transactionnel'?'green':t.type==='Relance'?'amber':t.type==='Alerte'?'red':'blue'}">${t.type}</span></td>
+    <td><span class="badge green">Actif</span></td>
+    <td><button class="btn-sm gray" onclick="editTemplate('${t.slug}')">✏ Éditer</button></td>
+  </tr>`).join('');
+}
+function editTemplate(slug) { alert('Éditeur de template ' + slug + '\n(Intégration Resend à connecter)'); }
+function nouveauTemplate() { alert('Créer un nouveau template email\n(Éditeur HTML à intégrer)'); }
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.6rem 1.25rem;border-radius:999px;font-size:.82rem;z-index:2000;';
+  el.textContent = msg; document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initDate(); renderTemplates();
+  initChartRevenus();
+  initChartSources();
+  initSmallCharts();
+  renderTables();
+  renderActivity();
+  renderQueueGauge();
+});
+</script>
+  <script src="js/admin/admin-auth.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

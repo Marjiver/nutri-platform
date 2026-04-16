@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Mon espace patient — NutriDoc">
+  <meta property="twitter:description" content="Votre espace personnel NutriDoc pour suivre votre plan alimentaire.">
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/dashboard.html">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Votre espace personnel NutriDoc pour suivre votre plan alimentaire.">
+  <meta property="og:title" content="Mon espace patient — NutriDoc">
+  <meta name="author" content="CaliDoc Santé">
+  <meta name="keywords" content="dashboard patient, suivi nutritionnel, plan alimentaire">
+  <meta name="description" content="Accédez à votre tableau de bord NutriDoc : suivez vos progrès, consultez votre plan alimentaire et échangez avec votre diététicien.">
+  <meta name="theme-color" content="#0d2018">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriDoc — Mon tableau de bord patient</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .dashboard-header {
+      background: #0d2018;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,.2);
+    }
+    .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo em { font-style: italic; color: #5DCAA5; }
+    .user-btn {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 1.5rem;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,.2);
+      border-radius: 12px;
+      width: 160px;
+      z-index: 101;
+    }
+    .user-dropdown.open { display: block; }
+    .user-dropdown a {
+      display: block;
+      padding: 0.6rem 1rem;
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .user-dropdown a:hover { background: rgba(29,158,117,.1); color: #fff; }
+
+    /* LAYOUT */
+    .dashboard-layout {
+      display: flex;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .sidebar-nav {
+      background:var(--bg-card,#fff);
+      border-radius: 16px;
+      border: 1px solid rgba(29,158,117,.15);
+      overflow: hidden;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(29,158,117,.1);
+      color:var(--text-secondary,#6b7b74);
+      font-size: 0.85rem;
+    }
+    .sidebar-item:last-child { border-bottom: none; }
+    .sidebar-item:hover { background:var(--bg-tertiary,#eef4ee); color:var(--text-primary,#0d2018); }
+    .sidebar-item.active {
+      background: rgba(29,158,117,.1);
+      color: #1D9E75;
+      border-left: 3px solid #1D9E75;
+    }
+    .sidebar-icon { font-size: 1.2rem; width: 28px; }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* CARTES */
+    .card {
+      background:var(--bg-card,#fff);
+      border-radius: 16px;
+      border: 1px solid rgba(29,158,117,.15);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(29,158,117,.1);
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .badge {
+      background:var(--bg-tertiary,#eef4ee);
+      color:var(--text-secondary,#6b7b74);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(29,158,117,.3);
+      color: #1D9E75;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      background: rgba(29,158,117,.1);
+    }
+    .btn-primary {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: #0f6e56; }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .stat-card {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .stat-number { font-size: 1.4rem; font-weight: 700; color: #1D9E75; }
+    .stat-label { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
+
+    /* GRILLE INFOS */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+    .info-item {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 10px;
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .info-label { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-transform: uppercase; }
+    .info-value { font-size: 0.9rem; font-weight: 600; }
+
+    /* TOOL CARD (accordéon) */
+    .tool-card {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .tool-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      background:var(--bg-card,#fff);
+      border: 1px solid rgba(29,158,117,.1);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .tool-header:hover { border-color: #1D9E75; background: rgba(29,158,117,.05); }
+    .tool-icon { font-size: 1.3rem; }
+    .tool-title { font-weight: 500; font-size: 0.9rem; flex: 1; margin-left: 0.75rem; }
+    .tool-arrow { font-size: 0.8rem; color:var(--text-secondary,#6b7b74); transition: transform 0.2s; }
+    .tool-header.open .tool-arrow { transform: rotate(180deg); }
+    .tool-content {
+      display: none;
+      padding: 1rem;
+      background:var(--bg-card,#fff);
+      border-radius: 12px;
+      margin-top: 0.5rem;
+      border: 1px solid rgba(29,158,117,.1);
+    }
+    .tool-content.open { display: block; }
+
+    /* QUIZ STYLES */
+    .quiz-question {
+      margin-bottom: 1.5rem;
+      padding: 0.75rem;
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+    }
+    .quiz-question h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .quiz-options {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .quiz-btn {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    .quiz-btn:hover {
+      border-color: #1D9E75;
+      background: rgba(29,158,117,.05);
+    }
+    .quiz-btn.correct {
+      background: #1D9E75;
+      color: #fff;
+      border-color: #1D9E75;
+    }
+    .quiz-btn.wrong {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
+    }
+    .quiz-feedback {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      display: none;
+    }
+    .quiz-feedback.correct {
+      display: block;
+      background: rgba(29,158,117,.1);
+      color: #0f6e56;
+    }
+    .quiz-feedback.wrong {
+      display: block;
+      background: rgba(239,68,68,.1);
+      color: #b91c1c;
+    }
+    .quiz-feedback strong { font-weight: 600; }
+    .quiz-score {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      text-align: center;
+      background:var(--bg-tertiary,#eef4ee);
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* FAQ STYLES */
+    .faq-item {
+      border-bottom: 1px solid #eef4ee;
+      margin-bottom: 0.5rem;
+    }
+    .faq-question {
+      padding: 0.75rem 0;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color:var(--text-primary,#0d2018);
+    }
+    .faq-question:hover { color: #1D9E75; }
+    .faq-question .arrow { font-size: 0.7rem; transition: transform 0.2s; }
+    .faq-question.open .arrow { transform: rotate(180deg); }
+    .faq-answer {
+      display: none;
+      padding: 0 0 0.75rem 1rem;
+      font-size: 0.8rem;
+      color:var(--text-secondary,#6b7b74);
+      line-height: 1.5;
+    }
+    .faq-answer.open { display: block; }
+    .faq-category {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1D9E75;
+      margin: 1rem 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* PLAN CARD */
+    .plan-card {
+      background: linear-gradient(135deg, #0d2018 0%, #142c1f 100%);
+      border: 2px solid #1D9E75;
+      color: #fff;
+    }
+    .plan-price { font-size: 1.8rem; font-weight: 700; color: #5DCAA5; }
+
+    /* AGENDA */
+    .agenda-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .slot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 10px;
+      font-size: 0.8rem;
+    }
+
+    /* HABITUDES ALIMENTAIRES */
+    .habits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .habit-card {
+      background:var(--bg-secondary,#f7f9f7);
+      border-radius: 12px;
+      padding: 0.75rem;
+    }
+    .habit-card label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1D9E75;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .habit-card textarea {
+      width: 100%;
+      border: 1px solid rgba(29,158,117,.2);
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    /* CHAT BULLE FLOTTANTE */
+    .chat-bubble-floating {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+    }
+    .chat-toggle {
+      width: 56px;
+      height: 56px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .chat-toggle:hover { transform: scale(1.05); background: #0f6e56; }
+    .chat-window {
+      display: none;
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      width: 320px;
+      background:var(--bg-card,#fff);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(29,158,117,.2);
+    }
+    .chat-window.open { display: flex; flex-direction: column; }
+    .chat-header {
+      background: #1D9E75;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-close {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .chat-messages {
+      height: 300px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background:var(--bg-secondary,#f7f9f7);
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+    .chat-msg.patient {
+      background: #1D9E75;
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 3px;
+    }
+    .chat-msg.diet {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      color:var(--text-primary,#0d2018);
+      align-self: flex-start;
+      border-bottom-left-radius: 3px;
+    }
+    .chat-input {
+      display: flex;
+      padding: 0.5rem;
+      gap: 0.5rem;
+      border-top: 1px solid #eef4ee;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      outline: none;
+    }
+    .chat-input button {
+      background: #1D9E75;
+      border: none;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    /* SECTION CACHÉE */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .dashboard-layout { flex-direction: column; padding: 1rem; }
+      .sidebar { width: 100%; }
+      .sidebar-nav { display: flex; overflow-x: auto; }
+      .sidebar-item { white-space: nowrap; border-bottom: none; border-right: 1px solid rgba(29,158,117,.1); }
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
+      .habits-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<header class="dashboard-header">
+  <a href="index.html" class="logo">Nutri<em>Doc</em></a>
+  <div style="position: relative;">
+    <button class="user-btn" onclick="toggleUserMenu()">👤 Mon compte ▾</button>
+    <div class="user-dropdown" id="userDropdown">
+      <a href="#" onclick="deconnexion()">🔓 Se déconnecter</a>
+      <a href="index.html">🏠 Accueil</a>
+      <a href="bilan.html">📋 Nouveau bilan</a>
+      <a href="faq.html">❓ Aide</a>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-nav">
+      <div class="sidebar-item active" data-section="accueil"><span class="sidebar-icon">🏠</span><span>Accueil</span></div>
+      <div class="sidebar-item" data-section="bilan"><span class="sidebar-icon">📋</span><span>Mon bilan</span></div>
+      <div class="sidebar-item" data-section="plan"><span class="sidebar-icon">📄</span><span>Mon plan</span></div>
+      <div class="sidebar-item" data-section="outils"><span class="sidebar-icon">🔧</span><span>Outils</span></div>
+      <div class="sidebar-item" data-section="profil"><span class="sidebar-icon">👤</span><span>Mon profil</span></div>
+    </div>
+  </aside>
+
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mon espace patient</h1>
+<main class="main-content">
+
+    <!-- SECTION ACCUEIL -->
+    <div id="section-accueil" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👋 Bonjour <span id="greetingName">Patient</span></div>
+          <span class="badge">Espace personnel</span>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-number" id="statBilan">1</div><div class="stat-label">Bilan complété</div></div>
+          <div class="stat-card"><div class="stat-number" id="statPlan">—</div><div class="stat-label">Plan actif</div></div>
+          <div class="stat-card"><div class="stat-number" id="statMessages">0</div><div class="stat-label">Messages</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🥗 Votre diététicien</div><span class="badge">✓ RPPS vérifié</span></div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="width: 56px; height: 56px; background: linear-gradient(135deg,#1D9E75,#0f6e56); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.2rem;">GM</div>
+          <div>
+            <div style="font-weight: 600;">Grégoire Martin</div>
+            <div style="font-size: 0.7rem; color: #6b7b74;">Diététicien-Nutritionniste · RPPS 10 008 019 381</div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;">
+              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🏥 CHU Angoulême</span>
+              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🏡 Cabinet libéral</span>
+              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🚒 Pompier volontaire</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Résumé de votre bilan</div></div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">Objectif</div><div class="info-value" id="infoObjectif">—</div></div>
+          <div class="info-item"><div class="info-label">Activité</div><div class="info-value" id="infoActivite">—</div></div>
+          <div class="info-item"><div class="info-label">Régime</div><div class="info-value" id="infoRegime">—</div></div>
+          <div class="info-item"><div class="info-label">IMC</div><div class="info-value" id="infoImc">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION MON BILAN -->
+    <div id="section-bilan" class="section">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Détail de votre bilan</div><button class="btn-outline" onclick="location.href='bilan.html'">Modifier</button></div>
+        <div id="bilanDetail" style="font-size: 0.85rem; line-height: 1.8;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📈 Évolution du poids</div></div>
+        <canvas id="weightChart" height="200" style="max-height: 200px; width: 100%;"></canvas>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <button class="btn-outline" onclick="ajouterPoids()">➕ Ajouter une pesée</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION MON PLAN -->
+    <div id="section-plan" class="section">
+      <div class="card plan-card" id="planLocked">
+        <div class="card-header" style="border-bottom-color: rgba(255,255,255,.1);">
+          <div class="card-title" style="color:#fff;">📄 Plan alimentaire complet</div>
+          <span class="badge" style="background: rgba(255,255,255,.1); color: #5DCAA5;">Premium</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div><div class="plan-price">24,90 €</div><div style="font-size: 0.7rem; opacity: 0.7;">Paiement unique · Livraison sous 48h</div></div>
+          <button class="btn-primary" onclick="simulerAchatPlan()">Obtenir mon plan →</button>
+        </div>
+        <div style="margin-top: 1rem; font-size: 0.75rem; opacity: 0.8;">
+          ✅ Plan 4 semaines avec grammages précis · Signé RPPS · Macros par repas<br>
+          ✅ Messagerie incluse 30 jours
+        </div>
+      </div>
+      <div id="planUnlocked" class="card" style="display: none;">
+        <div class="card-header"><div class="card-title">📄 Votre plan alimentaire</div><button class="btn-outline" onclick="alert('Téléchargement PDF simulé')">↓ PDF</button></div>
+        <div id="planContent"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📅 Prendre un RDV visio avec votre diététicien</div></div>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem;">Consultation de 45 min · 55€ · Remboursement possible par votre mutuelle</p>
+        <div class="agenda-slots" id="agendaSlots"></div>
+      </div>
+    </div>
+
+    <!-- SECTION OUTILS -->
+    <div id="section-outils" class="section">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔧 Outils gratuits</div></div>
+        
+        <!-- Outil 1 : Calculatrice -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">📐</span>
+            <span class="tool-title">Calculatrice g / ml</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end;">
+              <div><label style="font-size: 0.7rem;">Aliment</label>
+                <select id="calcAliment" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee;">
+                  <option value="1.0">Eau</option><option value="0.916">Huile d'olive</option><option value="1.03">Lait</option>
+                  <option value="1.42">Miel</option><option value="1.18">Sauce soja</option>
+                </select>
+              </div>
+              <div><label style="font-size: 0.7rem;">Quantité</label><input type="number" id="calcQte" value="100" style="width: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee;"></div>
+              <div><label style="font-size: 0.7rem;">Unité</label>
+                <select id="calcUnite" style="padding: 0.4rem; border-radius: 8px;">
+                  <option value="g">grammes (g)</option><option value="ml">millilitres (ml)</option>
+                  <option value="cs">cuillères à soupe</option><option value="cc">cuillères à café</option>
+                </select>
+              </div>
+              <div><button class="btn-outline" onclick="calculerConversion()">Convertir</button></div>
+            </div>
+            <div id="calcResult" style="margin-top: 0.75rem; font-size: 0.85rem; background: #eef4ee; padding: 0.5rem; border-radius: 8px;">Résultat</div>
+          </div>
+        </div>
+
+        <!-- Outil 2 : Quiz Nutrition Sportive -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">🧠</span>
+            <span class="tool-title">Quiz nutrition sportive</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <div id="quizContainer"></div>
+          </div>
+        </div>
+
+        <!-- Outil 3 : FAQ Nutrition -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">❓</span>
+            <span class="tool-title">FAQ — Questions fréquentes</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <div id="faqContainer"></div>
+          </div>
+        </div>
+
+        <!-- Outil 4 : Suivi poids -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">📊</span>
+            <span class="tool-title">Suivi poids</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <canvas id="weightHistoryChart" height="150" style="max-height: 150px;"></canvas>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+              <input type="number" id="newWeight" placeholder="Nouveau poids (kg)" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee; width: 120px;">
+              <button class="btn-outline" onclick="ajouterPoidsHistorique()">Ajouter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION MON PROFIL -->
+    <div id="section-profil" class="section">
+      <div class="card">
+        <div class="card-header"><div class="card-title">👤 Mes informations</div></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; font-size: 0.85rem;">
+          <div><strong>Prénom :</strong> <span id="profilPrenom">—</span></div>
+          <div><strong>Âge :</strong> <span id="profilAge">—</span> ans</div>
+          <div><strong>Taille :</strong> <span id="profilTaille">—</span> cm</div>
+          <div><strong>Poids :</strong> <span id="profilPoids">—</span> kg</div>
+          <div><strong>Ville :</strong> <span id="profilVille">—</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🍽️ Mes habitudes alimentaires</div><button class="btn-outline" onclick="sauvegarderHabitudes()">💾 Sauvegarder</button></div>
+        <div class="habits-grid">
+          <div class="habit-card"><label>🍳 Petit-déjeuner</label><textarea id="habitMatin" rows="2" placeholder="Ex: café + tartines..."></textarea></div>
+          <div class="habit-card"><label>🥗 Déjeuner</label><textarea id="habitMidi" rows="2" placeholder="Ex: cantine, sandwich..."></textarea></div>
+          <div class="habit-card"><label>🍽 Dîner</label><textarea id="habitSoir" rows="2" placeholder="Ex: repas familial..."></textarea></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BULLE CHAT FLOTTANTE -->
+<div class="chat-bubble-floating">
+  <button class="chat-toggle" id="chatToggle">💬</button>
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <span>💬 Message à votre diététicien</span>
+      <button class="chat-close" id="chatClose">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg diet">Bonjour ! Je suis Grégoire, votre diététicien. Posez-moi vos questions ici.</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+      <button onclick="sendChatMessage()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== NAVIGATION =====
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const section = item.dataset.section;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`section-${section}`).classList.add('active');
+  });
+});
+
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('userDropdown');
+  const btn = document.querySelector('.user-btn');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
+});
+function deconnexion() { localStorage.clear(); window.location.href = 'index.html'; }
+
+// ===== OUTILS ACCORDÉON =====
+function toggleTool(header) {
+  header.classList.toggle('open');
+  const content = header.nextElementSibling;
+  content.classList.toggle('open');
+}
+
+function calculerConversion() {
+  const densite = parseFloat(document.getElementById('calcAliment').value);
+  const qte = parseFloat(document.getElementById('calcQte').value) || 0;
+  const unite = document.getElementById('calcUnite').value;
+  let result = '';
+  if (unite === 'g') result = `${qte} g = ${(qte / densite).toFixed(1)} ml`;
+  if (unite === 'ml') result = `${qte} ml = ${(qte * densite).toFixed(1)} g`;
+  if (unite === 'cs') result = `${qte} cs = ${(qte * 15).toFixed(1)} ml = ${(qte * 15 * densite).toFixed(1)} g`;
+  if (unite === 'cc') result = `${qte} cc = ${(qte * 5).toFixed(1)} ml = ${(qte * 5 * densite).toFixed(1)} g`;
+  document.getElementById('calcResult').innerHTML = result;
+}
+
+// ===== PLAN =====
+function simulerAchatPlan() {
+  if (confirm('Commander votre plan alimentaire à 24,90€ ?')) {
+    document.getElementById('planLocked').style.display = 'none';
+    document.getElementById('planUnlocked').style.display = 'block';
+    localStorage.setItem('nutridoc_plan_achete', 'true');
+    document.getElementById('statPlan').textContent = '✅ Actif';
+    // Afficher le plan généré
+    afficherPlanDebloque();
+  }
+}
+
+function afficherPlanDebloque() {
+  const planContent = document.getElementById('planContent');
+  if (planContent) {
+    planContent.innerHTML = `
+      <div style="background:#eef4ee; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+        <strong>Plan 4 semaines — Perte de poids</strong><br>
+        Apport journalier estimé : <strong>1850 kcal</strong>
+      </div>
+      <div class="meal-block" style="background:#f7f9f7; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+        <strong>🍳 Petit déjeuner</strong>
+        <ul style="margin-top:0.5rem; list-style:none;">
+          <li>Flocons d'avoine — 50g</li>
+          <li>Lait végétal — 150ml</li>
+          <li>Fruits rouges — 100g</li>
+          <li>Yaourt nature — 125g</li>
+        </ul>
+      </div>
+      <div class="meal-block" style="background:#f7f9f7; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+        <strong>🥗 Déjeuner</strong>
+        <ul style="margin-top:0.5rem; list-style:none;">
+          <li>Blanc de poulet grillé — 120g</li>
+          <li>Salade verte — 100g</li>
+          <li>Huile d'olive — 10ml</li>
+          <li>Pain de seigle — 40g</li>
+        </ul>
+      </div>
+      <div class="meal-block" style="background:#f7f9f7; border-radius:12px; padding:1rem;">
+        <strong>🍽 Dîner</strong>
+        <ul style="margin-top:0.5rem; list-style:none;">
+          <li>Poisson blanc vapeur — 130g</li>
+          <li>Haricots verts — 200g</li>
+          <li>Pomme de terre vapeur — 150g</li>
+        </ul>
+      </div>
+      <p class="plan-note" style="margin-top:1rem; font-size:0.7rem; color:#6b7b74;">Les grammages sont exprimés en poids cuit. Ce plan a été validé et signé par votre diététicien.</p>
+    `;
+  }
+}
+
+// ===== AGENDA RDV =====
+function afficherAgenda() {
+  const slots = ['Lun 10/04 10:00', 'Lun 10/04 14:30', 'Mar 11/04 09:00', 'Mar 11/04 15:00', 'Mer 12/04 11:00'];
+  const container = document.getElementById('agendaSlots');
+  if (container) {
+    container.innerHTML = slots.map(s => `<div class="slot"><span>📅 ${s}</span><button class="btn-outline" style="font-size:0.7rem;" onclick="alert('RDV demandé pour ${s}')">Réserver</button></div>`).join('');
+  }
+}
+
+// ===== COURBE DE POIDS =====
+let weightChart = null;
+let weightHistoryChart = null;
+
+function initWeightChart() {
+  const ctx = document.getElementById('weightChart');
+  if (ctx) {
+    weightChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: ['Jan', 'Fév', 'Mar', 'Avr'], datasets: [{ label: 'Poids (kg)', data: [68, 67.2, 66.5, 65.8], borderColor: '#1D9E75', tension: 0.3, fill: false }] },
+      options: { responsive: true, maintainAspectRatio: true }
+    });
+  }
+}
+
+function initWeightHistoryChart() {
+  const ctx = document.getElementById('weightHistoryChart');
+  if (ctx) {
+    weightHistoryChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], datasets: [{ label: 'Poids (kg)', data: [68, 67.5, 67, 66.2], borderColor: '#1D9E75', tension: 0.3, fill: false }] },
+      options: { responsive: true, maintainAspectRatio: true }
+    });
+  }
+}
+
+function ajouterPoids() {
+  let poids = prompt('Entrez votre nouveau poids (kg) :');
+  if (poids && !isNaN(poids)) alert(`Poids ${poids} kg ajouté.`);
+}
+
+function ajouterPoidsHistorique() {
+  const input = document.getElementById('newWeight');
+  const poids = parseFloat(input.value);
+  if (!isNaN(poids) && poids > 20) {
+    alert(`Poids ${poids} kg ajouté à l'historique`);
+    input.value = '';
+  }
+}
+
+// ===== HABITUDES ALIMENTAIRES =====
+function chargerHabitudes() {
+  document.getElementById('habitMatin').value = localStorage.getItem('habitMatin') || '';
+  document.getElementById('habitMidi').value = localStorage.getItem('habitMidi') || '';
+  document.getElementById('habitSoir').value = localStorage.getItem('habitSoir') || '';
+}
+function sauvegarderHabitudes() {
+  localStorage.setItem('habitMatin', document.getElementById('habitMatin').value);
+  localStorage.setItem('habitMidi', document.getElementById('habitMidi').value);
+  localStorage.setItem('habitSoir', document.getElementById('habitSoir').value);
+  alert('Habitudes sauvegardées ✓');
+}
+
+// ===== CHAT =====
+function initChat() {
+  const toggle = document.getElementById('chatToggle');
+  const window = document.getElementById('chatWindow');
+  const close = document.getElementById('chatClose');
+  if (toggle) toggle.onclick = () => window.classList.toggle('open');
+  if (close) close.onclick = () => window.classList.remove('open');
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg patient';
+  div.textContent = msg;
+  container.appendChild(div);
+  input.value = '';
+  container.scrollTop = container.scrollHeight;
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'chat-msg diet';
+    reply.textContent = 'Merci pour votre message. Je vous réponds dans les plus brefs délais.';
+    container.appendChild(reply);
+    container.scrollTop = container.scrollHeight;
+  }, 1000);
+}
+
+// ===== QUIZ =====
+const QUIZ_QUESTIONS = [
+  { q: "Pour maigrir, il faut supprimer totalement les glucides.", a: false, exp: "Faux ! Les glucides sont la principale source d'énergie du cerveau et des muscles. L'important est de choisir des glucides complexes." },
+  { q: "Manger gras fait grossir.", a: false, exp: "Pas automatiquement. Les lipides sont essentiels pour les hormones et les vitamines. Ce qui fait grossir c'est l'excès calorique global." },
+  { q: "Il faut boire au minimum 2 litres d'eau par jour.", a: false, exp: "Ni vrai ni faux. Les besoins varient selon l'activité, la chaleur et le poids. 1,5L est une bonne base." },
+  { q: "Sauter le petit déjeuner fait grossir.", a: false, exp: "C'est un mythe ! Aucune étude ne prouve que sauter le petit déjeuner cause une prise de poids." },
+  { q: "Les protéines végétales sont moins efficaces que les protéines animales.", a: false, exp: "Faux. En variant les sources (légumineuses + céréales), on obtient tous les acides aminés essentiels." },
+  { q: "Les fruits sont trop sucrés et doivent être limités.", a: false, exp: "Faux. Les fruits contiennent des fibres qui ralentissent l'absorption du sucre, plus des vitamines et antioxydants." },
+  { q: "Manger après 20h fait stocker davantage de graisses.", a: false, exp: "Faux. Le métabolisme ne connaît pas l'heure. C'est le contenu du repas qui compte." },
+  { q: "Les compléments alimentaires peuvent compenser une alimentation déséquilibrée.", a: false, exp: "Non. La matrice alimentaire est irremplaçable. Les compléments ne remplacent pas une alimentation variée." }
+];
+
+let quizState = { idx: 0, score: 0, answered: false, answers: [] };
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  if (!container) return;
+  if (quizState.idx >= QUIZ_QUESTIONS.length) {
+    const score = quizState.answers.filter(a => a.correct).length;
+    container.innerHTML = `<div style="text-align:center; padding:1rem;"><div style="font-size:1.2rem;">🏆</div><div style="font-weight:600;">Score : ${score}/${QUIZ_QUESTIONS.length}</div><button class="btn-outline" style="margin-top:1rem;" onclick="resetQuiz()">🔄 Recommencer</button></div>`;
+    return;
+  }
+  const q = QUIZ_QUESTIONS[quizState.idx];
+  container.innerHTML = `
+    <div style="margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.7rem;"><span>Question ${quizState.idx+1}/${QUIZ_QUESTIONS.length}</span><span>${Math.round((quizState.idx/QUIZ_QUESTIONS.length)*100)}%</span></div><div style="height:4px;background:#eef4ee;border-radius:2px;"><div style="width:${(quizState.idx/QUIZ_QUESTIONS.length)*100}%;height:100%;background:#1D9E75;"></div></div></div>
+    <div class="quiz-question"><h4>${q.q}</h4><div class="quiz-options"><button class="quiz-btn" onclick="answerQuiz(true)">✅ Vrai</button><button class="quiz-btn" onclick="answerQuiz(false)">❌ Faux</button></div><div id="quizFeedback" class="quiz-feedback"></div></div>
+  `;
+}
+
+function answerQuiz(answer) {
+  if (quizState.answered) return;
+  const q = QUIZ_QUESTIONS[quizState.idx];
+  const correct = (answer === q.a);
+  quizState.answers.push({ correct });
+  if (correct) quizState.score++;
+  quizState.answered = true;
+  const feedback = document.getElementById('quizFeedback');
+  if (feedback) {
+    feedback.className = `quiz-feedback ${correct ? 'correct' : 'wrong'}`;
+    feedback.innerHTML = `<strong>${correct ? '✓ Bonne réponse !' : '✗ Pas tout à fait...'}</strong><br>${q.exp}`;
+  }
+  const btns = document.querySelectorAll('.quiz-btn');
+  btns.forEach(btn => btn.disabled = true);
+  setTimeout(() => { quizState.idx++; quizState.answered = false; renderQuiz(); }, 2000);
+}
+
+function resetQuiz() { quizState = { idx: 0, score: 0, answered: false, answers: [] }; renderQuiz(); }
+
+// ===== FAQ =====
+const faqData = [
+  { cat: "🥗 NUTRITION DE BASE", q: "Quels sont les rôles des macronutriments pour un sportif ?", a: "Les glucides sont votre carburant principal. Les protéines sont cruciales pour la réparation musculaire. Les lipides fournissent une énergie durable et sont importants pour l'équilibre hormonal." },
+  { q: "Est-il toujours nécessaire de prendre des compléments alimentaires ?", a: "Non, dans la plupart des cas, une alimentation variée et équilibrée suffit. Les compléments sont à considérer uniquement en cas de carence avérée." },
+  { cat: "⚡ AVANT / PENDANT / APRÈS", q: "Dois-je faire un régime sec avant une compétition ?", a: "Non. Les régimes express réduisent vos réserves énergétiques. Une perte de poids doit être progressive." },
+  { q: "Quels aliments privilégier la veille d'une compétition ?", a: "Des glucides complexes (pâtes, riz, pommes de terre) avec des protéines maigres, peu de fibres." },
+  { q: "Puis-je tester un nouvel aliment le jour J ?", a: "Non, uniquement des aliments déjà testés à l'entraînement pour éviter les surprises digestives." },
+  { q: "Quelle est la meilleure stratégie d'hydratation ?", a: "Boire par petites gorgées avant et pendant l'échauffement. Boisson isotonique pour les efforts longs." },
+  { cat: "💊 COMPLÉMENTS & MYTHES", q: "Les protéines en poudre sont-elles indispensables ?", a: "Non. Elles sont pratiques mais pas essentielles si l'alimentation est variée." },
+  { q: "La caféine est-elle utile pour la performance ?", a: "Oui, mais testez-la à l'entraînement, elle peut causer des effets secondaires." },
+  { cat: "💤 RÉCUPÉRATION", q: "Quel est le facteur de performance le plus sous-estimé ?", a: "Le sommeil. C'est le premier outil de récupération." },
+  { q: "Faut-il manger immédiatement après chaque entraînement ?", a: "Après une séance intense, oui (dans les 30-60 min). Pour une séance légère, un repas dans les 2h suffit." }
+];
+
+function renderFAQ() {
+  const container = document.getElementById('faqContainer');
+  if (!container) return;
+  let currentCat = '';
+  let html = '';
+  faqData.forEach(item => {
+    if (item.cat && item.cat !== currentCat) { currentCat = item.cat; html += `<div class="faq-category">${currentCat}</div>`; }
+    html += `<div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">${item.q}<span class="arrow">▼</span></div><div class="faq-answer">${item.a}</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleFAQ(element) {
+  element.classList.toggle('open');
+  element.nextElementSibling.classList.toggle('open');
+}
+
+// ===== INITIALISATION =====
+function init() {
+  // Données simulées
+  document.getElementById('greetingName').textContent = localStorage.getItem('user_prenom') || 'Patient';
+  document.getElementById('profilPrenom').textContent = localStorage.getItem('user_prenom') || 'Patient';
+  document.getElementById('infoObjectif').textContent = 'Perte de poids';
+  document.getElementById('infoActivite').textContent = 'Modérée';
+  document.getElementById('infoRegime').textContent = 'Sans restriction';
+  document.getElementById('infoImc').textContent = '23.5';
+  document.getElementById('profilAge').textContent = '34';
+  document.getElementById('profilTaille').textContent = '165';
+  document.getElementById('profilPoids').textContent = '64';
+  document.getElementById('profilVille').textContent = 'Angoulême';
+  document.getElementById('bilanDetail').innerHTML = `<p><strong>Objectif :</strong> Perte de poids (6 kg en 3 mois)</p><p><strong>Activité :</strong> 3 séances/semaine</p><p><strong>Contraintes :</strong> Aucune</p>`;
+  if (localStorage.getItem('nutridoc_plan_achete') === 'true') {
+    document.getElementById('planLocked').style.display = 'none';
+    document.getElementById('planUnlocked').style.display = 'block';
+    document.getElementById('statPlan').textContent = '✅ Actif';
+    afficherPlanDebloque();
+  }
+  initWeightChart();
+  initWeightHistoryChart();
+  afficherAgenda();
+  chargerHabitudes();
+  initChat();
+  renderQuiz();
+  renderFAQ();
+}
+
+init();
+window.answerQuiz = answerQuiz;
+window.resetQuiz = resetQuiz;
+window.toggleFAQ = toggleFAQ;
+window.sendChatMessage = sendChatMessage;
+window.toggleTool = toggleTool;
+window.calculerConversion = calculerConversion;
+window.simulerAchatPlan = simulerAchatPlan;
+window.ajouterPoids = ajouterPoids;
+window.ajouterPoidsHistorique = ajouterPoidsHistorique;
+window.sauvegarderHabitudes = sauvegarderHabitudes;
+</script>
+  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
+  <script src="js/theme-selector.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/auto-save.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(reg => console.log("Service Worker enregistré:", reg))
+        .catch(err => console.error("Erreur SW:", err));
+    });
+  }
+  </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

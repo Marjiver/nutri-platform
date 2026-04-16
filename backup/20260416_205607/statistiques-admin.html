@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Tableau de bord statistique avancé pour l'administration NutriDoc. KPIs, graphiques, analyses prédictives et rapports."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statistiques — Administration NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc Admin">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+  
+  <!-- ==================== MASQUE POUR ANDROID ==================== -->
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
+  
+  <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
+  <meta name="msapplication-TileColor" content="#0d2018">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== BIBLIOTHÈQUES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- ==================== PERFORMANCE MONITORING ==================== -->
+  <script defer src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== */
+  <script defer src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script defer src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script defer src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== -->
+  <script defer src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/constants.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER ADMIN */
+    .admin-header {
+      background: #0d2018;
+      padding: 0.75rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .admin-logo em { font-style: italic; color: #5DCAA5; }
+    .admin-nav { display: flex; gap: 1.5rem; }
+    .admin-nav a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .admin-nav a:hover, .admin-nav a.active { color: #fff; }
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .admin-avatar {
+      width: 32px;
+      height: 32px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+    }
+    .admin-date {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* MAIN CONTENT */
+    .stats-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 3rem;
+    }
+
+    /* THEME SELECTOR */
+
+    /* PERIODE SELECTOR */
+    .periode-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .periode-btn {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      padding: 0.4rem 1.2rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .periode-btn:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .periode-btn.active {
+      background: #1D9E75;
+      color: #fff;
+      border-color: #1D9E75;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .kpi-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.2rem;
+      opacity: 0.5;
+    }
+    .kpi-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 0.5rem;
+    }
+    .kpi-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1D9E75;
+      line-height: 1;
+    }
+    .kpi-trend {
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .kpi-trend.up { color: #22c55e; }
+    .kpi-trend.down { color: #ef4444; }
+    .kpi-sub {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.25rem;
+    }
+
+    /* CHARTS GRID */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .charts-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .chart-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .chart-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .chart-sub {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.2rem;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 250px;
+    }
+    .chart-wrapper-sm {
+      height: 180px;
+    }
+
+    /* TABLEAUX */
+    .table-card {
+      background:var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .table-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .btn-export {
+      background: transparent;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-export:hover {
+      border-color: #1D9E75;
+      color: #1D9E75;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .stats-table th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+      color:var(--text-secondary,#6b7b74);
+      font-weight: 500;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stats-table td {
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid #eef4ee;
+    }
+    .stats-table tr:last-child td {
+      border-bottom: none;
+    }
+    .stats-table tr:hover td {
+      background:var(--bg-secondary,#f7f9f7);
+    }
+
+    /* PRÉDICTIONS */
+    .prediction-card {
+      background: linear-gradient(135deg, #0d2018, #142c1f);
+      border-radius: 20px;
+      padding: 1.25rem;
+      color: #fff;
+    }
+    .prediction-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .prediction-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: #5DCAA5;
+    }
+    .prediction-detail {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 0.5rem;
+    }
+    .prediction-bar {
+      margin-top: 1rem;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .prediction-fill {
+      height: 100%;
+      background: #5DCAA5;
+      border-radius: 999px;
+      transition: width 0.5s;
+    }
+
+    /* ALERTES */
+    .alert-card {
+      background: #fff8e6;
+      border: 1px solid #fcd34d;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .alert-icon {
+      font-size: 1.2rem;
+    }
+    .alert-content {
+      flex: 1;
+    }
+    .alert-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #633806;
+    }
+    .alert-desc {
+      font-size: 0.7rem;
+      color: #92400e;
+    }
+    .alert-btn {
+      background: transparent;
+      border: 1px solid #fcd34d;
+      border-radius: 999px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1000px) {
+      .charts-grid, .charts-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .stats-container {
+        padding: 6rem 1rem 2rem;
+      }
+      .admin-nav {
+        display: none;
+      }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+
+<!-- HEADER ADMIN -->
+<header class="admin-header">
+  <div class="header-container">
+    <a href="admin.html" class="admin-logo">Nutri<em>Doc</em> Admin</a>
+    <nav class="admin-nav">
+      <a href="admin.html">Dashboard</a>
+      <a href="statistiques-admin.html" class="active">Statistiques</a>
+      <a href="admin.html#users">Utilisateurs</a>
+      <a href="admin.html#finance">Finances</a>
+    </nav>
+    <div class="admin-user">
+      <span class="admin-date" id="currentDate"></span>
+      <div class="admin-avatar">CS</div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Statistiques Administration</h1>
+<main class="stats-container">
+
+  <!-- PÉRIODE SELECTOR -->
+  <div class="periode-selector">
+    <button class="periode-btn active" data-periode="7j">7 jours</button>
+    <button class="periode-btn" data-periode="30j">30 jours</button>
+    <button class="periode-btn" data-periode="90j">90 jours</button>
+    <button class="periode-btn" data-periode="12m">12 mois</button>
+    <button class="periode-btn" data-periode="all">Tout</button>
+  </div>
+
+  <!-- ALERTES -->
+  <div id="alertsContainer"></div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid">
+    <!-- Rempli par JS -->
+  </div>
+
+  <!-- GRAPHIQUES PRINCIPAUX -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">📈 Évolution du chiffre d'affaires</div>
+          <div class="chart-sub">CA mensuel (€)</div>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="caChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">👥 Nouveaux utilisateurs</div>
+          <div class="chart-sub">Inscriptions par mois</div>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="usersChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAPHIQUES SECONDAIRES -->
+  <div class="charts-grid-3">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">🥗 Plans par objectif</div>
+          <div class="chart-sub">Répartition</div>
+        </div>
+      </div>
+      <div class="chart-wrapper-sm">
+        <canvas id="objectifsChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">📍 Répartition géographique</div>
+          <div class="chart-sub">Top 5 villes</div>
+        </div>
+      </div>
+      <div class="chart-wrapper-sm">
+        <canvas id="geoChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">💰 Répartition des revenus</div>
+          <div class="chart-sub">Par source</div>
+        </div>
+      </div>
+      <div class="chart-wrapper-sm">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRÉDICTIONS & ANALYTICS -->
+  <div class="charts-grid">
+    <div class="prediction-card">
+      <div class="prediction-title">📊 Prévision CA mois prochain</div>
+      <div class="prediction-value" id="prevCA">— €</div>
+      <div class="prediction-detail">Variation estimée : <span id="prevVariation">—</span>%</div>
+      <div class="prediction-bar">
+        <div class="prediction-fill" id="prevBar" style="width: 0%;"></div>
+      </div>
+    </div>
+    <div class="prediction-card">
+      <div class="prediction-title">👥 Prévision nouveaux utilisateurs</div>
+      <div class="prediction-value" id="prevUsers">—</div>
+      <div class="prediction-detail">Taux de conversion estimé : <span id="prevConversion">—</span>%</div>
+      <div class="prediction-bar">
+        <div class="prediction-fill" id="prevUsersBar" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLEAU DES MEILLEURS DIÉTÉTICIENS -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">🏆 Top diététiciens du mois</div>
+      <button class="btn-export" onclick="exportCSV('diets')">📎 Exporter CSV</button>
+    </div>
+    <table class="stats-table">
+      <thead>
+        <tr><th>Diététicien</th><th>Plans validés</th><th>Visios réalisées</th><th>Revenu (€)</th><th>Note moyenne</th></tr>
+      </thead>
+      <tbody id="topDietsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- TABLEAU DES MEILLEURS PRESCRIPTEURS -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">🏆 Top prescripteurs du mois</div>
+      <button class="btn-export" onclick="exportCSV('presc')">📎 Exporter CSV</button>
+    </div>
+    <table class="stats-table">
+      <thead>
+        <tr><th>Prescripteur</th><th>Profession</th><th>Plans commandés</th><th>CA généré (€)</th><th>Crédits restants</th></tr>
+      </thead>
+      <tbody id="topPrescBody"></tbody>
+    </table>
+  </div>
+
+  <!-- TABLEAU DES ALERTES SANTÉ -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">🚨 Alertes santé récentes</div>
+      <button class="btn-export" onclick="exportCSV('alertes')">📎 Exporter CSV</button>
+    </div>
+    <table class="stats-table">
+      <thead>
+        <tr><th>Date</th><th>Patient</th><th>Type d'alerte</th><th>Statut</th><th>Action</th></tr>
+      </thead>
+      <tbody id="alertesBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ==================== SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<script>
+// ==================== DONNÉES SIMULÉES ====================
+let currentPeriode = '30j';
+
+const DONNEES = {
+  caMensuel: [12500, 14200, 15800, 17200, 18900, 21200, 23500, 25100, 27800, 30100, 33400, 36200],
+  usersMensuel: [45, 52, 58, 63, 71, 82, 94, 108, 125, 142, 161, 185],
+  mois: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+  
+  objectifs: [
+    { label: 'Perte de poids', value: 42, color: '#1D9E75' },
+    { label: 'Prise de masse', value: 28, color: '#f59e0b' },
+    { label: 'Équilibre', value: 15, color: '#3b82f6' },
+    { label: 'Performance', value: 10, color: '#8b5cf6' },
+    { label: 'Prévention', value: 5, color: '#ec489a' }
+  ],
+  
+  geo: [
+    { ville: 'Angoulême', valeur: 245 },
+    { ville: 'Bordeaux', valeur: 189 },
+    { ville: 'Poitiers', valeur: 156 },
+    { ville: 'Limoges', valeur: 98 },
+    { ville: 'La Rochelle', valeur: 87 }
+  ],
+  
+  revenueSources: [
+    { label: 'Plans patients', value: 45200, color: '#1D9E75' },
+    { label: 'Abonnements diét.', value: 12400, color: '#8b5cf6' },
+    { label: 'Visios', value: 8800, color: '#3b82f6' },
+    { label: 'Crédits prescripteurs', value: 15600, color: '#f59e0b' }
+  ],
+  
+  topDiets: [
+    { nom: 'Grégoire Martin', plans: 45, visios: 12, revenu: 1240, note: 4.9 },
+    { nom: 'Dr. A. Lemaire', plans: 38, visios: 8, revenu: 980, note: 4.8 },
+    { nom: 'C. Fontaine', plans: 31, visios: 6, revenu: 820, note: 4.7 },
+    { nom: 'Dr. B. Mercier', plans: 28, visios: 5, revenu: 720, note: 4.8 },
+    { nom: 'E. Blanc', plans: 22, visios: 4, revenu: 580, note: 4.6 }
+  ],
+  
+  topPresc: [
+    { nom: 'Antoine Durand', profession: 'Coach sportif', plans: 28, ca: 840, credits: 12 },
+    { nom: 'Sophie Martin', profession: 'Kinésithérapeute', plans: 22, ca: 660, credits: 8 },
+    { nom: 'Dr. Marc Perret', profession: 'Médecin', plans: 18, ca: 540, credits: 15 },
+    { nom: 'Thomas Klein', profession: 'Ostéopathe', plans: 15, ca: 450, credits: 5 },
+    { nom: 'Julie Moreau', profession: 'Sage-femme', plans: 12, ca: 360, credits: 20 }
+  ],
+  
+  alertes: [
+    { date: '2026-04-12', patient: 'Marie D.', type: 'Grossesse', statut: 'En cours' },
+    { date: '2026-04-11', patient: 'Thomas K.', type: 'TCA', statut: 'Traité' },
+    { date: '2026-04-10', patient: 'Sophie M.', type: 'Diabète', statut: 'En attente' },
+    { date: '2026-04-09', patient: 'Lucas B.', type: 'Allergies sévères', statut: 'Traité' },
+    { date: '2026-04-08', patient: 'Emma R.', type: 'Insuffisance rénale', statut: 'En attente' }
+  ]
+};
+
+// Calculer les totaux pour la période
+function getDataForPeriode(periode) {
+  let moisCount = 12;
+  if (periode === '7j') return { ca: DONNEES.caMensuel[11] / 4, users: DONNEES.usersMensuel[11] / 4 };
+  if (periode === '30j') return { ca: DONNEES.caMensuel[11], users: DONNEES.usersMensuel[11] };
+  if (periode === '90j') return { ca: DONNEES.caMensuel.slice(9,12).reduce((a,b)=>a+b,0), users: DONNEES.usersMensuel.slice(9,12).reduce((a,b)=>a+b,0) };
+  if (periode === '12m') return { ca: DONNEES.caMensuel.reduce((a,b)=>a+b,0), users: DONNEES.usersMensuel.reduce((a,b)=>a+b,0) };
+  return { ca: DONNEES.caMensuel.reduce((a,b)=>a+b,0), users: DONNEES.usersMensuel.reduce((a,b)=>a+b,0) };
+}
+
+// Calculer les variations
+function calculateVariation(periode) {
+  if (periode === '30j') {
+    const current = DONNEES.caMensuel[11];
+    const previous = DONNEES.caMensuel[10];
+    return { ca: ((current - previous) / previous * 100).toFixed(1), users: 8.2 };
+  }
+  if (periode === '90j') {
+    const current = DONNEES.caMensuel.slice(9,12).reduce((a,b)=>a+b,0);
+    const previous = DONNEES.caMensuel.slice(6,9).reduce((a,b)=>a+b,0);
+    return { ca: ((current - previous) / previous * 100).toFixed(1), users: 12.5 };
+  }
+  return { ca: 15.2, users: 18.3 };
+}
+
+// Rendre les KPIs
+function renderKPIs() {
+  const data = getDataForPeriode(currentPeriode);
+  const variation = calculateVariation(currentPeriode);
+  const totalPlans = DONNEES.topDiets.reduce((a,b)=>a+b.plans,0);
+  const totalVisios = DONNEES.topDiets.reduce((a,b)=>a+b.visios,0);
+  
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-icon">💶</div>
+      <div class="kpi-label">Chiffre d'affaires</div>
+      <div class="kpi-value">${Math.round(data.ca).toLocaleString('fr-FR')} €</div>
+      <div class="kpi-trend ${variation.ca >= 0 ? 'up' : 'down'}">
+        ${variation.ca >= 0 ? '▲' : '▼'} ${Math.abs(variation.ca)}% vs période précédente
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-label">Nouveaux utilisateurs</div>
+      <div class="kpi-value">${Math.round(data.users).toLocaleString('fr-FR')}</div>
+      <div class="kpi-trend ${variation.users >= 0 ? 'up' : 'down'}">
+        ${variation.users >= 0 ? '▲' : '▼'} ${Math.abs(variation.users)}%
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-label">Plans validés</div>
+      <div class="kpi-value">${totalPlans}</div>
+      <div class="kpi-sub">ce mois</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🎥</div>
+      <div class="kpi-label">Visios réalisées</div>
+      <div class="kpi-value">${totalVisios}</div>
+      <div class="kpi-sub">ce mois</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🥗</div>
+      <div class="kpi-label">Diététiciens actifs</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-sub">+2 ce mois</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🏢</div>
+      <div class="kpi-label">Prescripteurs actifs</div>
+      <div class="kpi-value">14</div>
+      <div class="kpi-sub">+3 ce mois</div>
+    </div>
+  `;
+}
+
+// Graphes
+let caChart, usersChart, objectifsChart, geoChart, revenueChart;
+
+function initCharts() {
+  const moisAffiches = currentPeriode === '12m' ? DONNEES.mois : DONNEES.mois.slice(-6);
+  const caData = currentPeriode === '12m' ? DONNEES.caMensuel : DONNEES.caMensuel.slice(-6);
+  const usersData = currentPeriode === '12m' ? DONNEES.usersMensuel : DONNEES.usersMensuel.slice(-6);
+  
+  // CA Chart
+  const caCtx = document.getElementById('caChart').getContext('2d');
+  if (caChart) caChart.destroy();
+  caChart = new Chart(caCtx, {
+    type: 'line',
+    data: {
+      labels: moisAffiches,
+      datasets: [{
+        label: 'CA (€)',
+        data: caData,
+        borderColor: '#1D9E75',
+        backgroundColor: 'rgba(29,158,117,0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#1D9E75'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => v + '€' } } }
+    }
+  });
+  
+  // Users Chart
+  const usersCtx = document.getElementById('usersChart').getContext('2d');
+  if (usersChart) usersChart.destroy();
+  usersChart = new Chart(usersCtx, {
+    type: 'bar',
+    data: {
+      labels: moisAffiches,
+      datasets: [{
+        label: 'Nouveaux utilisateurs',
+        data: usersData,
+        backgroundColor: '#3b82f6',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+  
+  // Objectifs Chart (donut)
+  const objCtx = document.getElementById('objectifsChart').getContext('2d');
+  if (objectifsChart) objectifsChart.destroy();
+  objectifsChart = new Chart(objCtx, {
+    type: 'doughnut',
+    data: {
+      labels: DONNEES.objectifs.map(o => o.label),
+      datasets: [{
+        data: DONNEES.objectifs.map(o => o.value),
+        backgroundColor: DONNEES.objectifs.map(o => o.color),
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+  });
+  
+  // Geo Chart
+  const geoCtx = document.getElementById('geoChart').getContext('2d');
+  if (geoChart) geoChart.destroy();
+  geoChart = new Chart(geoCtx, {
+    type: 'bar',
+    data: {
+      labels: DONNEES.geo.map(g => g.ville),
+      datasets: [{
+        label: 'Plans commandés',
+        data: DONNEES.geo.map(g => g.valeur),
+        backgroundColor: '#f59e0b',
+        borderRadius: 8
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+  
+  // Revenue Chart
+  const revCtx = document.getElementById('revenueChart').getContext('2d');
+  if (revenueChart) revenueChart.destroy();
+  revenueChart = new Chart(revCtx, {
+    type: 'doughnut',
+    data: {
+      labels: DONNEES.revenueSources.map(r => r.label),
+      datasets: [{
+        data: DONNEES.revenueSources.map(r => r.value),
+        backgroundColor: DONNEES.revenueSources.map(r => r.color),
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+  });
+}
+
+// Prédictions
+function renderPredictions() {
+  const data = getDataForPeriode('30j');
+  const prevCA = Math.round(data.ca * 1.12);
+  const prevUsers = Math.round(data.users * 1.15);
+  const variation = ((prevCA - data.ca) / data.ca * 100).toFixed(1);
+  
+  document.getElementById('prevCA').textContent = prevCA.toLocaleString('fr-FR') + ' €';
+  document.getElementById('prevVariation').textContent = variation;
+  document.getElementById('prevBar').style.width = Math.min(100, parseInt(variation) + 50) + '%';
+  
+  document.getElementById('prevUsers').textContent = prevUsers;
+  document.getElementById('prevConversion').textContent = '18.5';
+  document.getElementById('prevUsersBar').style.width = '68%';
+}
+
+// Tableaux
+function renderTables() {
+  // Top diététiciens
+  document.getElementById('topDietsBody').innerHTML = DONNEES.topDiets.map(d => `
+    <tr>
+      <td><strong>${d.nom}</strong></td>
+      <td>${d.plans}</td>
+      <td>${d.visios}</td>
+      <td>${d.revenu} €</td>
+      <td>${d.note} ★</td>
+    </tr>
+  `).join('');
+  
+  // Top prescripteurs
+  document.getElementById('topPrescBody').innerHTML = DONNEES.topPresc.map(p => `
+    <tr>
+      <td><strong>${p.nom}</strong></td>
+      <td>${p.profession}</td>
+      <td>${p.plans}</td>
+      <td>${p.ca} €</td>
+      <td>${p.credits}</td>
+    </tr>
+  `).join('');
+  
+  // Alertes santé
+  document.getElementById('alertesBody').innerHTML = DONNEES.alertes.map(a => `
+    <tr>
+      <td>${new Date(a.date).toLocaleDateString('fr-FR')}</td>
+      <td><strong>${a.patient}</strong></td>
+      <td><span class="badge-warning" style="background:#fff8e6;padding:2px 8px;border-radius:999px;">${a.type}</span></td>
+      <td><span class="${a.statut === 'Traité' ? 'badge-success' : 'badge-warning'}" style="background:${a.statut === 'Traité' ? '#e1f5ee' : '#fff8e6'};padding:2px 8px;border-radius:999px;">${a.statut}</span></td>
+      <td><button class="btn-export" style="font-size:0.65rem;" onclick="alert('Traiter l\'alerte de ${a.patient}')">📋 Traiter</button></td>
+    </tr>
+  `).join('');
+}
+
+// Alertes
+function renderAlerts() {
+  const data = getDataForPeriode('30j');
+  const alerts = [];
+  if (DONNEES.topDiets[0].plans > 40) {
+    alerts.push({ title: '⚠️ Activité élevée', desc: 'Le volume de plans a augmenté de 25% ce mois. Pensez à recruter des diététiciens supplémentaires.', type: 'warning' });
+  }
+  if (DONNEES.topPresc[0].credits < 10) {
+    alerts.push({ title: '📉 Crédits bas', desc: 'Plusieurs prescripteurs ont des crédits faibles. Une campagne de relance est recommandée.', type: 'info' });
+  }
+  
+  document.getElementById('alertsContainer').innerHTML = alerts.map(a => `
+    <div class="alert-card">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+      </div>
+      <button class="alert-btn" onclick="alert('Voir les détails')">Voir →</button>
+    </div>
+  `).join('');
+}
+
+// Export CSV
+function exportCSV(type) {
+  let csv = '';
+  if (type === 'diets') {
+    csv = 'Diététicien,Plans validés,Visios réalisées,Revenu (€),Note moyenne\n';
+    DONNEES.topDiets.forEach(d => csv += `${d.nom},${d.plans},${d.visios},${d.revenu},${d.note}\n`);
+  } else if (type === 'presc') {
+    csv = 'Prescripteur,Profession,Plans commandés,CA généré (€),Crédits restants\n';
+    DONNEES.topPresc.forEach(p => csv += `${p.nom},${p.profession},${p.plans},${p.ca},${p.credits}\n`);
+  } else if (type === 'alertes') {
+    csv = 'Date,Patient,Type d\'alerte,Statut\n';
+    DONNEES.alertes.forEach(a => csv += `${a.date},${a.patient},${a.type},${a.statut}\n`);
+  }
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `statistiques_${type}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Export CSV effectué', 'success');
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:${type === 'success' ? '#1D9E75' : '#ef4444'};color:#fff;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.8rem;z-index:2000;animation:fadeInOut 2.5s ease;`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// Changer de période
+function setPeriode(periode, btn) {
+  currentPeriode = periode;
+  document.querySelectorAll('.periode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKPIs();
+  initCharts();
+  renderPredictions();
+  renderAlerts();
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  
+  renderKPIs();
+  initCharts();
+  renderPredictions();
+  renderTables();
+  renderAlerts();
+  
+  // Événements période
+  document.querySelectorAll('.periode-btn').forEach(btn => {
+    btn.addEventListener('click', () => setPeriode(btn.dataset.periode, btn));
+  });
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+window.exportCSV = exportCSV;
+</script>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

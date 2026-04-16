@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — NutriDoc · CaliDoc Santé</title>
+  <meta name="description" content="Contactez l'équipe NutriDoc pour toute question sur la plateforme, votre compte ou votre plan alimentaire."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="js/ui/nav.js" defer></script>
+  <style>
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 860px; margin: 0 auto; }
+    .contact-card { background: var(--cream); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+    .contact-icon { font-size: 1.75rem; margin-bottom: .75rem; }
+    .contact-title { font-weight: 500; color: var(--dark); margin-bottom: .4rem; }
+    .contact-desc { font-size: .82rem; color: var(--gray); line-height: 1.6; margin-bottom: 1rem; }
+    .contact-link { font-size: .85rem; color: var(--green); font-weight: 500; text-decoration: none; }
+    .contact-link:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .contact-grid { grid-template-columns: 1fr; } }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/contact.html"/>
+  <meta property="og:title" content="Contact — NutriDoc · CaliDoc Santé"/>
+  <meta property="og:description" content="Contactez l'équipe NutriDoc pour toute question sur notre plateforme de nutrition certifiée."/>
+  <meta property="og:image" content="assets/images/og-image.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Contact — NutriDoc · CaliDoc Santé"/>
+  <meta name="twitter:description" content="Contactez l'équipe NutriDoc pour toute question sur notre plateforme de nutrition certifiée."/>
+</head>
+<main style="max-width:900px;margin:0 auto;padding:6rem 2rem 4rem;">
+
+  <div style="text-align:center;margin-bottom:3rem;">
+    <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);font-weight:500;">Support</span>
+    <h1 style="font-family:var(--font-d);font-size:2rem;color:var(--dark);margin:.5rem 0 .75rem;">Comment pouvons-nous vous aider ?</h1>
+    <p style="font-size:.9rem;color:var(--gray);max-width:480px;margin:0 auto;">Choisissez le canal adapté à votre demande. Nous répondons sous 24–48h ouvrées.</p>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="contact-icon">🧑</div>
+      <div class="contact-title">Je suis patient</div>
+      <div class="contact-desc">Question sur mon bilan, mon plan alimentaire, ma facturation ou mon compte.</div>
+      <a href="mailto:contact@calidoc-sante.fr?subject=Question patient NutriDoc" class="contact-link">contact@calidoc-sante.fr →</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">🥗</div>
+      <div class="contact-title">Je suis diététicien</div>
+      <div class="contact-desc">Question sur mon inscription, mes crédits, un dossier patient ou la facturation.</div>
+      <a href="mailto:contact@calidoc-sante.fr?subject=Question dieteticien NutriDoc" class="contact-link">contact@calidoc-sante.fr →</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">🏥</div>
+      <div class="contact-title">Je suis professionnel de santé</div>
+      <div class="contact-desc">Demande de partenariat prescripteur, question sur les packs plans ou le CRM.</div>
+      <a href="mailto:contact@calidoc-sante.fr?subject=Question prescripteur NutriDoc" class="contact-link">contact@calidoc-sante.fr →</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">⚖️</div>
+      <div class="contact-title">Question juridique / RGPD</div>
+      <div class="contact-desc">Exercice de vos droits (accès, rectification, suppression), plainte RGPD, mentions légales.</div>
+      <a href="mailto:contact@calidoc-sante.fr?subject=RGPD NutriDoc" class="contact-link">contact@calidoc-sante.fr →</a>
+    </div>
+  </div>
+
+  <div style="max-width:860px;margin:2rem auto 0;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;">
+    <p style="font-size:.85rem;color:var(--gray);">📧 <strong style="color:var(--dark);">contact@calidoc-sante.fr</strong> — Réponse sous 24–48h ouvrées</p>
+    <p style="font-size:.78rem;color:var(--gray);margin-top:.4rem;">CaliDoc Santé · Angoulême (16) · France</p>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+    <a href="faq.html" style="font-size:.85rem;color:var(--green);">→ Consulter la FAQ</a>
+    <a href="mentions-legales.html" style="font-size:.85rem;color:var(--gray);">Mentions légales</a>
+    <a href="politique-confidentialite.html" style="font-size:.85rem;color:var(--gray);">Confidentialité</a>
+  </div>
+
+</main>
+<footer style="background:var(--dark);padding:1.5rem 2rem;text-align:center;margin-top:3rem;">
+  <p style="font-size:.78rem;color:rgba(255,255,255,.3);">NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html" style="color:rgba(255,255,255,.4);">Accueil</a></p>
+</footer>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+</body>
+</html>

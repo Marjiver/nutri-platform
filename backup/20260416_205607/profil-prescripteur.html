@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="description" content="Gérez votre profil professionnel de prescripteur sur NutriDoc : informations personnelles, SIRET, profession, coordonnées professionnelles."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon profil — Espace Prescripteur · NutriDoc</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <!-- ==================== PWA MANIFEST ==================== -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
+  <meta name="theme-color" content="#0d2018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  
+  <!-- ==================== ICÔNES APPLE ==================== -->
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+  
+  <!-- ==================== MASQUE POUR ANDROID ==================== -->
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
+  
+  <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
+  <meta name="msapplication-TileColor" content="#0d2018">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  
+  <!-- ==================== DARK MODE CSS ==================== -->
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dark-mode-variables.css">
+  
+  <!-- ==================== SCRIPTS EXTERNES ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- ==================== PERFORMANCE MONITORING ==================== -->
+  <script defer src="js/utils/performance.js"></script>
+  
+  <!-- ==================== VERSION MANAGER ==================== -->
+  <script defer src="js/utils/version-manager.js"></script>
+  
+  <!-- ==================== ERROR HANDLER ==================== -->
+  <script defer src="js/utils/error-handler.js"></script>
+  
+  <!-- ==================== DARK MODE JS ==================== -->
+  <script defer src="js/ui/dark-mode.js"></script>
+  
+  <!-- ==================== AUTO-SAVE JS ==================== -->
+  <script defer src="js/utils/auto-save.js"></script>
+  
+  <!-- ==================== PWA MANAGER ==================== -->
+  <script defer src="js/utils/pwa.js"></script>
+  
+  <!-- ==================== CORE ==================== -->
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/constants.js"></script>
+  <script defer src="js/core/validation.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:var(--bg-secondary,#f7f9f7);
+      color:var(--text-primary,#0d2018);
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    .nd-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0d2018;
+      border-bottom: 1px solid rgba(29,158,117,0.2);
+      padding: 0.75rem 2rem;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 2rem; }
+    .nd-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nd-logo em { font-style: italic; color: #5DCAA5; }
+    .nd-nav { display: flex; gap: 1.5rem; }
+    .nd-navlink {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 250px;
+      background-color:var(--text-primary,#0d2018);
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .nd-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .nd-conn-wrap { position: relative; }
+    .nd-conn-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #0d2018;
+      border: 1px solid rgba(29,158,117,0.2);
+      border-radius: 12px;
+      width: 180px;
+      margin-top: 0.5rem;
+      z-index: 101;
+    }
+    .nd-conn-menu.open { display: block; }
+    .nd-conn-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
+
+    @media (max-width: 900px) {
+      .nd-header { padding: 0.75rem 1rem; }
+      .nd-nav { display: none; }
+      .gregoire-mini { display: none; }
+    }
+
+    /* BARRE PROFIL DYNAMIQUE */
+    .dynamic-profil-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* THEME SELECTOR */
+    @media (max-width: 768px) {
+
+    /* FORM CARD */
+    .badge-warning {
+      background: #fff8e6;
+      color: #f59e0b;
+    }
+    .badge-success {
+      background: #e1f5ee;
+      color: #1D9E75;
+    }
+
+    /* FORM GROUP */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color:var(--text-primary,#0d2018);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background:var(--bg-card,#fff);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #0ea5e9;
+      outline: none;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .field-hint {
+      font-size: 0.7rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .req {
+      color: #ef4444;
+    }
+
+    /* DRAFT ACTIONS */
+    .draft-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .draft-actions button {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+
+    /* AVATAR */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .avatar-upload {
+      flex: 1;
+    }
+    .avatar-upload input {
+      padding: 0.5rem;
+    }
+
+    /* SIRET VERIFICATION STATUS */
+    .siret-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+    .siret-status.verified {
+      background: #e1f5ee;
+      color: #1D9E75;
+    }
+    .siret-status.pending {
+      background: #fff8e6;
+      color: #f59e0b;
+    }
+    .siret-status.unverified {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    /* PROFESSION SELECTOR */
+    .profession-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+    @media (max-width: 600px) {
+      .profession-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .profession-option {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 2px solid #eef4ee;
+      border-radius: 12px;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .profession-option:hover {
+      transform: translateY(-2px);
+    }
+    .profession-option.selected {
+      border-color: #0ea5e9;
+      background: rgba(14,165,233,0.05);
+    }
+    .profession-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .profession-name {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* OBJECTIFS SELECTOR */
+    .objectifs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .objectif-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .objectif-option:hover {
+      border-color: #0ea5e9;
+    }
+    .objectif-option.selected {
+      border-color: #0ea5e9;
+      background: rgba(14,165,233,0.05);
+    }
+    .objectif-option input {
+      margin: 0;
+      accent-color: #0ea5e9;
+    }
+    .objectif-option label {
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    /* CREDITS INFO */
+    .credits-info {
+      background: linear-gradient(135deg, #0d2018, #142c1f);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #fff;
+    }
+    .credits-info-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .credits-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #5DCAA5;
+      line-height: 1;
+    }
+    .credits-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.25rem;
+    }
+
+    /* PACK SELECTOR */
+    .pack-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+    @media (max-width: 600px) {
+      .pack-selector {
+        grid-template-columns: 1fr;
+      }
+    }
+    .pack-option {
+      background:var(--bg-secondary,#f7f9f7);
+      border: 2px solid #eef4ee;
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .pack-option:hover {
+      transform: translateY(-2px);
+    }
+    .pack-option.selected {
+      border-color: #0ea5e9;
+      background: rgba(14,165,233,0.05);
+    }
+    .pack-option.recommended {
+      border-color: #f59e0b;
+    }
+    .pack-option.recommended::before {
+      content: "⭐ RECOMMANDÉ";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .pack-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+    .pack-price {
+      font-size: 0.75rem;
+      color: #0ea5e9;
+      font-weight: 500;
+    }
+    .pack-desc {
+      font-size: 0.65rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-top: 0.25rem;
+    }
+
+    /* BUTTONS */
+    .btn-save {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-save:hover {
+      background: #0284c7;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-light,#eef4ee);
+      color:var(--text-primary,#0d2018);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: #0ea5e9;
+      color: #0ea5e9;
+    }
+    .btn-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .btn-delete:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+    .btn-verify {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0ea5e9;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      z-index: 2000;
+      animation: fadeInOut 2.5s ease;
+    }
+    .toast.error {
+      background: #ef4444;
+    }
+    .toast.warning {
+      background: #f59e0b;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background:var(--bg-card,#fff);
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 450px;
+      width: 90%;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-desc {
+      font-size: 0.85rem;
+      color:var(--text-secondary,#6b7b74);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* FOOTER */
+    .nd-footer {
+      background: #080f0b;
+      color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .nd-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 2fr;
+      gap: 2rem;
+    }
+    .nd-logo-footer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
+    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
+    .nd-footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .nd-footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+    }
+    .nd-footer-col a {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+    }
+    .nd-footer-col a:hover { color: #fff; }
+    .nd-footer-bottom {
+      text-align: center;
+      font-size: 0.65rem;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) {
+      .nd-footer-inner { grid-template-columns: 1fr; }
+      .nd-footer-links { grid-template-columns: 1fr 1fr; }
+    }
+
+    .scroll-top-btn {
+      position: fixed; bottom: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: #0ea5e9; color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 200;
+    }
+    .scroll-top-btn.visible { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- ==================== THÈME SELECTOR ==================== -->
+
+<!-- HEADER -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="prescripteur-dashboard.html" class="nd-navlink active">Mon espace</a>
+        <a href="prescripteur-crm.html" class="nd-navlink">CRM Clients</a>
+        <a href="compta-prescripteur.html" class="nd-navlink">Comptabilité</a>
+      </nav>
+    </div>
+    
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="profil-prescripteur.html" class="nd-conn-item active">👤 Mon profil</a>
+          <a href="#" onclick="deconnecter()" class="nd-conn-item">🔓 Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mon profil Prescripteur</h1>
+<main class="profil-container">
+  
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>🏢 Mon profil prescripteur</h2>
+      <span class="badge">SIRET obligatoire</span>
+    </div>
+
+    <!-- BOUTONS SAUVEGARDE AUTO -->
+    <div class="draft-actions">
+      <button type="button" onclick="manualSave('profilPrescForm')" style="background: #0ea5e9; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        💾 Sauvegarder maintenant
+      </button>
+      <button type="button" onclick="restoreLastDraft('profilPrescForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🔄 Restaurer brouillon
+      </button>
+      <button type="button" onclick="clearCurrentDraft('profilPrescForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🗑️ Effacer brouillon
+      </button>
+    </div>
+
+    <form id="profilPrescForm">
+      <!-- AVATAR -->
+      <div class="avatar-section">
+        <div class="avatar-preview" id="avatarPreview">
+          👤
+        </div>
+        <div class="avatar-upload">
+          <label style="font-size:0.8rem; font-weight:500;">Photo de profil</label>
+          <input type="file" id="avatarInput" accept="image/*" style="margin-top:0.3rem;">
+          <span class="field-hint">Format JPG ou PNG, max 2 Mo</span>
+        </div>
+      </div>
+
+      <!-- IDENTITÉ -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
+        </div>
+        <div class="form-group">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email professionnel <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="contact@cabinet.fr" required>
+        </div>
+        <div class="form-group">
+          <label>Téléphone professionnel</label>
+          <input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78">
+        </div>
+      </div>
+
+      <!-- SIRET SECTION -->
+      <div class="form-group">
+        <label>Numéro SIRET <span class="req">*</span></label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="text" id="siret" name="siret" placeholder="123 456 789 00012" style="flex: 1;" maxlength="19">
+          <button type="button" class="btn-verify" onclick="verifierSIRET()">Vérifier</button>
+        </div>
+        <div id="siretStatus" class="siret-status pending" style="margin-top: 0.5rem;">
+          <span>⏳ En attente de vérification</span>
+        </div>
+        <span class="field-hint">Format : 14 chiffres (ex: 12345678900012)</span>
+      </div>
+
+      <!-- PROFESSION -->
+      <div class="form-group">
+        <label>Profession <span class="req">*</span></label>
+        <div class="profession-grid" id="professionGrid">
+          <div class="profession-option" data-profession="medecin" onclick="selectProfession(this)">
+            <div class="profession-icon">🩺</div>
+            <div class="profession-name">Médecin</div>
+          </div>
+          <div class="profession-option" data-profession="kine" onclick="selectProfession(this)">
+            <div class="profession-icon">🦴</div>
+            <div class="profession-name">Kinésithérapeute</div>
+          </div>
+          <div class="profession-option" data-profession="coach" onclick="selectProfession(this)">
+            <div class="profession-icon">💪</div>
+            <div class="profession-name">Coach sportif</div>
+          </div>
+          <div class="profession-option" data-profession="osteopathe" onclick="selectProfession(this)">
+            <div class="profession-icon">🤲</div>
+            <div class="profession-name">Ostéopathe</div>
+          </div>
+          <div class="profession-option" data-profession="preparateur" onclick="selectProfession(this)">
+            <div class="profession-icon">🏃</div>
+            <div class="profession-name">Préparateur physique</div>
+          </div>
+          <div class="profession-option" data-profession="sage_femme" onclick="selectProfession(this)">
+            <div class="profession-icon">👶</div>
+            <div class="profession-name">Sage-femme</div>
+          </div>
+          <div class="profession-option" data-profession="infirmier" onclick="selectProfession(this)">
+            <div class="profession-icon">💉</div>
+            <div class="profession-name">Infirmier·e</div>
+          </div>
+          <div class="profession-option" data-profession="naturopathe" onclick="selectProfession(this)">
+            <div class="profession-icon">🌿</div>
+            <div class="profession-name">Naturopathe</div>
+          </div>
+          <div class="profession-option" data-profession="autre" onclick="selectProfession(this)">
+            <div class="profession-icon">👤</div>
+            <div class="profession-name">Autre</div>
+          </div>
+        </div>
+        <input type="hidden" id="profession" name="profession">
+      </div>
+
+      <!-- OBJECTIFS AUTORISÉS -->
+      <div class="form-group">
+        <label>Objectifs autorisés pour vos commandes</label>
+        <div class="objectifs-grid" id="objectifsGrid">
+          <div class="objectif-option" onclick="toggleObjectif(this, 'perte_poids')">
+            <input type="checkbox" id="obj_perte_poids" value="perte_poids">
+            <label>⚖️ Perte de poids</label>
+          </div>
+          <div class="objectif-option" onclick="toggleObjectif(this, 'prise_masse')">
+            <input type="checkbox" id="obj_prise_masse" value="prise_masse">
+            <label>💪 Prise de masse</label>
+          </div>
+          <div class="objectif-option" onclick="toggleObjectif(this, 'equilibre')">
+            <input type="checkbox" id="obj_equilibre" value="equilibre">
+            <label>🥗 Équilibre alimentaire</label>
+          </div>
+          <div class="objectif-option" onclick="toggleObjectif(this, 'sante')">
+            <input type="checkbox" id="obj_sante" value="sante">
+            <label>❤️ Prévention santé</label>
+          </div>
+          <div class="objectif-option" onclick="toggleObjectif(this, 'sport_perf')">
+            <input type="checkbox" id="obj_sport_perf" value="sport_perf">
+            <label>🏃 Performance sportive</label>
+          </div>
+          <div class="objectif-option" onclick="toggleObjectif(this, 'pathologie')">
+            <input type="checkbox" id="obj_pathologie" value="pathologie">
+            <label>🏥 Pathologie spécifique</label>
+          </div>
+        </div>
+        <span class="field-hint">Ces objectifs seront proposés à vos patients</span>
+      </div>
+
+      <!-- CABINET / STRUCTURE -->
+      <div class="form-group">
+        <label>Nom de la structure / cabinet</label>
+        <input type="text" id="cabinet" name="cabinet" placeholder="Ex: Cabinet Médical Saint-Médard">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Adresse</label>
+          <input type="text" id="adresse" name="adresse" placeholder="Numéro et rue">
+        </div>
+        <div class="form-group">
+          <label>Code postal</label>
+          <input type="text" id="codePostal" name="codePostal" placeholder="Ex: 75001">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ville</label>
+          <input type="text" id="ville" name="ville" placeholder="Ex: Paris">
+        </div>
+        <div class="form-group">
+          <label>Site web</label>
+          <input type="url" id="siteWeb" name="siteWeb" placeholder="https://...">
+        </div>
+      </div>
+
+      <!-- CRÉDITS RESTANTS -->
+      <div class="credits-info">
+        <div class="credits-info-title">💰 Crédits disponibles</div>
+        <div class="credits-amount" id="creditsAmount">—</div>
+        <div class="credits-sub">1 crédit = 1 plan alimentaire validé par un diététicien RPPS</div>
+        <div style="margin-top: 0.5rem;">
+          <a href="inscription-prescripteur.html" class="btn-outline" style="display: inline-block; padding: 0.3rem 0.8rem; font-size: 0.7rem;">+ Recharger des crédits</a>
+        </div>
+      </div>
+
+      <!-- PACK ACTUEL -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <label>Pack actuel</label>
+        <div id="packActuel" style="background: #e0f2fe; border-radius: 12px; padding: 0.75rem 1rem; margin-top: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong id="packNom">Pack Standard</strong>
+              <span id="packDetails" style="color: #0284c7;">10 crédits · 13€/plan</span>
+            </div>
+            <a href="inscription-prescripteur.html" class="btn-outline" style="font-size:0.7rem;">Changer →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SÉLECTEUR DE PACK (pour upgrade) -->
+      <div class="form-group">
+        <label>Upgrader mon pack</label>
+        <div class="pack-selector">
+          <div class="pack-option" data-pack="solo" data-credits="1" data-prix="24.90" onclick="selectPack(this)">
+            <div class="pack-name">Solo</div>
+            <div class="pack-price">24,90€</div>
+            <div class="pack-desc">1 crédit</div>
+          </div>
+          <div class="pack-option recommended" data-pack="standard" data-credits="10" data-prix="130" onclick="selectPack(this)">
+            <div class="pack-name">Standard</div>
+            <div class="pack-price">130€ HT</div>
+            <div class="pack-desc">10 crédits · 13€/plan</div>
+          </div>
+          <div class="pack-option" data-pack="expert" data-credits="50" data-prix="500" onclick="selectPack(this)">
+            <div class="pack-name">Expert</div>
+            <div class="pack-price">500€ HT</div>
+            <div class="pack-desc">50 crédits · 10€/plan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRÉFÉRENCES DE NOTIFICATION -->
+      <div class="form-group">
+        <label>Préférences de notification</label>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifEmail" checked> 📧 Recevoir les confirmations de commande par email
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifBrowser" checked> 🔔 Notifications navigateur
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="notifRappel" checked> ⏰ Rappel crédits faibles (moins de 20%)
+          </label>
+        </div>
+      </div>
+
+      <!-- DESCRIPTION PROFESSIONNELLE -->
+      <div class="form-group">
+        <label>Présentation professionnelle</label>
+        <textarea id="description" name="description" rows="3" placeholder="Présentez-vous aux patients : votre parcours, votre expertise, votre approche..."></textarea>
+        <span class="field-hint">Cette description sera visible par les patients que vous prenez en charge</span>
+      </div>
+    </form>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn-save" onclick="sauvegarderProfil()">💾 Sauvegarder les modifications</button>
+      <button class="btn-outline" onclick="annulerModifications()">Annuler</button>
+    </div>
+  </div>
+
+  <!-- CARD INFORMATIONS FACTURATION -->
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>📄 Facturation</h2>
+      <span class="badge">Stripe Connect</span>
+    </div>
+    <div class="form-group">
+      <label>Raison sociale / Nom de la structure</label>
+      <input type="text" id="raisonSociale" placeholder="Ex: Cabinet Médical Saint-Médard">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Adresse de facturation</label>
+        <input type="text" id="factureAdresse" placeholder="Adresse complète">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email de facturation</label>
+      <input type="email" id="factureEmail" placeholder="facturation@cabinet.fr">
+    </div>
+    <div class="form-group">
+      <label>Référence interne (optionnel)</label>
+      <input type="text" id="refInterne" placeholder="Ex: N° client interne">
+      <span class="field-hint">Cette référence apparaîtra sur vos factures</span>
+    </div>
+  </div>
+
+  <!-- CARD SUPPRESSION DE COMPTE -->
+  <div class="profil-card">
+    <div class="profil-card-header">
+      <h2>⚠️ Zone dangereuse</h2>
+    </div>
+    <p style="font-size:0.85rem; color:#6b7b74; margin-bottom:1rem;">
+      La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.
+    </p>
+    <button class="btn-outline btn-delete" onclick="ouvrirModalSuppression()">🗑️ Supprimer mon compte</button>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Prescripteurs</div>
+        <a href="accueil-prescripteur.html">Espace prescripteur</a>
+        <a href="inscription-prescripteur.html">S'inscrire</a>
+        <a href="cgu-prescripteur.html">CGU Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a>
+        <a href="dashboard.html">Mon espace</a>
+        <a href="cgu-patient.html">CGU Patient</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="faq.html">FAQ</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<!-- MODAL SUPPRESSION COMPTE -->
+<div class="modal-overlay" id="modalSuppression">
+  <div class="modal">
+    <div class="modal-title">⚠️ Supprimer mon compte</div>
+    <div class="modal-desc">
+      Êtes-vous sûr de vouloir supprimer définitivement votre compte prescripteur ?<br><br>
+      Cette action est irréversible et entraînera :<br>
+      • La suppression de tous vos clients<br>
+      • La perte de votre historique de commandes<br>
+      • La suppression de vos crédits restants
+    </div>
+    <div class="modal-btns">
+      <button class="btn-outline" onclick="fermerModalSuppression()">Annuler</button>
+      <button class="btn-outline btn-delete" onclick="supprimerCompte()">Confirmer la suppression</button>
+    </div>
+  </div>
+</div>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ==================== SERVICE WORKER ==================== -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker enregistré:', reg))
+      .catch(err => console.error('Erreur SW:', err));
+  });
+}
+</script>
+
+<script>

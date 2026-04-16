@@ -526,6 +526,66 @@
       z-index: 200;
     }
     .scroll-top-btn.visible { opacity: 1; }
+    /* ── ENCART CO-FONDATEUR GRÉGOIRE MARTIN ── */
+    .gregoire-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(29,158,117,0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29,158,117,0.2);
+      cursor: help;
+    }
+    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 280px;
+      background-color: #0d2018;
+      color: #5DCAA5;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.6rem 0.8rem;
+      position: absolute;
+      z-index: 1000;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+      font-size: 0.7rem;
+      line-height: 1.8;
+      border: 1px solid #1D9E75;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #1D9E75 transparent;
+    }
+    .gregoire-mini-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #1D9E75, #0f6e56);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gregoire-mini-text { font-size: 0.65rem; color: rgba(255,255,255,0.7); }
+    .gregoire-mini-text strong { color: #5DCAA5; }
+    @media (max-width: 900px) { .gregoire-mini { display: none; } }
+
   </style>
 </head>
 <body>
@@ -540,6 +600,21 @@
         <a href="faq.html" class="nd-navlink">FAQ</a>
       </nav>
     </div>
+
+    <!-- ✦ Co-fondateur ✦ -->
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text">
+        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      </div>
+      <span class="tooltip-text">
+        ⭐ Diététicien co-fondateur de NutriDoc<br>
+        🏥 CHU Angoulême · Restauration collective hospitalière<br>
+        🏡 Cabinet libéral · Angoulême<br>
+        🚒 Sapeur Pompier Expert
+      </span>
+    </div>
+
     <div class="header-actions">
       <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
         <span id="themeIcon">🌙</span>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriDoc">
+  <meta name="theme-color" content="#0d2018">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
+  <meta name="author" content="CaliDoc Santé">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="robots" content="noindex"/>
+  <title>Comptabilité — NutriDoc Diététicien</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/ui/dark-mode.js"></script>
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); line-height:1.5; }
+
+    /* ── HEADER ── */
+    .nd-header { position:fixed; top:0; left:0; right:0; z-index:100; background:#0d2018 !important; border-bottom:1px solid rgba(29,158,117,.2); padding:.75rem 2rem; }
+    .header-container { max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .header-left { display:flex; align-items:center; gap:1.5rem; }
+    .nd-logo { font-family:'Playfair Display',serif; font-size:1.25rem; color:#fff; text-decoration:none; }
+    .nd-logo em { font-style:italic; color:#5DCAA5; }
+    .nd-nav { display:flex; gap:1.25rem; }
+    .nd-navlink { font-size:.78rem; color:rgba(255,255,255,.6); text-decoration:none; transition:color .2s; }
+    .nd-navlink:hover, .nd-navlink.active { color:#fff; }
+    .header-actions { display:flex; align-items:center; gap:.75rem; }
+    .nd-user-badge { font-size:.72rem; color:rgba(255,255,255,.55); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.3rem .85rem; }
+    .nd-btn-ghost { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:.35rem .9rem; color:rgba(255,255,255,.85); font-size:.75rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
+    .nd-btn-ghost:hover { background:rgba(255,255,255,.16); color:#fff; }
+    @media (max-width:900px) { .nd-nav { display:none; } }
+
+    /* ── LAYOUT ── */
+    .dashboard-layout { display:flex; max-width:1400px; margin:0 auto; padding:5.5rem 2rem 3rem; gap:1.5rem; }
+    @media (max-width:768px) { .dashboard-layout { flex-direction:column; padding:5rem 1rem 2rem; } }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width:240px; flex-shrink:0; }
+    .sidebar-nav { background:var(--bg-card,#fff); border-radius:20px; border:1px solid var(--border-light,#eef4ee); overflow:hidden; position:sticky; top:80px; }
+    .sidebar-back { display:flex; align-items:center; gap:.4rem; padding:.7rem 1.25rem; font-size:.78rem; color:var(--text-secondary,#6b7b74); text-decoration:none; border-bottom:1px solid var(--border-light,#eef4ee); transition:color .2s; }
+    .sidebar-back:hover { color:#1D9E75; }
+    .sidebar-item { display:flex; align-items:center; gap:.75rem; padding:.8rem 1.25rem; cursor:pointer; transition:all .2s; border-bottom:1px solid var(--border-light,#eef4ee); color:var(--text-secondary,#6b7b74); font-size:.83rem; }
+    .sidebar-item:last-child { border-bottom:none; }
+    .sidebar-item:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
+    .sidebar-item.active { background:rgba(29,158,117,.08); color:#1D9E75; border-left:3px solid #1D9E75; }
+    .sidebar-icon { font-size:1.1rem; width:26px; }
+    @media (max-width:768px) { .sidebar { width:100%; } .sidebar-nav { display:flex; overflow-x:auto; } .sidebar-back { display:none; } .sidebar-item { white-space:nowrap; border-bottom:none; border-right:1px solid var(--border-light,#eef4ee); } }
+
+    /* ── MAIN ── */
+    .main-content { flex:1; min-width:0; }
+    .section { display:none; animation:fadeIn .3s ease; }
+    .section.active { display:block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom:1.5rem; }
+    .page-title { font-family:'Playfair Display',serif; font-size:1.6rem; }
+    .page-sub { font-size:.85rem; color:var(--text-secondary,#6b7b74); margin-top:.2rem; }
+
+    /* ── MÉTRIQUES ── */
+    .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+    @media (max-width:700px) { .metrics-grid { grid-template-columns:repeat(2,1fr); } }
+    .metric-card { background:var(--bg-card,#fff); border:1px solid var(--border-light,#eef4ee); border-radius:20px; padding:1rem; text-align:center; }
+    .metric-card.dark { background:linear-gradient(135deg,#0d2018,#142c1f); }
+    .metric-val { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:#1D9E75; line-height:1; }
+    .metric-card.dark .metric-val { color:#5DCAA5; }
+    .metric-label { font-size:.7rem; color:var(--text-secondary,#6b7b74); margin-top:.25rem; }
+    .metric-card.dark .metric-label { color:rgba(255,255,255,.5); }
+
+    /* ── CARDS ── */
+    .card-block { background:var(--bg-card,#fff); border:1px solid var(--border-light,#eef4ee); border-radius:20px; padding:1.25rem; margin-bottom:1.5rem; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--border-light,#eef4ee); }
+    .card-header h3 { font-size:1rem; font-weight:600; }
+    .btn-sm-action { background:transparent; border:1px solid var(--border-light,#eef4ee); border-radius:999px; padding:.3rem .8rem; font-size:.7rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; color:var(--text-secondary,#6b7b74); }
+    .btn-sm-action:hover { border-color:#1D9E75; color:#1D9E75; }
+
+    /* ── TABLEAUX ── */
+    .compta-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .compta-table th { background:var(--bg-secondary,#f7f9f7); padding:.65rem 1rem; text-align:left; font-weight:600; border-bottom:1px solid var(--border-light,#eef4ee); }
+    .compta-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border-light,#eef4ee); color:var(--text-secondary,#6b7b74); }
+    .compta-table tr:hover td { background:var(--bg-secondary,#f7f9f7); }
+    .badge-ok      { background:#e1f5ee; color:#1D9E75; font-size:.68rem; padding:.15rem .55rem; border-radius:999px; }
+    .badge-pending { background:#fff8e6; color:#f59e0b; font-size:.68rem; padding:.15rem .55rem; border-radius:999px; }
+    .text-green { color:#1D9E75; font-weight:600; }
+    .text-red   { color:#ef4444; font-weight:600; }
+
+    /* ── GRAPHIQUE ── */
+    .chart-wrapper { position:relative; height:220px; }
+
+    /* ── ÉCHÉANCIER ── */
+    .echeancier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+    .echeance-card { background:var(--bg-secondary,#f7f9f7); border-radius:16px; padding:1rem; display:flex; align-items:center; gap:1rem; }
+    .echeance-date { background:#1D9E75; color:#fff; border-radius:12px; padding:.5rem; text-align:center; min-width:68px; }
+    .echeance-date .day { font-size:1.2rem; font-weight:700; }
+    .echeance-date .month { font-size:.62rem; }
+    .echeance-info h4 { font-size:.85rem; font-weight:600; }
+    .echeance-info p { font-size:.7rem; color:var(--text-secondary,#6b7b74); }
+    .echeance-montant { margin-left:auto; font-weight:700; font-size:.9rem; }
+
+    /* ── ÉTAT VIDE POINTILLÉS ── */
+    .empty-dashed { border:2px dashed var(--border-light,#d1ddd7); border-radius:14px; padding:2rem 1rem; text-align:center; color:var(--text-tertiary,#9ca3af); }
+    .empty-dashed-icon { font-size:2rem; opacity:.25; margin-bottom:.5rem; }
+    .empty-dashed h4 { font-size:.9rem; font-weight:500; color:var(--text-secondary,#6b7b74); margin-bottom:.3rem; }
+    .empty-dashed p { font-size:.78rem; }
+
+    /* ── BANNIÈRE FORFAIT ── */
+    .forfait-banner { background:#fff8e6; border:1px solid #fcd34d; border-radius:16px; padding:1rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .forfait-banner-text { font-size:.85rem; color:#633806; }
+    .btn-upgrade { background:#1D9E75; color:#fff; padding:.5rem 1.2rem; border-radius:999px; font-size:.8rem; font-weight:500; text-decoration:none; }
+
+    /* ── SIMULATEUR ── */
+    .sim-bubble { position:fixed; bottom:1.5rem; left:1.5rem; z-index:300; }
+    .sim-toggle { width:52px; height:52px; background:#1D9E75; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; box-shadow:0 4px 16px rgba(0,0,0,.2); font-size:1.4rem; transition:transform .2s; }
+    .sim-toggle:hover { transform:scale(1.05); background:#0f6e56; }
+    .sim-window { display:none; position:absolute; bottom:64px; left:0; width:310px; background:var(--bg-card,#fff); border-radius:20px; box-shadow:0 8px 32px rgba(0,0,0,.15); border:1px solid rgba(29,158,117,.2); overflow:hidden; }
+    .sim-window.open { display:block; }
+    .sim-header { background:#1D9E75; color:#fff; padding:.7rem 1rem; font-size:.88rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+    .sim-close { background:none; border:none; color:#fff; cursor:pointer; font-size:1rem; }
+    .sim-body { padding:1rem; }
+    .sim-field { margin-bottom:.85rem; }
+    .sim-field-header { display:flex; justify-content:space-between; margin-bottom:.25rem; }
+    .sim-field-label { font-size:.73rem; color:var(--text-secondary,#6b7b74); font-weight:500; }
+    .sim-field-val { font-size:.78rem; font-weight:600; }
+    input[type=range] { -webkit-appearance:none; width:100%; height:5px; border-radius:999px; background:var(--bg-tertiary,#eef4ee); outline:none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#1D9E75; border:2px solid #fff; cursor:pointer; }
+    .sim-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:.25rem; margin:.4rem 0 .75rem; }
+    .sim-abtn { background:var(--bg-secondary,#f7f9f7); border:1px solid var(--border-light,#eef4ee); border-radius:8px; padding:.35rem .15rem; text-align:center; cursor:pointer; font-size:.68rem; transition:all .15s; }
+    .sim-abtn.active { background:#e1f5ee; border-color:#1D9E75; }
+    .sim-abtn-price { font-weight:700; color:#1D9E75; font-size:.7rem; }
+    .sim-results { background:var(--bg-secondary,#f7f9f7); border-radius:10px; padding:.65rem; margin:.6rem 0; }
+    .sim-row { display:flex; justify-content:space-between; font-size:.73rem; margin-bottom:.25rem; }
+    .sim-row.highlight { font-weight:700; color:#1D9E75; font-size:.82rem; }
+    .sim-note { font-size:.63rem; color:var(--text-secondary,#6b7b74); text-align:center; margin-top:.4rem; }
+
+    /* ── FOOTER ── */
+    .nd-footer { background:#080f0b; color:rgba(255,255,255,.5); padding:3rem 2rem 1.5rem; margin-top:2rem; }
+    .nd-footer-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.5fr 2fr; gap:2rem; }
+    .nd-logo-footer { font-family:'Playfair Display',serif; font-size:1.2rem; color:#fff; margin-bottom:.5rem; }
+    .nd-logo-footer em { font-style:italic; color:#5DCAA5; }
+    .nd-footer-brand p { font-size:.7rem; line-height:1.6; max-width:280px; }
+    .nd-footer-links { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .nd-footer-col-title { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.3); margin-bottom:.5rem; }
+    .nd-footer-col a { display:block; font-size:.7rem; color:rgba(255,255,255,.5); text-decoration:none; margin-bottom:.3rem; }
+    .nd-footer-col a:hover { color:#fff; }
+    .nd-footer-bottom { text-align:center; font-size:.65rem; padding-top:2rem; margin-top:2rem; border-top:1px solid rgba(255,255,255,.05); }
+    @media (max-width:768px) { .nd-footer-inner { grid-template-columns:1fr; } .nd-footer-links { grid-template-columns:1fr 1fr; } }
+
+    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:#1D9E75; color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
+    .scroll-top-btn.visible { opacity:1; }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<!-- HEADER -->
+<header class="nd-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="dietitian.html" class="nd-navlink">Mon espace</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
+        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="compta-dieteticien.html" class="nd-navlink active">Comptabilité</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <!-- dark-mode.js injecte le toggle -->
+      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-nav">
+      <a href="dietitian.html" class="sidebar-back">← Mon espace</a>
+      <div class="sidebar-item active" data-section="dashboard">
+        <span class="sidebar-icon">📊</span><span>Tableau de bord</span>
+      </div>
+      <div class="sidebar-item" data-section="factures">
+        <span class="sidebar-icon">📄</span><span>Factures</span>
+      </div>
+      <div class="sidebar-item" data-section="attestations">
+        <span class="sidebar-icon">📋</span><span>Attestations</span>
+      </div>
+      <div class="sidebar-item" data-section="echeancier">
+        <span class="sidebar-icon">📅</span><span>Échéancier</span>
+      </div>
+      <div class="sidebar-item" data-section="nutridoc">
+        <span class="sidebar-icon">💰</span><span>Paiements NutriDoc</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Comptabilité Diététicien</h1>
+<main class="main-content">
+
+    <!-- SECTION 1 : TABLEAU DE BORD -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h2 class="page-title">Tableau de bord comptable</h2>
+        <p class="page-sub">Synthèse de vos revenus et des commissions NutriDoc.</p>
+      </div>
+
+      <div id="forfaitBanner" class="forfait-banner" style="display:none;">
+        <div class="forfait-banner-text">
+          <strong>🔓 Forfait Essentiel</strong> — Passez à Starter, Pro ou Expert pour débloquer le graphique et l'échéancier.
+        </div>
+        <a href="gestion-forfait-dieteticien.html" class="btn-upgrade">Upgrader →</a>
+      </div>
+
+      <div class="metrics-grid" id="metricsGrid">
+        <!-- Injecté par JS -->
+      </div>
+
+      <div class="card-block" id="chartSection">
+        <div class="card-header">
+          <h3>📈 Revenus nets</h3>
+          <select id="selectAnnee" onchange="renderChart()" style="padding:.3rem .8rem;border-radius:999px;border:1px solid var(--border-light,#eef4ee);font-family:'Outfit',sans-serif;font-size:.8rem;background:var(--bg-card,#fff);">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+        <div id="chartZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📈</div>
+            <h4>Pas encore de données</h4>
+            <p>Le graphique apparaîtra dès vos premiers plans validés.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 : FACTURES -->
+    <div id="section-factures" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Factures électroniques</h2>
+        <p class="page-sub">Consultez et téléchargez vos factures mensuelles.</p>
+      </div>
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📄 Historique des factures</h3>
+        </div>
+        <div id="facturesZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📄</div>
+            <h4>Aucune facture</h4>
+            <p>Vos factures mensuelles apparaîtront ici une fois générées.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 : ATTESTATIONS -->
+    <div id="section-attestations" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Attestations mutuelle</h2>
+        <p class="page-sub">Envoyez les attestations de visio à vos patients.</p>
+      </div>
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📋 Visios réalisées</h3>
+        </div>
+        <div id="attestationsZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📋</div>
+            <h4>Aucune visio</h4>
+            <p>Les attestations de vos visios apparaîtront ici.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4 : ÉCHÉANCIER -->
+    <div id="section-echeancier" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Échéancier des paiements</h2>
+        <p class="page-sub">Paiements à venir de vos patients et abonnement.</p>
+      </div>
+      <div class="card-block">
+        <div class="card-header">
+          <h3>📅 Échéances à venir</h3>
+        </div>
+        <div id="echeancierZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">📅</div>
+            <h4>Aucune échéance</h4>
+            <p>Vos prochains paiements à recevoir s'afficheront ici.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5 : PAIEMENTS NUTRIDOC -->
+    <div id="section-nutridoc" class="section">
+      <div class="page-header">
+        <h2 class="page-title">Paiements à NutriDoc</h2>
+        <p class="page-sub">Abonnement et commissions prélevées.</p>
+      </div>
+      <div class="card-block">
+        <div class="card-header">
+          <h3>💰 Historique</h3>
+        </div>
+        <div id="nutridocZone">
+          <div class="empty-dashed">
+            <div class="empty-dashed-icon">💰</div>
+            <h4>Aucun mouvement</h4>
+            <p>L'historique de vos paiements à NutriDoc apparaîtra ici.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- SIMULATEUR (outil de projection — pas de données réelles) -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()" title="Simulateur de revenus">💰</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-header">
+      <span>💰 Simulateur de revenus</span>
+      <button class="sim-close" onclick="toggleSim()">✕</button>
+    </div>
+    <div class="sim-body">
+      <p style="font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-bottom:.75rem;">Projection mensuelle — données non réelles.</p>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">📋 Plans / mois</span><span class="sim-field-val" id="simPlansVal">10</span></div>
+        <input type="range" min="1" max="100" value="10" id="simPlans" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">🎥 Visios / mois</span><span class="sim-field-val" id="simVisiosVal">3</span></div>
+        <input type="range" min="0" max="30" value="3" id="simVisios" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-field-header"><span class="sim-field-label">📦 Forfait</span></div>
+        <div class="sim-btns">
+          <div class="sim-abtn" onclick="setSimAbo(0,this)"><div>Essentiel</div><div class="sim-abtn-price">0€</div></div>
+          <div class="sim-abtn" onclick="setSimAbo(9,this)"><div>Starter</div><div class="sim-abtn-price">9€</div></div>
+          <div class="sim-abtn active" onclick="setSimAbo(29,this)"><div>Pro</div><div class="sim-abtn-price">29€</div></div>
+          <div class="sim-abtn" onclick="setSimAbo(59,this)"><div>Expert</div><div class="sim-abtn-price">59€</div></div>
+        </div>
+        <input type="hidden" id="simAbo" value="29">
+      </div>
+      <div class="sim-results">
+        <div class="sim-row"><span>💰 CA brut</span><strong id="simCa">—</strong></div>
+        <div class="sim-row"><span>📉 Commissions</span><strong id="simComm">—</strong></div>
+        <div class="sim-row highlight"><span>📈 Revenu net</span><strong id="simNet">—</strong></div>
+        <div class="sim-row"><span>⏱ Taux horaire</span><strong id="simTaux">—</strong></div>
+      </div>
+      <div class="sim-note" id="simNote"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="nd-footer">
+  <div class="nd-footer-inner">
+    <div class="nd-footer-brand">
+      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
+      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
+    </div>
+    <div class="nd-footer-links">
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Patients</div>
+        <a href="bilan.html">Faire mon bilan</a><a href="dashboard.html">Mon espace</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Professionnels</div>
+        <a href="accueil-dieteticien.html">Espace Diététicien</a>
+        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Légal</div>
+        <a href="politique-confidentialite.html">Politique RGPD</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
+    </div>
+  </div>
+  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+</footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ── SIDEBAR NAVIGATION ────────────────────────────────────────
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const section = item.dataset.section;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('section-' + section)?.classList.add('active');
+  });
+});
+
+// ── SCROLL TOP ────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+const COMMISSIONS = { essentiel:5, starter:2.5, pro:2, expert:1.5 };
+const QUOTAS      = { essentiel:0, starter:10,  pro:30, expert:100 };
+const PRIX_ABO    = { essentiel:0, starter:9,   pro:29, expert:59  };
+
+let chartInstance = null;
+let forfaitActuel = 'essentiel';
+
+async function chargerDonnees() {
+  if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
+    document.getElementById('navUser').textContent = 'Non connecté';
+    afficherMetriquesVides();
+    return;
+  }
+
+  const profile = await getProfile();
+  if (!profile) { window.location.href = 'login.html'; return; }
+  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
+
+  forfaitActuel = profile.formule || 'essentiel';
+  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  document.getElementById('navUser').textContent = nom;
+
+  // Bannière forfait essentiel
+  if (forfaitActuel === 'essentiel') {
+    document.getElementById('forfaitBanner').style.display = 'flex';
+  }
+
+  // Compter plans validés ce mois
+  let plansMois = 0, visiosMois = 0;
+  try {
+    const debut = new Date(); debut.setDate(1); debut.setHours(0,0,0,0);
+    const { count: pc } = await _supa.from('plans').select('id', { count:'exact', head:true })
+      .eq('dietitian_id', profile.id).gte('created_at', debut.toISOString());
+    plansMois = pc || 0;
+
+    const { count: vc } = await _supa.from('visios').select('id', { count:'exact', head:true })
+      .eq('dietitian_id', profile.id).eq('statut', 'terminee').gte('created_at', debut.toISOString());
+    visiosMois = vc || 0;
+  } catch(e) { console.warn('compta load:', e); }
+
+  const quota      = QUOTAS[forfaitActuel] || 0;
+  const prix       = PRIX_ABO[forfaitActuel] || 0;
+  const horsQuota  = Math.max(0, plansMois - 1 - quota);
+  const commission = horsQuota * (COMMISSIONS[forfaitActuel] || 0);
+  const caPlans    = plansMois * 24.90;
+  const caVisios   = visiosMois * 55;
+  const net        = caPlans + caVisios - commission - prix;
+
+  // Métriques
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-val">${plansMois}</div>
+      <div class="metric-label">Plans validés (mois)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">${visiosMois}</div>
+      <div class="metric-label">Visios réalisées (mois)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">${commission.toFixed(0)} €</div>
+      <div class="metric-label">Commissions NutriDoc</div>
+    </div>
+    <div class="metric-card dark">
+      <div class="metric-val">${plansMois > 0 || visiosMois > 0 ? Math.round(net) + ' €' : '—'}</div>
+      <div class="metric-label">Revenu net estimé (mois)</div>
+    </div>`;
+
+  // Graphique si données
+  if (plansMois > 0 || visiosMois > 0) {
+    renderChart(plansMois, visiosMois);
+  }
+}
+
+function afficherMetriquesVides() {
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Plans validés (mois)</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Visios réalisées (mois)</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--text-tertiary,#9ca3af);">—</div><div class="metric-label">Commissions NutriDoc</div></div>
+    <div class="metric-card dark"><div class="metric-val">—</div><div class="metric-label">Revenu net estimé (mois)</div></div>`;
+}
+
+function renderChart(plansMois, visiosMois) {
+  const zone = document.getElementById('chartZone');
+  zone.innerHTML = '<div class="chart-wrapper"><canvas id="revenusChart"></canvas></div>';
+  const ctx = document.getElementById('revenusChart').getContext('2d');
+  if (chartInstance) { chartInstance.destroy(); }
+  const now = new Date();
+  const labels = Array.from({length:6}, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+    return d.toLocaleDateString('fr-FR', {month:'short'});
+  });
+  // Seul le mois actuel a des vraies données, les autres sont vides
+  const plansData  = Array(5).fill(0).concat([plansMois]);
+  const visiosData = Array(5).fill(0).concat([visiosMois * 55 / 24.9]);
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Plans (24,90€)', data: plansData, backgroundColor: 'rgba(29,158,117,.7)', borderRadius: 6 },
+        { label: 'Visios (55€)', data: visiosData, backgroundColor: 'rgba(93,202,165,.5)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family:'Outfit', size:11 } } } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, ticks: { font: { family:'Outfit', size:11 } } }
+      }
+    }
+  });
+}
+
+// ── SIMULATEUR ────────────────────────────────────────────────
+const SIM_COMMISSIONS = { 0:5, 9:2.5, 29:2, 59:1.5 };
+const SIM_QUOTAS      = { 0:0, 9:10, 29:30, 59:100 };
+
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+
+function setSimAbo(val, btn) {
+  document.getElementById('simAbo').value = val;
+  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSim();
+}
+
+function updateSim() {
+  const plans  = parseInt(document.getElementById('simPlans').value);
+  const visios = parseInt(document.getElementById('simVisios').value);
+  const abo    = parseInt(document.getElementById('simAbo').value);
+  document.getElementById('simPlansVal').textContent  = plans;
+  document.getElementById('simVisiosVal').textContent = visios;
+  const comm    = SIM_COMMISSIONS[abo];
+  const quota   = SIM_QUOTAS[abo];
+  const hq      = Math.max(0, plans - 1 - quota);
+  const commTotal = hq * comm + visios * 8;
+  const ca      = plans * 24.9 + visios * 55;
+  const net     = ca - commTotal - abo;
+  const heures  = (plans * 15 + visios * 45) / 60;
+  document.getElementById('simCa').textContent   = Math.round(ca) + ' €';
+  document.getElementById('simComm').textContent = Math.round(commTotal) + ' €';
+  document.getElementById('simNet').textContent  = Math.round(net) + ' €';
+  document.getElementById('simTaux').textContent = heures > 0 ? Math.round(net / heures) + ' €/h' : '—';
+  document.getElementById('simNote').textContent = `Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} €`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  chargerDonnees();
+  updateSim();
+});
+</script>
+
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
+</script>
+</body>
+</html>
