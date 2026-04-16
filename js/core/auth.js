@@ -1,444 +1,445 @@
-// ============================================================
-// auth.js — NutriDoc · Supabase Auth
-// Version: 1.2.0 — 2026-04-14
-// Corrections :
-//   - Clé anon Supabase correcte (JWT)
-//   - alertes_sante (nom colonne SQL)
-//   - inscrireDieteticien : email ajouté au profil
-//   - inscrirePrescripteur : siret, suppression certif/pack_initial
-//   - creditsMap aligné sur les nouveaux packs
-// ============================================================
+/**
+ * ═══════════════════════════════════════════════════════════════
+ *  NutriDoc — js/core/auth.js
+ *  Authentification & accès Supabase centralisé
+ *  Compatible : toutes les pages HTML NutriDoc
+ * ═══════════════════════════════════════════════════════════════
+ *
+ *  ✅ CONFIGURATION : clés Supabase déjà renseignées (projet phgjpwaptrrjonoimmne)
+ * ═══════════════════════════════════════════════════════════════
+ *
+ *  Fonctions exposées sur window :
+ *    _supa                   — client Supabase (toutes pages)
+ *    MODE_SUPA               — boolean : Supabase configuré ?
+ *    getProfile()            — profil de l'utilisateur connecté
+ *    connecter(email, pwd)   — connexion email/mot de passe
+ *    deconnecter()           — déconnexion + redirect index
+ *    reinitialiserMotDePasse(email) — reset password par email
+ *    inscrireDieteticien(payload)   — inscription diét. complet
+ *    inscrirePrescripteur(payload)  — inscription prescripteur
+ *    inscrirePatient(email, password, bilanData) — inscription patient
+ *    getSession()            — session courante
+ *    onAuthChange(callback)  — écoute changements d'auth
+ */
 
+/* ─────────────────────────────────────────────────────────────
+   0. CONFIGURATION — À MODIFIER AVEC TES CLÉS SUPABASE
+   ───────────────────────────────────────────────────────────── */
 const SUPABASE_URL      = 'https://phgjpwaptrrjonoimmne.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY';
 
-const _supa = window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+/* ─────────────────────────────────────────────────────────────
+   1. INITIALISATION DU CLIENT
+   ───────────────────────────────────────────────────────────── */
+let _supa     = null;
+let MODE_SUPA = false;
 
-// MODE_SUPA = true si la lib Supabase est chargée ET l'URL n'est pas un placeholder
-const MODE_SUPA = !!window.supabase && !SUPABASE_URL.includes('VOTRE-ID');
+(function initSupabase() {
+  try {
+    if (typeof supabase === 'undefined' || typeof supabase.createClient !== 'function') {
+      console.error('[NutriDoc auth.js] Librairie @supabase/supabase-js non chargée.');
+      return;
+    }
 
-// ── Helpers session ──────────────────────────────────────────
+    _supa     = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    MODE_SUPA = true;
+    console.info('[NutriDoc auth.js] ✅ Supabase initialisé.');
+  } catch (err) {
+    console.error('[NutriDoc auth.js] Erreur initialisation :', err);
+  }
+})();
+
+// Exposer globalement pour toutes les pages
+window._supa     = _supa;
+window.MODE_SUPA = MODE_SUPA;
+
+/* ─────────────────────────────────────────────────────────────
+   2. SESSION & PROFIL
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Retourne la session Supabase courante, ou null.
+ */
 async function getSession() {
   if (!_supa) return null;
-  const { data } = await _supa.auth.getSession();
-  return data?.session ?? null;
-}
-
-async function getUser() {
-  const session = await getSession();
-  return session?.user ?? null;
-}
-
-async function getProfile() {
-  const user = await getUser();
-  if (!user) return null;
-  const { data } = await _supa
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-  return data;
-}
-
-// getCurrentUser : utilisé par stripe.js et les dashboards
-async function getCurrentUser() {
-  if (MODE_SUPA && _supa) {
-    try {
-      const { data: { user } } = await _supa.auth.getUser();
-      if (user) {
-        const { data: profile } = await _supa
-          .from('profiles').select('*').eq('id', user.id).single();
-        return {
-          id: user.id,
-          email: user.email,
-          prenom: profile?.prenom || '',
-          nom: profile?.nom || '',
-          role: profile?.role || 'patient',
-          ...profile
-        };
-      }
-    } catch(e) { console.warn('getCurrentUser Supabase:', e); }
-  }
-
-  // Fallback localStorage (mode démo / local)
   try {
-    const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-    if (bilan.email && bilan.prenom) {
-      return { id: bilan.id || 'local_' + Date.now(), email: bilan.email,
-        prenom: bilan.prenom, nom: bilan.nom || '', role: 'patient',
-        niveau_abo: bilan.niveau_abo || 'gratuit' };
-    }
-    const presc = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
-    if (presc.email && presc.prenom) {
-      return { id: presc.id || 'local_' + Date.now(), email: presc.email,
-        prenom: presc.prenom, nom: presc.nom || '', role: 'prescriber',
-        credits: presc.credits || 0 };
-    }
-    const diet = JSON.parse(localStorage.getItem('nutridoc_dieteticien') || '{}');
-    if (diet.email && diet.prenom) {
-      return { id: diet.id || 'local_' + Date.now(), email: diet.email,
-        prenom: diet.prenom, nom: diet.nom || '', role: 'dietitian',
-        rpps: diet.rpps || '' };
-    }
-  } catch(e) { console.warn('getCurrentUser localStorage:', e); }
-
-  return null;
-}
-
-// ── Redirection auto selon rôle ──────────────────────────────
-const ROLE_REDIRECT = {
-  patient:    'dashboard.html',
-  dietitian:  'dietitian.html',
-  prescriber: 'prescripteur-dashboard.html'
-};
-
-async function redirectSiConnecte() {
-  const profile = await getProfile();
-  if (profile) window.location.href = ROLE_REDIRECT[profile.role] || 'index.html';
-}
-
-async function requireAuth(roleAttendu) {
-  const profile = await getProfile();
-  if (!profile) { window.location.href = 'login.html'; return null; }
-  if (roleAttendu && profile.role !== roleAttendu) {
-    window.location.href = ROLE_REDIRECT[profile.role] || 'index.html';
+    const { data } = await _supa.auth.getSession();
+    return data?.session || null;
+  } catch {
     return null;
   }
-  return profile;
 }
 
-// ── Déconnexion ──────────────────────────────────────────────
+/**
+ * Retourne le profil complet de l'utilisateur connecté (table `profiles`).
+ * Retourne null si non connecté ou si une erreur survient.
+ */
+async function getProfile() {
+  if (!_supa) return null;
+  try {
+    const { data: { user } } = await _supa.auth.getUser();
+    if (!user) return null;
+
+    const { data: profile, error } = await _supa
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.warn('[getProfile]', error.message);
+      return null;
+    }
+    return profile;
+  } catch (err) {
+    console.error('[getProfile]', err);
+    return null;
+  }
+}
+
+/**
+ * S'abonne aux changements d'authentification.
+ * callback(event, session) sera appelé à chaque changement.
+ */
+function onAuthChange(callback) {
+  if (!_supa) return;
+  _supa.auth.onAuthStateChange(callback);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. CONNEXION / DÉCONNEXION
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Connecte un utilisateur avec email + mot de passe.
+ * Retourne { data, error }.
+ * Redirige vers la bonne page selon le rôle si succès.
+ */
+async function connecter(email, password, redirectUrl = null) {
+  if (!_supa) return { data: null, error: { message: 'Supabase non configuré' } };
+
+  const { data, error } = await _supa.auth.signInWithPassword({ email, password });
+  if (error) return { data, error };
+
+  // Si une redirection forcée est demandée
+  if (redirectUrl) {
+    window.location.href = redirectUrl;
+    return { data, error: null };
+  }
+
+  // Redirection selon le rôle
+  try {
+    const profile = await getProfile();
+    if (profile) {
+      const redirects = {
+        patient:    'dashboard.html',
+        dietitian:  'dietitian.html',
+        prescriber: 'prescripteur-dashboard.html',
+        admin:      'admin.html',
+      };
+      const dest = redirects[profile.role] || 'dashboard.html';
+      window.location.href = dest;
+    }
+  } catch {
+    window.location.href = 'dashboard.html';
+  }
+
+  return { data, error: null };
+}
+
+/**
+ * Déconnecte l'utilisateur courant et redirige vers l'accueil.
+ */
 async function deconnecter() {
   if (_supa) await _supa.auth.signOut();
+  localStorage.removeItem('nutridoc_profil');
   localStorage.removeItem('nutridoc_bilan');
-  localStorage.removeItem('nutridoc_dieteticien');
-  localStorage.removeItem('nutridoc_prescripteur');
-  localStorage.removeItem('nutridoc_current_user');
+  localStorage.removeItem('nutridoc_user_email');
+  localStorage.removeItem('nutridoc_user_prenom');
   window.location.href = 'index.html';
 }
 
-// ── Réinitialisation mot de passe ────────────────────────────
+/**
+ * Envoie un email de réinitialisation de mot de passe.
+ * Retourne { error }.
+ */
 async function reinitialiserMotDePasse(email) {
-  if (!MODE_SUPA || !_supa) return { error: { message: 'Supabase non disponible' } };
-  return _supa.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '/login.html?reset=true'
+  if (!_supa) return { error: { message: 'Supabase non configuré' } };
+  const { error } = await _supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/login.html?reset=1',
   });
+  return { error };
 }
 
-// ── Inscription patient ──────────────────────────────────────
-async function inscrirePatient({ email, password, prenom, age, poids, taille,
-  objectif, activite, regime, alerte_santes }) {
+/* ─────────────────────────────────────────────────────────────
+   4. INSCRIPTION PATIENT (via bilan.html)
+   ───────────────────────────────────────────────────────────── */
 
-  if (!MODE_SUPA || !_supa) {
-    // Mode démo local
-    const patient = {
-      id: 'p_' + Date.now(), email, prenom, age, poids, taille,
-      objectif, activite, regime,
-      alertes_sante: alerte_santes || [],   // ← nom colonne SQL correct
-      statut: alerte_santes?.length > 0 ? 'alerte_sante' : 'en_attente',
-      niveau_abo: 'gratuit',
-      created_at: new Date().toISOString()
-    };
-    localStorage.setItem('nutridoc_bilan', JSON.stringify(patient));
-    localStorage.setItem('nutridoc_current_user', JSON.stringify({ ...patient, role: 'patient' }));
-    if (alerte_santes?.length > 0) {
-      const alertes = JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]');
-      alertes.push({ id: 'a_' + Date.now(), type: 'alerte_sante', patient: prenom,
-        patient_id: patient.id, flags: alerte_santes, lu: false,
-        created_at: new Date().toISOString() });
-      localStorage.setItem('nutridoc_alertes', JSON.stringify(alertes));
-    }
-    window.location.href = 'dashboard.html';
-    return { data: { user: patient } };
-  }
+/**
+ * Inscrit un patient :
+ *  1. auth.signUp
+ *  2. Insert dans `profiles` (role: 'patient')
+ *  3. Insert dans `bilans`
+ *
+ * @param {string} email
+ * @param {string} password
+ * @param {object} bilanData  — données du formulaire bilan
+ * @returns {{ userId, error }}
+ */
+async function inscrirePatient(email, password, bilanData = {}) {
+  if (!_supa) return { userId: null, error: { message: 'Supabase non configuré' } };
 
-  const { data, error } = await _supa.auth.signUp({
-    email, password,
-    options: { data: { role: 'patient', prenom } }
-  });
-  if (error) return { error };
-
-  const userId = data.user.id;
-
-  // Créer le profil
-  await _supa.from('profiles').upsert({
-    id: userId, role: 'patient', email, prenom,
-    created_at: new Date().toISOString()
+  // 1. Créer le compte Auth
+  const { data: authData, error: authError } = await _supa.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.origin + '/dashboard.html',
+      data: {
+        prenom: bilanData.prenom || '',
+        nom:    bilanData.nom    || '',
+        role:   'patient',
+      },
+    },
   });
 
-  // Créer le bilan
-  const { error: bilanErr } = await _supa.from('bilans').insert({
-    patient_id: userId,
-    prenom, age, poids, taille, objectif, activite, regime,
-    alertes_sante: alerte_santes || [],   // ← nom colonne SQL correct
-    statut: alerte_santes?.length > 0 ? 'alerte_sante' : 'en_attente',
-  });
-  if (bilanErr) return { error: bilanErr };
+  if (authError) return { userId: null, error: authError };
+  const userId = authData.user?.id;
+  if (!userId) return { userId: null, error: { message: 'Identifiant utilisateur manquant' } };
 
-  if (alerte_santes?.length > 0) {
-    await _supa.from('alertes').insert({
-      type: 'alerte_sante', patient_id: userId,
-      patient_prenom: prenom, flags: alerte_santes, lu: false,
-    });
-  }
-
-  return { data };
-}
-
-// ── Inscription diététicien ──────────────────────────────────
-async function inscrireDieteticien({ email, password, prenom, nom, tel,
-  siteWeb, cabinet, rpps, specialite, adeli, formule }) {
-
-  if (!MODE_SUPA || !_supa) {
-    const diet = {
-      id: 'd_' + Date.now(), email, prenom, nom, tel,
-      site_web: siteWeb, cabinet, rpps, specialite, adeli, formule,
-      statut_rpps: 'en_attente', created_at: new Date().toISOString()
-    };
-    localStorage.setItem('nutridoc_dieteticien', JSON.stringify(diet));
-    localStorage.setItem('nutridoc_current_user', JSON.stringify({ ...diet, role: 'dietitian' }));
-    window.location.href = 'dietitian.html';
-    return { data: { user: diet } };
-  }
-
-  const { data, error } = await _supa.auth.signUp({
-    email, password,
-    options: { data: { role: 'dietitian', prenom, nom } }
-  });
-  if (error) return { error };
-
-  const { error: profErr } = await _supa.from('profiles').upsert({
-    id: data.user.id,
-    role: 'dietitian',
-    email,          // ← ajouté
-    prenom, nom, tel,
-    site_web: siteWeb,
-    cabinet, rpps, specialite, adeli,
-    formule: formule || 'essentiel',
-    statut_rpps: 'en_attente',
-  });
-  if (profErr) return { error: profErr };
-
-  return { data };
-}
-
-// ── Inscription prescripteur ─────────────────────────────────
-async function inscrirePrescripteur({ email, password, prenom, nom,
-  profession, tel, site, cabinet, siret, objectifs, pack }) {
-
-  // Crédits selon le pack sélectionné
-  // Clés nouvelles (credits_solo…) ET anciennes ('10','20','50') pour compatibilité
-  const creditsMap = {
-    'credits_solo':     1,   'solo':     1,  '1':   1,
-    'credits_standard': 10,  'standard': 10, '10':  10,
-    'credits_expert':   50,  'expert':   50, '50':  50,
-    'credits_volume':   100, 'volume':   100,'100': 100,
-  };
-  const credits = creditsMap[pack] ?? 10;
-
-  if (!MODE_SUPA || !_supa) {
-    const presc = {
-      id: 'pr_' + Date.now(), email, prenom, nom, profession, tel,
-      site_web: site, cabinet, siret,
-      objectifs_autorises: objectifs, credits,
-      statut: 'actif', created_at: new Date().toISOString()
-    };
-    localStorage.setItem('nutridoc_prescripteur', JSON.stringify(presc));
-    localStorage.setItem('nutridoc_current_user', JSON.stringify({ ...presc, role: 'prescriber' }));
-    window.location.href = 'prescripteur-dashboard.html';
-    return { data: { user: presc } };
-  }
-
-  const { data, error } = await _supa.auth.signUp({
-    email, password,
-    options: { data: { role: 'prescriber', prenom, nom } }
-  });
-  if (error) return { error };
-
-  const { error: profErr } = await _supa.from('profiles').upsert({
-    id: data.user.id,
-    role: 'prescriber',
-    email,          // ← ajouté
-    prenom, nom, profession, tel,
-    site_web: site,
-    cabinet,
-    siret,          // ← ajouté (remplace certif)
-    objectifs_autorises: objectifs,
-    credits,
+  // 2. Créer le profil
+  const { error: profileError } = await _supa.from('profiles').upsert({
+    id:     userId,
+    role:   'patient',
+    prenom: bilanData.prenom || '',
+    nom:    bilanData.nom    || '',
+    email,
+    ville:  bilanData.ville  || '',
     statut: 'actif',
-    // certif et pack_initial supprimés (colonnes absentes du schéma)
-  });
-  if (profErr) return { error: profErr };
+  }, { onConflict: 'id' });
 
-  return { data };
+  if (profileError) console.warn('[inscrirePatient] profil:', profileError.message);
+
+  // 3. Enregistrer le bilan
+  const { error: bilanError } = await _supa.from('bilans').insert({
+    patient_id:     userId,
+    prenom:         bilanData.prenom         || '',
+    nom:            bilanData.nom            || '',
+    age:            bilanData.age            || null,
+    sexe:           bilanData.sexe           || '',
+    ville:          bilanData.ville          || '',
+    taille:         bilanData.taille         || null,
+    poids:          bilanData.poids          || null,
+    poids_objectif: bilanData.poids_objectif || null,
+    objectif:       bilanData.objectif       || '',
+    activite:       bilanData.activite       || '',
+    regime:         bilanData.regime         || '',
+    allergies:      bilanData.allergies      || '',
+    alertes_sante:  bilanData.alertes_sante  || [],
+    statut:         'en_attente',
+    paiement:       'gratuit',
+  });
+
+  if (bilanError) console.warn('[inscrirePatient] bilan:', bilanError.message);
+
+  return { userId, error: null };
 }
 
-// ── Connexion universelle ────────────────────────────────────
-async function connecter(email, password) {
-  if (!MODE_SUPA || !_supa) {
-    const bilan = JSON.parse(localStorage.getItem('nutridoc_bilan') || '{}');
-    const diet  = JSON.parse(localStorage.getItem('nutridoc_dieteticien') || '{}');
-    const presc = JSON.parse(localStorage.getItem('nutridoc_prescripteur') || '{}');
-    if (bilan.email === email) { window.location.href = 'dashboard.html'; return { data: { user: bilan } }; }
-    if (diet.email  === email) { window.location.href = 'dietitian.html'; return { data: { user: diet } }; }
-    if (presc.email === email) { window.location.href = 'prescripteur-dashboard.html'; return { data: { user: presc } }; }
-    return { error: { message: 'Email ou mot de passe incorrect' } };
+/* ─────────────────────────────────────────────────────────────
+   5. INSCRIPTION DIÉTÉTICIEN
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Inscrit un diététicien :
+ *  1. auth.signUp
+ *  2. Insert dans `profiles` (role: 'dietitian')
+ *
+ * @param {object} payload  — données de inscription-dieteticien.html
+ * @returns {{ data, error }}
+ */
+async function inscrireDieteticien(payload) {
+  if (!_supa) return { data: null, error: { message: 'Supabase non configuré' } };
+
+  const { data: authData, error: authError } = await _supa.auth.signUp({
+    email:    payload.email,
+    password: payload.password,
+    options: {
+      emailRedirectTo: window.location.origin + '/dietitian.html',
+      data: {
+        prenom: payload.prenom,
+        nom:    payload.nom,
+        role:   'dietitian',
+      },
+    },
+  });
+
+  if (authError) return { data: null, error: authError };
+  const userId = authData.user?.id;
+  if (!userId) return { data: null, error: { message: 'Identifiant manquant après inscription' } };
+
+  // Générer un code parrainage unique
+  const codeParrainage = 'DIET-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+  const { error: profileError } = await _supa.from('profiles').upsert({
+    id:              userId,
+    role:            'dietitian',
+    prenom:          payload.prenom    || '',
+    nom:             payload.nom       || '',
+    email:           payload.email,
+    tel:             payload.tel       || '',
+    site_web:        payload.siteWeb   || '',
+    cabinet:         payload.cabinet   || '',
+    rpps:            payload.rpps      || '',
+    specialite:      payload.specialite|| '',
+    adeli:           payload.adeli     || '',
+    formule:         payload.formule   || 'essentiel',
+    statut_rpps:     'en_attente',
+    code_parrainage: codeParrainage,
+    statut:          'actif',
+  }, { onConflict: 'id' });
+
+  if (profileError) console.warn('[inscrireDieteticien] profil:', profileError.message);
+
+  return { data: { userId }, error: null };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. INSCRIPTION PRESCRIPTEUR
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Inscrit un prescripteur :
+ *  1. auth.signUp
+ *  2. Insert dans `profiles` (role: 'prescriber')
+ *
+ * @param {object} payload  — données de inscription-prescripteur.html
+ * @returns {{ data, error }}
+ */
+async function inscrirePrescripteur(payload) {
+  if (!_supa) return { data: null, error: { message: 'Supabase non configuré' } };
+
+  const { data: authData, error: authError } = await _supa.auth.signUp({
+    email:    payload.email,
+    password: payload.password,
+    options: {
+      emailRedirectTo: window.location.origin + '/prescripteur-dashboard.html',
+      data: {
+        prenom: payload.prenom,
+        nom:    payload.nom,
+        role:   'prescriber',
+      },
+    },
+  });
+
+  if (authError) return { data: null, error: authError };
+  const userId = authData.user?.id;
+  if (!userId) return { data: null, error: { message: 'Identifiant manquant après inscription' } };
+
+  // Crédits initiaux selon le pack choisi
+  const creditsInitiaux = {
+    solo:     1,
+    standard: 10,
+    expert:   50,
+    volume:   100,
+  };
+  const credits = creditsInitiaux[payload.pack] || 0;
+
+  const { error: profileError } = await _supa.from('profiles').upsert({
+    id:            userId,
+    role:          'prescriber',
+    prenom:        payload.prenom     || '',
+    nom:           payload.nom        || '',
+    email:         payload.email,
+    tel:           payload.tel        || '',
+    site_web:      payload.siteWeb    || '',
+    cabinet:       payload.cabinet    || '',
+    siret:         payload.siret      || '',
+    profession:    payload.profession || '',
+    ville:         payload.ville      || '',
+    pack:          payload.pack       || '',
+    credits:       credits,
+    credits_total: credits,
+    statut:        'actif',
+  }, { onConflict: 'id' });
+
+  if (profileError) console.warn('[inscrirePrescripteur] profil:', profileError.message);
+
+  return { data: { userId }, error: null };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. PROTECTION DES PAGES PRIVÉES
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Vérifie que l'utilisateur est connecté avec le bon rôle.
+ * À appeler en haut des pages protégées.
+ *
+ * @param {string|string[]} rolesAutorises  Ex: 'dietitian' ou ['patient','dietitian']
+ * @param {string} redirectUrl             Page de redirection si non autorisé
+ */
+async function protegerPage(rolesAutorises = null, redirectUrl = 'login.html') {
+  if (!_supa) return;
+
+  const { data: { user } } = await _supa.auth.getUser();
+  if (!user) {
+    window.location.href = redirectUrl;
+    return;
   }
 
-  const { data, error } = await _supa.auth.signInWithPassword({ email, password });
-  if (error) return { error };
-
-  const { data: profile } = await _supa
-    .from('profiles').select('role').eq('id', data.user.id).single();
-
-  window.location.href = ROLE_REDIRECT[profile?.role] || 'index.html';
-  return { data };
+  if (rolesAutorises) {
+    const roles = Array.isArray(rolesAutorises) ? rolesAutorises : [rolesAutorises];
+    const profile = await getProfile();
+    if (!profile || !roles.includes(profile.role)) {
+      window.location.href = redirectUrl;
+    }
+  }
 }
 
-// ── BILANS ───────────────────────────────────────────────────
-async function getBilan() {
-  const user = await getUser();
-  if (!user) return JSON.parse(localStorage.getItem('nutridoc_bilan') || 'null');
-  const { data } = await _supa.from('bilans')
-    .select('*').eq('patient_id', user.id)
-    .order('created_at', { ascending: false }).limit(1).single();
-  return data;
-}
+/* ─────────────────────────────────────────────────────────────
+   8. MISE À JOUR DU HEADER (nom + bouton déconnexion)
+   ───────────────────────────────────────────────────────────── */
 
-async function updateBilanStatut(patientId, statut) {
-  return _supa.from('bilans').update({ statut }).eq('patient_id', patientId);
-}
+/**
+ * Remplit le badge utilisateur dans le header (#navUser, #navUserName)
+ * et affiche le bouton de déconnexion si connecté.
+ * À appeler après DOMContentLoaded sur les pages app.
+ */
+async function initHeader() {
+  const badgeEl = document.getElementById('navUser') || document.getElementById('navUserName');
+  if (!badgeEl) return;
 
-// ── PLANS ────────────────────────────────────────────────────
-async function getPlan() {
-  const user = await getUser();
-  if (!user) return null;
-  const { data } = await _supa.from('plans')
-    .select('*').eq('patient_id', user.id)
-    .order('created_at', { ascending: false }).limit(1).single();
-  return data;
-}
-
-async function sauvegarderPlan(patientId, planData, dietitianId) {
-  return _supa.from('plans').upsert({
-    patient_id: patientId, dietitian_id: dietitianId,
-    contenu: planData, statut: 'valide',
-    valide_at: new Date().toISOString()
-  });
-}
-
-async function confirmerPaiementPlan(patientId) {
-  return _supa.from('bilans')
-    .update({ paiement: 'confirme', statut: 'attente_validation' })
-    .eq('patient_id', patientId);
-}
-
-// ── DIÉTÉ — dossiers ─────────────────────────────────────────
-async function getDossiersDietitian() {
-  return _supa.from('bilans')
-    .select('*, profiles(prenom, nom, poids, taille, age)')
-    .in('statut', ['en_attente', 'attente_validation'])
-    .order('created_at', { ascending: true });
-}
-
-async function getAlertesRedFlag() {
-  const user = await getUser();
-  if (!user) return JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]');
-  const { data } = await _supa.from('alertes')
-    .select('*').eq('lu', false).order('created_at', { ascending: false });
-  return data || [];
-}
-
-async function marquerAlertesLues() {
-  return _supa.from('alertes').update({ lu: true }).eq('lu', false);
-}
-
-// ── PRESCRIPTEUR — clients CRM ───────────────────────────────
-async function getClients() {
-  const user = await getUser();
-  if (!user) return JSON.parse(localStorage.getItem('nutridoc_crm_clients') || '[]');
-  const { data } = await _supa.from('clients_prescripteur')
-    .select('*').eq('prescripteur_id', user.id)
-    .order('created_at', { ascending: false });
-  return data || [];
-}
-
-async function creerClient(clientData) {
-  const user = await getUser();
-  if (!user) return { error: 'Non connecté' };
-  return _supa.from('clients_prescripteur').insert({ ...clientData, prescripteur_id: user.id });
-}
-
-async function updateClient(clientId, updates) {
-  return _supa.from('clients_prescripteur').update(updates).eq('id', clientId);
-}
-
-async function ajouterMesurePoids(clientId, poids) {
-  const { data: client } = await _supa.from('clients_prescripteur')
-    .select('mesures').eq('id', clientId).single();
-  const mesures = [...(client?.mesures || []), { date: new Date().toISOString(), poids }];
-  return _supa.from('clients_prescripteur').update({ mesures }).eq('id', clientId);
-}
-
-async function demanderPlanClient(clientId, objectif, notes) {
-  const user    = await getUser();
   const profile = await getProfile();
-  if (!user || !profile) return { error: 'Non connecté' };
-  if ((profile.credits || 0) <= 0) return { error: 'Plus de crédits disponibles' };
+  if (!profile) {
+    badgeEl.textContent = 'Non connecté';
+    return;
+  }
 
-  await _supa.from('profiles').update({ credits: profile.credits - 1 }).eq('id', user.id);
+  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+  badgeEl.textContent = nom;
 
-  return _supa.from('demandes_plans').insert({
-    client_id: clientId, prescripteur_id: user.id,
-    objectif, notes, statut: 'en_attente',
-  });
+  // Afficher le rôle en badge si présent
+  const roleBadge = document.getElementById('navUserRole');
+  if (roleBadge) {
+    const labels = { patient:'Patient', dietitian:'Diététicien', prescriber:'Prescripteur', admin:'Admin' };
+    roleBadge.textContent = labels[profile.role] || profile.role;
+  }
 }
 
-async function rechargerCredits(nbCredits) {
-  const user    = await getUser();
-  const profile = await getProfile();
-  if (!user) return;
-  return _supa.from('profiles')
-    .update({ credits: (profile?.credits || 0) + nbCredits })
-    .eq('id', user.id);
-}
-
-// ── Fallback localStorage (dev sans Supabase) ────────────────
-const LS = {
-  getBilan:    () => JSON.parse(localStorage.getItem('nutridoc_bilan') || 'null'),
-  saveBilan:   (d) => localStorage.setItem('nutridoc_bilan', JSON.stringify(d)),
-  getProfile:  () => JSON.parse(localStorage.getItem('nutridoc_dieteticien') || 'null'),
-  getPresc:    () => JSON.parse(localStorage.getItem('nutridoc_prescripteur') || 'null'),
-  getClients:  () => JSON.parse(localStorage.getItem('nutridoc_crm_clients') || '[]'),
-  saveClients: (d) => localStorage.setItem('nutridoc_crm_clients', JSON.stringify(d)),
-  getAlertes:  () => JSON.parse(localStorage.getItem('nutridoc_alertes') || '[]'),
-};
-
-// ── Exports globaux ──────────────────────────────────────────
-window._supa                  = _supa;
-window.MODE_SUPA              = MODE_SUPA;
-window.getUser                = getUser;
-window.getProfile             = getProfile;
-window.getCurrentUser         = getCurrentUser;
-window.deconnecter            = deconnecter;
-window.connecter              = connecter;
+/* ─────────────────────────────────────────────────────────────
+   9. EXPOSITIONS GLOBALES
+   ───────────────────────────────────────────────────────────── */
+window.getProfile              = getProfile;
+window.getSession              = getSession;
+window.onAuthChange            = onAuthChange;
+window.connecter               = connecter;
+window.deconnecter             = deconnecter;
 window.reinitialiserMotDePasse = reinitialiserMotDePasse;
-window.inscrirePatient        = inscrirePatient;
-window.inscrireDieteticien    = inscrireDieteticien;
-window.inscrirePrescripteur   = inscrirePrescripteur;
-window.getBilan               = getBilan;
-window.getPlan                = getPlan;
-window.getDossiersDietitian   = getDossiersDietitian;
-window.getAlertesRedFlag      = getAlertesRedFlag;
-window.marquerAlertesLues     = marquerAlertesLues;
-window.getClients             = getClients;
-window.rechargerCredits       = rechargerCredits;
-window.creerClient            = creerClient;
-window.updateClient           = updateClient;
-window.ajouterMesurePoids     = ajouterMesurePoids;
-window.demanderPlanClient     = demanderPlanClient;
-window.LS                     = LS;
+window.inscrirePatient         = inscrirePatient;
+window.inscrireDieteticien     = inscrireDieteticien;
+window.inscrirePrescripteur    = inscrirePrescripteur;
+window.protegerPage            = protegerPage;
+window.initHeader              = initHeader;
 
-console.log('[auth.js] v1.2.0 — MODE_SUPA:', MODE_SUPA);
+// Compatibilité avec les pages qui vérifient window.supabaseClient
+window.supabaseClient = _supa;

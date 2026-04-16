@@ -1292,39 +1292,153 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // Validation finale de l'étape 5 (et 4 au cas où)
+  // ── Validation finale ───────────────────────────────────────
   if (!validateStep(4)) { goToStep(4); return; }
   if (!validateStep(5)) return;
 
   const anyChecked = document.querySelectorAll('#redFlagList input[type="checkbox"]:checked').length > 0;
   if (!anyChecked) { goToStep(4); return; }
-  
-  const formData = new FormData(e.target);
-  const bilanData = {};
-  formData.forEach((value, key) => { bilanData[key] = value; });
-  
-  const redFlags = Array.from(document.querySelectorAll('input[name="alerte_sante"]:checked')).map(cb => cb.value);
+
+  // ── Récupération des données du formulaire ──────────────────
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  const redFlags = Array.from(
+    document.querySelectorAll('input[name="alerte_sante"]:checked')
+  ).map(cb => cb.value).filter(v => v); // exclude "aucun" qui n'a pas de value
+
   const hasRedFlags = redFlags.length > 0 && !document.getElementById('redFlagAucun')?.checked;
-  bilanData.redFlags = redFlags;
-  bilanData.email = email;
-  
-  localStorage.setItem('nutridoc_bilan', JSON.stringify(bilanData));
+
+  const bilanData = {
+    prenom:        document.querySelector('[name="prenom"]')?.value?.trim() || '',
+    nom:           document.querySelector('[name="nom"]')?.value?.trim() || '',
+    age:           parseInt(document.querySelector('[name="age"]')?.value) || null,
+    sexe:          document.querySelector('[name="sexe"]')?.value || '',
+    ville:         document.querySelector('[name="ville"]')?.value?.trim() || '',
+    taille:        parseFloat(document.querySelector('[name="taille"]')?.value) || null,
+    poids:         parseFloat(document.querySelector('[name="poids"]')?.value) || null,
+    poids_objectif:parseFloat(document.querySelector('[name="poids_objectif"]')?.value) || null,
+    activite:      document.querySelector('[name="activite"]')?.value || '',
+    objectif:      document.querySelector('[name="objectif"]')?.value || '',
+    regime:        document.querySelector('[name="regime"]')?.value || '',
+    allergies:     document.querySelector('[name="allergies"]')?.value?.trim() || '',
+    alertes_sante: redFlags,
+  };
+
+  // ── Sauvegarde locale (fallback) ────────────────────────────
+  localStorage.setItem('nutridoc_bilan', JSON.stringify({ ...bilanData, email }));
   localStorage.setItem('nutridoc_user_email', email);
   localStorage.setItem('nutridoc_user_prenom', bilanData.prenom);
-  
-  // Nettoyer le brouillon après soumission
-  if (typeof clearCurrentDraft === 'function') {
-    clearCurrentDraft('bilanForm');
-  }
-  
-  if (hasRedFlags) {
-    const displayDiv = document.getElementById('redFlagDisplay');
-    displayDiv.innerHTML = redFlags.map(f => `<span class="alerte_sante-tag">${f}</span>`).join('');
+
+  // ── Bouton : état chargement ────────────────────────────────
+  const btn = document.querySelector('.btn-submit');
+  const btnOriginalText = btn?.textContent || 'Accéder à mon compte →';
+  if (btn) { btn.textContent = 'Création du compte…'; btn.disabled = true; }
+
+  const errEl = document.getElementById('stepError5');
+  if (errEl) errEl.classList.add('hidden');
+
+  // ── Supabase : inscription + enregistrement ─────────────────
+  try {
+    if (typeof _supa === 'undefined') throw new Error('Client Supabase non initialisé');
+
+    // 1. Créer le compte Auth
+    const { data: authData, error: authError } = await _supa.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin + '/dashboard.html',
+        data: {
+          prenom: bilanData.prenom,
+          nom:    bilanData.nom,
+          role:   'patient',
+        }
+      }
+    });
+
+    if (authError) {
+      const msg = authError.message === 'User already registered'
+        ? 'Un compte existe déjà avec cet email. Connectez-vous depuis la page d\'accueil.'
+        : (authError.message || 'Erreur lors de la création du compte.');
+      if (errEl) { errEl.textContent = '⚠️ ' + msg; errEl.classList.remove('hidden'); }
+      if (btn) { btn.textContent = btnOriginalText; btn.disabled = false; }
+      return;
+    }
+
+    const userId = authData.user?.id;
+    if (!userId) throw new Error('Identifiant utilisateur manquant après inscription');
+
+    // 2. Créer le profil dans `profiles`
+    const { error: profileError } = await _supa.from('profiles').upsert({
+      id:     userId,
+      role:   'patient',
+      prenom: bilanData.prenom,
+      nom:    bilanData.nom,
+      email,
+      ville:  bilanData.ville,
+      statut: 'actif',
+    }, { onConflict: 'id' });
+
+    if (profileError) console.warn('Profil:', profileError.message);
+
+    // 3. Enregistrer le bilan dans `bilans`
+    const { error: bilanError } = await _supa.from('bilans').insert({
+      patient_id:    userId,
+      prenom:        bilanData.prenom,
+      nom:           bilanData.nom,
+      age:           bilanData.age,
+      sexe:          bilanData.sexe,
+      ville:         bilanData.ville,
+      taille:        bilanData.taille,
+      poids:         bilanData.poids,
+      poids_objectif:bilanData.poids_objectif,
+      objectif:      bilanData.objectif,
+      activite:      bilanData.activite,
+      regime:        bilanData.regime,
+      allergies:     bilanData.allergies,
+      alertes_sante: bilanData.alertes_sante,
+      statut:        'en_attente',
+      paiement:      'gratuit',
+    });
+
+    if (bilanError) console.warn('Bilan:', bilanError.message);
+
+    // 4. Nettoyer le brouillon
+    if (typeof clearCurrentDraft === 'function') clearCurrentDraft('bilanForm');
+
+    // 5. Afficher l'écran de résultat
     document.getElementById('bilanForm').style.display = 'none';
-    document.getElementById('resultat-alerte_sante').classList.remove('hidden');
-  } else {
-    document.getElementById('bilanForm').style.display = 'none';
-    document.getElementById('resultat').classList.remove('hidden');
+
+    if (hasRedFlags) {
+      const displayDiv = document.getElementById('redFlagDisplay');
+      if (displayDiv) {
+        displayDiv.innerHTML = redFlags.map(f => `<span class="alerte_sante-tag">${f}</span>`).join('');
+      }
+      document.getElementById('resultat-alerte_sante')?.classList.remove('hidden');
+    } else {
+      document.getElementById('resultat')?.classList.remove('hidden');
+    }
+
+  } catch (err) {
+    console.error('Erreur inscription patient:', err);
+
+    // Fallback : si Supabase non configuré, afficher quand même le résultat
+    if (err.message === 'Client Supabase non initialisé') {
+      console.warn('Mode sans Supabase — affichage résultat local uniquement');
+      document.getElementById('bilanForm').style.display = 'none';
+      if (hasRedFlags) {
+        const displayDiv = document.getElementById('redFlagDisplay');
+        if (displayDiv) displayDiv.innerHTML = redFlags.map(f => `<span class="alerte_sante-tag">${f}</span>`).join('');
+        document.getElementById('resultat-alerte_sante')?.classList.remove('hidden');
+      } else {
+        document.getElementById('resultat')?.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const msg = err.message || 'Une erreur est survenue. Veuillez réessayer.';
+    if (errEl) { errEl.textContent = '⚠️ ' + msg; errEl.classList.remove('hidden'); }
+    if (btn) { btn.textContent = btnOriginalText; btn.disabled = false; }
   }
 });
 
