@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="description" content="Dossier patient — NutriDoc"/>
+  <meta name="robots" content="noindex"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
+  <title>Dossier patient — NutriDoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/dark-mode.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script defer src="js/core/auth.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);line-height:1.5}
+:root{--green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--dark:#0d2018;--bg-primary:#fff;--bg-secondary:#f7f9f7;--bg-card:#fff;--text-primary:#0d2018;--text-secondary:#4b5563;--border-color:#e5e7eb;--radius:14px}
+[data-theme="dark"]{--bg-primary:#0a0f0d;--bg-secondary:#111816;--bg-card:#141c19;--text-primary:#e5e7eb;--text-secondary:#9ca3af;--border-color:#2a3430}
+
+/* ── HEADER ── */
+.nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem}
+.header-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.header-left{display:flex;align-items:center;gap:2rem}
+.nd-logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;text-decoration:none}
+.nd-logo em{font-style:italic;color:#5DCAA5}
+.nd-nav{display:flex;gap:1.5rem}
+.nd-navlink{font-size:.8rem;color:rgba(255,255,255,.65);text-decoration:none;transition:color .2s}
+.nd-navlink:hover,.nd-navlink.active{color:#fff}
+.header-actions{display:flex;align-items:center;gap:1rem}
+.nd-btn-ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.4rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;text-decoration:none}
+.nd-btn-ghost:hover{background:rgba(255,255,255,.16)}
+.nd-conn-wrap{position:relative}
+.nd-conn-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#0d2018;border:1px solid rgba(29,158,117,.2);border-radius:12px;width:180px;z-index:101;overflow:hidden}
+.nd-conn-menu.open{display:block}
+.nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;transition:.15s}
+.nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff}
+
+/* GRÉGOIRE */
+.gregoire-mini{position:relative;display:flex;align-items:center;gap:.5rem;background:rgba(29,158,117,.1);padding:.25rem .8rem;border-radius:999px;border:1px solid rgba(29,158,117,.2);cursor:help}
+.gregoire-mini:hover .tooltip-text{visibility:visible;opacity:1}
+.tooltip-text{visibility:hidden;opacity:0;width:280px;background:#0d2018;color:#5DCAA5;text-align:center;border-radius:10px;padding:.6rem .8rem;position:absolute;z-index:1000;top:100%;left:50%;transform:translateX(-50%);margin-top:10px;font-size:.7rem;line-height:1.8;border:1px solid #1D9E75;transition:opacity .3s;pointer-events:none}
+.tooltip-text::after{content:"";position:absolute;bottom:100%;left:50%;margin-left:-5px;border-width:5px;border-style:solid;border-color:transparent transparent #1D9E75 transparent}
+.gregoire-mini-avatar{width:28px;height:28px;background:linear-gradient(135deg,#1D9E75,#0f6e56);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff}
+.gregoire-mini-text{font-size:.65rem;color:rgba(255,255,255,.7)}
+.gregoire-mini-text strong{color:#5DCAA5}
+
+/* ── DOSSIER HEADER STRIP ── */
+.dossier-strip{background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.6rem 2rem;margin-top:64px;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.patient-strip-info{display:flex;align-items:center;gap:.85rem}
+.patient-strip-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0f6e56);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0}
+.patient-strip-nom{font-family:'Playfair Display',serif;font-size:1.05rem;color:#fff}
+.patient-strip-sub{font-size:.7rem;color:rgba(255,255,255,.5);margin-top:1px}
+.strip-badges{display:flex;gap:.4rem;flex-wrap:wrap}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.65rem;font-weight:500}
+.badge-green{background:rgba(29,158,117,.2);color:#5DCAA5}
+.badge-red{background:rgba(239,68,68,.15);color:#f87171;font-weight:600}
+.badge-amber{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge-blue{background:rgba(59,130,246,.15);color:#93c5fd}
+.badge-gray{background:rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.strip-mode{font-size:.7rem;padding:.2rem .7rem;border-radius:999px}
+.mode-diet{background:rgba(59,130,246,.2);color:#93c5fd}
+.mode-presc{background:rgba(29,158,117,.2);color:#5DCAA5}
+
+/* ── ONGLETS SECTIONS ── */
+.tabs-nav{background:var(--bg-card);border-bottom:2px solid var(--border-color);position:sticky;top:64px;z-index:50;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs-nav::-webkit-scrollbar{height:0}
+.tab-btn{flex-shrink:0;padding:.75rem 1.25rem;font-size:.82rem;font-weight:500;color:var(--text-secondary);cursor:pointer;border:none;background:transparent;font-family:'Outfit',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.tab-btn:hover{color:var(--text-primary)}
+.tab-btn.active{color:#1D9E75;border-bottom-color:#1D9E75;font-weight:600}
+.tab-btn .tab-num{display:inline-block;width:20px;height:20px;border-radius:50%;background:rgba(29,158,117,.12);color:#1D9E75;font-size:.65rem;line-height:20px;text-align:center;font-weight:700}
+.tab-btn.active .tab-num{background:#1D9E75;color:#fff}
+.tab-btn .tab-alert{width:7px;height:7px;border-radius:50%;background:#ef4444;margin-left:.2rem}
+
+/* ── LAYOUT ── */
+.page-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 2rem 5rem;display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── CARTES FORMULAIRE ── */
+.form-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.form-card-title{font-size:.95rem;font-weight:600;color:var(--text-primary);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.form-card-title span{font-size:1.1rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.form-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.72rem;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{padding:.65rem .9rem;border:1.5px solid var(--border-color);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary);outline:none;transition:.2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.field textarea{resize:vertical;min-height:80px}
+.field input[readonly],.field select[disabled],.field textarea[readonly]{cursor:default;opacity:.85}
+.field .hint{font-size:.7rem;color:var(--text-secondary);margin-top:2px}
+.req{color:#ef4444}
+
+/* CHECKBOXES GROUPES */
+.check-group{display:flex;flex-direction:column;gap:.4rem}
+.check-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border:1.5px solid var(--border-color);border-radius:8px;cursor:pointer;transition:.15s;font-size:.84rem;color:var(--text-primary);line-height:1.3}
+.check-item:has(input:checked){border-color:#1D9E75;background:rgba(29,158,117,.06);color:#1D9E75;font-weight:500}
+.check-item input[type=checkbox]{accent-color:#1D9E75;flex-shrink:0;width:15px;height:15px;cursor:pointer;vertical-align:middle}
+.check-item.alerte-actif{border-color:#ef4444;background:rgba(239,68,68,.06);color:#dc2626;font-weight:500}
+.check-group-inline{display:flex;flex-direction:row;flex-wrap:wrap;gap:.5rem}
+.check-group-inline>.check-item{display:inline-flex;flex-shrink:0;white-space:nowrap;width:auto}
+
+/* RADIOS */
+.radio-group{display:flex;gap:.5rem;flex-wrap:wrap}
+.radio-opt{display:flex;align-items:center;gap:.35rem;padding:.45rem .75rem;border:1.5px solid var(--border-color);border-radius:8px;cursor:pointer;font-size:.82rem;transition:.15s;color:var(--text-primary)}
+.radio-opt:has(input:checked){border-color:#1D9E75;background:rgba(29,158,117,.06);color:#1D9E75;font-weight:500}
+.radio-opt input{accent-color:#1D9E75}
+
+/* SLIDER INTENSITÉ */
+.intensity-wrap{display:flex;align-items:center;gap:.75rem}
+.intensity-wrap input[type=range]{flex:1;accent-color:#1D9E75}
+.intensity-val{min-width:32px;text-align:center;font-weight:700;color:#1D9E75;font-size:.9rem}
+.intensity-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--text-secondary);margin-top:2px}
+
+/* IMC */
+.imc-display{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-top:.75rem}
+.imc-stat{background:var(--bg-secondary);border-radius:10px;padding:.65rem;text-align:center}
+.imc-val{font-size:1.05rem;font-weight:700;color:var(--text-primary)}
+.imc-lbl{font-size:.62rem;color:var(--text-secondary);margin-top:2px}
+.imc-normal{color:#1D9E75}.imc-surpoids{color:#f59e0b}.imc-obese{color:#ef4444}.imc-maigre{color:#3b82f6}
+
+/* JOURNAL ALIMENTAIRE */
+.journal-row{display:grid;grid-template-columns:100px 1fr 80px 1fr;gap:.6rem;align-items:center;padding:.5rem .75rem;background:var(--bg-secondary);border-radius:8px;margin-bottom:.4rem;font-size:.82rem}
+.journal-row-head{font-weight:600;color:var(--text-secondary);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+.journal-row input{padding:.4rem .6rem;border:1px solid var(--border-color);border-radius:6px;font-size:.8rem;background:var(--bg-card);color:var(--text-primary);outline:none;width:100%}
+.journal-row input:focus{border-color:#1D9E75}
+
+/* OBJECTIFS DRAG */
+.objectif-rank{display:flex;flex-direction:column;gap:.4rem}
+.objectif-rank-item{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;background:var(--bg-secondary);border:1.5px solid var(--border-color);border-radius:10px;cursor:grab;transition:.15s;user-select:none}
+.objectif-rank-item:hover{border-color:#1D9E75}
+.objectif-rank-item.dragging{opacity:.5;border-color:#1D9E75;background:rgba(29,158,117,.1)}
+.rank-num{width:24px;height:24px;border-radius:50%;background:#1D9E75;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-drag{color:var(--text-secondary);font-size:.8rem;cursor:grab}
+
+/* PANNEAU DROIT */
+.right-panel{display:flex;flex-direction:column;gap:1rem;position:sticky;top:110px}
+.panel-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:1.25rem}
+.panel-card.featured{background:#0d2018;border-color:rgba(29,158,117,.3)}
+.panel-card.featured .panel-title{color:rgba(255,255,255,.9)}
+.panel-card.featured p{color:rgba(255,255,255,.55);font-size:.78rem;line-height:1.5;margin-bottom:1rem}
+.panel-title{font-size:.875rem;font-weight:600;color:var(--text-primary);margin-bottom:.75rem}
+.btn-main{width:100%;padding:.8rem;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s}
+.btn-main:hover{background:#0f6e56;transform:translateY(-1px)}
+.btn-main:disabled{background:#9ca3af;cursor:not-allowed;transform:none}
+.btn-outline-panel{width:100%;padding:.65rem;background:transparent;color:#1D9E75;border:1.5px solid rgba(29,158,117,.4);border-radius:10px;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;margin-top:.5rem}
+.btn-outline-panel:hover{background:rgba(29,158,117,.08)}
+.btn-danger-panel{width:100%;padding:.6rem;background:transparent;color:#dc2626;border:1.5px solid rgba(239,68,68,.2);border-radius:10px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;margin-top:.4rem}
+.btn-danger-panel:hover{background:rgba(239,68,68,.06)}
+.panel-nav-btns{display:flex;gap:.5rem;margin-top:.75rem}
+.btn-nav{flex:1;padding:.55rem;border:1px solid var(--border-color);border-radius:8px;background:transparent;cursor:pointer;font-size:.8rem;font-family:'Outfit',sans-serif;color:var(--text-primary);transition:.15s}
+.btn-nav:hover{border-color:#1D9E75;color:#1D9E75}
+.btn-nav.next{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-nav.next:hover{background:#0f6e56}
+.progress-mini{display:flex;gap:3px;margin-bottom:.75rem}
+.prog-dot{flex:1;height:4px;border-radius:2px;background:var(--border-color);transition:.2s}
+.prog-dot.done{background:#1D9E75}
+.prog-dot.active{background:#1D9E75}
+
+/* NOTES PANEL */
+.notes-area{width:100%;font-size:.85rem;font-family:'Outfit',sans-serif;color:var(--text-primary);background:var(--bg-secondary);border:1.5px solid var(--border-color);border-radius:10px;padding:.75rem;resize:vertical;outline:none;min-height:90px;transition:.2s}
+.notes-area:focus{border-color:#1D9E75}
+.saved-hint{font-size:.7rem;color:#1D9E75;opacity:0;transition:opacity .3s;margin-top:3px}
+.rappel-sel{width:100%;padding:.55rem .75rem;border:1.5px solid var(--border-color);border-radius:8px;font-family:'Outfit',sans-serif;font-size:.82rem;background:var(--bg-card);color:var(--text-primary);outline:none;margin-top:.4rem}
+
+/* SAVE BAR */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:#0d2018;border-top:1px solid rgba(29,158,117,.3);padding:.7rem 2rem;display:flex;align-items:center;justify-content:space-between;z-index:90;transform:translateY(100%);transition:transform .3s}
+.save-bar.visible{transform:none}
+.save-bar p{font-size:.78rem;color:rgba(255,255,255,.65)}
+.save-btns{display:flex;gap:.6rem}
+.sb-cancel{padding:.45rem 1rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:transparent;cursor:pointer;font-size:.8rem;font-family:'Outfit',sans-serif;color:rgba(255,255,255,.6)}
+.sb-save{padding:.45rem 1.25rem;background:#1D9E75;color:#fff;border:none;border-radius:999px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:'Outfit',sans-serif;transition:.2s}
+.sb-save:hover{background:#0f6e56}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg-card);border-radius:20px;padding:2rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.2)}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--text-primary);margin-bottom:1.25rem}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+
+/* CHART */
+.chart-mini{height:150px;position:relative;margin:.5rem 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#0d2018;color:#fff;padding:.7rem 1.25rem;border-radius:10px;font-size:.8rem;z-index:9999;border-left:3px solid #1D9E75;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+.hidden{display:none!important}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .nd-header{padding:.75rem 1rem}
+  .nd-nav,.gregoire-mini{display:none}
+  .dossier-strip{flex-direction:column;align-items:flex-start;gap:.5rem}
+  .page-wrap{grid-template-columns:1fr;padding:1rem 1rem 5rem}
+  .right-panel{position:static}
+  .form-grid,.form-grid-3{grid-template-columns:1fr}
+  .tabs-nav{top:64px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="nd-header" id="ndHeader">
+  <div class="header-container">
+    <div class="header-left">
+      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="#" id="navRetour" class="nd-navlink">← Retour</a>
+        <a href="faq.html" class="nd-navlink">FAQ</a>
+      </nav>
+    </div>
+    <div class="gregoire-mini">
+      <div class="gregoire-mini-avatar">GM</div>
+      <div class="gregoire-mini-text"><strong>Grégoire Martin</strong> · Diét. RPPS</div>
+      <span class="tooltip-text">
+        ⭐ Diététicien co-fondateur de NutriDoc<br>
+        🏥 CHU Angoulême · Restauration collective hospitalière<br>
+        🏡 Cabinet libéral · Angoulême<br>
+        🚒 Sapeur Pompier Expert
+      </span>
+    </div>
+    <div class="header-actions">
+      <span id="modeBadge" class="strip-mode"></span>
+      <div class="nd-conn-wrap" id="ndConnWrap">
+        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
+        <div class="nd-conn-menu" id="ndConnMenu">
+          <a href="#" id="connProfil" class="nd-conn-item">👤 Mon profil</a>
+          <a href="#" id="connDash" class="nd-conn-item">📊 Dashboard</a>
+          <a href="#" onclick="deconnecter();return false;" class="nd-conn-item">🔓 Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── BANDE PATIENT ── -->
+<div class="dossier-strip">
+  <div class="patient-strip-info">
+    <div class="patient-strip-avatar" id="pAvatar">?</div>
+    <div>
+      <div class="patient-strip-nom" id="pNom">Chargement…</div>
+      <div class="patient-strip-sub" id="pSub"></div>
+    </div>
+  </div>
+  <div class="strip-badges" id="pBadges"></div>
+</div>
+
+<!-- ── ONGLETS NAVIGATION ── -->
+<div class="tabs-nav" id="tabsNav">
+  <button class="tab-btn active" data-tab="identite" onclick="goTab('identite',this)">
+    <span class="tab-num">1</span> Identité
+  </button>
+  <button class="tab-btn" data-tab="sante" onclick="goTab('sante',this)">
+    <span class="tab-num">2</span> Santé
+    <span class="tab-alert hidden" id="alertSante"></span>
+  </button>
+  <button class="tab-btn" data-tab="alim" onclick="goTab('alim',this)">
+    <span class="tab-num">3</span> Alimentation
+  </button>
+  <button class="tab-btn" data-tab="activite" onclick="goTab('activite',this)">
+    <span class="tab-num">4</span> Activité & métier
+  </button>
+  <button class="tab-btn" data-tab="objectifs" onclick="goTab('objectifs',this)">
+    <span class="tab-num">5</span> Objectifs
+  </button>
+  <button class="tab-btn hidden" data-tab="suivi" id="tabSuivi" onclick="goTab('suivi',this)">
+    <span class="tab-num">6</span> Suivi
+  </button>
+</div>
+
+<!-- ── CONTENU ── -->
+<div class="page-wrap">
+<div id="mainContent">
+
+<!-- ===== TAB 1 : IDENTITÉ ===== -->
+<div class="tab-panel active" id="tab-identite">
+  <div class="form-card">
+    <div class="form-card-title"><span>👤</span> Informations personnelles</div>
+    <div class="form-grid">
+      <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="f_prenom" oninput="markDirty()"/></div>
+      <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="f_nom" oninput="markDirty()"/></div>
+      <div class="field">
+        <label>Date de naissance</label>
+        <input type="date" id="f_ddn" onchange="calcAge();markDirty()" max="2026-04-16"/>
+        <span class="hint" id="age_calcule" style="font-size:.78rem;color:#1D9E75;font-weight:500;margin-top:3px;display:block"></span>
+      </div>
+      <div class="field">
+        <label>Sexe</label>
+        <select id="f_sexe" onchange="markDirty()">
+          <option value="">— Choisir —</option>
+          <option value="femme">Femme</option>
+          <option value="homme">Homme</option>
+          <option value="autre">Autre / Non précisé</option>
+        </select>
+      </div>
+      <div class="field form-full"><label>Ville de résidence</label><input type="text" id="f_ville" placeholder="Ex : Angoulême" oninput="markDirty()"/></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>⚖️</span> Morphologie</div>
+    <div class="form-grid-3">
+      <div class="field"><label>Taille (cm) <span class="req">*</span></label><input type="number" id="f_taille" min="100" max="250" oninput="calcIMC();markDirty()"/></div>
+      <div class="field"><label>Poids actuel (kg) <span class="req">*</span></label><input type="number" id="f_poids" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
+      <div class="field"><label>Poids objectif (kg)</label><input type="number" id="f_poids_objectif" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
+    </div>
+    <div class="imc-display hidden" id="imcDisplay">
+      <div class="imc-stat"><div class="imc-val" id="imc_val">—</div><div class="imc-lbl">IMC</div></div>
+      <div class="imc-stat"><div class="imc-val" id="imc_cat">—</div><div class="imc-lbl">Catégorie</div></div>
+      <div class="imc-stat"><div class="imc-val imc-normal" id="imc_delta">—</div><div class="imc-lbl">Écart objectif</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 2 : SANTÉ ===== -->
+<div class="tab-panel hidden" id="tab-sante">
+  <div class="form-card">
+    <div class="form-card-title"><span>🏥</span> Pathologies connues</div>
+    <div class="check-group form-full" id="pathologiesGroup">
+      <label class="check-item"><input type="checkbox" id="p_diabete" onchange="syncAlertes();markDirty()"/> Diabète</label>
+      <label class="check-item"><input type="checkbox" id="p_hypertension" onchange="syncAlertes();markDirty()"/> Hypertension</label>
+      <label class="check-item"><input type="checkbox" id="p_cholesterol" onchange="syncAlertes();markDirty()"/> Hypercholestérolémie</label>
+      <label class="check-item"><input type="checkbox" id="p_thyroide" onchange="syncAlertes();markDirty()"/> Troubles thyroïdiens</label>
+      <label class="check-item"><input type="checkbox" id="p_bariatrique" onchange="syncAlertes();markDirty()"/> Chirurgie bariatrique (passée ou prévue)</label>
+      <label class="check-item"><input type="checkbox" id="p_tca" onchange="syncAlertes();markDirty()"/> Troubles du comportement alimentaire (TCA)</label>
+      <label class="check-item"><input type="checkbox" id="p_grossesse" onchange="syncAlertes();markDirty()"/> Grossesse ou allaitement en cours</label>
+      <label class="check-item"><input type="checkbox" id="p_renale" onchange="syncAlertes();markDirty()"/> Insuffisance rénale</label>
+      <label class="check-item"><input type="checkbox" id="p_autre_patho" onchange="markDirty()"/> Autre pathologie</label>
+    </div>
+    <div class="field form-full" style="margin-top:.75rem">
+      <label>Précisez les autres pathologies</label>
+      <textarea id="f_autres_patho" rows="2" placeholder="Décrivez les autres pathologies éventuelles…" oninput="markDirty()"></textarea>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>💊</span> Médicaments</div>
+    <div class="field">
+      <label>Médicaments actuels <span class="hint">(listez tous ceux que vous prenez régulièrement)</span></label>
+      <textarea id="f_medicaments" rows="3" placeholder="Ex : Metformine 500mg, Levothyrox 75µg, Ramipril 5mg…" oninput="markDirty()"></textarea>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>😴</span> Sommeil</div>
+    <div class="field">
+      <label>Durée moyenne du sommeil par nuit <span class="req">*</span></label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="f_sommeil" value="moins_4h" onchange="markDirty()"/> Moins de 4h</label>
+        <label class="radio-opt"><input type="radio" name="f_sommeil" value="4_6h" onchange="markDirty()"/> 4 – 6h</label>
+        <label class="radio-opt"><input type="radio" name="f_sommeil" value="6_8h" onchange="markDirty()"/> 6 – 8h</label>
+        <label class="radio-opt"><input type="radio" name="f_sommeil" value="plus_8h" onchange="markDirty()"/> Plus de 8h</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>🚬</span> Habitudes tabac & alcool</div>
+    <div class="field" style="margin-bottom:.85rem">
+      <label>Habitudes (cocher si concerné)</label>
+      <div class="check-group check-group-inline">
+        <label class="check-item"><input type="checkbox" id="h_tabac" onchange="markDirty()"/> Tabac</label>
+        <label class="check-item"><input type="checkbox" id="h_alcool" onchange="markDirty()"/> Alcool</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Précisez (quantité, fréquence…)</label>
+      <textarea id="f_tabac_alcool_detail" rows="3" placeholder="Ex : 10 cigarettes/jour, 1 verre de vin le week-end…" oninput="markDirty()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 3 : ALIMENTATION ===== -->
+<div class="tab-panel hidden" id="tab-alim">
+  <div class="form-card">
+    <div class="form-card-title"><span>🍳</span> Habitudes alimentaires</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Fréquence du petit-déjeuner <span class="req">*</span></label>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="f_freq_pj" value="jamais" onchange="markDirty()"/> Jamais</label>
+          <label class="radio-opt"><input type="radio" name="f_freq_pj" value="rarement" onchange="markDirty()"/> Rarement</label>
+          <label class="radio-opt"><input type="radio" name="f_freq_pj" value="souvent" onchange="markDirty()"/> Souvent</label>
+          <label class="radio-opt"><input type="radio" name="f_freq_pj" value="tous_jours" onchange="markDirty()"/> Tous les jours</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Temps consacré aux repas (min/repas)</label>
+        <input type="number" id="f_temps_repas_min" min="5" max="120" placeholder="Ex : 20" oninput="markDirty()"/>
+      </div>
+      <div class="field">
+        <label>Hydratation quotidienne (litres)</label>
+        <input type="number" id="f_hydratation_l" step="0.5" min="0" max="10" placeholder="Ex : 1.5" oninput="markDirty()"/>
+      </div>
+      <div class="field">
+        <label>Régime alimentaire</label>
+        <select id="f_regime" onchange="markDirty()">
+          <option value="">— Aucune restriction —</option>
+          <option value="vegetarien">Végétarien</option>
+          <option value="vegan">Vegan</option>
+          <option value="sans_gluten">Sans gluten</option>
+          <option value="sans_lactose">Sans lactose</option>
+          <option value="halal">Halal</option>
+          <option value="kasher">Kasher</option>
+        </select>
+      </div>
+      <div class="field form-full">
+        <label>Aliments aimés</label>
+        <textarea id="f_aliments_aimes" rows="2" placeholder="Ex : poulet, légumes verts, fruits, fromage…" oninput="markDirty()"></textarea>
+      </div>
+      <div class="field form-full">
+        <label>Aversions, allergies et intolérances</label>
+        <textarea id="f_aversions" rows="2" placeholder="Ex : poisson, noix, lactose, gluten, fruits de mer…" oninput="markDirty()"></textarea>
+      </div>
+      <div class="field">
+        <label>Budget alimentaire / semaine</label>
+        <select id="f_budget" onchange="markDirty()">
+          <option value="">— Choisir —</option>
+          <option value="moins_30">Moins de 30€</option>
+          <option value="30_50">30 à 50€</option>
+          <option value="50_80">50 à 80€</option>
+          <option value="plus_80">Plus de 80€</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fringales / grignotages</label>
+        <select id="f_fringales" onchange="markDirty()">
+          <option value="">— Choisir —</option>
+          <option value="jamais">Jamais</option>
+          <option value="matin">Souvent le matin</option>
+          <option value="apres_midi">Souvent l'après-midi</option>
+          <option value="soir">Souvent le soir</option>
+          <option value="frequents">Fréquents (plusieurs fois/jour)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>📓</span> Journal alimentaire <span style="font-size:.7rem;font-weight:400;color:var(--text-secondary);margin-left:.3rem">optionnel — repas type sur une semaine</span></div>
+    <div class="journal-row journal-row-head">
+      <span>Heure</span><span>Aliments consommés</span><span>Quantités</span><span>Collations / boissons</span>
+    </div>
+    <div id="journalRows"></div>
+    <div class="field form-full" style="margin-top:.75rem">
+      <label>Commentaires libres sur votre alimentation</label>
+      <textarea id="f_journal_commentaires" rows="3" placeholder="Contraintes horaires, contexte repas (bureau, maison, restaurant), remarques…" oninput="markDirty()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 4 : ACTIVITÉ ===== -->
+<div class="tab-panel hidden" id="tab-activite">
+  <div class="form-card">
+    <div class="form-card-title"><span>💼</span> Vie professionnelle</div>
+    <div class="form-grid">
+      <div class="field"><label>Métier <span class="req">*</span></label><input type="text" id="f_metier" placeholder="Ex : Infirmière, Coach sportif, Comptable…" oninput="markDirty()"/></div>
+      <div class="field">
+        <label>Niveau d'activité professionnelle <span class="req">*</span></label>
+        <select id="f_activite_pro" onchange="markDirty()">
+          <option value="">— Choisir —</option>
+          <option value="sedentaire">Sédentaire (bureau, assis)</option>
+          <option value="modere">Modérément actif (déplacements)</option>
+          <option value="actif">Actif (debout, marche)</option>
+          <option value="tres_actif">Très actif (travail physique)</option>
+        </select>
+      </div>
+      <div class="field form-full">
+        <label>Intensité physique liée au métier (1 = très faible, 10 = très élevée) <span class="req">*</span></label>
+        <div class="intensity-wrap">
+          <input type="range" id="f_intensite_metier" min="1" max="10" value="3" oninput="document.getElementById('ival_metier').textContent=this.value;markDirty()"/>
+          <span class="intensity-val" id="ival_metier">3</span>
+        </div>
+        <div class="intensity-labels"><span>Faible</span><span>Élevée</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>🏃</span> Activité sportive</div>
+    <div class="form-grid">
+      <div class="field form-full">
+        <label>Pratique sportive régulière (cocher tout ce qui s'applique)</label>
+        <div class="check-group check-group-inline">
+          <label class="check-item"><input type="checkbox" id="sp_course" onchange="markDirty()"/> Course à pied</label>
+          <label class="check-item"><input type="checkbox" id="sp_natation" onchange="markDirty()"/> Natation</label>
+          <label class="check-item"><input type="checkbox" id="sp_cyclisme" onchange="markDirty()"/> Cyclisme</label>
+          <label class="check-item"><input type="checkbox" id="sp_muscu" onchange="markDirty()"/> Musculation</label>
+          <label class="check-item"><input type="checkbox" id="sp_yoga" onchange="markDirty()"/> Yoga</label>
+          <label class="check-item"><input type="checkbox" id="sp_autre_sport" onchange="markDirty()"/> Autre</label>
+        </div>
+      </div>
+      <div class="field form-full">
+        <label>Type(s) de sport pratiqué(s)</label>
+        <input type="text" id="f_sport" placeholder="Ex : cross-training, escalade, football, danse…" oninput="markDirty()"/>
+      </div>
+      <div class="field form-full">
+        <label>Expérience sportive</label>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="f_niveau_sport" value="debutant" onchange="markDirty()"/> Moins de 2 ans</label>
+          <label class="radio-opt"><input type="radio" name="f_niveau_sport" value="intermediaire" onchange="markDirty()"/> Entre 3 et 5 ans</label>
+          <label class="radio-opt"><input type="radio" name="f_niveau_sport" value="confirme" onchange="markDirty()"/> Plus de 6 ans</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Fréquence hebdomadaire (séances/semaine)</label>
+        <input type="number" id="f_sport_freq" min="0" max="14" placeholder="Ex : 3" oninput="markDirty()"/>
+      </div>
+      <div class="field">
+        <label>Durée moyenne par séance (minutes)</label>
+        <input type="number" id="f_sport_duree" min="10" max="300" placeholder="Ex : 60" oninput="markDirty()"/>
+      </div>
+      <div class="field form-full">
+        <label>Intensité de l'activité sportive (1 = légère, 10 = maximale)</label>
+        <div class="intensity-wrap">
+          <input type="range" id="f_intensite_sport" min="1" max="10" value="5" oninput="document.getElementById('ival_sport').textContent=this.value;markDirty()"/>
+          <span class="intensity-val" id="ival_sport">5</span>
+        </div>
+        <div class="intensity-labels"><span>Légère</span><span>Maximale</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 5 : OBJECTIFS ===== -->
+<div class="tab-panel hidden" id="tab-objectifs">
+  <div class="form-card">
+    <div class="form-card-title"><span>🎯</span> Objectifs de santé et alimentation <span style="font-size:.72rem;font-weight:400;color:var(--text-secondary);margin-left:.3rem">(cochez tout ce qui s'applique)</span></div>
+    <div class="check-group" id="objectifsGroup">
+      <label class="check-item"><input type="checkbox" id="obj_perte_poids" onchange="syncRanking();markDirty()"/> Perte de poids</label>
+      <label class="check-item"><input type="checkbox" id="obj_prise_muscle" onchange="syncRanking();markDirty()"/> Prendre du muscle</label>
+      <label class="check-item"><input type="checkbox" id="obj_digestion" onchange="syncRanking();markDirty()"/> Améliorer la digestion</label>
+      <label class="check-item"><input type="checkbox" id="obj_sucre" onchange="syncRanking();markDirty()"/> Réduire la consommation de sucre</label>
+      <label class="check-item"><input type="checkbox" id="obj_fruits_legumes" onchange="syncRanking();markDirty()"/> Augmenter la consommation de fruits et légumes</label>
+      <label class="check-item"><input type="checkbox" id="obj_sommeil" onchange="syncRanking();markDirty()"/> Améliorer la qualité du sommeil</label>
+      <label class="check-item"><input type="checkbox" id="obj_energie" onchange="syncRanking();markDirty()"/> Améliorer mon énergie / vitalité</label>
+      <label class="check-item"><input type="checkbox" id="obj_performance" onchange="syncRanking();markDirty()"/> Performance sportive</label>
+      <label class="check-item"><input type="checkbox" id="obj_autre_obj" onchange="markDirty()"/> Autre</label>
+    </div>
+    <div class="field" style="margin-top:.75rem">
+      <label>Précisez vos autres objectifs</label>
+      <input type="text" id="f_autre_obj_detail" placeholder="Ex : mieux gérer le stress alimentaire…" oninput="markDirty()"/>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-title"><span>🏆</span> Classez vos 3 objectifs prioritaires <span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)">— glissez pour réorganiser</span></div>
+    <div class="objectif-rank" id="rankingList">
+      <div style="font-size:.82rem;color:var(--text-secondary);padding:.5rem 0">Cochez des objectifs ci-dessus pour les voir apparaître ici.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 6 : SUIVI (prescripteur only) ===== -->
+<div class="tab-panel hidden" id="tab-suivi">
+  <div class="form-card">
+    <div class="form-card-title"><span>📈</span> Courbe de poids</div>
+    <div class="chart-mini"><canvas id="chartPoids"></canvas></div>
+    <button onclick="ouvrirModalPoids()" style="font-size:.78rem;background:transparent;border:1px solid var(--border-color);border-radius:999px;padding:4px 12px;cursor:pointer;color:var(--text-secondary);font-family:'Outfit',sans-serif;margin-top:.5rem">+ Ajouter une mesure</button>
+  </div>
+  <div class="form-card">
+    <div class="form-card-title"><span>📝</span> Notes privées</div>
+    <div style="font-size:.72rem;color:var(--text-secondary);margin-bottom:.5rem">Visibles uniquement par vous</div>
+    <textarea class="notes-area" id="f_notes" placeholder="Observations, comportement alimentaire, motivation, contexte de vie…" oninput="saveNotesDebounce()"></textarea>
+    <div class="saved-hint" id="notesSaved">✓ Sauvegardé</div>
+  </div>
+  <div class="form-card">
+    <div class="form-card-title"><span>⏰</span> Rappel automatique</div>
+    <label style="font-size:.82rem;color:var(--text-secondary)">Prochain check-in dans</label>
+    <select class="rappel-sel" id="f_rappel" onchange="updateRappel(this.value)">
+      <option value="7">7 jours</option>
+      <option value="14">14 jours</option>
+      <option value="30" selected>30 jours</option>
+      <option value="60">60 jours</option>
+      <option value="90">90 jours</option>
+    </select>
+    <div style="font-size:.75rem;color:#f59e0b;margin-top:.4rem;font-weight:500" id="rappelDateTxt"></div>
+  </div>
+  <div class="form-card" id="cardHistoPlans">
+    <div class="form-card-title"><span>📋</span> Historique des plans</div>
+    <div id="histoPlansContent"><div style="font-size:.82rem;color:var(--text-secondary)">Aucun plan commandé</div></div>
+  </div>
+</div>
+
+</div><!-- fin mainContent -->
+
+<!-- ── PANNEAU DROIT ── -->
+<div class="right-panel" id="rightPanel">
+
+  <!-- Progression onglets -->
+  <div class="panel-card">
+    <div class="progress-mini" id="progDots">
+      <div class="prog-dot active" data-t="identite"></div>
+      <div class="prog-dot" data-t="sante"></div>
+      <div class="prog-dot" data-t="alim"></div>
+      <div class="prog-dot" data-t="activite"></div>
+      <div class="prog-dot" data-t="objectifs"></div>
+    </div>
+    <div class="panel-title" id="panelTabTitle">1 / 5 — Identité</div>
+    <div class="panel-nav-btns">
+      <button class="btn-nav prev" id="btnPrev" onclick="navTab(-1)">← Précédent</button>
+      <button class="btn-nav next" id="btnNext" onclick="navTab(1)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Action principale -->
+  <div id="mainActionCard"></div>
+
+  <!-- Stats IMC -->
+  <div class="panel-card hidden" id="cardImc">
+    <div class="panel-title">📊 Données clés</div>
+    <div id="imcPanelContent"></div>
+  </div>
+
+</div>
+</div><!-- fin page-wrap -->
+
+<!-- SAVE BAR -->
+<div class="save-bar" id="saveBar">
+  <p>⚠️ Modifications non sauvegardées</p>
+  <div class="save-btns">
+    <button class="sb-cancel" onclick="annulerModifs()">Annuler</button>
+    <button class="sb-save" onclick="sauvegarder()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- MODAL POIDS -->
+<div class="modal-overlay" id="modalPoids">
+  <div class="modal-box" style="max-width:360px">
+    <div class="modal-title">Ajouter une mesure</div>
+    <div class="field" style="margin-bottom:1rem"><label>Date</label><input type="date" id="mesureDate"/></div>
+    <div class="field" style="margin-bottom:1.5rem"><label>Poids (kg)</label><input type="number" id="mesurePoids" step="0.1" placeholder="Ex : 76.5"/></div>
+    <div class="modal-footer">
+      <button onclick="document.getElementById('modalPoids').classList.remove('open')" style="padding:.45rem 1rem;border:1px solid var(--border-color);border-radius:999px;background:transparent;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--text-primary)">Annuler</button>
+      <button onclick="confirmerPoids()" style="padding:.45rem 1.25rem;background:#1D9E75;color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PLAN -->
+<div class="modal-overlay" id="modalPlan">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-title">Commander un plan alimentaire</div>
+    <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:1.25rem">Utilise <strong>1 crédit</strong>. Un diét. RPPS traitera la demande sous 48h.</p>
+    <div class="field" style="margin-bottom:1rem">
+      <label>Objectif principal pour ce plan</label>
+      <select id="planObj" style="width:100%;padding:.7rem .9rem;border:1.5px solid var(--border-color);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary);outline:none">
+        <option value="reequilibrage">Rééquilibrage alimentaire</option>
+        <option value="prise_masse">Prise de masse</option>
+        <option value="perte_gras">Perte de gras</option>
+        <option value="sport_perf">Performance sportive</option>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:1.5rem">
+      <label>Instructions pour le diété.</label>
+      <textarea id="planNotes" rows="3" style="width:100%;padding:.7rem .9rem;border:1.5px solid var(--border-color);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary);outline:none;resize:vertical" placeholder="Précisions, contraintes particulières…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button onclick="document.getElementById('modalPlan').classList.remove('open')" style="padding:.45rem 1rem;border:1px solid var(--border-color);border-radius:999px;background:transparent;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--text-primary)">Annuler</button>
+      <button onclick="confirmerPlan()" style="padding:.45rem 1.25rem;background:#1D9E75;color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600">Envoyer — 1 crédit →</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){const s=localStorage.getItem('nutridoc_theme');document.documentElement.setAttribute('data-theme',s==='dark'?'dark':'light')})();
+
+// ── PARAMS ──────────────────────────────────────────────────────────────────
+const P=new URLSearchParams(window.location.search);
+const BILAN_ID=P.get('bilan_id'), CLIENT_ID=P.get('client_id');
+const MODE=BILAN_ID?'diet':'prescripteur';
+const TABS=['identite','sante','alim','activite','objectifs'];
+let currentTab=0;
+let data={}, isDirty=false, chartPoids=null, saveTimeout=null;
+let creditsRestants=0, prescId=null;
+
+const OBJ_MAP={perte_poids:'Perte de poids',prise_masse:'Prise de masse',perte_gras:'Perte de gras',reequilibrage:'Rééquilibrage',equilibre:'Alimentation équilibrée',energie:'Énergie',sante:'Prévention santé',sport_perf:'Performance sportive'};
+
+// ── HEADER ───────────────────────────────────────────────────────────────────
+function toggleConn(){document.getElementById('ndConnMenu').classList.toggle('open')}
+document.addEventListener('click',e=>{if(!e.target.closest('#ndConnWrap'))document.getElementById('ndConnMenu').classList.remove('open')});
+
+function setupHeader(){
+  if(MODE==='diet'){
+    document.getElementById('navRetour').href='dashboard-dieteticien.html';
+    document.getElementById('connProfil').href='profil-dieteticien.html';
+    document.getElementById('connDash').href='dashboard-dieteticien.html';
+    document.getElementById('connDash').textContent='📊 Mon dashboard';
+    document.getElementById('modeBadge').textContent='👨‍⚕️ Vue diététicien';
+    document.getElementById('modeBadge').className='strip-mode mode-diet';
+  } else {
+    document.getElementById('navRetour').href='prescripteur-crm.html';
+    document.getElementById('connProfil').href='profil-prescripteur.html';
+    document.getElementById('connDash').href='prescripteur-dashboard.html';
+    document.getElementById('connDash').textContent='📊 Mon dashboard';
+    document.getElementById('modeBadge').textContent='📋 Vue prescripteur';
+    document.getElementById('modeBadge').className='strip-mode mode-presc';
+    // Afficher onglet suivi
+    document.getElementById('tabSuivi').classList.remove('hidden');
+    TABS.push('suivi');
+    // Ajouter dot progression
+    const pd=document.getElementById('progDots');
+    const d=document.createElement('div');d.className='prog-dot';d.setAttribute('data-t','suivi');pd.appendChild(d);
+  }
+}
+
+// ── ONGLETS ──────────────────────────────────────────────────────────────────
+const TAB_TITLES=['Identité','Santé','Alimentation','Activité & métier','Objectifs','Suivi'];
+
+function goTab(name, btnEl){
+  const idx=TABS.indexOf(name); if(idx<0)return;
+  currentTab=idx;
+  document.querySelectorAll('.tab-panel').forEach(p=>{p.classList.remove('active');p.classList.add('hidden')});
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btnEl)btnEl.classList.add('active');
+  // dots
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>{
+    d.classList.toggle('done',i<idx);d.classList.toggle('active',i===idx)
+  });
+  document.getElementById('panelTabTitle').textContent=(idx+1)+' / '+TABS.length+' — '+(TAB_TITLES[idx]||name);
+  document.getElementById('btnPrev').style.opacity=idx===0?'.4':'1';
+  document.getElementById('btnNext').textContent=idx===TABS.length-1?'✓ Terminé':'Suivant →';
+  // IMC panel
+  document.getElementById('cardImc').classList.toggle('hidden', name!=='identite');
+  if(name==='activite')renderCourbeIfNeeded();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function navTab(dir){
+  const next=currentTab+dir;
+  if(next<0||next>=TABS.length)return;
+  const name=TABS[next];
+  const btn=document.querySelector('.tab-btn[data-tab="'+name+'"]');
+  goTab(name, btn);
+}
+
+// ── JOURNAL ALIMENTAIRE ──────────────────────────────────────────────────────
+const REPAS_NOMS=['Petit-déjeuner','Déjeuner','Dîner','Collation matin','Collation après-midi'];
+function buildJournalRows(){
+  const cont=document.getElementById('journalRows');
+  cont.innerHTML=REPAS_NOMS.map((r,i)=>`
+    <div class="journal-row">
+      <span style="font-size:.78rem;font-weight:500;color:var(--text-secondary)">${r}</span>
+      <input type="text" id="j_alim_${i}" placeholder="Aliments…" oninput="markDirty()"/>
+      <input type="text" id="j_qte_${i}" placeholder="Quantités" oninput="markDirty()"/>
+      <input type="text" id="j_boisson_${i}" placeholder="Boissons…" oninput="markDirty()"/>
+    </div>`).join('');
+}
+
+// ── OBJECTIFS RANKING (drag & drop) ─────────────────────────────────────────
+const OBJ_IDS={obj_perte_poids:'Perte de poids',obj_prise_muscle:'Prendre du muscle',obj_digestion:'Améliorer la digestion',obj_sucre:'Réduire le sucre',obj_fruits_legumes:'Fruits & légumes',obj_sommeil:'Qualité du sommeil',obj_energie:'Énergie / vitalité',obj_performance:'Performance sportive'};
+let rankingOrder=[];
+
+function syncRanking(){
+  const checked=Object.entries(OBJ_IDS).filter(([id])=>document.getElementById(id)?.checked).map(([id,lbl])=>({id,lbl}));
+  // Garder l'ordre existant pour les déjà présents
+  const existing=rankingOrder.filter(r=>checked.find(c=>c.id===r.id));
+  const newOnes=checked.filter(c=>!rankingOrder.find(r=>r.id===c.id));
+  rankingOrder=[...existing,...newOnes].slice(0,5);
+  renderRanking();
+}
+
+function renderRanking(){
+  const cont=document.getElementById('rankingList');
+  if(!rankingOrder.length){cont.innerHTML='<div style="font-size:.82rem;color:var(--text-secondary);padding:.5rem 0">Cochez des objectifs ci-dessus pour les voir apparaître ici.</div>';return}
+  cont.innerHTML=rankingOrder.map((o,i)=>`
+    <div class="objectif-rank-item" draggable="true" data-id="${o.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event,${i})">
+      <span class="rank-num">${i+1}</span>
+      <span style="flex:1;font-size:.85rem">${o.lbl}</span>
+      <span class="rank-drag">⠿</span>
+    </div>`).join('');
+}
+
+let dragIdx=-1;
+function dragStart(e){dragIdx=parseInt(e.currentTarget.getAttribute('data-id')?rankingOrder.findIndex(r=>r.id===e.currentTarget.getAttribute('data-id')):-1);e.currentTarget.classList.add('dragging')}
+function dragOver(e){e.preventDefault()}
+function dragDrop(e,toIdx){
+  e.preventDefault();
+  if(dragIdx<0||dragIdx===toIdx)return;
+  const arr=[...rankingOrder];
+  const [moved]=arr.splice(dragIdx,1);arr.splice(toIdx,0,moved);
+  rankingOrder=arr;renderRanking();dragIdx=-1;markDirty();
+}
+
+// ── IMC ──────────────────────────────────────────────────────────────────────
+function calcIMC(){
+  const t=parseFloat(document.getElementById('f_taille').value);
+  const p=parseFloat(document.getElementById('f_poids').value);
+  const po=parseFloat(document.getElementById('f_poids_objectif').value);
+  const disp=document.getElementById('imcDisplay'); const card=document.getElementById('cardImc');
+  if(!t||!p){disp.classList.add('hidden');card.classList.add('hidden');return}
+  const imc=Math.round(p/Math.pow(t/100,2)*10)/10;
+  let cat='Normal',cls='imc-normal';
+  if(imc<18.5){cat='Maigreur';cls='imc-maigre'}else if(imc<25){cat='Normal';cls='imc-normal'}else if(imc<30){cat='Surpoids';cls='imc-surpoids'}else{cat='Obésité';cls='imc-obese'}
+  document.getElementById('imc_val').textContent=imc;document.getElementById('imc_val').className='imc-val '+cls;
+  document.getElementById('imc_cat').textContent=cat;document.getElementById('imc_cat').className='imc-val '+cls;
+  const delta=po?(po-p).toFixed(1):'—';
+  document.getElementById('imc_delta').textContent=delta!=='—'?(parseFloat(delta)>0?'+':'')+delta+' kg':'—';
+  document.getElementById('imc_delta').className='imc-val '+(delta!=='—'&&parseFloat(delta)<0?'imc-normal':'');
+  disp.classList.remove('hidden'); card.classList.remove('hidden');
+  document.getElementById('imcPanelContent').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+      <div class="imc-stat"><div class="imc-val ${cls}">${imc}</div><div class="imc-lbl">IMC</div></div>
+      <div class="imc-stat"><div class="imc-val ${cls}">${cat}</div><div class="imc-lbl">Catégorie</div></div>
+      ${t?`<div class="imc-stat"><div class="imc-val">${Math.round(t*.9175)}–${Math.round(t*.9747)} kg</div><div class="imc-lbl">Poids idéal</div></div>`:''}
+      ${po&&delta!=='—'?`<div class="imc-stat"><div class="imc-val ${parseFloat(delta)<0?'imc-normal':''}">${parseFloat(delta)>0?'+':''}${delta} kg</div><div class="imc-lbl">Écart objectif</div></div>`:''}
+    </div>`;
+}
+
+// ── ALERTES SYNCHRO ──────────────────────────────────────────────────────────
+function syncAlertes(){
+  const PATHO_ALERTES=['p_diabete','p_hypertension','p_tca','p_grossesse','p_renale','p_bariatrique'];
+  const hasAlerte=PATHO_ALERTES.some(id=>document.getElementById(id)?.checked);
+  document.getElementById('alertSante').classList.toggle('hidden',!hasAlerte);
+  const alertes=[];
+  if(document.getElementById('p_diabete')?.checked) alertes.push('diabete');
+  if(document.getElementById('p_hypertension')?.checked) alertes.push('hypertension');
+  if(document.getElementById('p_cholesterol')?.checked) alertes.push('cholesterol');
+  if(document.getElementById('p_thyroide')?.checked) alertes.push('thyroide');
+  if(document.getElementById('p_bariatrique')?.checked) alertes.push('bariatrique');
+  if(document.getElementById('p_tca')?.checked) alertes.push('tca');
+  if(document.getElementById('p_grossesse')?.checked) alertes.push('grossesse');
+  if(document.getElementById('p_renale')?.checked) alertes.push('insuffisance_renale');
+  data.alertes_sante=alertes;
+  renderBadges();
+}
+
+// ── CHARGEMENT ────────────────────────────────────────────────────────────────
+async function chargerDonnees(){
+  const supa=getSupa();
+  if(MODE==='diet'&&BILAN_ID){
+    if(!supa){data=demoBilan();}
+    else{const{data:b,error}=await supa.from('bilans').select('*').eq('id',BILAN_ID).single();if(error||!b){toast('Bilan introuvable',true);return}data=b;}
+    remplirForm(data,true);
+  } else if(MODE==='prescripteur'&&CLIENT_ID){
+    if(!supa){data=demoClient();}
+    else{
+      const{data:{user}}=await supa.auth.getUser();if(!user){window.location.href='login.html?role=prescriber';return}
+      prescId=user.id;
+      const{data:c,error}=await supa.from('clients_prescripteur').select('*').eq('id',CLIENT_ID).eq('prescripteur_id',prescId).single();
+      if(error||!c){toast('Client introuvable',true);return}
+      data=c;
+      const{data:prof}=await supa.from('profiles').select('credits').eq('id',prescId).single();
+      if(prof)creditsRestants=prof.credits||0;
+    }
+    remplirForm(data,false);
+    // Suivi tab data
+    document.getElementById('f_notes').value=data.notes||'';
+    renderCourbeIfNeeded();
+    renderHistoPlans();
+    if(data.rappel_date){const d=new Date(data.rappel_date);document.getElementById('rappelDateTxt').textContent='Le '+d.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long'});}
+  }
+  calcIMC(); renderBadges(); renderActionCard();
+}
+
+// ── REMPLIR FORMULAIRE ────────────────────────────────────────────────────────
+function sv(id,val){const el=document.getElementById(id);if(el&&val!=null)el.value=val}
+function remplirForm(d,readonly){
+  sv('f_prenom',d.prenom); sv('f_nom',d.nom); sv('f_ddn',d.date_naissance||''); sv('f_sexe',d.sexe); sv('f_ville',d.ville); calcAge();
+  sv('f_taille',d.taille); sv('f_poids',d.poids||d.poids_initial); sv('f_poids_objectif',d.poids_objectif);
+  // Santé
+  sv('f_autres_patho',d.autres_patho||d.autres_pathologies); sv('f_medicaments',d.medicaments);
+  if(d.habitudes_tabac)document.getElementById('h_tabac').checked=true;
+  if(d.habitudes_alcool)document.getElementById('h_alcool').checked=true;
+  sv('f_tabac_alcool_detail',d.tabac_alcool_detail);
+  // Sommeil
+  if(d.sommeil){const r=document.querySelector(`input[name="f_sommeil"][value="${d.sommeil}"]`);if(r)r.checked=true}
+  // Pathologies
+  const alertes=d.alertes_sante||[];
+  if(alertes.includes('diabete'))document.getElementById('p_diabete').checked=true;
+  if(alertes.includes('hypertension'))document.getElementById('p_hypertension').checked=true;
+  if(alertes.includes('cholesterol'))document.getElementById('p_cholesterol').checked=true;
+  if(alertes.includes('thyroide'))document.getElementById('p_thyroide').checked=true;
+  if(alertes.includes('bariatrique'))document.getElementById('p_bariatrique').checked=true;
+  if(alertes.includes('tca'))document.getElementById('p_tca').checked=true;
+  if(alertes.includes('grossesse'))document.getElementById('p_grossesse').checked=true;
+  if(alertes.includes('insuffisance_renale'))document.getElementById('p_renale').checked=true;
+  syncAlertes();
+  // Alimentation
+  if(d.freq_petit_dejeuner){const r=document.querySelector(`input[name="f_freq_pj"][value="${d.freq_petit_dejeuner}"]`);if(r)r.checked=true}
+  sv('f_temps_repas_min',d.temps_repas_min); sv('f_hydratation_l',d.hydratation_l||d.hydratation);
+  sv('f_regime',d.regime); sv('f_aliments_aimes',d.aliments_aimes); sv('f_aversions',d.aversions);
+  sv('f_budget',d.budget); sv('f_fringales',d.fringales); sv('f_journal_commentaires',d.journal_commentaires);
+  // Journal
+  const j=d.journal||[];REPAS_NOMS.forEach((_,i)=>{
+    if(j[i]){sv('j_alim_'+i,j[i].alim);sv('j_qte_'+i,j[i].qte);sv('j_boisson_'+i,j[i].boisson)}
+  });
+  // Activité
+  sv('f_metier',d.metier); sv('f_activite_pro',d.activite_pro||d.activite);
+  if(d.intensite_metier){const r=document.getElementById('f_intensite_metier');r.value=d.intensite_metier;document.getElementById('ival_metier').textContent=d.intensite_metier}
+  if(d.sp_course)document.getElementById('sp_course').checked=true;
+  if(d.sp_natation)document.getElementById('sp_natation').checked=true;
+  if(d.sp_cyclisme)document.getElementById('sp_cyclisme').checked=true;
+  if(d.sp_muscu)document.getElementById('sp_muscu').checked=true;
+  if(d.sp_yoga)document.getElementById('sp_yoga').checked=true;
+  sv('f_sport',d.sport); sv('f_sport_freq',d.sport_freq); sv('f_sport_duree',d.sport_duree);
+  if(d.niveau_sport){const r=document.querySelector(`input[name="f_niveau_sport"][value="${d.niveau_sport}"]`);if(r)r.checked=true;}
+  if(d.intensite_sport){const r=document.getElementById('f_intensite_sport');r.value=d.intensite_sport;document.getElementById('ival_sport').textContent=d.intensite_sport}
+  // Objectifs
+  const objActifs=d.objectifs_cibles||[];
+  Object.keys(OBJ_IDS).forEach(id=>{const key=id.replace('obj_','');if(objActifs.includes(key)){const el=document.getElementById(id);if(el)el.checked=true}});
+  sv('f_autre_obj_detail',d.autre_obj_detail);
+  rankingOrder=(d.objectifs_ranking||[]).map(id=>({id:'obj_'+id,lbl:OBJ_IDS['obj_'+id]||id})).filter(o=>o.lbl);
+  if(!rankingOrder.length)syncRanking(); else renderRanking();
+  if(readonly)setReadonly(true);
+  // Avatar
+  const ini=((d.prenom?.[0]||'')+(d.nom?.[0]||'')).toUpperCase();
+  document.getElementById('pAvatar').textContent=ini||'?';
+  document.getElementById('pNom').textContent=(d.prenom||'—')+' '+(d.nom||'');
+  const ageCalc=d.date_naissance?calcAgeFromDDN(d.date_naissance):null; document.getElementById('pSub').textContent=[ageCalc?ageCalc+' ans':null,d.sexe,d.ville].filter(Boolean).join(' · ');
+}
+
+function setReadonly(ro){
+  document.querySelectorAll('#mainContent input:not([type=radio]):not([type=checkbox]),#mainContent select,#mainContent textarea').forEach(el=>{
+    if(el.tagName==='SELECT')el.disabled=ro;else el.readOnly=ro;if(ro)el.style.cursor='default';
+  });
+  document.querySelectorAll('#mainContent input[type=radio],#mainContent input[type=checkbox]').forEach(el=>el.disabled=ro);
+  document.querySelectorAll('#mainContent input[type=range]').forEach(el=>el.disabled=ro);
+  document.getElementById('saveBar').style.display='none';
+}
+
+// ── BADGES PATIENT ────────────────────────────────────────────────────────────
+function renderBadges(){
+  const d=data,alertes=d.alertes_sante||[];
+  let h='';
+  const obj=d.objectif||d.objectifs_cibles?.[0];
+  if(obj)h+=`<span class="badge badge-green">${OBJ_MAP[obj]||obj}</span>`;
+  if(alertes.length)h+=`<span class="badge badge-red">⚠️ ${alertes.length} alerte${alertes.length>1?'s':''}</span>`;
+  if(d.regime&&d.regime!=='')h+=`<span class="badge badge-blue">${d.regime}</span>`;
+  if(d.statut&&MODE==='prescripteur')h+=`<span class="badge badge-${d.statut==='en_cours'?'green':d.statut==='atteint'?'blue':'amber'}">${d.statut==='en_cours'?'En cours':d.statut==='atteint'?'Objectif atteint':'En pause'}</span>`;
+  document.getElementById('pBadges').innerHTML=h;
+}
+
+// ── CARTE ACTION PRINCIPALE ───────────────────────────────────────────────────
+function renderActionCard(){
+  const el=document.getElementById('mainActionCard');
+  if(MODE==='diet'){
+    el.innerHTML=`<div class="panel-card featured">
+      <div class="panel-title">🤖 Générer le plan IA</div>
+      <p>Générez le plan nutritionnel avec l'IA CIQUAL 2020 pour validation et signature.</p>
+      <button class="btn-main" onclick="genererPlanIA()">Générer le plan IA →</button>
+    </div>`;
+  } else {
+    el.innerHTML=`<div class="panel-card featured">
+      <div class="panel-title">📋 Commander un plan</div>
+      <p>Crédits disponibles : <strong style="color:#5DCAA5">${creditsRestants}</strong></p>
+      <button class="btn-main" onclick="document.getElementById('modalPlan').classList.add('open')" ${creditsRestants<1?'disabled':''}>
+        ${creditsRestants<1?'Crédits insuffisants':'Commander — 1 crédit →'}
+      </button>
+      <button class="btn-outline-panel" onclick="sauvegarder()">💾 Enregistrer les modifications</button>
+      <button class="btn-danger-panel" onclick="supprimerClient()">🗑 Supprimer ce dossier</button>
+    </div>`;
+  }
+}
+
+// ── SAUVEGARDE ────────────────────────────────────────────────────────────────
+function lireForm(){
+  const sommeil=document.querySelector('input[name="f_sommeil"]:checked')?.value;
+  const freqPJ=document.querySelector('input[name="f_freq_pj"]:checked')?.value;
+  const journal=REPAS_NOMS.map((_,i)=>({alim:document.getElementById('j_alim_'+i)?.value||'',qte:document.getElementById('j_qte_'+i)?.value||'',boisson:document.getElementById('j_boisson_'+i)?.value||''}));
+  const objActifs=Object.keys(OBJ_IDS).filter(id=>document.getElementById(id)?.checked).map(id=>id.replace('obj_',''));
+  return{
+    prenom:document.getElementById('f_prenom').value.trim(), nom:document.getElementById('f_nom').value.trim(),
+    date_naissance:document.getElementById('f_ddn').value||null, age:calcAgeFromDDN(document.getElementById('f_ddn').value), sexe:document.getElementById('f_sexe').value,
+    ville:document.getElementById('f_ville').value.trim(),
+    taille:parseFloat(document.getElementById('f_taille').value)||null,
+    poids_initial:parseFloat(document.getElementById('f_poids').value)||null,
+    poids_objectif:parseFloat(document.getElementById('f_poids_objectif').value)||null,
+    alertes_sante:data.alertes_sante||[],
+    autres_patho:document.getElementById('f_autres_patho').value.trim(),
+    medicaments:document.getElementById('f_medicaments').value.trim(),
+    habitudes_tabac:document.getElementById('h_tabac').checked,
+    habitudes_alcool:document.getElementById('h_alcool').checked,
+    tabac_alcool_detail:document.getElementById('f_tabac_alcool_detail').value.trim(),
+    sommeil, freq_petit_dejeuner:freqPJ,
+    temps_repas_min:parseInt(document.getElementById('f_temps_repas_min').value)||null,
+    hydratation_l:parseFloat(document.getElementById('f_hydratation_l').value)||null,
+    regime:document.getElementById('f_regime').value, aliments_aimes:document.getElementById('f_aliments_aimes').value.trim(),
+    aversions:document.getElementById('f_aversions').value.trim(), budget:document.getElementById('f_budget').value,
+    fringales:document.getElementById('f_fringales').value,
+    journal, journal_commentaires:document.getElementById('f_journal_commentaires').value.trim(),
+    metier:document.getElementById('f_metier').value.trim(), activite_pro:document.getElementById('f_activite_pro').value,
+    intensite_metier:parseInt(document.getElementById('f_intensite_metier').value),
+    sp_course:document.getElementById('sp_course').checked, sp_natation:document.getElementById('sp_natation').checked,
+    sp_cyclisme:document.getElementById('sp_cyclisme').checked, sp_muscu:document.getElementById('sp_muscu').checked,
+    sp_yoga:document.getElementById('sp_yoga').checked,
+    sport:document.getElementById('f_sport').value.trim(),
+    sport_freq:parseInt(document.getElementById('f_sport_freq').value)||null,
+    sport_duree:parseInt(document.getElementById('f_sport_duree').value)||null,
+    intensite_sport:parseInt(document.getElementById('f_intensite_sport').value),
+    niveau_sport:document.querySelector('input[name="f_niveau_sport"]:checked')?.value||null,
+    objectifs_cibles:objActifs, autre_obj_detail:document.getElementById('f_autre_obj_detail').value.trim(),
+    objectifs_ranking:rankingOrder.map(o=>o.id.replace('obj_','')),
+    objectif:objActifs[0]||null,
+  };
+}
+
+async function sauvegarder(){
+  if(MODE!=='prescripteur')return;
+  const updates=lireForm();
+  const supa=getSupa();
+  if(supa&&CLIENT_ID){const{error}=await supa.from('clients_prescripteur').update(updates).eq('id',CLIENT_ID);if(error){toast('Erreur sauvegarde',true);return}}
+  Object.assign(data,updates); isDirty=false; document.getElementById('saveBar').classList.remove('visible');
+  renderBadges(); renderActionCard(); toast('Dossier enregistré ✓');
+}
+
+function markDirty(){if(MODE!=='prescripteur')return;isDirty=true;document.getElementById('saveBar').classList.add('visible')}
+function annulerModifs(){remplirForm(data,false);isDirty=false;document.getElementById('saveBar').classList.remove('visible')}
+
+// ── NOTES ─────────────────────────────────────────────────────────────────────
+function saveNotesDebounce(){
+  data.notes=document.getElementById('f_notes').value;markDirty();
+  clearTimeout(saveTimeout);saveTimeout=setTimeout(async()=>{
+    const supa=getSupa();if(supa&&CLIENT_ID)await supa.from('clients_prescripteur').update({notes:data.notes}).eq('id',CLIENT_ID);
+    const el=document.getElementById('notesSaved');el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);
+  },800);
+}
+
+// ── RAPPEL ─────────────────────────────────────────────────────────────────────
+async function updateRappel(jours){
+  const d=new Date();d.setDate(d.getDate()+parseInt(jours));data.rappel_date=d.toISOString();
+  document.getElementById('rappelDateTxt').textContent='Le '+d.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long'});
+  const supa=getSupa();if(supa&&CLIENT_ID)await supa.from('clients_prescripteur').update({rappel_date:d.toISOString()}).eq('id',CLIENT_ID);
+  toast('Rappel enregistré');
+}
+
+// ── COURBE POIDS ──────────────────────────────────────────────────────────────
+function renderCourbeIfNeeded(){
+  if(MODE!=='prescripteur')return;
+  const mesures=data.mesures||[];
+  if(chartPoids){chartPoids.destroy();chartPoids=null}
+  const ctx=document.getElementById('chartPoids')?.getContext('2d');if(!ctx)return;
+  chartPoids=new Chart(ctx,{type:'line',data:{labels:mesures.map(m=>new Date(m.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})),datasets:[{data:mesures.map(m=>m.poids),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.08)',borderWidth:2,pointRadius:3,tension:.35,fill:true,label:'Poids (kg)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}});
+}
+function ouvrirModalPoids(){
+  document.getElementById('mesureDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('mesurePoids').value='';
+  document.getElementById('modalPoids').classList.add('open');
+}
+async function confirmerPoids(){
+  const date=document.getElementById('mesureDate').value,poids=parseFloat(document.getElementById('mesurePoids').value);
+  if(!date||isNaN(poids)||poids<20||poids>300){toast('Valeur invalide',true);return}
+  if(!data.mesures)data.mesures=[];
+  data.mesures.push({date,poids});data.mesures.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const supa=getSupa();if(supa&&CLIENT_ID)await supa.from('clients_prescripteur').update({mesures:data.mesures}).eq('id',CLIENT_ID);
+  document.getElementById('modalPoids').classList.remove('open');
+  renderCourbeIfNeeded();toast('Mesure ajoutée ✓');
+}
+
+// ── HISTORIQUE PLANS ──────────────────────────────────────────────────────────
+function renderHistoPlans(){
+  const plans=data.plans||[];const el=document.getElementById('histoPlansContent');
+  el.innerHTML=plans.length?plans.map(p=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;background:var(--bg-secondary);border-radius:8px;margin-bottom:.4rem;font-size:.8rem">
+      <div><div style="color:var(--text-secondary);font-size:.7rem">${new Date(p.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      <div style="font-weight:500;color:var(--text-primary)">${OBJ_MAP[p.objectif]||p.objectif}</div></div>
+      <span class="badge ${p.statut==='livre'?'badge-green':p.statut==='en_attente'?'badge-amber':'badge-gray'}">${p.statut==='livre'?'✅ Livré':p.statut==='en_attente'?'⏳ En cours':p.statut}</span>
+    </div>`).join(''):'<div style="font-size:.82rem;color:var(--text-secondary)">Aucun plan commandé</div>';
+}
+
+// ── PLAN IA (diét.) ───────────────────────────────────────────────────────────
+async function genererPlanIA(){
+  if(!BILAN_ID){toast('bilan_id manquant',true);return}
+  const btn=document.querySelector('#mainActionCard .btn-main');if(btn){btn.disabled=true;btn.textContent='Génération en cours…'}
+  const supa=getSupa();
+  if(!supa){setTimeout(()=>{if(btn){btn.disabled=false;btn.textContent='Générer le plan IA →'}toast('Mode démo — Supabase requis')},1500);return}
+  try{
+    const{data:r,error}=await supa.functions.invoke('generate-plan',{body:{bilan_id:BILAN_ID}});
+    if(error)throw error;
+    toast('Plan généré ! Vérifiez votre dashboard.');if(btn){btn.textContent='✅ Plan généré';btn.style.background='#0f6e56'}
+  }catch(err){toast('Erreur : '+err.message,true);if(btn){btn.disabled=false;btn.textContent='Générer le plan IA →'}}
+}
+
+// ── COMMANDER PLAN (prescripteur) ─────────────────────────────────────────────
+async function confirmerPlan(){
+  const obj=document.getElementById('planObj').value,notes=document.getElementById('planNotes').value;
+  const supa=getSupa();
+  if(supa&&prescId){const{error}=await supa.from('demandes_plans').insert({client_id:CLIENT_ID,prescripteur_id:prescId,objectif:obj,notes,statut:'en_attente'});if(error){toast('Erreur',true);return}creditsRestants--;}
+  if(!data.plans)data.plans=[];data.plans.unshift({objectif:obj,statut:'en_attente',created_at:new Date().toISOString()});
+  const supa2=getSupa();if(supa2&&CLIENT_ID)await supa2.from('clients_prescripteur').update({plans:data.plans}).eq('id',CLIENT_ID);
+  document.getElementById('modalPlan').classList.remove('open');renderHistoPlans();renderActionCard();toast('Demande envoyée sous 48h ✓');
+}
+
+// ── SUPPRIMER ─────────────────────────────────────────────────────────────────
+async function supprimerClient(){
+  if(!confirm('Supprimer définitivement ce dossier ?'))return;
+  const supa=getSupa();if(supa&&CLIENT_ID)await supa.from('clients_prescripteur').delete().eq('id',CLIENT_ID);
+  window.location.href='prescripteur-crm.html';
+}
+
+// ── DÉCONNEXION ───────────────────────────────────────────────────────────────
+async function deconnecter(){const supa=getSupa();if(supa)await supa.auth.signOut();window.location.href='login.html'}
+
+// ── ÂGE CALCULÉ ──────────────────────────────────────────────────────────────
+function calcAgeFromDDN(ddn){
+  if(!ddn)return null;
+  const b=new Date(ddn), n=new Date();
+  let age=n.getFullYear()-b.getFullYear();
+  if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))age--;
+  return age>=0&&age<130?age:null;
+}
+function calcAge(){
+  const ddn=document.getElementById('f_ddn').value;
+  const age=calcAgeFromDDN(ddn);
+  const el=document.getElementById('age_calcule');
+  if(el) el.textContent=age!==null?age+' ans — Né(e) le '+new Date(ddn).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}):'';
+}
+
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+function getSupa(){return typeof supabaseClient!=='undefined'?supabaseClient:null}
+
+// ── DEMO DATA ─────────────────────────────────────────────────────────────────
+function demoBilan(){return{prenom:'Sophie',nom:'Leroi',date_naissance:'1991-03-15',age:34,sexe:'femme',ville:'Bordeaux',taille:166,poids:68.5,poids_objectif:63,alertes_sante:[],medicaments:'Aucun',sommeil:'6_8h',regime:'',aversions:'Foie, abats',budget:'30_50',activite:'modere',sport:'Course à pied',sport_freq:3,sport_duree:45,niveau_sport:'intermediaire',travail:'Bureau',objectif:'perte_poids',repas_matin:'Café + tartines',repas_midi:'Salade composée',repas_soir:'Repas chaud maison',freq_petit_dejeuner:'tous_jours',temps_repas_min:20,hydratation_l:1.5,metier:'Assistante comptable',activite_pro:'sedentaire',intensite_metier:2,intensite_sport:6,objectifs_cibles:['perte_poids','digestion'],aliments_aimes:'Légumes, fruits, poulet'}}
+function demoClient(){return{prenom:'Thomas',nom:'Carnet',date_naissance:'1998-06-22',age:28,sexe:'homme',ville:'Lyon',taille:180,poids_initial:75,poids_objectif:82,alertes_sante:[],medicaments:'',sommeil:'6_8h',regime:'',aversions:'Sauce soja',budget:'50_80',sport:'Musculation',sport_freq:4,sport_duree:60,niveau_sport:'confirme',metier:'Développeur web',activite_pro:'sedentaire',intensite_metier:1,intensite_sport:7,objectifs_cibles:['prise_muscle','energie'],aliments_aimes:'Poulet, riz, légumes',notes:'Coach sportif amateur, 5 séances/sem.',mesures:[{date:'2025-11-01',poids:75},{date:'2025-12-01',poids:76.8},{date:'2026-01-01',poids:78.2}],plans:[{objectif:'prise_masse',statut:'livre',created_at:'2025-12-10'}],rappel_date:null,statut:'en_cours',freq_petit_dejeuner:'tous_jours',hydratation_l:2.5,temps_repas_min:15}}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg,err=false){const el=document.createElement('div');el.className='toast';el.style.borderLeftColor=err?'#ef4444':'#1D9E75';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3500)}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('beforeunload',e=>{if(isDirty){e.preventDefault();e.returnValue=''}});
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'))});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setupHeader();
+  buildJournalRows();
+  goTab('identite',document.querySelector('.tab-btn[data-tab="identite"]'));
+  chargerDonnees();
+  document.getElementById('mesureDate').value=new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
