@@ -518,6 +518,7 @@
     .scroll-top-btn.visible { opacity: 1; }
   </style>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <!-- ==================== THÈME SELECTOR ==================== -->
@@ -539,7 +540,7 @@
       <div class="gregoire-mini-text">
         <strong>Grégoire Martin</strong> · Diététicien RPPS
       </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert · 🚒 Pompier expert</span>
+      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral · 🚒 Pompier expert</span>
     </div>
 
     <div class="header-actions">
@@ -725,6 +726,77 @@
     </div>
   </div>
 
+
+  <!-- ═══ CARD ABONNEMENT & FORFAIT ═══ -->
+  <div class="profil-card" id="cardAbonnement">
+    <div class="profil-card-header">
+      <h2>🌿 Mon abonnement</h2>
+      <span class="badge" id="forfaitBadge" style="background:rgba(107,114,128,.1);color:#6b7280;">Aucun forfait actif</span>
+    </div>
+
+    <!-- ── FORFAIT ACTUEL ── -->
+    <div id="forfaitActuel" style="display:none;background:var(--bg-secondary,#f7f9f7);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:.75rem;">
+        <div>
+          <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted,#6b7280);margin-bottom:.2rem;">Forfait actif</div>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary,#0d2018)" id="forfaitNom">Menus du mois</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:1.4rem;font-weight:800;color:#1D9E75;" id="forfaitPrix">4,90€<span style="font-size:.75rem;font-weight:400;">/mois</span></div>
+          <div style="font-size:.68rem;color:var(--text-muted,#6b7280);" id="forfaitRenouvellement">Prochain prélèvement : —</div>
+        </div>
+      </div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.3rem;" id="forfaitAvantages">
+        <li style="font-size:.8rem;display:flex;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> 5 menus par mois adaptés à votre profil</li>
+        <li style="font-size:.8rem;display:flex;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Recettes ajustées aux saisons</li>
+        <li style="font-size:.8rem;display:flex;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Personnalisés selon vos allergies et préférences</li>
+      </ul>
+    </div>
+
+    <!-- ── AUCUN FORFAIT ── -->
+    <div id="forfaitAucun" style="background:var(--bg-secondary,#f7f9f7);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;text-align:center;">
+      <div style="font-size:1.5rem;margin-bottom:.4rem;">🌿</div>
+      <div style="font-size:.88rem;font-weight:600;color:var(--text-primary,#0d2018);margin-bottom:.3rem;">Vous n'avez pas encore d'abonnement actif</div>
+      <div style="font-size:.78rem;color:var(--text-muted,#6b7280);line-height:1.5;">Découvrez nos offres pour recevoir des menus personnalisés chaque mois.</div>
+    </div>
+
+    <!-- ── ENCART UPGRADE (conditionnel) ── -->
+    <div id="encartUpgrade" style="display:none;border:2px solid #1D9E75;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;background:rgba(29,158,117,.04);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(29,158,117,.1),transparent 70%);pointer-events:none;"></div>
+      <div style="font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#1D9E75;margin-bottom:.5rem;">✨ Offre disponible</div>
+      <div style="font-size:.95rem;font-weight:700;color:var(--text-primary,#0d2018);margin-bottom:.3rem;" id="upgradeTitre">Passez au Suivi mensuel</div>
+      <div style="font-size:.78rem;color:var(--text-muted,#6b7280);margin-bottom:.85rem;line-height:1.5;" id="upgradeDesc">Bénéficiez d'un suivi personnalisé par votre diét. chaque mois, en plus de vos menus.</div>
+      <div id="upgradeAvantages" style="margin-bottom:1rem;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+        <div style="font-size:1.3rem;font-weight:800;color:#1D9E75;" id="upgradePrix"></div>
+        <button onclick="upgraderForfait()" style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;">
+          Passer à cette offre →
+        </button>
+      </div>
+    </div>
+
+    <!-- ── HISTORIQUE FACTURATION ── -->
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:.78rem;font-weight:600;color:var(--text-primary,#0d2018);margin-bottom:.6rem;">Historique de facturation</div>
+      <div id="historiqueFacturation">
+        <div style="font-size:.78rem;color:var(--text-muted,#6b7280);padding:.5rem 0;">Aucune transaction pour le moment.</div>
+      </div>
+    </div>
+
+    <!-- ── ACTIONS ── -->
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;" id="forfaitActions">
+      <button id="btnSouscrire" onclick="gererAbonnement('souscrire')"
+        style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.6rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;">
+        S'abonner aux menus — 4,90€/mois →
+      </button>
+      <button id="btnResilier" onclick="gererAbonnement('resilier')"
+        style="display:none;background:transparent;color:#ef4444;border:1.5px solid rgba(239,68,68,.3);border-radius:999px;padding:.55rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;">
+        Résilier l'abonnement
+      </button>
+    </div>
+    <div style="font-size:.68rem;color:var(--text-muted,#6b7280);margin-top:.5rem;" id="forfaitNote">Sans engagement · Résiliable à tout moment</div>
+  </div>
+
   <!-- CARD SUPPRESSION DE COMPTE -->
   <div class="profil-card">
     <div class="profil-card-header">
@@ -803,3 +875,121 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
+// ── FORFAITS DISPONIBLES ────────────────────────────────────────────────────
+const FORFAITS = {
+  aucun: { nom: null, prix: null },
+  menus: {
+    nom: 'Menus du mois',
+    prix: '4,90€',
+    avantages: [
+      '5 menus par mois adaptés à votre profil',
+      'Recettes ajustées aux saisons',
+      'Personnalisés selon vos allergies et préférences',
+    ],
+    upgrade: 'suivi',
+  },
+  suivi: {
+    nom: 'Suivi mensuel',
+    prix: '12,90€',
+    avantages: [
+      '5 menus par mois personnalisés',
+      '1 bilan de suivi mensuel avec votre diét.',
+      'Ajustements de plan inclus',
+      'Messagerie prioritaire',
+    ],
+    upgrade: null,
+  },
+};
+const UPGRADES = {
+  menus: {
+    titre: 'Passez au Suivi mensuel',
+    desc: 'Un bilan de suivi mensuel avec votre diét. + ajustements de plan inclus, en plus de vos menus.',
+    prix: '12,90€/mois',
+    avantages: ['1 bilan mensuel avec votre diét.', 'Ajustements de plan inclus', 'Messagerie prioritaire'],
+  },
+};
+function initAbonnement() {
+  const key = localStorage.getItem('nutridoc_forfait') || 'aucun';
+  afficherForfait(key);
+}
+function afficherForfait(key) {
+  const f = FORFAITS[key];
+  const badge = document.getElementById('forfaitBadge');
+  const actuel = document.getElementById('forfaitActuel');
+  const aucun = document.getElementById('forfaitAucun');
+  const btnSouscrire = document.getElementById('btnSouscrire');
+  const btnResilier = document.getElementById('btnResilier');
+  const note = document.getElementById('forfaitNote');
+  if (!badge) return;
+  if (key === 'aucun') {
+    badge.textContent = 'Aucun abonnement';
+    badge.style.cssText = 'background:rgba(107,114,128,.1);color:#6b7280;';
+    if (actuel) actuel.style.display = 'none';
+    if (aucun) aucun.style.display = 'block';
+    if (btnSouscrire) btnSouscrire.style.display = 'inline-block';
+    if (btnResilier) btnResilier.style.display = 'none';
+    if (note) note.textContent = 'Sans engagement · Résiliable à tout moment';
+    document.getElementById('encartUpgrade').style.display = 'none';
+  } else {
+    badge.textContent = '✓ ' + f.nom;
+    badge.style.cssText = 'background:rgba(29,158,117,.12);color:#1D9E75;';
+    if (actuel) actuel.style.display = 'block';
+    if (aucun) aucun.style.display = 'none';
+    document.getElementById('forfaitNom').textContent = f.nom;
+    document.getElementById('forfaitPrix').innerHTML = f.prix + '<span style="font-size:.75rem;font-weight:400;">/mois</span>';
+    const d = new Date(); d.setMonth(d.getMonth() + 1);
+    document.getElementById('forfaitRenouvellement').textContent = 'Prochain prélèvement : ' + d.toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
+    document.getElementById('forfaitAvantages').innerHTML = f.avantages.map(a => `<li style="font-size:.8rem;display:flex;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span>${a}</li>`).join('');
+    if (btnSouscrire) btnSouscrire.style.display = 'none';
+    if (btnResilier) btnResilier.style.display = 'inline-block';
+    if (note) note.textContent = "Vous conservez l'accès jusqu'à la fin du mois en cours après résiliation.";
+    const enc = document.getElementById('encartUpgrade');
+    if (f.upgrade && UPGRADES[key]) {
+      const u = UPGRADES[key];
+      enc.style.display = 'block';
+      document.getElementById('upgradeTitre').textContent = u.titre;
+      document.getElementById('upgradeDesc').textContent = u.desc;
+      document.getElementById('upgradePrix').textContent = u.prix;
+      document.getElementById('upgradeAvantages').innerHTML = u.avantages.map(a => `<div style="font-size:.78rem;display:flex;gap:.4rem;margin-bottom:.2rem;"><span style="color:#1D9E75;">✓</span>${a}</div>`).join('');
+    } else { if(enc) enc.style.display = 'none'; }
+    afficherHistorique(key);
+  }
+}
+function afficherHistorique(key) {
+  const el = document.getElementById('historiqueFacturation'); if (!el) return;
+  const mois = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const now = new Date();
+  el.innerHTML = [0,1].map(i => {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;background:var(--bg-secondary,#f7f9f7);border-radius:8px;margin-bottom:.3rem;font-size:.78rem;">
+      <span style="color:var(--text-secondary,#4b5563);">${FORFAITS[key]?.nom} · ${mois[d.getMonth()]} ${d.getFullYear()}</span>
+      <span style="font-weight:600;color:var(--text-primary,#0d2018);">${FORFAITS[key]?.prix}/mois</span>
+    </div>`;
+  }).join('');
+}
+function gererAbonnement(action) {
+  if (action === 'souscrire') {
+    if (confirm("S'abonner aux Menus du mois — 4,90€/mois ?\nSans engagement, résiliable à tout moment.")) {
+      localStorage.setItem('nutridoc_forfait', 'menus');
+      afficherForfait('menus');
+    }
+  } else if (action === 'resilier') {
+    if (confirm("Résilier votre abonnement ?\nVous conservez l'accès jusqu'à fin de période.")) {
+      localStorage.removeItem('nutridoc_forfait');
+      afficherForfait('aucun');
+    }
+  }
+}
+function upgraderForfait() {
+  const actuel = localStorage.getItem('nutridoc_forfait') || 'aucun';
+  const cible = FORFAITS[actuel]?.upgrade; if (!cible) return;
+  const f = FORFAITS[cible];
+  if (confirm(`Passer au forfait "${f.nom}" — ${f.prix}/mois ?\nVotre abonnement sera mis à niveau immédiatement.`)) {
+    localStorage.setItem('nutridoc_forfait', cible);
+    afficherForfait(cible);
+  }
+}
+document.addEventListener('DOMContentLoaded', initAbonnement);
+</script>
+</body>
+</html>

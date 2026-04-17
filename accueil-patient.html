@@ -32,10 +32,11 @@
     .nd-btn-primary{background:#1D9E75;color:#fff;padding:.4rem 1.2rem;border-radius:999px;font-size:.75rem;font-weight:500;text-decoration:none;}
     .nd-btn-primary:hover{background:#0f6e56;}
     .cw{position:relative;}
-    .cm{display:none;position:absolute;top:100%;right:0;background:var(--bg-primary);border:1px solid rgba(29,158,117,.2);border-radius:12px;width:200px;margin-top:.5rem;z-index:101;overflow:hidden;}
+    .cm{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#0d2018;border:1px solid rgba(29,158,117,.2);border-radius:12px;width:200px;z-index:101;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.2);}
     .cm.open{display:block;}
-    .ci{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;}
-    .ci:hover{background:rgba(29,158,117,.1);color:#fff;}
+    .ci{display:block;padding:.55rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.05);transition:.15s;}
+    .ci:last-child{border-bottom:none;}
+    .ci:hover{background:rgba(29,158,117,.12);color:#fff;}
     @media(max-width:900px){.nd-header{padding:.75rem 1rem;}.nd-nav{display:none;}}
 
     /* ============================================================
@@ -121,6 +122,8 @@
     .nd-car-nav{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.6rem;z-index:10;}
     .nd-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s;border:none;}
     .nd-dot.active{background:#5DCAA5;width:28px;}
+    .nd-pause-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:.25rem;}
+    .nd-pause-btn:hover{background:rgba(29,158,117,.3);border-color:#1D9E75;color:#fff;}
     .nd-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px);}
     .nd-arrow:hover{background:rgba(29,158,117,.4);border-color:#1D9E75;}
     .nd-arrow.prev{left:1.5rem;}
@@ -160,8 +163,9 @@
     .etape h3{font-size:.95rem;font-weight:600;color:var(--text-primary);margin-bottom:.3rem;}
     .etape p{font-size:.8rem;color:var(--text-secondary);line-height:1.6;}
     .etape-badge{display:inline-block;font-size:.65rem;background:rgba(29,158,117,.1);color:#1D9E75;border-radius:999px;padding:.15rem .6rem;margin-top:.4rem;}
-    .tarifs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:900px;margin:0 auto;}
-    @media(max-width:768px){.tarifs-grid{grid-template-columns:1fr;max-width:380px;}}
+    .tarifs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;max-width:1150px;margin:0 auto;}
+    @media(max-width:1050px){.tarifs-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:560px){.tarifs-grid{grid-template-columns:1fr;max-width:400px;}}
     .t-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.5rem;transition:transform .2s;}
     .t-card:hover{transform:translateY(-4px);}
     .t-card.t-feat{background:linear-gradient(135deg,#0d2018,#1a3a2a);border:2px solid #1D9E75;}
@@ -347,11 +351,11 @@
             <div class="sc-big">
               <div class="sc-big-n">0 €</div>
               <div class="sc-big-l">Pour commencer · Sans carte bancaire</div>
-              <div class="sc-big-s">Bilan + recommandations + menus · Gratuit pour toujours</div>
+              <div class="sc-big-s">Bilan + recommandations · Gratuit pour toujours</div>
             </div>
             <hr class="sc-divider"/>
             <div class="sc-row"><span class="sc-row-l">Plan complet 4 semaines</span><span class="sc-row-r">24,90€ · une seule fois</span></div>
-            <div class="sc-row"><span class="sc-row-l">Abonnement mensuel</span><span class="sc-row-r" style="color:rgba(255,255,255,.4);">Aucun</span></div>
+            <div class="sc-row"><span class="sc-row-l">🌿 Menus du mois (abonnement)</span><span class="sc-row-r">4,90€/mois</span></div>
             <div class="sc-row"><span class="sc-row-l">Visio de suivi (optionnel)</span><span class="sc-row-r">55€ TTC</span></div>
             <div class="sc-footer" style="justify-content:center;"><div class="sc-badge-g">Sans engagement · Aucune surprise</div></div>
           </div>
@@ -362,6 +366,7 @@
     <button class="nd-arrow prev" onclick="slideNav(-1)">◀</button>
     <button class="nd-arrow next" onclick="slideNav(1)">▶</button>
     <div class="nd-car-nav" id="carouselNav"></div>
+    <button class="nd-pause-btn" id="pauseBtn" title="Pause / Lecture">⏸</button>
   </div>
 <!-- OBJECTIFS -->
 <section class="nd-section nd-section-light" id="objectifs">
@@ -392,7 +397,7 @@
     </div>
     <div class="etapes">
       <div class="etape" data-reveal><div class="etape-n">1</div><div><h3>Remplissez le bilan nutritionnel gratuit</h3><p>5 minutes : habitudes, sport, préférences, objectifs, allergies.</p><span class="etape-badge">Gratuit · Aucune CB</span></div></div>
-      <div class="etape" data-reveal><div class="etape-n">2</div><div><h3>Accédez immédiatement à vos recommandations</h3><p>Dès la soumission, vous recevez conseils personnalisés et menus hebdomadaires. Tout de suite.</p><span class="etape-badge">Immédiat · Toujours gratuit</span></div></div>
+      <div class="etape" data-reveal><div class="etape-n">2</div><div><h3>Accédez immédiatement à vos recommandations</h3><p>Dès la soumission, vous recevez conseils personnalisés et recommandations nutritionnelles. Tout de suite.</p><span class="etape-badge">Immédiat · Toujours gratuit</span></div></div>
       <div class="etape" data-reveal><div class="etape-n">3</div><div><h3>Commandez votre plan complet (si vous le souhaitez)</h3><p>Plan 4 semaines avec grammages précis, macros détaillés et signature RPPS. 24,90€ une seule fois.</p><span class="etape-badge">24,90€ · Paiement sécurisé</span></div></div>
       <div class="etape" data-reveal><div class="etape-n">4</div><div><h3>Un diét. certifié RPPS valide et signe</h3><p>Un diét. de votre région analyse votre dossier, personnalise le plan, et le signe électroniquement.</p></div></div>
       <div class="etape" data-reveal><div class="etape-n">5</div><div><h3>Téléchargez et échangez avec votre diét.</h3><p>Votre plan PDF est disponible sous 48h ouvrées. Messagerie incluse 30 jours.</p><span class="etape-badge">⏱ Sous 48h max</span></div></div>
@@ -412,10 +417,22 @@
       <div class="t-card" data-reveal>
         <div class="t-tier">DÉCOUVERTE</div><div class="t-prix">0 €</div>
         <div class="t-desc">Pour toujours · Sans carte bancaire</div>
-        <ul class="t-list"><li>Bilan nutritionnel complet</li><li>Recommandations personnalisées</li><li>Menus hebdomadaires adaptés</li><li>Accès aux outils libres</li></ul>
+        <ul class="t-list"><li>Bilan nutritionnel complet</li><li>Recommandations personnalisées</li><li>Accès aux outils nutritionnels libres</li></ul>
         <a href="bilan.html" class="t-btn t-btn-o">Commencer gratuitement</a>
       </div>
-      <div class="t-card t-feat" data-reveal>
+      <div class="t-card" data-reveal>
+        <div class="t-tier">🌿 MENUS DU MOIS</div>
+        <div class="t-prix" style="font-size:1.7rem;">4,90 <span style="font-size:.9rem;font-weight:500">€/mois</span></div>
+        <div class="t-desc">Sans engagement · Résiliable à tout moment</div>
+        <ul class="t-list">
+          <li>5 menus par mois adaptés à votre profil</li>
+          <li>Recettes ajustées aux saisons</li>
+          <li>Personnalisés selon vos goûts et allergies</li>
+          <li>Accès à tous les outils libres</li>
+        </ul>
+        <a href="bilan.html" class="t-btn t-btn-o">Découvrir les menus →</a>
+      </div>
+            <div class="t-card t-feat" data-reveal>
         <div class="t-tier">⭐ PLAN COMPLET</div><div class="t-prix">24,90 €</div>
         <div class="t-desc">Paiement unique · Livraison sous 48h</div>
         <ul class="t-list"><li>Plan 4 semaines avec grammages précis</li><li>Signé par un diét. certifié RPPS</li><li>Macros par repas (P / G / L)</li><li>Périodisation J actif / J repos</li><li><strong>Messagerie avec votre diét. 30j</strong></li></ul>
@@ -428,7 +445,7 @@
         <a href="bilan.html" class="t-btn t-btn-o">Prendre rendez-vous</a>
       </div>
     </div>
-    <div class="t-note"><p>💚 Les 55€ de la visio sont intégralement reversés au diét. · Remboursement partiel selon votre mutuelle</p></div>
+    <div class="t-note"><p>💚 Consultation visio potentiellement remboursable par votre mutuelle · Attestation générée automatiquement</p></div>
   </div>
 </section>
 
@@ -507,8 +524,8 @@ document.addEventListener('click',(e)=>{const w=document.getElementById('ndConnW
 
 // ==================== CAROUSEL ====================
 (function(){
-  let cur=0,tot=0,pTimer,progress=0;
-  const DURATION=6000;
+  let cur=0,tot=0,pTimer,progress=0,paused=false;
+  const DURATION=10000;
   function init(){
     tot=document.querySelectorAll('.nd-slide').length;
     const nav=document.getElementById('carouselNav');
@@ -521,11 +538,20 @@ document.addEventListener('click',(e)=>{const w=document.getElementById('ndConnW
       nav.appendChild(d);
     }
     updateDots();startProgress();
+    // Pause au survol du carousel
+    const car=document.getElementById('ndCarousel');
+    if(car){
+      car.addEventListener('mouseenter',()=>{paused=true;});
+      car.addEventListener('mouseleave',()=>{paused=false;});
+      // Bouton pause/play
+      const pb=document.getElementById('pauseBtn');
+      if(pb)pb.addEventListener('click',()=>{paused=!paused;pb.textContent=paused?'▶':'⏸';});
+    }
   }
   function updateDots(){document.querySelectorAll('.nd-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));}
   function showSlide(n){document.querySelectorAll('.nd-slide').forEach((s,i)=>s.classList.toggle('active',i===n));updateDots();}
   function goTo(n){cur=(n+tot)%tot;showSlide(cur);resetProgress();}
-  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
+  function startProgress(){progress=0;clearInterval(pTimer);const b=document.getElementById('progressBar');if(b)b.style.width='0%';pTimer=setInterval(()=>{if(paused)return;progress+=100/(DURATION/100);if(progress>=100){clearInterval(pTimer);goTo(cur+1);}const b2=document.getElementById('progressBar');if(b2)b2.style.width=Math.min(progress,100)+'%';},100);}
   function resetProgress(){clearInterval(pTimer);startProgress();}
   window.slideNav=function(d){goTo(cur+d);};
   document.addEventListener('DOMContentLoaded',init);

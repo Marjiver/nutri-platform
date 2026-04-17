@@ -63,36 +63,22 @@
       text-decoration: none;
     }
     .logo em { font-style: italic; color: #5DCAA5; }
-    .user-btn {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 999px;
-      padding: 0.4rem 1rem;
-      color: #fff;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-    .user-dropdown {
-      display: none;
-      position: absolute;
-      top: 55px;
-      right: 1.5rem;
-      background: #0d2018;
-      border: 1px solid rgba(29,158,117,.2);
-      border-radius: 12px;
-      width: 160px;
-      z-index: 101;
-    }
-    .user-dropdown.open { display: block; }
-    .user-dropdown a {
-      display: block;
-      padding: 0.6rem 1rem;
-      color: rgba(255,255,255,.7);
-      text-decoration: none;
-      font-size: 0.8rem;
-      border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-    .user-dropdown a:hover { background: rgba(29,158,117,.1); color: #fff; }
+    .header-user{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.35rem .85rem .35rem .35rem;cursor:pointer;transition:.2s;}
+    .header-user:hover{background:rgba(255,255,255,.1);border-color:rgba(29,158,117,.4);}
+    .header-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0f6e56);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .header-name{font-size:.78rem;color:rgba(255,255,255,.9);font-weight:500;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .header-caret{font-size:.6rem;color:rgba(255,255,255,.45);margin-left:.15rem;}
+    .user-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#0d2018;border:1px solid rgba(29,158,117,.2);border-radius:14px;width:210px;z-index:101;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3);}
+    .user-dropdown.open{display:block;}
+    .user-dropdown-header{padding:.75rem 1rem .6rem;border-bottom:1px solid rgba(255,255,255,.07);}
+    .user-dropdown-name{font-size:.82rem;font-weight:600;color:#fff;}
+    .user-dropdown-email{font-size:.68rem;color:rgba(255,255,255,.4);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .user-dropdown a{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.05);transition:.15s;}
+    .user-dropdown a:last-child{border-bottom:none;}
+    .user-dropdown a:hover{background:rgba(29,158,117,.1);color:#fff;}
+    .user-dropdown a.active-link{color:#5DCAA5;font-weight:500;}
+    .user-dropdown .dropdown-sep{height:1px;background:rgba(255,255,255,.07);margin:.2rem 0;}
+    .user-btn{display:none;}
 
     /* LAYOUT */
     .dashboard-layout {
@@ -531,20 +517,47 @@
       .info-grid { grid-template-columns: repeat(2, 1fr); }
       .habits-grid { grid-template-columns: 1fr; }
     }
+
+    /* BULLE QUIZ */
+    .quiz-bubble{position:fixed;bottom:1.5rem;left:1.5rem;z-index:300;}
+    .quiz-toggle{width:56px;height:56px;background:#1D9E75;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:1.5rem;transition:transform .2s,background .2s;}
+    .quiz-toggle:hover{transform:scale(1.05);background:#0f6e56;}
+    .quiz-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#f59e0b;border-radius:50%;font-size:.6rem;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+    .quiz-window{display:none;position:absolute;bottom:70px;left:0;width:340px;background:var(--bg-card,#fff);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid rgba(29,158,117,.2);max-height:500px;}
+    .quiz-window.open{display:block;}
+    .quiz-win-header{background:#1D9E75;color:#fff;padding:.75rem 1rem;font-size:.9rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .quiz-win-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
+    .quiz-win-body{padding:1rem;overflow-y:auto;max-height:420px;}
+
   </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <header class="dashboard-header">
   <a href="index.html" class="logo">Nutri<em>Doc</em></a>
-  <div style="position: relative;">
-    <button class="user-btn" onclick="toggleUserMenu()">👤 Mon compte ▾</button>
+  <div style="position:relative;" id="ndConnWrap2">
+    <div class="header-user" onclick="toggleUserMenu()" id="headerUserBtn">
+      <div class="header-avatar" id="headerAvatar">?</div>
+      <span class="header-name" id="headerName">Mon compte</span>
+      <span class="header-caret">▾</span>
+    </div>
     <div class="user-dropdown" id="userDropdown">
-      <a href="#" onclick="deconnexion()">🔓 Se déconnecter</a>
-      <a href="index.html">🏠 Accueil</a>
-      <a href="bilan.html">📋 Nouveau bilan</a>
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">—</div>
+        <div class="user-dropdown-email" id="dropdownEmail">—</div>
+      </div>
+      <a href="profil-patient.html">👤 Mon profil</a>
+      <a href="profil-patient.html#cardAbonnement" id="linkAbonnement">🌿 Mon abonnement
+        <span id="abonnementBadge" style="margin-left:auto;font-size:.65rem;background:rgba(107,114,128,.15);color:rgba(255,255,255,.4);border-radius:999px;padding:1px 7px;">—</span>
+      </a>
+      <div class="dropdown-sep"></div>
+      <a href="bilan.html">📋 Modifier mon bilan</a>
       <a href="faq.html">❓ Aide</a>
+      <div class="dropdown-sep"></div>
+      <a href="#" onclick="deconnexion();return false;" style="color:rgba(239,68,68,.7);">🔓 Se déconnecter</a>
     </div>
   </div>
 </header>
@@ -555,6 +568,7 @@
       <div class="sidebar-item active" data-section="accueil"><span class="sidebar-icon">🏠</span><span>Accueil</span></div>
       <div class="sidebar-item" data-section="bilan"><span class="sidebar-icon">📋</span><span>Mon bilan</span></div>
       <div class="sidebar-item" data-section="plan"><span class="sidebar-icon">📄</span><span>Mon plan</span></div>
+      <div class="sidebar-item" data-section="menus"><span class="sidebar-icon">🌿</span><span>Mes menus</span></div>
       <div class="sidebar-item" data-section="outils"><span class="sidebar-icon">🔧</span><span>Outils</span></div>
       <div class="sidebar-item" data-section="profil"><span class="sidebar-icon">👤</span><span>Mon profil</span></div>
     </div>
@@ -639,8 +653,64 @@
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title">📅 Prendre un RDV visio avec votre diététicien</div></div>
-        <p style="font-size: 0.85rem; margin-bottom: 1rem;">Consultation de 45 min · 55€ · Remboursement possible par votre mutuelle</p>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem;">Consultation de 45 min · 55€ TTC · Potentiellement remboursable par votre mutuelle · Attestation générée automatiquement</p>
         <div class="agenda-slots" id="agendaSlots"></div>
+      </div>
+    </div>
+
+
+    <!-- SECTION MES MENUS -->
+    <div id="section-menus" class="section">
+      <!-- Carte abonnement non souscrit -->
+      <div class="card" id="menusLocked">
+        <div class="card-header">
+          <div class="card-title">🌿 Menus du mois</div>
+          <span class="badge" style="background:rgba(29,158,117,.1);color:#1D9E75;">Abonnement</span>
+        </div>
+        <p style="font-size:.85rem;color:var(--text-muted,#6b7280);margin-bottom:1.25rem;line-height:1.6;">
+          Recevez chaque mois <strong>5 menus personnalisés</strong> selon votre profil, vos préférences et les saisons.
+          Adaptés à vos allergies et à vos objectifs nutritionnels.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg-secondary,#f7f9f7);border-radius:12px;padding:1rem;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:800;color:#1D9E75;">5</div>
+            <div style="font-size:.72rem;color:var(--text-muted,#6b7280);margin-top:2px;">menus par mois</div>
+          </div>
+          <div style="background:var(--bg-secondary,#f7f9f7);border-radius:12px;padding:1rem;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:800;color:#1D9E75;">4,90€</div>
+            <div style="font-size:.72rem;color:var(--text-muted,#6b7280);margin-top:2px;">par mois · sans engagement</div>
+          </div>
+        </div>
+        <ul style="list-style:none;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:.4rem;">
+          <li style="font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Recettes adaptées aux saisons</li>
+          <li style="font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Personnalisés selon vos goûts et allergies</li>
+          <li style="font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Cohérents avec votre objectif nutritionnel</li>
+          <li style="font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#1D9E75;font-weight:700;">✓</span> Résiliable à tout moment</li>
+        </ul>
+        <button class="btn-primary" onclick="souscrireMenus()" style="width:100%;padding:.8rem;font-size:.9rem;">
+          S'abonner aux menus — 4,90€/mois →
+        </button>
+        <p style="font-size:.68rem;color:var(--text-muted,#6b7280);text-align:center;margin-top:.6rem;">Sans engagement · Résiliable depuis votre profil</p>
+      </div>
+
+      <!-- Carte menus actifs (affichée une fois abonné) -->
+      <div class="card" id="menusActif" style="display:none;">
+        <div class="card-header">
+          <div class="card-title">🌿 Mes menus du mois</div>
+          <span class="badge" style="background:rgba(29,158,117,.12);color:#1D9E75;">✓ Abonné</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--text-muted,#6b7280);margin-bottom:1rem;">Vos menus de ce mois, adaptés à votre profil et à la saison.</p>
+        <div id="menusListeContent">
+          <!-- Menus chargés dynamiquement -->
+          <div style="text-align:center;padding:2rem 1rem;color:var(--text-muted,#6b7280);">
+            <div style="font-size:1.5rem;margin-bottom:.5rem;">⏳</div>
+            <div style="font-size:.85rem;">Vos menus du mois arrivent sous peu…</div>
+            <div style="font-size:.75rem;margin-top:.25rem;">Disponibles dès le début du mois suivant votre abonnement</div>
+          </div>
+        </div>
+        <button class="btn-outline" onclick="resilierMenus()" style="margin-top:1rem;width:100%;font-size:.8rem;color:#ef4444;border-color:rgba(239,68,68,.3);">
+          Résilier l'abonnement
+        </button>
       </div>
     </div>
 
@@ -648,48 +718,98 @@
     <div id="section-outils" class="section">
       <div class="card">
         <div class="card-header"><div class="card-title">🔧 Outils gratuits</div></div>
-        
-        <!-- Outil 1 : Calculatrice -->
+
+        <!-- Outil 1 : Courbe du poids -->
         <div class="tool-card">
           <div class="tool-header" onclick="toggleTool(this)">
-            <span class="tool-icon">📐</span>
-            <span class="tool-title">Calculatrice g / ml</span>
+            <span class="tool-icon">📊</span>
+            <span class="tool-title">Courbe de poids</span>
             <span class="tool-arrow">▼</span>
           </div>
           <div class="tool-content">
-            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end;">
-              <div><label style="font-size: 0.7rem;">Aliment</label>
-                <select id="calcAliment" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee;">
+            <canvas id="weightHistoryChart" height="150" style="max-height:150px;"></canvas>
+            <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+              <input type="number" id="newWeight" placeholder="Nouveau poids (kg)" style="padding:.4rem;border-radius:8px;border:1px solid #eef4ee;width:150px;">
+              <button class="btn-outline" onclick="ajouterPoidsHistorique()">Ajouter</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outil 2 : Équivalences féculents -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">🥔</span>
+            <span class="tool-title">Équivalences féculents</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <p style="font-size:.78rem;color:var(--text-muted,#6b7280);margin-bottom:1rem;line-height:1.5;">Quelle quantité d'un autre féculent apporte les mêmes calories que votre portion de référence ?</p>
+            <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin-bottom:1rem;">
+              <div>
+                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;">Aliment de référence</label>
+                <select id="equivRef" onchange="calculerEquivalences()" style="padding:.4rem .6rem;border-radius:8px;border:1px solid var(--border-light,#eef4ee);font-family:Outfit,sans-serif;font-size:.82rem;">
+                  <option value="70">Pommes de terre cuites</option>
+                  <option value="85">Patate douce cuite</option>
+                  <option value="120">Riz blanc cuit</option>
+                  <option value="130">Riz complet cuit</option>
+                  <option value="115">Pâtes cuites</option>
+                  <option value="125">Pâtes complètes cuites</option>
+                  <option value="125">Quinoa cuit</option>
+                  <option value="95">Lentilles cuites</option>
+                  <option value="110">Pois chiches cuits</option>
+                  <option value="100">Haricots rouges cuits</option>
+                  <option value="100">Haricots blancs cuits</option>
+                  <option value="110">Semoule de blé cuite</option>
+                  <option value="108">Boulgour cuit</option>
+                  <option value="100">Maïs (grains cuits)</option>
+                  <option value="265">Pain blanc</option>
+                  <option value="250">Pain complet</option>
+                  <option value="260">Pain de seigle</option>
+                  <option value="370">Flocons d'avoine</option>
+                  <option value="70">Polenta cuite</option>
+                  <option value="120">Millet cuit</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;">Portion (g)</label>
+                <input type="number" id="equivQte" value="400" min="10" max="2000" oninput="calculerEquivalences()" style="width:85px;padding:.4rem .6rem;border-radius:8px;border:1px solid var(--border-light,#eef4ee);font-family:Outfit,sans-serif;font-size:.82rem;">
+              </div>
+              <div style="font-size:.8rem;color:var(--text-secondary,#4b5563);">= <strong id="equivKcal" style="color:#1D9E75;font-size:1rem;">280</strong> kcal</div>
+            </div>
+            <div id="equivResultat" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.5rem;"></div>
+            <div style="font-size:.65rem;color:var(--text-muted,#6b7280);margin-top:.75rem;">Source : Table CIQUAL 2020 · ANSES · Valeurs en poids cuit</div>
+          </div>
+        </div>
+
+        <!-- Outil 3 : Calculatrice g/ml -->
+        <div class="tool-card">
+          <div class="tool-header" onclick="toggleTool(this)">
+            <span class="tool-icon">📐</span>
+            <span class="tool-title">Convertisseur g / ml</span>
+            <span class="tool-arrow">▼</span>
+          </div>
+          <div class="tool-content">
+            <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
+              <div><label style="font-size:.7rem;">Aliment</label>
+                <select id="calcAliment" style="padding:.4rem;border-radius:8px;border:1px solid #eef4ee;">
                   <option value="1.0">Eau</option><option value="0.916">Huile d'olive</option><option value="1.03">Lait</option>
                   <option value="1.42">Miel</option><option value="1.18">Sauce soja</option>
                 </select>
               </div>
-              <div><label style="font-size: 0.7rem;">Quantité</label><input type="number" id="calcQte" value="100" style="width: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee;"></div>
-              <div><label style="font-size: 0.7rem;">Unité</label>
-                <select id="calcUnite" style="padding: 0.4rem; border-radius: 8px;">
+              <div><label style="font-size:.7rem;">Quantité</label><input type="number" id="calcQte" value="100" style="width:90px;padding:.4rem;border-radius:8px;border:1px solid #eef4ee;"></div>
+              <div><label style="font-size:.7rem;">Unité</label>
+                <select id="calcUnite" style="padding:.4rem;border-radius:8px;">
                   <option value="g">grammes (g)</option><option value="ml">millilitres (ml)</option>
                   <option value="cs">cuillères à soupe</option><option value="cc">cuillères à café</option>
                 </select>
               </div>
               <div><button class="btn-outline" onclick="calculerConversion()">Convertir</button></div>
             </div>
-            <div id="calcResult" style="margin-top: 0.75rem; font-size: 0.85rem; background: #eef4ee; padding: 0.5rem; border-radius: 8px;">Résultat</div>
+            <div id="calcResult" style="margin-top:.75rem;font-size:.85rem;background:#eef4ee;padding:.5rem;border-radius:8px;">Résultat</div>
           </div>
         </div>
 
-        <!-- Outil 2 : Quiz Nutrition Sportive -->
-        <div class="tool-card">
-          <div class="tool-header" onclick="toggleTool(this)">
-            <span class="tool-icon">🧠</span>
-            <span class="tool-title">Quiz nutrition sportive</span>
-            <span class="tool-arrow">▼</span>
-          </div>
-          <div class="tool-content">
-            <div id="quizContainer"></div>
-          </div>
-        </div>
-
-        <!-- Outil 3 : FAQ Nutrition -->
+        <!-- Outil 4 : FAQ -->
         <div class="tool-card">
           <div class="tool-header" onclick="toggleTool(this)">
             <span class="tool-icon">❓</span>
@@ -701,21 +821,6 @@
           </div>
         </div>
 
-        <!-- Outil 4 : Suivi poids -->
-        <div class="tool-card">
-          <div class="tool-header" onclick="toggleTool(this)">
-            <span class="tool-icon">📊</span>
-            <span class="tool-title">Suivi poids</span>
-            <span class="tool-arrow">▼</span>
-          </div>
-          <div class="tool-content">
-            <canvas id="weightHistoryChart" height="150" style="max-height: 150px;"></canvas>
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-              <input type="number" id="newWeight" placeholder="Nouveau poids (kg)" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #eef4ee; width: 120px;">
-              <button class="btn-outline" onclick="ajouterPoidsHistorique()">Ajouter</button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -779,8 +884,8 @@ function toggleUserMenu() {
 }
 document.addEventListener('click', (e) => {
   const menu = document.getElementById('userDropdown');
-  const btn = document.querySelector('.user-btn');
-  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
+  const wrap = document.getElementById('ndConnWrap2');
+  if (menu && wrap && !wrap.contains(e.target)) menu.classList.remove('open');
 });
 function deconnexion() { localStorage.clear(); window.location.href = 'index.html'; }
 
@@ -1028,6 +1133,25 @@ function toggleFAQ(element) {
 function init() {
   // Données simulées
   document.getElementById('greetingName').textContent = localStorage.getItem('user_prenom') || 'Patient';
+  // Header : avatar + nom
+  const prenom = localStorage.getItem('user_prenom') || '';
+  const nom    = localStorage.getItem('user_nom') || '';
+  const email  = localStorage.getItem('user_email') || '';
+  const ini = (prenom[0]||'') + (nom[0]||'');
+  const hAvatar = document.getElementById('headerAvatar');
+  const hName   = document.getElementById('headerName');
+  const dName   = document.getElementById('dropdownName');
+  const dEmail  = document.getElementById('dropdownEmail');
+  if (hAvatar) hAvatar.textContent = ini.toUpperCase() || '?';
+  if (hName)   hName.textContent   = prenom || 'Mon compte';
+  if (dName)   dName.textContent   = (prenom + ' ' + nom).trim() || '—';
+  if (dEmail)  dEmail.textContent  = email || '—';
+  const forfait = localStorage.getItem('nutridoc_forfait') || 'aucun';
+  const abBadge = document.getElementById('abonnementBadge');
+  if (abBadge) {
+    if (forfait === 'aucun') { abBadge.textContent='Aucun'; abBadge.style.cssText='margin-left:auto;font-size:.65rem;background:rgba(107,114,128,.15);color:rgba(255,255,255,.4);border-radius:999px;padding:1px 7px;'; }
+    else { abBadge.textContent='✓ Actif'; abBadge.style.cssText='margin-left:auto;font-size:.65rem;background:rgba(29,158,117,.2);color:#5DCAA5;border-radius:999px;padding:1px 7px;'; }
+  }
   document.getElementById('profilPrenom').textContent = localStorage.getItem('user_prenom') || 'Patient';
   document.getElementById('infoObjectif').textContent = 'Perte de poids';
   document.getElementById('infoActivite').textContent = 'Modérée';
@@ -1038,6 +1162,10 @@ function init() {
   document.getElementById('profilPoids').textContent = '64';
   document.getElementById('profilVille').textContent = 'Angoulême';
   document.getElementById('bilanDetail').innerHTML = `<p><strong>Objectif :</strong> Perte de poids (6 kg en 3 mois)</p><p><strong>Activité :</strong> 3 séances/semaine</p><p><strong>Contraintes :</strong> Aucune</p>`;
+  if (localStorage.getItem('nutridoc_menus_abonne') === 'true') {
+    const ml = document.getElementById('menusLocked'), ma = document.getElementById('menusActif');
+    if(ml) ml.style.display='none'; if(ma) ma.style.display='block';
+  }
   if (localStorage.getItem('nutridoc_plan_achete') === 'true') {
     document.getElementById('planLocked').style.display = 'none';
     document.getElementById('planUnlocked').style.display = 'block';
@@ -1049,8 +1177,8 @@ function init() {
   afficherAgenda();
   chargerHabitudes();
   initChat();
-  renderQuiz();
   renderFAQ();
+  calculerEquivalences();
 }
 
 init();
@@ -1060,7 +1188,88 @@ window.toggleFAQ = toggleFAQ;
 window.sendChatMessage = sendChatMessage;
 window.toggleTool = toggleTool;
 window.calculerConversion = calculerConversion;
+
+function souscrireMenus() {
+  // TODO: intégrer Stripe pour l'abonnement
+  if (confirm(`Souscrire à l'abonnement Menus du mois — 4,90€/mois ?\n\nSans engagement, résiliable à tout moment.`)) {
+    localStorage.setItem('nutridoc_menus_abonne', 'true');
+    document.getElementById('menusLocked').style.display = 'none';
+    document.getElementById('menusActif').style.display = 'block';
+    document.getElementById('statMenus') && (document.getElementById('statMenus').textContent = '✅ Actif');
+    toast('Abonnement menus activé ! Vos premiers menus arrivent bientôt.');
+  }
+}
+function resilierMenus() {
+  if (confirm(`Résilier l'abonnement Menus du mois ?\n\nVous conservez l'accès jusqu'à la fin du mois en cours.`)) {
+    localStorage.removeItem('nutridoc_menus_abonne');
+    document.getElementById('menusLocked').style.display = 'block';
+    document.getElementById('menusActif').style.display = 'none';
+    toast(`Abonnement résilié. Accès conservé jusqu'à fin de période.`);
+  }
+}
+function toast(msg) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  Object.assign(el.style, {position:'fixed',bottom:'1.5rem',right:'1.5rem',background:'#0d2018',color:'#fff',padding:'.7rem 1.25rem',borderRadius:'10px',fontSize:'.8rem',zIndex:'9999',borderLeft:'3px solid #1D9E75',animation:'none'});
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+
+// ===== ÉQUIVALENCES FÉCULENTS =====
+const EQUIV_DATA = [
+  {nom:'Pommes de terre cuites',      kcal:70,  icon:'🥔'},
+  {nom:'Patate douce cuite',           kcal:85,  icon:'🍠'},
+  {nom:'Riz blanc cuit',              kcal:120, icon:'🍚'},
+  {nom:'Riz complet cuit',            kcal:130, icon:'🍚'},
+  {nom:'Pâtes cuites',                kcal:115, icon:'🍝'},
+  {nom:'Pâtes complètes cuites',      kcal:125, icon:'🍝'},
+  {nom:'Quinoa cuit',                 kcal:125, icon:'🌾'},
+  {nom:'Lentilles cuites',            kcal:95,  icon:'🫘'},
+  {nom:'Pois chiches cuits',          kcal:110, icon:'🫘'},
+  {nom:'Haricots rouges cuits',       kcal:100, icon:'🫘'},
+  {nom:'Haricots blancs cuits',       kcal:100, icon:'🫘'},
+  {nom:'Semoule de blé cuite',        kcal:110, icon:'🌾'},
+  {nom:'Boulgour cuit',               kcal:108, icon:'🌾'},
+  {nom:'Maïs (grains cuits)',         kcal:100, icon:'🌽'},
+  {nom:'Pain blanc',                  kcal:265, icon:'🍞'},
+  {nom:'Pain complet',                kcal:250, icon:'🍞'},
+  {nom:'Pain de seigle',              kcal:260, icon:'🍞'},
+  {nom:'Flocons d\'avoine',           kcal:370, icon:'🌾'},
+  {nom:'Polenta cuite',               kcal:70,  icon:'🌽'},
+  {nom:'Millet cuit',                 kcal:120, icon:'🌾'},
+];
+function calculerEquivalences() {
+  const kcalRef = parseFloat(document.getElementById('equivRef').value) || 70;
+  const qteRef  = parseFloat(document.getElementById('equivQte').value) || 400;
+  const kcalTotal = Math.round(kcalRef * qteRef / 100);
+  document.getElementById('equivKcal').textContent = kcalTotal;
+  const cont = document.getElementById('equivResultat');
+  if (!cont) return;
+  cont.innerHTML = EQUIV_DATA.map(a => {
+    const qte = Math.round(kcalTotal / a.kcal * 100);
+    const barW = Math.min(100, Math.round(qte / 8));
+    const col  = qte < qteRef * 0.8 ? '#1D9E75' : qte > qteRef * 1.2 ? '#f59e0b' : '#3b82f6';
+    return `<div style="background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.6rem .75rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">
+        <span style="font-size:.75rem;font-weight:500;color:var(--text-primary,#0d2018);">${a.icon} ${a.nom}</span>
+        <span style="font-size:.82rem;font-weight:700;color:${col};">${qte} g</span>
+      </div>
+      <div style="height:4px;background:var(--border-light,#eef4ee);border-radius:2px;">
+        <div style="height:4px;width:${barW}%;background:${col};border-radius:2px;"></div>
+      </div>
+      <div style="font-size:.62rem;color:var(--text-muted,#6b7280);margin-top:.2rem;">${a.kcal} kcal/100g · ${kcalTotal} kcal total</div>
+    </div>`;
+  }).join('');
+}
+window.calculerEquivalences = calculerEquivalences;
+
+// quiz géré dans la bulle auto-contenue
+
+
 window.simulerAchatPlan = simulerAchatPlan;
+window.souscrireMenus = souscrireMenus;
+window.resilierMenus = resilierMenus;
 window.ajouterPoids = ajouterPoids;
 window.ajouterPoidsHistorique = ajouterPoidsHistorique;
 window.sauvegarderHabitudes = sauvegarderHabitudes;
@@ -1079,5 +1288,207 @@ window.sauvegarderHabitudes = sauvegarderHabitudes;
     });
   }
   </script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/theme-selector.js"></script>
+<!-- BULLE QUIZ NUTRITION -->
+<div class="quiz-bubble" id="quizBubble">
+  <button class="quiz-toggle" onclick="toggleQuizBubble()" title="Quiz nutrition">🧠</button>
+  <div class="quiz-window" id="quizWindow">
+    <div class="quiz-win-header">
+      <span>🧠 Quiz nutrition</span>
+      <button class="quiz-win-close" onclick="toggleQuizBubble()">✕</button>
+    </div>
+    <div class="quiz-win-body" id="quizBody"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+
+  const BANQUE = {
+    mythes: {
+      label: '🤔 Mythes alimentaires',
+      questions: [
+        { q:"Pour maigrir, il faut supprimer totalement les glucides.", a:false, exp:"Les glucides complexes sont essentiels. C'est l'excès calorique global qui fait grossir, pas un seul macronutriment." },
+        { q:"Manger gras fait automatiquement grossir.", a:false, exp:"Les lipides sont essentiels pour les hormones et les vitamines liposolubles. L'excès calorique total est le facteur clé." },
+        { q:"Il faut obligatoirement boire 2L d'eau par jour.", a:false, exp:"Les besoins varient selon l'activité, la chaleur et le poids corporel. 1,5L est une bonne base moyenne." },
+        { q:"Sauter le petit déjeuner fait grossir.", a:false, exp:"Aucune étude solide ne prouve ce lien direct. Le bilan calorique global sur la journée est ce qui compte." },
+        { q:"Manger après 20h stocke davantage de graisses.", a:false, exp:"Le métabolisme ne connaît pas l'heure. C'est le contenu et la quantité du repas qui importent." },
+        { q:"Les aliments 'light' font maigrir.", a:false, exp:"Les produits allégés peuvent compenser par des sucres ou additifs. La perte de poids dépend du bilan calorique global." },
+        { q:"Le pain fait grossir.", a:false, exp:"Le pain complet est un glucide complexe utile. C'est la quantité et les accompagnements qui peuvent poser problème." },
+        { q:"Les produits bio sont toujours plus sains.", a:false, exp:"Bio désigne un mode de culture, pas une valeur nutritionnelle supérieure. Un biscuit bio reste un biscuit." },
+        { q:"Le froid accélère le métabolisme.", a:false, exp:"L'effet est marginal et temporaire. Il ne compense pas une alimentation déséquilibrée." },
+        { q:"Boire pendant les repas dilue la digestion.", a:false, exp:"L'acide gastrique n'est pas perturbé par une boisson modérée. L'eau facilite même la digestion des fibres." },
+      ]
+    },
+    sport: {
+      label: '💪 Sport & performance',
+      questions: [
+        { q:"Les protéines végétales peuvent couvrir tous les besoins d'un sportif.", a:true, exp:"En associant légumineuses + céréales, on obtient tous les acides aminés essentiels. Certains végétariens de haut niveau le prouvent." },
+        { q:"Il faut manger avant tout entraînement, même court.", a:false, exp:"Pour une séance < 1h à intensité modérée, les réserves glycogéniques du matin suffisent généralement." },
+        { q:"La créatine est un produit dopant interdit.", a:false, exp:"La créatine est légale, naturellement présente dans la viande. Elle est approuvée par l'EFSA pour améliorer la force explosive." },
+        { q:"Les BCAA sont indispensables si on mange suffisamment de protéines.", a:false, exp:"Si l'apport protéique total est atteint (~1,6-2g/kg), les BCAA supplémentaires n'apportent pas de bénéfice supplémentaire." },
+        { q:"La fenêtre anabolique post-effort dure 30 minutes maximum.", a:false, exp:"La synthèse protéique reste élevée 24-48h après l'effort. Un repas dans les 2h est suffisant pour la plupart." },
+        { q:"Le jeûne intermittent est compatible avec la prise de masse.", a:true, exp:"Des études montrent que la distribution des repas importe moins que l'apport total en protéines et calories sur la journée." },
+        { q:"L'hydratation influence directement la performance sportive.", a:true, exp:"Même 2% de déshydratation réduisent les performances de 10-20%. L'hydratation est un facteur clé." },
+        { q:"Les glucides sont inutiles pour la musculation.", a:false, exp:"Les glucides rechargent le glycogène musculaire et permettent des séances intenses. Ils ont aussi un effet anti-catabolique." },
+        { q:"Un sportif a besoin de plus de 3g de protéines/kg/jour.", a:false, exp:"Les études montrent que 1,6 à 2,2g/kg/jour est optimal. Au-delà, l'excédent est simplement oxydé." },
+        { q:"Manger de la protéine avant de dormir favorise la récupération.", a:true, exp:"La caséine (protéine lente) au coucher maintient la synthèse protéique nocturne. Bénéfique après une séance intense." },
+      ]
+    },
+    nutrition: {
+      label: '🥦 Nutrition & santé',
+      questions: [
+        { q:"Les compléments alimentaires ne remplacent pas une alimentation variée.", a:true, exp:"La matrice alimentaire contient des milliers de composés synergiques qu'aucun complément ne peut reproduire." },
+        { q:"Les fruits sont trop sucrés pour un diabétique.", a:false, exp:"Les fibres des fruits ralentissent l'absorption du sucre. L'index glycémique des fruits entiers est modéré." },
+        { q:"Le sel est responsable de l'hypertension dans tous les cas.", a:false, exp:"Seules certaines personnes sont 'sel-sensibles'. La génétique et le mode de vie jouent un rôle majeur." },
+        { q:"Les oméga-3 ont un effet bénéfique sur l'inflammation.", a:true, exp:"Les oméga-3 (EPA, DHA) réduisent les médiateurs inflammatoires. Bénéfiques pour le cœur et le cerveau." },
+        { q:"Cuire les légumes détruit toutes les vitamines.", a:false, exp:"Certaines vitamines (C, B) sont sensibles à la chaleur, mais la cuisson vapeur en préserve la majorité. Elle améliore même la biodisponibilité de certains nutriments." },
+        { q:"Le cholestérol alimentaire est le principal responsable du cholestérol sanguin.", a:false, exp:"Les graisses saturées et trans influencent davantage le cholestérol LDL que le cholestérol alimentaire directement." },
+        { q:"Le microbiote intestinal influence l'humeur et le cerveau.", a:true, exp:"L'axe intestin-cerveau est bien documenté. 90% de la sérotonine est produite dans l'intestin." },
+        { q:"Boire du café retarde systématiquement l'endormissement.", a:true, exp:"La caféine bloque les récepteurs à l'adénosine (signal de fatigue). Sa demi-vie est de 5-6h." },
+        { q:"Les antioxydants protègent contre tous les cancers.", a:false, exp:"Les antioxydants contribuent à réduire le stress oxydatif, mais ils ne 'protègent' pas de façon universelle. La prévention est multifactorielle." },
+        { q:"Une alimentation végétarienne bien planifiée couvre tous les besoins nutritionnels.", a:true, exp:"Avec attention à la B12, au fer, au calcium et aux oméga-3, une alimentation végétarienne est tout à fait complète." },
+      ]
+    },
+    digestion: {
+      label: '🫄 Digestion & habitudes',
+      questions: [
+        { q:"Il faut au moins 20 minutes pour ressentir la satiété.", a:true, exp:"Les hormones de satiété (leptine, GLP-1) mettent environ 20 min à agir. Manger lentement aide à ne pas trop manger." },
+        { q:"Les fibres sont inutiles si on digère bien.", a:false, exp:"Les fibres nourrissent le microbiote, régulent la glycémie et réduisent le risque de cancer colorectal, même chez les personnes sans troubles digestifs." },
+        { q:"Boire du lait chaud favorise l'endormissement.", a:true, exp:"Le lait contient du tryptophane, précurseur de la mélatonine. L'effet est modeste mais réel." },
+        { q:"Les probiotiques sont efficaces pour tous les troubles digestifs.", a:false, exp:"Les probiotiques sont souche-spécifiques. Ce qui fonctionne pour un microbiote ne fonctionne pas universellement." },
+        { q:"Le gluten est nocif pour tout le monde.", a:false, exp:"Seules les personnes atteintes de maladie cœliaque (~1%) ou de sensibilité avérée doivent l'éviter. Pour les autres, c'est inutile." },
+        { q:"Manger rapidement favorise la prise de poids.", a:true, exp:"Manger vite ne laisse pas le temps aux signaux de satiété d'agir, favorisant une surconsommation calorique." },
+        { q:"Le sucre crée une dépendance physique similaire aux drogues.", a:false, exp:"Les études chez l'humain ne montrent pas de dépendance physique au sucre. La dépendance comportementale est possible mais différente." },
+        { q:"Cuisiner soi-même est la meilleure façon de contrôler son alimentation.", a:true, exp:"La cuisine maison permet de choisir les ingrédients, les graisses, le sel. C'est un facteur clé de la qualité alimentaire." },
+        { q:"Les édulcorants artificiels peuvent perturber le microbiote.", a:true, exp:"Plusieurs études montrent que certains édulcorants (saccharine, sucralose) modifient la composition du microbiote intestinal." },
+        { q:"Un repas équilibré doit obligatoirement contenir les 3 macronutriments.", a:false, exp:"Il n'existe pas de règle stricte par repas. C'est l'équilibre sur la semaine qui compte, pas à chaque assiette." },
+      ]
+    }
+  };
+
+  // ── ÉTAT ────────────────────────────────────────────────────────────────
+  var QS = [], idx = 0, score = 0, answered = false, currentTheme = null;
+
+  function showSelector() {
+    var body = document.getElementById('quizBody');
+    if (!body) return;
+    currentTheme = null;
+    var html = '<div style="padding:.25rem 0;"><div style="font-size:.78rem;color:#6b7280;margin-bottom:.75rem;">Choisissez un thème :</div>';
+    Object.keys(BANQUE).forEach(function(key) {
+      var theme = BANQUE[key];
+      html += '<button data-key="' + key + '" class="quiz-theme-btn" style="display:block;width:100%;text-align:left;padding:.65rem .85rem;margin-bottom:.45rem;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;">'
+        + theme.label
+        + '<span style="float:right;font-size:.68rem;color:#9ca3af;">' + theme.questions.length + ' questions</span></button>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+    body.querySelectorAll('.quiz-theme-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { startQuiz(this.getAttribute('data-key')); });
+      btn.addEventListener('mouseover', function() { this.style.borderColor='#1D9E75'; this.style.color='#1D9E75'; });
+      btn.addEventListener('mouseout',  function() { this.style.borderColor='#e5e7eb'; this.style.color=''; });
+    });
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function startQuiz(key) {
+    currentTheme = key;
+    QS = shuffle(BANQUE[key].questions).slice(0, 8);
+    idx = 0; score = 0; answered = false;
+    show();
+  }
+
+  function show() {
+    var body = document.getElementById('quizBody');
+    if (!body) return;
+    if (idx >= QS.length) {
+      var pct = Math.round(score / QS.length * 100);
+      var msg = pct >= 80 ? 'Excellent ! 🎉' : pct >= 50 ? 'Bien joué !' : 'Continuez à apprendre !';
+      body.innerHTML = '<div style="text-align:center;padding:1.25rem .5rem;">'
+        + '<div style="font-size:2rem;margin-bottom:.5rem;">🏆</div>'
+        + '<div style="font-size:1.2rem;font-weight:700;color:#1D9E75;margin-bottom:.2rem;">' + score + ' / ' + QS.length + '</div>'
+        + '<div style="font-size:.75rem;color:#6b7280;margin-bottom:1.25rem;">' + msg + '</div>'
+        + '<button id="btnRejouer" style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.5rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:Outfit,sans-serif;margin-right:.5rem;">🔄 Rejouer</button>'
+        + '<button id="btnThemes" style="background:transparent;color:#1D9E75;border:1.5px solid #1D9E75;border-radius:999px;padding:.5rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:Outfit,sans-serif;">← Thèmes</button>'
+        + '</div>';
+      document.getElementById('btnRejouer').addEventListener('click', function() { startQuiz(currentTheme); });
+      document.getElementById('btnThemes').addEventListener('click', showSelector);
+      return;
+    }
+    var q = QS[idx];
+    var pct = Math.round(idx / QS.length * 100);
+    body.innerHTML =
+      '<div style="margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem;">'
+      + '<button id="btnBackThemes" style="background:none;border:none;cursor:pointer;font-size:.75rem;color:#9ca3af;padding:0;font-family:Outfit,sans-serif;">← Thèmes</button>'
+      + '<div style="flex:1;">'
+      + '<div style="display:flex;justify-content:space-between;font-size:.65rem;color:#9ca3af;margin-bottom:.2rem;">'
+      + '<span>' + BANQUE[currentTheme].label + '</span><span>' + (idx+1) + '/' + QS.length + '</span></div>'
+      + '<div style="height:3px;background:#f3f4f6;border-radius:2px;">'
+      + '<div style="width:' + pct + '%;height:3px;background:#1D9E75;border-radius:2px;transition:width .4s;"></div></div>'
+      + '</div></div>'
+      + '<div style="font-size:.875rem;font-weight:500;color:#0d2018;line-height:1.55;margin-bottom:1rem;min-height:52px;">' + q.q + '</div>'
+      + '<div style="display:flex;gap:.5rem;margin-bottom:.75rem;">'
+      + '<button id="btnV" style="flex:1;padding:.65rem;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;transition:.2s;">✅ Vrai</button>'
+      + '<button id="btnF" style="flex:1;padding:.65rem;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;transition:.2s;">❌ Faux</button>'
+      + '</div>'
+      + '<div id="fb" style="font-size:.78rem;line-height:1.5;min-height:20px;"></div>';
+    document.getElementById('btnV').addEventListener('click', function() { answer(true); });
+    document.getElementById('btnF').addEventListener('click', function() { answer(false); });
+    document.getElementById('btnBackThemes').addEventListener('click', showSelector);
+  }
+
+  function answer(val) {
+    if (answered) return;
+    answered = true;
+    var q = QS[idx];
+    var ok = (val === q.a);
+    if (ok) score++;
+    var btnV = document.getElementById('btnV');
+    var btnF = document.getElementById('btnF');
+    var fb   = document.getElementById('fb');
+    if (btnV) { btnV.disabled = true; btnF.disabled = true; }
+    if (ok && btnV) { btnV.style.background='rgba(29,158,117,.12)'; btnV.style.borderColor='#1D9E75'; btnV.style.color='#1D9E75'; }
+    if (!ok) {
+      if (btnF) { btnF.style.background='rgba(239,68,68,.08)'; btnF.style.borderColor='#ef4444'; btnF.style.color='#dc2626'; }
+      if (btnV) { btnV.style.opacity='.4'; }
+    }
+    if (fb) {
+      var isLast = (idx + 1 >= QS.length);
+      fb.style.cssText = 'padding:.5rem .75rem;border-radius:8px;font-size:.78rem;line-height:1.5;background:' + (ok ? 'rgba(29,158,117,.1)' : 'rgba(239,68,68,.08)') + ';color:' + (ok ? '#0f6e56' : '#dc2626') + ';';
+      fb.innerHTML = '<strong>' + (ok ? '✓ Bonne réponse !' : '✗ Pas tout à fait…') + '</strong><br>'
+        + '<span style="color:#4b5563;">' + q.exp + '</span>'
+        + '<div style="margin-top:.65rem;">'
+        + '<button id="btnNext" style="background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.45rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:Outfit,sans-serif;">'
+        + (isLast ? 'Voir mon score →' : 'Question suivante →')
+        + '</button></div>';
+      document.getElementById('btnNext').addEventListener('click', function() {
+        idx++; answered = false; show();
+      });
+    }
+  }
+
+  var initialized = false;
+  window.toggleQuizBubble = function() {
+    var win = document.getElementById('quizWindow');
+    if (!win) return;
+    win.classList.toggle('open');
+    if (win.classList.contains('open') && !initialized) {
+      initialized = true;
+      showSelector();
+    }
+  };
+
+})();
+</script>
+
 </body>
 </html>

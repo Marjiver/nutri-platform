@@ -180,7 +180,8 @@
 
     /* TARIF SIMPLE */
     .nd-tarif-simple{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:800px;margin:0 auto;}
-    @media(max-width:640px){.nd-tarif-simple{grid-template-columns:1fr;max-width:380px;}}
+    @media(max-width:900px){.nd-tarif-simple{grid-template-columns:1fr 1fr!important;}}
+    @media(max-width:600px){.nd-tarif-simple{grid-template-columns:1fr!important;max-width:400px;}}
     .tarif-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.75rem;transition:transform .2s;}
     .tarif-card:hover{transform:translateY(-4px);}
     .tarif-card.tarif-featured{background:linear-gradient(135deg,#0d2018,#1a3a2a);border:2px solid #1D9E75;}
@@ -329,7 +330,7 @@
     </div>
     <div class="mockup-block nd-mc-3">
       <div class="gratuit-title">Gratuit</div>
-      <div class="gratuit-sub">Recommandations<br>&amp; menus</div>
+      <div class="gratuit-sub">Bilan &amp;<br>recommandations</div>
     </div>
   </div>
   <div class="nd-hero-scroll">Défiler</div>
@@ -352,8 +353,8 @@
       </div>
       <div class="nd-step" data-reveal>
         <div class="nd-step-num">02</div>
-        <h3>Un diét. élabore votre plan</h3>
-        <p>Un diététicien certifié RPPS de votre région analyse votre profil et construit votre programme.</p>
+        <h3>La plateforme prépare votre plan</h3>
+        <p>Votre profil est analysé et un plan personnalisé est élaboré automatiquement, selon la table CIQUAL 2020, prêt pour validation.</p>
       </div>
       <div class="nd-step" data-reveal>
         <div class="nd-step-num">03</div>
@@ -423,6 +424,7 @@
           <li>Plan 4 semaines avec grammages précis</li>
           <li>Validé et signé par un diét. RPPS</li>
           <li>Livraison sous 48h</li>
+          <li>Abonnement menus adaptés 4,90€/mois</li>
         </ul>
         <a href="accueil-patient.html" class="nd-profil-btn btn-green">Espace Patient →</a>
       </div>
@@ -482,7 +484,7 @@
       <h2 class="nd-title nd-title-light">Commencez gratuitement.</h2>
       <p class="nd-subtitle nd-subtitle-light">Le bilan est toujours gratuit. Le plan complet avec signature RPPS est à tarif unique.</p>
     </div>
-    <div class="nd-tarif-simple">
+    <div class="nd-tarif-simple" style="grid-template-columns:1fr 1fr 1fr;max-width:1050px;">
       <div class="tarif-card" data-reveal>
         <div class="tarif-label">DÉCOUVERTE</div>
         <div class="tarif-prix">0 €</div>
@@ -490,12 +492,23 @@
         <ul class="tarif-liste">
           <li>Bilan nutritionnel complet</li>
           <li>Recommandations personnalisées</li>
-          <li>Menus hebdomadaires adaptés</li>
-          <li>Accès aux outils libres</li>
+          <li>Accès aux outils nutritionnels libres</li>
         </ul>
         <a href="bilan.html" class="nd-profil-btn btn-outline" style="width:100%;justify-content:center;">Commencer gratuitement</a>
       </div>
-      <div class="tarif-card tarif-featured" data-reveal>
+      <div class="tarif-card" data-reveal>
+        <div class="tarif-label">🌿 MENUS ADAPTÉS</div>
+        <div class="tarif-prix" style="font-size:1.8rem;">4,90 <span style="font-size:1rem;font-weight:500">€/mois</span></div>
+        <div class="tarif-desc">Sans engagement · Résiliable à tout moment</div>
+        <ul class="tarif-liste">
+          <li>5 menus par mois adaptés à votre profil</li>
+          <li>Recettes ajustées aux saisons</li>
+          <li>Personnalisé selon vos préférences et allergies</li>
+          <li>Accès à tous les outils libres</li>
+        </ul>
+        <a href="bilan.html" class="nd-profil-btn btn-outline" style="width:100%;justify-content:center;">Découvrir les menus →</a>
+      </div>
+            <div class="tarif-card tarif-featured" data-reveal>
         <div class="tarif-label">⭐ PLAN COMPLET</div>
         <div class="tarif-prix">24,90 €</div>
         <div class="tarif-desc">Paiement unique · Livraison sous 48h</div>
@@ -511,7 +524,7 @@
       </div>
     </div>
     <div class="tarif-note">
-      <p>+ Visio de suivi 45 min disponible à 55€ TTC · Attestation mutuelle automatique · Remboursement partiel possible selon votre contrat</p>
+      <p>+ Consultation visio de suivi 45 min à 55€ TTC · Potentiellement remboursable par votre mutuelle · Attestation générée automatiquement</p>
     </div>
   </div>
 </section>
