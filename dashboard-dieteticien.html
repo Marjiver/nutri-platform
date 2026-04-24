@@ -15,7 +15,6 @@
   <title>Espace Diététicien — NutriDoc</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
@@ -24,13 +23,34 @@
   <script defer src="js/utils/email.js"></script>
 
   <style>
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0f6e56;
+      --green-light: #5DCAA5;
+      --dark: #0d2018;
+      --cream: #f7f9f7;
+      --white: #ffffff;
+      --text: #0d2018;
+      --text2: #4b5563;
+      --border: #eef4ee;
+      --card: #ffffff;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background:var(--bg-secondary,#f7f9f7);
-      color:var(--text-primary,#0d2018);
+      background: var(--cream);
+      color: var(--text);
       line-height: 1.5;
     }
+
+    /* LAYOUT PRINCIPAL */
+    .dashboard-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 5.5rem 2.5rem 4rem;
+    }
+    @media(max-width:1024px){ .dashboard-container { padding: 5.5rem 2rem 3rem; } }
+    @media(max-width:768px) { .dashboard-container { padding: 5rem 1.25rem 2rem; } }
 
     /* HEADER */
     .nd-header {
@@ -88,7 +108,7 @@
       visibility: hidden;
       opacity: 0;
       width: 250px;
-      background-color:var(--text-primary,#0d2018);
+      background-color:var(--text);
       color: #5DCAA5;
       text-align: center;
       border-radius: 10px;
@@ -199,11 +219,11 @@
     .dashboard-title h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
-      color:var(--text-primary,#0d2018);
+      color:var(--text);
     }
     .dashboard-title p {
       font-size: 0.8rem;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
       margin-top: 0.2rem;
     }
     .dashboard-stats {
@@ -211,12 +231,12 @@
       gap: 1rem;
     }
     .stat-badge {
-      background:var(--bg-card,#fff);
+      background: var(--card);
       border-radius: 999px;
       padding: 0.4rem 1rem;
       font-size: 0.75rem;
       font-weight: 500;
-      border: 1px solid var(--border-light,#eef4ee);
+      border: 1px solid var(--border);
     }
     .stat-badge .count {
       font-weight: 700;
@@ -276,7 +296,7 @@
       padding: 0.6rem 1.2rem;
       font-size: 0.85rem;
       font-weight: 500;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
       cursor: pointer;
       border-radius: 999px;
       transition: all 0.2s;
@@ -284,7 +304,7 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .diet-tab:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
+    .diet-tab:hover { background:var(--cream); color:var(--text); }
     .diet-tab.active {
       background: #1D9E75;
       color: #fff;
@@ -316,10 +336,10 @@
     .search-input-wrapper input {
       width: 100%;
       padding: 0.7rem 1rem 0.7rem 2.5rem;
-      border: 1px solid var(--border-light,#eef4ee);
+      border: 1px solid var(--border);
       border-radius: 999px;
       font-size: 0.85rem;
-      background:var(--bg-card,#fff);
+      background:var(--card);
       transition: all 0.2s;
     }
     .search-input-wrapper input:focus {
@@ -332,7 +352,7 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
       font-size: 0.9rem;
     }
     .filter-chips {
@@ -341,8 +361,8 @@
       flex-wrap: wrap;
     }
     .filter-chip {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
+      background:var(--card);
+      border: 1px solid var(--border);
       border-radius: 999px;
       padding: 0.4rem 1rem;
       font-size: 0.75rem;
@@ -364,10 +384,10 @@
       margin-bottom: 1.5rem;
     }
     .kanban-col {
-      background:var(--bg-card,#fff);
+      background:var(--card);
       border-radius: 20px;
       padding: 1rem;
-      border: 1px solid var(--border-light,#eef4ee);
+      border: 1px solid var(--border);
     }
     .kanban-header {
       display: flex;
@@ -388,15 +408,15 @@
       gap: 0.4rem;
     }
     .kanban-count {
-      background:var(--bg-secondary,#f7f9f7);
+      background:var(--cream);
       border-radius: 999px;
       padding: 0.1rem 0.5rem;
       font-size: 0.7rem;
       font-weight: 600;
     }
     .kanban-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
+      background:var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 0.75rem;
       margin-bottom: 0.75rem;
@@ -428,7 +448,7 @@
     }
     .kanban-card-objectif {
       font-size: 0.65rem;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
       margin-top: 0.2rem;
       margin-left: 2.2rem;
     }
@@ -440,8 +460,8 @@
       gap: 1rem;
     }
     .patient-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
+      background:var(--card);
+      border: 1px solid var(--border);
       border-radius: 20px;
       padding: 1rem;
       transition: all 0.2s;
@@ -475,7 +495,7 @@
     }
     .patient-info p {
       font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
     }
     .patient-status {
       margin-left: auto;
@@ -495,10 +515,10 @@
     }
     .patient-badge {
       font-size: 0.65rem;
-      background:var(--bg-secondary,#f7f9f7);
+      background:var(--cream);
       padding: 0.2rem 0.6rem;
       border-radius: 999px;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
     }
     .patient-actions {
       display: flex;
@@ -519,7 +539,7 @@
     .btn-validate:hover { background: #0f6e56; }
     .btn-view {
       background: transparent;
-      border: 1px solid var(--border-light,#eef4ee);
+      border: 1px solid var(--border);
       padding: 0.4rem 1rem;
       border-radius: 999px;
       font-size: 0.7rem;
@@ -536,11 +556,11 @@
       margin-bottom: 2rem;
     }
     .stat-card {
-      background:var(--bg-card,#fff);
+      background:var(--card);
       border-radius: 20px;
       padding: 1rem;
       text-align: center;
-      border: 1px solid var(--border-light,#eef4ee);
+      border: 1px solid var(--border);
     }
     .stat-card-value {
       font-family: 'Playfair Display', serif;
@@ -550,7 +570,7 @@
     }
     .stat-card-label {
       font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
       margin-top: 0.2rem;
     }
 
@@ -582,7 +602,7 @@
       bottom: 70px;
       left: 0;
       width: 320px;
-      background:var(--bg-card,#fff);
+      background:var(--card);
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
       overflow: hidden;
@@ -613,14 +633,14 @@
       justify-content: space-between;
       margin-bottom: 0.3rem;
     }
-    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
+    .sim-field-label { font-size: 0.75rem; color:var(--text2); font-weight: 500; }
+    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text); }
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
       height: 5px;
       border-radius: 999px;
-      background:var(--bg-tertiary,#eef4ee);
+      background:var(--border);
       outline: none;
     }
     input[type=range]::-webkit-slider-thumb {
@@ -639,8 +659,8 @@
       margin: 0.5rem 0 1rem;
     }
     .sim-abtn {
-      background:var(--bg-secondary,#f7f9f7);
-      border: 1px solid var(--border-light,#eef4ee);
+      background:var(--cream);
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 0.4rem 0.2rem;
       text-align: center;
@@ -654,7 +674,7 @@
     }
     .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
     .sim-results {
-      background:var(--bg-secondary,#f7f9f7);
+      background:var(--cream);
       border-radius: 12px;
       padding: 0.75rem;
       margin: 0.75rem 0;
@@ -666,7 +686,7 @@
       margin-bottom: 0.3rem;
     }
     .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
+    .sim-note { font-size: 0.65rem; color:var(--text2); text-align: center; margin-top: 0.5rem; }
 
     /* FOOTER */
     .nd-footer {
@@ -735,9 +755,17 @@
       z-index: 200;
     }
     .scroll-top-btn.visible { opacity: 1; }
+
+    /* ── CONTENEUR PRINCIPAL ── */
+    .dashboard-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 6rem 2rem 3rem;
+    }
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 5rem 1rem 2rem; }
+    }
   </style>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <!-- HEADER -->
@@ -781,7 +809,7 @@
   <div class="dashboard-header">
     <div class="dashboard-title">
       <h2>Bonjour, Grégoire 👋</h2>
-      <p>Pro · 1 plan offert/mois · Quota restant : <strong>28/30</strong> plans</p>
+      <p>Formule <strong>Essentiel</strong> · Dossiers illimités · Aucune commission</p>
     </div>
     <div class="dashboard-stats">
       <div class="stat-badge"><span class="count">6</span> patients</div>
@@ -804,17 +832,16 @@
       👥 Patients <span class="tab-badge" id="patientsCount">6</span>
     </button>
     <button class="diet-tab" data-tab="kanban">
-      📋 Kanban
+      📋 Mes dossiers
     </button>
   </div>
 
-  <!-- TAB 1 : DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-card-value">24,90€</div><div class="stat-card-label">CA / plan</div></div>
-      <div class="stat-card"><div class="stat-card-value">55€</div><div class="stat-card-label">Visio</div></div>
-      <div class="stat-card"><div class="stat-card-value">1</div><div class="stat-card-label">Plan offert/mois</div></div>
-      <div class="stat-card"><div class="stat-card-value">2,00€</div><div class="stat-card-label">Commission/plan</div></div>
+      <div class="stat-card"><div class="stat-card-value">24,90€</div><div class="stat-card-label">Par plan patient direct</div></div>
+      <div class="stat-card"><div class="stat-card-value">55€</div><div class="stat-card-label">Par téléconsultation</div></div>
+      <div class="stat-card"><div class="stat-card-value" id="statRevenusMois">—</div><div class="stat-card-label">Revenus ce mois</div></div>
+      <div class="stat-card"><div class="stat-card-value" id="statPlansMois">—</div><div class="stat-card-label">Plans ce mois</div></div>
     </div>
 
     <div class="kanban-grid">
@@ -897,40 +924,37 @@
       <button class="sim-close" onclick="toggleSim()">✕</button>
     </div>
     <div class="sim-body">
-      <p style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.75rem;">Ajustez les curseurs pour estimer vos revenus mensuels.</p>
-      
+      <p style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.75rem;">Estimez vos revenus mensuels selon votre activité.</p>
+
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">📋 Plans validés / mois</span>
-          <span class="sim-field-val" id="simPlansVal">10</span>
+          <span class="sim-field-label">👤 Plans patients directs / mois</span>
+          <span class="sim-field-val" id="simPatientsVal">6</span>
         </div>
-        <input type="range" min="1" max="100" value="10" step="1" id="simPlans" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="60" value="6" step="1" id="simPatients" oninput="updateSimulatorBubble()">
       </div>
 
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">🎥 Visios / mois</span>
-          <span class="sim-field-val" id="simVisiosVal">3</span>
+          <span class="sim-field-label">🏋️ Plans prescripteurs / mois</span>
+          <span class="sim-field-val" id="simPrescVal">10</span>
         </div>
-        <input type="range" min="0" max="30" value="3" step="1" id="simVisios" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="80" value="10" step="1" id="simPresc" oninput="updateSimulatorBubble()">
       </div>
 
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">📦 Forfait</span>
+          <span class="sim-field-label">🎥 Téléconsultations / mois</span>
+          <span class="sim-field-val" id="simVisiosVal">2</span>
         </div>
-        <div class="sim-btns">
-          <div class="sim-abtn" onclick="setAbonnement(0, this)"><div>Essentiel</div><div class="sim-abtn-price">0€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(9, this)"><div>Starter</div><div class="sim-abtn-price">9€/mois</div></div>
-          <div class="sim-abtn active" onclick="setAbonnement(29, this)"><div>Pro</div><div class="sim-abtn-price">29€/mois</div></div>
-          <div class="sim-abtn" onclick="setAbonnement(59, this)"><div>Expert</div><div class="sim-abtn-price">59€/mois</div></div>
-        </div>
-        <input type="hidden" id="simAbo" value="29">
+        <input type="range" min="0" max="20" value="2" step="1" id="simVisios" oninput="updateSimulatorBubble()">
       </div>
 
       <div class="sim-results">
-        <div class="sim-row"><span>💰 Chiffre d'affaires brut</span><strong id="simCa">364 €</strong></div>
-        <div class="sim-row"><span>📉 Commissions NutriDoc</span><strong id="simCommissions">— €</strong></div>
+        <div class="sim-row"><span>👤 Patients directs</span><strong id="simCaPatients">149 €</strong></div>
+        <div class="sim-row"><span>🏋️ Prescripteurs</span><strong id="simCaPresc">180 €</strong></div>
+        <div class="sim-row"><span>🎥 Téléconsultations</span><strong id="simCaVisios">110 €</strong></div>
+        <div class="sim-row"><span>📦 Abonnement Essentiel</span><strong id="simAbo" style="color:#ef4444;">− 39 €</strong></div>
         <div class="sim-row highlight"><span>📈 Revenu net / mois</span><strong id="simNet">— €</strong></div>
         <div class="sim-row"><span>⏱ Taux horaire estimé</span><strong id="simTaux">— €/h</strong></div>
       </div>
@@ -976,46 +1000,39 @@
 
 <script>
 // ===== SIMULATEUR EN BULLE =====
-var COMMISSIONS_SIM = { 0: 3.00, 9: 2.50, 29: 2.00, 59: 1.50 };
-var QUOTAS_SIM = { 0: 0, 9: 10, 29: 30, 59: 100 };
+const TARIF_PRESC = 18; // pack Confort, tarif de référence
 
 function toggleSim() {
   document.getElementById('simWindow').classList.toggle('open');
 }
 
 function updateSimulatorBubble() {
-  const plans = parseInt(document.getElementById('simPlans').value);
-  const visios = parseInt(document.getElementById('simVisios').value);
-  const abo = parseInt(document.getElementById('simAbo').value);
-  const commissionPlan = COMMISSIONS_SIM[abo];
-  const quota = QUOTAS_SIM[abo];
-  
-  document.getElementById('simPlansVal').textContent = plans;
-  document.getElementById('simVisiosVal').textContent = visios;
-  
-  const plansPayants = Math.max(0, plans - 1);
-  const horsQuota = Math.max(0, plansPayants - quota);
-  const commissionsTotal = (horsQuota * commissionPlan) + (visios * 8);
-  
-  const caPlans = plans * 24.9;
-  const caVisios = visios * 55;
-  const caTotal = caPlans + caVisios;
-  const net = caTotal - commissionsTotal - abo;
-  const heures = (plans * 15 + visios * 45) / 60;
-  const taux = heures > 0 ? Math.round(net / heures) : 0;
-  
-  document.getElementById('simCa').textContent = Math.round(caTotal) + ' €';
-  document.getElementById('simCommissions').textContent = Math.round(commissionsTotal) + ' €';
-  document.getElementById('simNet').textContent = Math.round(net) + ' €';
-  document.getElementById('simTaux').textContent = taux + ' €/h';
-  document.getElementById('simNote').innerHTML = `📅 Revenu annuel estimé : ${Math.round(net * 12).toLocaleString('fr-FR')} € · Commission : ${commissionPlan.toFixed(2)}€/plan (hors quota)`;
-}
+  const patients = parseInt(document.getElementById('simPatients').value);
+  const presc    = parseInt(document.getElementById('simPresc').value);
+  const visios   = parseInt(document.getElementById('simVisios').value);
 
-function setAbonnement(val, btn) {
-  document.getElementById('simAbo').value = val;
-  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  updateSimulatorBubble();
+  document.getElementById('simPatientsVal').textContent = patients;
+  document.getElementById('simPrescVal').textContent    = presc;
+  document.getElementById('simVisiosVal').textContent   = visios;
+
+  const caP = patients * 24.9;
+  const caR = presc * TARIF_PRESC;
+  const caV = visios * 55;
+
+  // Frais Stripe estimés
+  const stripe = patients*(24.9*0.015+0.25) + presc*(TARIF_PRESC*0.015+0.25) + visios*(55*0.015+0.25);
+  const abo = 39;
+  const net = caP + caR + caV - stripe - abo;
+
+  const heures = (patients*15 + presc*15 + visios*45) / 60;
+  const taux = heures > 0 ? Math.round(net / heures) : 0;
+
+  document.getElementById('simCaPatients').textContent = Math.round(caP) + ' €';
+  document.getElementById('simCaPresc').textContent    = Math.round(caR) + ' €';
+  document.getElementById('simCaVisios').textContent   = Math.round(caV) + ' €';
+  document.getElementById('simNet').textContent        = Math.round(Math.max(net,0)) + ' €';
+  document.getElementById('simTaux').textContent       = taux + ' €/h';
+  document.getElementById('simNote').innerHTML = `📅 Revenu annuel estimé : ${Math.round(Math.max(net,0)*12).toLocaleString('fr-FR')} €`;
 }
 
 // ===== PROFIL SYSTEM =====
@@ -1332,28 +1349,6 @@ function initTabs() {
   });
 }
 
-// Message facturation
-function afficherMessageFacturation(planIndex) {
-  var diot = window._dietitianData || {};
-  var planGratuitUtilise = diot.plan_gratuit_utilise || false;
-  var quotaRestant = (diot.quota_mensuel || 30) - (diot.plans_valides_mois || 0);
-  var fees = { essentiel: 3.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-  var forfait = (diot.formule || 'pro').toLowerCase();
-  var fee = fees[forfait] || 2.00;
-  var msg, color;
-  if (!planGratuitUtilise) {
-    msg = "🎁 Ce plan est votre plan gratuit du mois — aucun frais ne vous sera facturé (24,90€ reversés intégralement).";
-    color = "#1D9E75";
-  } else if (quotaRestant > 0) {
-    msg = "✅ Ce plan est dans votre quota — aucun frais supplémentaire.";
-    color = "#185FA5";
-  } else {
-    msg = "⚠️ Ce plan est hors quota — " + fee.toFixed(2) + "€ seront prélevés automatiquement.";
-    color = "#F59E0B";
-  }
-  return { msg, color };
-}
-
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
   renderKanbanDashboard();
@@ -1362,6 +1357,10 @@ document.addEventListener('DOMContentLoaded', () => {
   filterPatients();
   initTabs();
   updateSimulatorBubble();
+  // Calcul stats dynamiques
+  const plans = PATIENTS.filter(p => p.statut === 'valide').length;
+  document.getElementById('statPlansMois').textContent = plans;
+  document.getElementById('statRevenusMois').textContent = (plans * 24.9).toFixed(0) + ' €';
   if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidgetdietitian', 'dietitian');
 });
 
@@ -1370,8 +1369,5 @@ window.addEventListener('scroll', () => {
 });
 
 </script>
-
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
 </body>
 </html>

@@ -1,883 +1,720 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:title" content="Inscription diététicien — NutriDoc">
-  <meta property="twitter:description" content="Rejoignez la plateforme NutriDoc comme diététicien certifié.">
-  <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/inscription-dieteticien.html">
-  <meta property="og:type" content="website">
-  <meta property="og:description" content="Rejoignez la plateforme NutriDoc comme diététicien certifié.">
-  <meta property="og:title" content="Inscription diététicien — NutriDoc">
-  <meta name="author" content="CaliDoc Santé">
-  <meta name="keywords" content="inscription diététicien, devenir diététicien, RPPS">
   <meta charset="UTF-8"/>
-  <meta name="description" content="Inscrivez-vous gratuitement sur NutriDoc. Accédez aux dossiers patients, validez des plans et encaissez directement. RPPS requis. 1 plan offert par mois."/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="description" content="Inscrivez-vous gratuitement sur NutriDoc. 3 mois découverte, dossiers illimités, encaissement direct. RPPS requis."/>
   <title>NutriDoc — Inscription diététicien certifié RPPS</title>
-
-  <!-- Fonts -->
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/dark-mode.css"/>
-  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#0d2018"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="NutriDoc"/>
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png"/>
-  <meta name="msapplication-TileColor" content="#0d2018"/>
-
-  <!-- Scripts tête -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/utils/performance.js"></script>
-  <script defer src="js/ui/dark-mode.js"></script>
   <script defer src="js/utils/auto-save.js"></script>
-
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); line-height: 1.5; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --green:#1D9E75; --green-dark:#0f6e56; --green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2); --dark:#0d2018; --dark2:#0a1912;
+      --cream:#f7f9f7; --white:#fff; --text:#0d2018; --text2:#4b5563;
+      --border:#e5e7eb; --border-light:#eef4ee; --h:52px;
+    }
+
+    /* Tout tient dans le viewport */
+    html, body { height:100%; overflow:hidden; font-family:'Outfit',sans-serif; }
+    body { background:var(--cream); color:var(--text); }
 
     /* ── HEADER ── */
     .nd-header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: #0d2018 !important;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.75rem 2rem;
+      position:fixed; top:0; left:0; right:0; z-index:200; height:var(--h);
+      background:var(--dark); border-bottom:1px solid var(--green-border);
+      display:flex; align-items:center; padding:0 1.75rem;
     }
-    .header-container {
-      max-width: 1400px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 2rem; }
-    .nd-logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #fff; text-decoration: none; }
-    .nd-logo em { font-style: italic; color: #5DCAA5; }
-    .nd-nav { display: flex; gap: 1.5rem; }
-    .nd-navlink { font-size: 0.8rem; color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s; }
-    .nd-navlink:hover { color: #fff; }
-    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
-    .nd-btn-ghost {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 999px; padding: 0.4rem 1rem;
-      color: rgba(255,255,255,0.85); font-size: 0.75rem; cursor: pointer;
-      transition: all 0.2s; font-family: 'Outfit', sans-serif;
-    }
-    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); color: #fff; }
-    .nd-btn-primary {
-      background: #1D9E75; color: #fff; padding: 0.4rem 1.2rem;
-      border-radius: 999px; font-size: 0.75rem; font-weight: 500;
-      text-decoration: none; transition: background 0.2s;
-    }
-    .nd-btn-primary:hover { background: #0f6e56; }
+    .hc { width:100%; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+    .h-left { display:flex; align-items:center; gap:1.75rem; }
+    .nd-logo { font-family:'Playfair Display',serif; font-size:1.2rem; color:#fff; text-decoration:none; }
+    .nd-logo em { font-style:italic; color:var(--green-light); }
+    .nd-nav { display:flex; gap:1.25rem; }
+    .nd-navlink { font-size:0.75rem; color:rgba(255,255,255,0.6); text-decoration:none; transition:color 0.2s; }
+    .nd-navlink:hover { color:#fff; }
+    .cofond { display:flex; align-items:center; gap:0.45rem; background:rgba(29,158,117,0.1); border:1px solid var(--green-border); border-radius:999px; padding:0.18rem 0.75rem; position:relative; cursor:default; }
+    .cofond-av { width:22px; height:22px; background:linear-gradient(135deg,#1D9E75,#0f6e56); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#fff; }
+    .cofond-txt { font-size:0.6rem; color:rgba(255,255,255,0.7); }
+    .cofond-txt strong { color:var(--green-light); }
+    .cofond-tip { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:var(--dark); border:1px solid #1D9E75; border-radius:10px; padding:0.55rem; font-size:0.65rem; color:var(--green-light); text-align:center; pointer-events:none; z-index:500; line-height:1.5; white-space:pre-line; }
+    .cofond:hover .cofond-tip { display:block; }
+    .h-right { display:flex; align-items:center; gap:0.65rem; }
+    .nd-conn-wrap { position:relative; }
+    .nd-conn-btn { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:999px; padding:0.32rem 0.9rem; color:#fff; font-size:0.72rem; cursor:pointer; font-family:'Outfit',sans-serif; }
+    .nd-conn-menu { display:none; position:absolute; top:calc(100% + 6px); right:0; background:var(--dark); border:1px solid var(--green-border); border-radius:10px; min-width:170px; overflow:hidden; z-index:300; }
+    .nd-conn-menu.open { display:block; }
+    .nd-conn-item { display:block; padding:0.45rem 0.9rem; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.72rem; transition:background 0.15s; }
+    .nd-conn-item:hover { background:rgba(29,158,117,0.1); color:#fff; }
+    @media(max-width:900px){ .nd-nav,.cofond{display:none;} .nd-header{padding:0 1rem;} }
 
-    /* Menu connexion */
-    .nd-conn-wrap { position: relative; }
-    .nd-conn-menu {
-      display: none; position: absolute; top: calc(100% + 8px); right: 0;
-      background: #0d2018; border: 1px solid rgba(29,158,117,0.2);
-      border-radius: 12px; width: 180px; z-index: 200;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-    .nd-conn-item {
-      display: block; padding: 0.5rem 1rem;
-      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.75rem;
-      transition: color 0.2s;
-    }
-    .nd-conn-item:hover { color: #5DCAA5; }
-
-    /* Tooltip Grégoire */
-    .gregoire-mini {
-      position: relative; display: flex; align-items: center; gap: 0.5rem;
-      background: rgba(29,158,117,0.1); padding: 0.25rem 0.8rem;
-      border-radius: 999px; border: 1px solid rgba(29,158,117,0.2); cursor: help;
-    }
-    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
-    .tooltip-text {
-      visibility: hidden; opacity: 0; width: 250px; background-color:var(--text-primary,#0d2018);
-      color: #5DCAA5; text-align: center; border-radius: 10px; padding: 0.6rem;
-      position: absolute; z-index: 1000; top: 100%; left: 50%; transform: translateX(-50%);
-      margin-top: 10px; font-size: 0.7rem; border: 1px solid #1D9E75;
-      transition: opacity 0.3s; pointer-events: none;
-    }
-    .tooltip-text::after {
-      content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px;
-      border-width: 5px; border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
-    .gregoire-mini-avatar {
-      width: 28px; height: 28px;
-      background: linear-gradient(135deg, #1D9E75, #0f6e56);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif; font-size: 0.7rem; font-weight: 700; color: #fff;
-    }
-    .gregoire-mini-text { font-size: 0.65rem; color: rgba(255,255,255,0.7); }
-    .gregoire-mini-text strong { color: #5DCAA5; }
-
-    @media (max-width: 900px) {
-      .nd-header { padding: 0.75rem 1rem; }
-      .nd-nav, .gregoire-mini { display: none; }
+    /* ── SPLIT — tient en 100vh ── */
+    .split {
+      position:fixed; top:var(--h); left:0; right:0; bottom:0;
+      display:flex;
     }
 
-    /* ── BARRE PROFIL ── */
-    .dynamic-profil-inner {
-      max-width: 1400px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: center;
-      gap: 0.75rem; flex-wrap: wrap;
+    /* Colonne gauche */
+    .col-left {
+      width:380px; flex-shrink:0;
+      background:var(--dark2); border-right:1px solid rgba(255,255,255,0.06);
+      display:flex; flex-direction:column;
+      overflow-y:auto; padding:1.4rem 1.5rem 1rem;
     }
 
-    /* Colonne gauche - Tarifs */
-    .pricing-col {
-      flex: 1; background:var(--bg-secondary,#f7f9f7); padding: 2rem;
-      overflow-y: auto; border-right: 1px solid #eef4ee;
-    }
-    .pricing-col h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color:var(--text-primary,#0d2018); margin-bottom: 0.5rem; }
-    .pricing-col .hero-sub { font-size: 0.85rem; color:var(--text-secondary,#6b7b74); margin-bottom: 1.5rem; }
-    .pricing-stack { display: flex; flex-direction: column; gap: 1rem; }
-    .price-row {
-      background:var(--bg-card,#fff); border-radius: 20px; padding: 1rem 1.25rem;
-      border: 1.5px solid #eef4ee; transition: all 0.2s; cursor: pointer;
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .price-row:hover { transform: translateX(4px); border-color: #1D9E75; }
-    .price-row.selected { border: 2px solid #1D9E75; background: #f0f9f5; }
-    .price-row.featured {
-      background: linear-gradient(135deg, #0d2018, #142c1f);
-      border: 2px solid #1D9E75; color: #fff;
-    }
-    .price-badge {
-      background: #1D9E75; color: #fff; font-size: 0.6rem; font-weight: 600;
-      padding: 0.15rem 0.6rem; border-radius: 999px; margin-left: 0.5rem;
-    }
-    .price-info { flex: 1; }
-    .price-name { font-weight: 700; font-size: 1rem; }
-    .price-row.featured .price-name { color: #5DCAA5; }
-    .price-value { font-size: 1.3rem; font-weight: 800; color: #1D9E75; }
-    .price-row.featured .price-value { color: #5DCAA5; }
-    .price-desc { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.2rem; }
-    .price-row.featured .price-desc { color: rgba(255,255,255,0.6); }
-    .price-features { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
-    .price-features span { background:var(--bg-tertiary,#eef4ee); padding: 0.1rem 0.4rem; border-radius: 999px; }
-    .price-row.featured .price-features span { background: rgba(93,202,165,0.15); color: #5DCAA5; }
-    .price-check {
-      width: 24px; height: 24px; background: #1D9E75; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 0.7rem; flex-shrink: 0;
-    }
-    .price-row.featured .price-check { background: #5DCAA5; }
-
-    @media (max-width: 900px) {
-      .split-container { flex-direction: column; }
-      .pricing-col { border-right: none; border-bottom: 1px solid #eef4ee; }
+    /* Colonne droite */
+    .col-right {
+      flex:1; background:var(--white);
+      display:flex; flex-direction:column;
+      overflow-y:auto; padding:1.4rem 2rem 1rem;
     }
 
-    /* ── FORMULAIRE ── */
-    .form-col { flex: 1; background:var(--bg-card,#fff); padding: 2rem; overflow-y: auto; }
-    .form-col h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.25rem; }
-    .form-col .form-sub { font-size: 0.8rem; color:var(--text-secondary,#6b7b74); margin-bottom: 1.5rem; }
-
-    .insc-progress-bar { display: flex; align-items: center; margin-bottom: 1.5rem; }
-    .insc-progress-step { display: flex; align-items: center; gap: 0.5rem; }
-    .insc-prog-dot {
-      width: 32px; height: 32px; border-radius: 50%; background:var(--bg-tertiary,#eef4ee);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 500; color:var(--text-secondary,#6b7b74);
-    }
-    .insc-progress-step.active .insc-prog-dot { background: #1D9E75; color: #fff; }
-    .insc-progress-step.done .insc-prog-dot { background: #e1f5ee; color: #1D9E75; }
-    .insc-progress-step span { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); }
-    .insc-progress-step.active span { color:var(--text-primary,#0d2018); font-weight: 500; }
-    .insc-progress-line { flex: 1; height: 2px; background:var(--bg-tertiary,#eef4ee); margin: 0 0.5rem; }
-
-    .insc-step { display: none; animation: fadeIn 0.3s ease; }
-    .insc-step.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-    .form-group { margin-bottom: 1.25rem; }
-    .form-group label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.4rem; color: var(--text-primary, #0d2018); }
-    .form-group input, .form-group select {
-      width: 100%; padding: 0.65rem 0.9rem;
-      border: 1.5px solid #eef4ee; border-radius: 12px; font-size: 0.9rem;
-      background: var(--bg-input, #fff); color: var(--text-primary, #0d2018);
-      transition: border-color 0.2s; font-family: 'Outfit', sans-serif;
-    }
-    .form-group input::placeholder, .form-group textarea::placeholder {
-      color: #b0bdb7;
-    }
-    .form-group input:focus, .form-group select:focus { border-color: #1D9E75; outline: none; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-
-    .btn-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
-    .btn-next, .btn-back, .btn-submit {
-      padding: 0.7rem 1.5rem; border-radius: 999px; font-size: 0.85rem;
-      font-weight: 500; cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
-      transition: all 0.2s;
-    }
-    .btn-next, .btn-submit { background: #1D9E75; color: #fff; }
-    .btn-next:hover, .btn-submit:hover { background: #0f6e56; }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-back { background: transparent; border: 1.5px solid #eef4ee; color:var(--text-primary,#0d2018); }
-    .btn-back:hover { background:var(--bg-secondary,#f7f9f7); }
-
-    .formule-recap {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #e1f5ee; border: 1px solid #1D9E75;
-      border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem;
-    }
-    .formule-recap-name { font-weight: 600; color: #0f6e56; }
-    .formule-change { background: none; border: none; color: #1D9E75; font-size: 0.75rem; cursor: pointer; text-decoration: underline; }
-
-    .rpps-explainer {
-      display: flex; gap: 0.75rem; background: #e1f5ee;
-      border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem;
-    }
-    .rpps-explainer-icon {
-      width: 28px; height: 28px; background: #1D9E75; color: #fff;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;
-      flex-shrink: 0;
+    @media(max-width:820px){
+      .split { flex-direction:column; overflow-y:auto; }
+      .col-left { width:100%; overflow:visible; }
+      .col-right { overflow:visible; }
+      html,body { overflow:auto; height:auto; }
     }
 
-    .checkbox-option {
-      display: flex; align-items: flex-start; gap: 0.5rem;
-      font-size: 0.8rem; margin: 1rem 0; cursor: pointer; line-height: 1.5;
+    /* ════════ COLONNE GAUCHE ════════ */
+    .pricing-hl {
+      font-family:'Playfair Display',serif;
+      font-size:1.3rem; color:#fff; line-height:1.2; margin-bottom:0.25rem;
     }
-    .checkbox-option input { margin-top: 3px; flex-shrink: 0; }
-    .req { color: #ef4444; }
+    .pricing-hl em { font-style:italic; color:var(--green-light); }
+    .pricing-sub { font-size:0.72rem; color:rgba(255,255,255,0.45); margin-bottom:1.1rem; line-height:1.5; }
+
+    .pricing-stack { display:flex; flex-direction:column; gap:0.85rem; flex:1; }
+
+    .p-row {
+      background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1);
+      border-radius:14px; padding:0.9rem 1rem; cursor:pointer; position:relative;
+      transition:border-color 0.2s, background 0.2s;
+    }
+    .p-row:hover { border-color:rgba(29,158,117,0.45); }
+    .p-row.selected { border:2px solid var(--green); background:rgba(29,158,117,0.07); }
+    .p-row.featured { background:rgba(29,158,117,0.1); border:2px solid var(--green); }
+    .p-badge { position:absolute; top:-10px; left:1rem; background:var(--green); color:#fff; font-size:0.58rem; font-weight:700; padding:0.15rem 0.65rem; border-radius:999px; }
+    .p-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:0.35rem; }
+    .p-name { font-weight:700; font-size:0.88rem; color:#fff; }
+    .p-price { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; color:var(--green-light); }
+    .p-period { font-size:0.62rem; color:rgba(255,255,255,0.4); margin-bottom:0.55rem; }
+    .p-feats { list-style:none; display:flex; flex-direction:column; gap:0.25rem; }
+    .p-feats li { display:flex; align-items:center; gap:0.4rem; font-size:0.7rem; color:rgba(255,255,255,0.65); }
+    .p-feats li::before { content:"✓"; color:var(--green-light); font-weight:700; flex-shrink:0; font-size:0.65rem; }
+    .p-feats li.soon { color:rgba(255,255,255,0.28); }
+    .p-feats li.soon::before { content:"→"; color:rgba(255,255,255,0.18); }
+    .soon-l { font-size:0.55rem; background:rgba(29,158,117,0.15); color:var(--green-light); border-radius:999px; padding:0.07rem 0.35rem; margin-left:0.2rem; }
+    .p-check { position:absolute; top:0.9rem; right:0.9rem; width:18px; height:18px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.6rem; opacity:0; transition:opacity 0.2s; }
+    .p-row.selected .p-check { opacity:1; }
+
+    .p-note { margin-top:0.85rem; background:rgba(29,158,117,0.08); border:1px solid rgba(29,158,117,0.18); border-radius:10px; padding:0.65rem 0.85rem; font-size:0.68rem; color:rgba(255,255,255,0.5); line-height:1.55; }
+    .p-note strong { color:var(--green-light); }
+
+    /* ════════ COLONNE DROITE ════════ */
+    .form-title { font-family:'Playfair Display',serif; font-size:1.45rem; color:var(--text); margin-bottom:0.15rem; }
+    .form-sub { font-size:0.75rem; color:var(--text2); margin-bottom:1rem; }
+
+    /* Barre progression compacte */
+    .prog-bar { display:flex; align-items:center; margin-bottom:1rem; }
+    .prog-step { display:flex; align-items:center; gap:0.35rem; }
+    .prog-dot { width:26px; height:26px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; color:var(--text2); flex-shrink:0; transition:background 0.2s,color 0.2s; }
+    .prog-step.active .prog-dot { background:var(--green); color:#fff; }
+    .prog-step.done .prog-dot { background:#e1f5ee; color:var(--green); }
+    .prog-step span { font-size:0.68rem; color:var(--text2); white-space:nowrap; }
+    .prog-step.active span { color:var(--text); font-weight:600; }
+    .prog-line { flex:1; height:2px; background:var(--border); margin:0 0.35rem; min-width:12px; }
+
+    /* Erreur */
+    .insc-error { background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:0.55rem 0.85rem; font-size:0.78rem; color:#dc2626; margin-bottom:0.75rem; }
+    .insc-error.hidden { display:none; }
+
+    /* Étapes */
+    .insc-step { display:none; animation:fadeUp 0.25s ease; flex:1; }
+    .insc-step.active { display:flex; flex-direction:column; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+
+    /* Champs */
+    .fg { margin-bottom:0.8rem; }
+    .fg label { display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.3rem; color:var(--text); }
+    .fg input, .fg select {
+      width:100%; padding:0.55rem 0.85rem;
+      border:1.5px solid var(--border); border-radius:10px;
+      font-size:0.83rem; background:var(--white); color:var(--text);
+      transition:border-color 0.2s, box-shadow 0.2s; font-family:'Outfit',sans-serif;
+    }
+    .fg input::placeholder { color:#b0bdb7; }
+    .fg input:focus, .fg select:focus { border-color:var(--green); outline:none; box-shadow:0 0 0 3px rgba(29,158,117,0.08); }
+    .fg input.err { border-color:#ef4444; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    @media(max-width:600px){ .form-row{grid-template-columns:1fr;} }
+
+    /* Boutons */
+    .btn-row { display:flex; gap:0.65rem; margin-top:auto; padding-top:0.85rem; flex-wrap:wrap; }
+    .btn-n, .btn-sub {
+      padding:0.6rem 1.4rem; border-radius:999px; font-size:0.83rem;
+      font-weight:600; cursor:pointer; border:none; font-family:'Outfit',sans-serif;
+      background:var(--green); color:#fff; transition:background 0.2s,transform 0.15s;
+      box-shadow:0 3px 12px rgba(29,158,117,0.2);
+    }
+    .btn-n:hover, .btn-sub:hover { background:var(--green-dark); transform:translateY(-1px); }
+    .btn-sub:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-bk { padding:0.6rem 1.4rem; border-radius:999px; font-size:0.83rem; font-weight:500; cursor:pointer; border:1.5px solid var(--border); background:transparent; color:var(--text2); font-family:'Outfit',sans-serif; transition:background 0.15s; }
+    .btn-bk:hover { background:var(--cream); }
+
+    /* Explainer mini */
+    .explainer { display:flex; gap:0.65rem; background:#e1f5ee; border-radius:10px; padding:0.7rem 0.9rem; margin-bottom:0.85rem; }
+    .expl-icon { width:26px; height:26px; background:var(--green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:0.78rem; }
+    .explainer p { font-size:0.73rem; color:#4b5563; line-height:1.5; margin-top:0.15rem; }
+    .explainer strong { color:var(--text); }
+
+    /* RPPS */
+    .rpps-row { display:flex; gap:0.6rem; align-items:flex-start; }
+    .btn-search { background:var(--green); color:#fff; border:none; padding:0.55rem 1rem; border-radius:10px; font-size:0.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; white-space:nowrap; transition:background 0.2s,opacity 0.2s; flex-shrink:0; }
+    .btn-search:disabled { opacity:0.38; cursor:not-allowed; }
+    .rpps-feedback { font-size:0.73rem; margin-top:0.3rem; min-height:1.1em; }
+
+    .rpps-loader { display:flex; align-items:center; gap:0.7rem; padding:0.75rem; background:var(--cream); border-radius:10px; font-size:0.78rem; color:var(--text2); margin-bottom:0.75rem; }
+    .rpps-loader.hidden,.rpps-result.hidden,.rpps-nf.hidden { display:none; }
+    .loader-ring { width:18px; height:18px; border:2.5px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.75s linear infinite; flex-shrink:0; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    .rpps-result { border:2px solid var(--green); border-radius:12px; padding:0.9rem; margin-bottom:0.75rem; background:linear-gradient(135deg,#e1f5ee,#f0faf5); animation:fadeUp 0.3s ease; }
+    .rr-head { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.85rem; }
+    .rr-av { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#1D9E75,#0f6e56); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .rr-name { font-weight:700; font-size:0.9rem; color:var(--dark); }
+    .rr-details { font-size:0.72rem; color:var(--text2); margin-top:0.1rem; line-height:1.4; }
+    .rr-badge { margin-left:auto; background:var(--green); color:#fff; font-size:0.62rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:999px; white-space:nowrap; }
+    .rr-actions { display:flex; gap:0.65rem; flex-wrap:wrap; }
+    .btn-cest-moi { background:var(--green); color:#fff; border:none; padding:0.55rem 1.2rem; border-radius:999px; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; transition:background 0.2s; }
+    .btn-cest-moi:hover { background:var(--green-dark); }
+    .btn-not-me { background:transparent; border:1.5px solid var(--border); color:var(--text2); padding:0.55rem 1.2rem; border-radius:999px; font-size:0.78rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:background 0.15s; }
+    .btn-not-me:hover { background:var(--cream); }
+
+    .rpps-nf { background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:0.7rem 0.9rem; font-size:0.76rem; color:#dc2626; margin-bottom:0.75rem; line-height:1.5; }
+
+    /* Vérification identité */
+    .verif-options { display:flex; flex-direction:column; gap:0.55rem; }
+    .v-opt { display:flex; align-items:center; gap:0.75rem; border:1.5px solid var(--border); border-radius:12px; padding:0.7rem 0.9rem; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
+    .v-opt:hover { border-color:rgba(29,158,117,0.4); }
+    .v-opt.selected { border-color:var(--green); background:#e1f5ee; }
+    .v-opt-icon { font-size:1.3rem; flex-shrink:0; }
+    .v-opt-body { flex:1; }
+    .v-opt-title { font-weight:700; font-size:0.82rem; color:var(--text); }
+    .v-opt-desc { font-size:0.68rem; color:var(--text2); margin-top:0.1rem; line-height:1.35; }
+    .v-radio { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; transition:all 0.2s; }
+    .v-opt.selected .v-radio { border-color:var(--green); background:var(--green); box-shadow:inset 0 0 0 3px #fff; }
+
+    .v-zone { background:var(--cream); border-radius:10px; padding:0.85rem; margin-top:-0.25rem; border:1px solid var(--border-light); animation:fadeUp 0.2s ease; }
+    .v-zone.hidden { display:none; }
+
+    .btn-fc { display:inline-flex; flex-direction:column; align-items:center; background:#003189; color:#fff; border:none; padding:0.65rem 1.5rem; border-radius:10px; cursor:pointer; font-family:'Outfit',sans-serif; gap:0; transition:background 0.2s; }
+    .btn-fc span { font-size:0.62rem; opacity:0.7; }
+    .btn-fc strong { font-size:0.85rem; }
+    .btn-psc { display:inline-flex; flex-direction:column; align-items:center; background:#00538f; color:#fff; border:none; padding:0.65rem 1.5rem; border-radius:10px; cursor:pointer; font-family:'Outfit',sans-serif; gap:0; transition:background 0.2s; }
+    .btn-psc span { font-size:0.62rem; opacity:0.7; }
+    .btn-psc strong { font-size:0.85rem; }
+
+    .upload-drop { border:2px dashed var(--border); border-radius:10px; padding:0.85rem; text-align:center; cursor:pointer; transition:border-color 0.2s; }
+    .upload-drop:hover { border-color:var(--green); }
+    .upload-icon { font-size:1.4rem; }
+    .upload-txt { font-size:0.75rem; color:var(--text2); font-weight:500; margin-top:0.2rem; }
+    .upload-hint { font-size:0.65rem; color:#9ca3af; }
+    .upload-preview { display:flex; align-items:center; justify-content:space-between; background:#e1f5ee; border:1px solid #a7dfca; border-radius:8px; padding:0.55rem 0.8rem; margin-top:0.4rem; }
+    .upload-preview.hidden { display:none; }
+    .upload-fn { font-size:0.78rem; color:var(--green-dark); font-weight:600; }
+    .upload-rm { background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.9rem; }
+
+    .info-sm { background:#e1f5ee; border-radius:8px; padding:0.55rem 0.75rem; font-size:0.7rem; color:#0f6e56; margin-top:0.55rem; line-height:1.5; }
+
+    /* Recap formule */
+    .formule-recap { display:flex; align-items:center; justify-content:space-between; background:#e1f5ee; border:1px solid #a7dfca; border-radius:8px; padding:0.6rem 0.85rem; margin-bottom:0.85rem; }
+    .fr-name { font-weight:700; color:var(--green-dark); font-size:0.85rem; }
+    .fr-change { background:none; border:none; color:var(--green); font-size:0.72rem; cursor:pointer; text-decoration:underline; }
+
+    /* Checkbox */
+    .chk { display:flex; align-items:flex-start; gap:0.5rem; font-size:0.75rem; margin-bottom:0.65rem; cursor:pointer; color:var(--text2); line-height:1.5; }
+    .chk input { margin-top:2px; flex-shrink:0; accent-color:var(--green); }
+    .req { color:#ef4444; }
+
+    /* RCP box */
+    .rcp-box { background:var(--cream); border:1px solid var(--border); border-radius:10px; padding:0.75rem 0.9rem; margin-bottom:0.75rem; }
+
+    /* Force MDP */
+    #pwdStrength { margin-top:4px; }
 
     /* Confirmation */
-    .inscription-confirmation { text-align: center; padding: 2rem; }
-    .confirm-icon {
-      width: 60px; height: 60px; background: #e1f5ee; color: #1D9E75;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem; margin: 0 auto 1rem;
-    }
-    .confirm-steps { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem auto; max-width: 280px; }
-    .confirm-step { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; }
-    .conf-dot { width: 10px; height: 10px; border-radius: 50%; background:var(--bg-tertiary,#eef4ee); }
-    .conf-dot.done { background: #1D9E75; }
-    .conf-dot.pending { background: #f59e0b; animation: pulse 1.8s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .hidden { display: none; }
+    .confirm-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; padding:1rem; }
+    .confirm-icon { width:60px; height:60px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; margin:0 auto 1.1rem; animation:popIn 0.5s ease; }
+    @keyframes popIn { 0%{opacity:0;transform:scale(0.7);} 70%{transform:scale(1.08);} 100%{opacity:1;transform:scale(1);} }
+    .confirm-steps { margin:1rem 0; display:flex; flex-direction:column; gap:0.6rem; text-align:left; max-width:280px; margin-left:auto; margin-right:auto; }
+    .cs { display:flex; align-items:center; gap:0.6rem; font-size:0.78rem; color:var(--text2); }
+    .cs-dot { width:10px; height:10px; border-radius:50%; background:var(--border); flex-shrink:0; }
+    .cs-dot.done { background:var(--green); }
+    .cs-dot.pend { background:#f59e0b; }
 
-    /* Message erreur */
-    .insc-error {
-      background: #fee2e2; border: 1px solid #fca5a5;
-      border-radius: 10px; padding: 0.65rem 1rem;
-      font-size: 0.82rem; color: #dc2626; margin-bottom: 1rem;
-    }
-
-    /* Draft actions */
-    .draft-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 1rem; }
-    .draft-actions button { font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; }
-
-    /* RPPS feedback */
-    .rpps-feedback { font-size: 0.75rem; margin-top: 0.25rem; }
-
-    /* ── FOOTER ── */
-    .nd-footer { background: #080f0b; color: rgba(255,255,255,0.5); padding: 3rem 2rem 1.5rem; }
-    .nd-footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 2fr; gap: 2rem; }
-    .nd-logo-footer { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
-    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
-    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
-    .nd-footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-    .nd-footer-col-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); margin-bottom: 0.5rem; }
-    .nd-footer-col a { display: block; font-size: 0.7rem; color: rgba(255,255,255,0.5); text-decoration: none; margin-bottom: 0.3rem; }
-    .nd-footer-col a:hover { color: #fff; }
-    .nd-footer-bottom { text-align: center; font-size: 0.65rem; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
-    @media (max-width: 768px) {
-      .nd-footer-inner { grid-template-columns: 1fr; }
-      .nd-footer-links { grid-template-columns: 1fr 1fr; }
-    }
+    .hidden { display:none !important; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
+<body>
 
 <!-- HEADER -->
-<header class="nd-header" id="ndHeader">
-  <div class="header-container">
-    <div class="header-left">
+<header class="nd-header">
+  <div class="hc">
+    <div class="h-left">
       <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
-        <a href="index.html#comment" class="nd-navlink">Comment ça marche</a>
-        <a href="index.html#tarifs" class="nd-navlink">Tarifs</a>
+        <a href="accueil-dieteticien.html" class="nd-navlink">← Retour</a>
         <a href="faq.html" class="nd-navlink">FAQ</a>
       </nav>
-    </div>
-
-    <div class="gregoire-mini">
-      <div class="gregoire-mini-avatar">GM</div>
-      <div class="gregoire-mini-text">
-        <strong>Grégoire Martin</strong> · Diététicien RPPS
+      <div class="cofond">
+        <div class="cofond-av">GM</div>
+        <div class="cofond-txt"><strong>Grégoire Martin</strong> · Co-fondateur &amp; diét. référent</div>
+        <div class="cofond-tip">⭐ Diététicien co-fondateur NutriDoc
+🏥 CHU Angoulême · 🏡 Cabinet libéral
+🚒 Sapeur-Pompier Expert</div>
       </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert · 🚒 Pompier expert</span>
     </div>
-
-    <div class="header-actions">
-      <!-- dark-mode.js injecte le toggle ici automatiquement -->
+    <div class="h-right">
       <div class="nd-conn-wrap" id="ndConnWrap">
-        <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
+        <button class="nd-conn-btn" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
-          <a href="login.html" class="nd-conn-item">🥗 Diététicien</a>
-          <a href="login.html" class="nd-conn-item">👤 Patient</a>
-          <a href="login.html" class="nd-conn-item">🏢 Prescripteur</a>
+          <a href="login.html?role=dietitian"  class="nd-conn-item">🥗 Diététicien</a>
+          <a href="login.html?role=patient"    class="nd-conn-item">👤 Patient</a>
+          <a href="login.html?role=prescriber" class="nd-conn-item">🏢 Prescripteur</a>
         </div>
       </div>
-      <a href="bilan.html" class="nd-btn-primary">Commencer gratuit →</a>
     </div>
   </div>
 </header>
 
-<!-- SPLIT SCREEN -->
-<div class="split-container">
+<!-- SPLIT -->
+<div class="split">
 
-  <!-- COLONNE GAUCHE : TARIFS -->
-  <div class="pricing-col">
-    <h1>Choisissez votre formule</h1>
-    <p class="hero-sub">1 plan offert par mois, toutes formules confondues. Sans engagement.</p>
+  <!-- ══ GAUCHE : OFFRES ══ -->
+  <div class="col-left">
+    <h1 class="pricing-hl">Choisissez<br>votre <em>formule</em></h1>
+    <p class="pricing-sub">Sans engagement · Aucune commission · Encaissement direct</p>
 
     <div class="pricing-stack">
 
-      <div class="price-row" data-formule="essentiel" data-prix="0">
-        <div class="price-info">
-          <div class="price-name">Essentiel <span class="price-badge">Référencement seul</span></div>
-          <div class="price-value">0 € <span style="font-size:0.8rem;">/mois</span></div>
-          <div class="price-desc">Phase pilote, démarrage</div>
-          <div class="price-features">
-            <span>Profil RPPS</span><span>Badge vérifié</span><span>✗ Accès dossiers</span>
-          </div>
+      <div class="p-row" data-formule="decouverte" data-prix="0" onclick="selectFormule(this)">
+        <div class="p-header">
+          <div class="p-name">Découverte</div>
+          <div class="p-price">0 €</div>
         </div>
-        <div class="price-check">✓</div>
+        <div class="p-period">Gratuit pendant 3 mois · sans CB</div>
+        <ul class="p-feats">
+          <li>Dossiers patients illimités</li>
+          <li>Certification RPPS visible</li>
+          <li>Suivi des dossiers</li>
+          <li>Revenus &amp; déclarations</li>
+        </ul>
+        <div class="p-check">✓</div>
       </div>
 
-      <div class="price-row" data-formule="starter" data-prix="9">
-        <div class="price-info">
-          <div class="price-name">Starter</div>
-          <div class="price-value">9 € <span style="font-size:0.8rem;">/mois</span></div>
-          <div class="price-desc">1 gratuit + 10 quota · Commission 2,50€</div>
-          <div class="price-features">
-            <span>+ Accès dossiers</span><span>+ 10 plans inclus</span><span>+ Agenda visio</span>
-          </div>
+      <div class="p-row featured" data-formule="essentiel" data-prix="39" onclick="selectFormule(this)">
+        <div class="p-badge">⭐ Après 3 mois</div>
+        <div class="p-header" style="margin-top:0.4rem;">
+          <div class="p-name">Essentiel</div>
+          <div class="p-price">39 €<span style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:'Outfit',sans-serif;">/mois</span></div>
         </div>
-        <div class="price-check">✓</div>
-      </div>
-
-      <div class="price-row featured" data-formule="pro" data-prix="29">
-        <div class="price-info">
-          <div class="price-name">Pro <span class="price-badge">⭐ RECOMMANDÉ</span></div>
-          <div class="price-value">29 € <span style="font-size:0.8rem;">/mois</span></div>
-          <div class="price-desc">1 gratuit + 30 quota · Commission 2,00€</div>
-          <div class="price-features">
-            <span>+ 30 plans inclus</span><span>+ Commission réduite</span><span>+ Support prioritaire</span>
-          </div>
-        </div>
-        <div class="price-check">✓</div>
-      </div>
-
-      <div class="price-row" data-formule="expert" data-prix="59">
-        <div class="price-info">
-          <div class="price-name">Expert</div>
-          <div class="price-value">59 € <span style="font-size:0.8rem;">/mois</span></div>
-          <div class="price-desc">1 gratuit + 100 quota · Commission 1,50€</div>
-          <div class="price-features">
-            <span>+ 100 plans inclus</span><span>+ Commission 1,50€</span><span>+ Analytics avancés</span>
-          </div>
-        </div>
-        <div class="price-check">✓</div>
+        <div class="p-period">HT · résiliable à tout moment</div>
+        <ul class="p-feats">
+          <li>Dossiers patients illimités</li>
+          <li>Certification RPPS visible</li>
+          <li>Suivi des dossiers</li>
+          <li>Revenus &amp; déclarations</li>
+          <li class="soon">Téléconsultations &amp; RDV <span class="soon-l">Bientôt</span></li>
+          <li class="soon">Mis en avant auprès des patients <span class="soon-l">Bientôt</span></li>
+        </ul>
+        <div class="p-check">✓</div>
       </div>
 
     </div>
 
-    <div style="margin-top:2rem;padding:1rem;background:#e1f5ee;border-radius:16px;text-align:center;">
-      <p style="font-size:0.75rem;color:#0f6e56;">💚 Visio : 55€ encaissés directement · Commission visio : 8€</p>
-      <p style="font-size:0.7rem;color:#0f6e56;margin-top:0.25rem;">🎁 1 plan alimentaire offert par mois, toutes formules</p>
+    <div class="p-note">
+      💡 <strong>Aucune commission</strong> sur vos plans.<br>
+      Rentabilisé dès <strong>2 plans validés</strong>/mois.
     </div>
   </div>
 
-  <!-- COLONNE DROITE : FORMULAIRE -->
-  <div class="form-col">
-    <h2>Créer mon compte</h2>
-    <p class="form-sub">Remplissez vos informations professionnelles</p>
+  <!-- ══ DROITE : FORMULAIRE ══ -->
+  <div class="col-right">
+    <h2 class="form-title">Créer mon compte</h2>
+    <p class="form-sub">Inscription en 5 minutes · RPPS vérifié automatiquement</p>
 
-    <div class="insc-progress-bar">
-      <div class="insc-progress-step active" id="progStep1">
-        <div class="insc-prog-dot">1</div><span>Identité</span>
-      </div>
-      <div class="insc-progress-line"></div>
-      <div class="insc-progress-step" id="progStep2">
-        <div class="insc-prog-dot">2</div><span>RPPS + RCP</span>
-      </div>
-      <div class="insc-progress-line"></div>
-      <div class="insc-progress-step" id="progStep3">
-        <div class="insc-prog-dot">3</div><span>Vérification</span>
-      </div>
-      <div class="insc-progress-line"></div>
-      <div class="insc-progress-step" id="progStep4">
-        <div class="insc-prog-dot">4</div><span>Formule</span>
-      </div>
+    <!-- Progression -->
+    <div class="prog-bar">
+      <div class="prog-step active" id="ps1"><div class="prog-dot">1</div><span>Identité</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="ps2"><div class="prog-dot">2</div><span>RPPS</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="ps3"><div class="prog-dot">3</div><span>Vérification</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="ps4"><div class="prog-dot">4</div><span>Finalisation</span></div>
     </div>
 
     <div id="inscError" class="insc-error hidden"></div>
 
-    <form id="inscriptionForm" novalidate>
+    <form id="inscriptionForm" novalidate style="display:flex;flex-direction:column;flex:1;">
 
-      <div class="draft-actions">
-        <button type="button" onclick="manualSave('inscriptionForm')" style="background:#1D9E75;color:#fff;">💾 Sauvegarder</button>
-        <button type="button" onclick="restoreLastDraft('inscriptionForm')" style="background:#f59e0b;color:#fff;">🔄 Brouillon</button>
-        <button type="button" onclick="clearCurrentDraft('inscriptionForm')" style="background:#ef4444;color:#fff;">🗑️ Effacer</button>
-      </div>
-
-      <!-- Étape 1 : Identité -->
+      <!-- ÉTAPE 1 -->
       <div class="insc-step active" data-step="1">
         <div class="form-row">
-          <div class="form-group">
-            <label>Prénom <span class="req">*</span></label>
-            <input type="text" id="prenom" placeholder="Ex : Sophie" required autocomplete="given-name"/>
-          </div>
-          <div class="form-group">
-            <label>Nom <span class="req">*</span></label>
-            <input type="text" id="nom" placeholder="Ex : Martin" required autocomplete="family-name"/>
-          </div>
+          <div class="fg"><label>Prénom <span class="req">*</span></label><input type="text" id="prenom" placeholder="Sophie" required autocomplete="given-name"/></div>
+          <div class="fg"><label>Nom <span class="req">*</span></label><input type="text" id="nom" placeholder="Martin" required autocomplete="family-name"/></div>
         </div>
-        <div class="form-group">
-          <label>Email professionnel <span class="req">*</span></label>
-          <input type="email" id="email" placeholder="s.martin@cabinet.fr" required autocomplete="email"/>
-        </div>
+        <div class="fg"><label>Email professionnel <span class="req">*</span></label><input type="email" id="email" placeholder="s.martin@cabinet.fr" required autocomplete="email"/></div>
         <div class="form-row">
-          <div class="form-group">
-            <label>Téléphone</label>
-            <input type="tel" id="tel" placeholder="06 xx xx xx xx" autocomplete="tel"/>
-          </div>
-          <div class="form-group">
-            <label>Site web / Doctolib</label>
-            <input type="url" id="siteWeb" placeholder="https://..."/>
-          </div>
+          <div class="fg"><label>Téléphone</label><input type="tel" id="tel" placeholder="06 xx xx xx xx" autocomplete="tel"/></div>
+          <div class="fg"><label>Ville d'exercice</label><input type="text" id="cabinet" placeholder="Paris, Lyon…"/></div>
         </div>
-        <div class="form-group">
-          <label>Cabinet / ville</label>
-          <input type="text" id="cabinet" placeholder="Ex : Cabinet Nutrition Paris 11"/>
-        </div>
-        <button type="button" class="btn-next" onclick="nextStep()">Continuer →</button>
+        <div class="fg"><label>Site web / Doctolib <span style="font-weight:400;color:var(--text2)">(optionnel)</span></label><input type="url" id="siteWeb" placeholder="https://..."/></div>
+        <div class="btn-row"><button type="button" class="btn-n" onclick="nextStep()">Continuer →</button></div>
       </div>
 
-      <!-- Étape 2 : RPPS + RCP -->
+      <!-- ÉTAPE 2 : RPPS -->
       <div class="insc-step" data-step="2">
-        <div class="rpps-explainer">
-          <div class="rpps-explainer-icon">?</div>
+        <div class="explainer">
+          <div class="expl-icon">?</div>
           <div>
             <strong>Numéro RPPS</strong>
-            <p style="font-size:0.8rem;color:#6b7b74;margin-top:0.25rem;">Identifiant national unique à <strong>11 chiffres</strong> attribué par l'Ordre ou l'ARS. Il figure sur votre carte CPS.</p>
+            <p>Identifiant à <strong>11 chiffres</strong> — sur votre carte CPS ou <a href="https://annuaire.sante.fr" target="_blank" style="color:var(--green);">annuaire.sante.fr</a></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="fg">
           <label>Numéro RPPS <span class="req">*</span></label>
-          <input type="text" id="rppsInput" placeholder="Ex : 10008019381" maxlength="11" inputmode="numeric" required/>
-          <div class="rpps-feedback" id="rppsFeedback"></div>
+          <div class="rpps-row">
+            <div style="flex:1;"><input type="text" id="rppsInput" placeholder="10008019381" maxlength="11" inputmode="numeric" oninput="onRppsInput(this)" required/><div class="rpps-feedback" id="rppsFeedback"></div></div>
+            <button type="button" id="rppsSearchBtn" class="btn-search" onclick="lookupRpps()" disabled>Rechercher</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Spécialité <span class="req">*</span></label>
-          <select id="specialite" required>
-            <option value="">— Choisir —</option>
-            <option value="dieteticien">Diététicien(ne) diplômé(e)</option>
-            <option value="nutritionniste">Médecin nutritionniste</option>
-          </select>
+        <div id="rppsLoader" class="rpps-loader hidden"><div class="loader-ring"></div><span>Consultation de l'annuaire officiel…</span></div>
+        <div id="rppsResult" class="rpps-result hidden">
+          <div class="rr-head">
+            <div class="rr-av" id="rppsAvatar">?</div>
+            <div><div class="rr-name" id="rppsResultName">—</div><div class="rr-details" id="rppsResultDetails">—</div></div>
+            <div class="rr-badge">✓ Vérifié</div>
+          </div>
+          <div class="rr-actions">
+            <button type="button" class="btn-cest-moi" onclick="confirmRpps()">✓ C'est bien moi →</button>
+            <button type="button" class="btn-not-me" onclick="resetRpps()">Ce n'est pas moi</button>
+          </div>
         </div>
-        <label class="checkbox-option">
-          <input type="checkbox" id="rcpCheckbox" required/>
-          <span>Je certifie disposer d'une attestation d'assurance <strong>Responsabilité Civile Professionnelle (RCP)</strong> couvrant la téléconsultation et les actes de nutrition en ligne <span class="req">*</span></span>
-        </label>
-        <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="button" class="btn-next" onclick="validateRppsAndContinue()">Vérifier & continuer →</button>
-        </div>
+        <div id="rppsNotFound" class="rpps-nf hidden"><p>⚠️ Aucun praticien trouvé pour ce numéro RPPS.</p><p>Vérifiez sur <a href="https://annuaire.sante.fr" target="_blank" style="color:var(--green);">annuaire.sante.fr</a> ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.</p></div>
+        <div class="btn-row"><button type="button" class="btn-bk" onclick="prevStep()">← Retour</button></div>
       </div>
 
-      <!-- Étape 3 : Identité numérique (optionnel) -->
+      <!-- ÉTAPE 3 : Identité -->
       <div class="insc-step" data-step="3">
-        <div class="rpps-explainer">
-          <div class="rpps-explainer-icon">🔐</div>
-          <div>
-            <strong>Vérification d'identité</strong>
-            <p style="font-size:0.8rem;color:#6b7b74;margin-top:0.25rem;">Optionnel — mais recommandé. Elle ajoute un <strong>badge de confiance</strong> sur votre profil, visible par les patients.</p>
+        <div class="explainer">
+          <div class="expl-icon">🔐</div>
+          <div><strong>Vérification d'identité</strong><p>Obligatoire pour valider des plans légalement. Choisissez la méthode.</p></div>
+        </div>
+        <div class="verif-options">
+          <div class="v-opt" id="voID" onclick="selectVerif('cni',this)">
+            <div class="v-opt-icon">🪪</div>
+            <div class="v-opt-body"><div class="v-opt-title">Carte d'identité ou Passeport</div><div class="v-opt-desc">Photo ou scan lisible · JPG, PNG, PDF · 5 Mo max</div></div>
+            <div class="v-radio" id="rCNI"></div>
+          </div>
+          <div id="zoneID" class="v-zone hidden">
+            <input type="file" id="cniFile" accept="image/*,application/pdf" onchange="onCniUpload(this)" style="display:none"/>
+            <div class="upload-drop" onclick="document.getElementById('cniFile').click()"><div class="upload-icon">📎</div><div class="upload-txt">Cliquer pour sélectionner</div><div class="upload-hint">JPG, PNG ou PDF · 5 Mo max</div></div>
+            <div class="upload-preview hidden" id="cniPreview"><span class="upload-fn" id="cniFileName"></span><button type="button" class="upload-rm" onclick="removeCni()">✕</button></div>
+          </div>
+          <div class="v-opt" id="voFC" onclick="selectVerif('fc',this)">
+            <div class="v-opt-icon">🇫🇷</div>
+            <div class="v-opt-body"><div class="v-opt-title">FranceConnect</div><div class="v-opt-desc">Via Ameli, impots.gouv ou service de l'État</div></div>
+            <div class="v-radio" id="rFC"></div>
+          </div>
+          <div id="zoneFC" class="v-zone hidden">
+            <button type="button" class="btn-fc" onclick="lancerFC()"><span>Se connecter avec</span><strong>FranceConnect</strong></button>
+            <div class="info-sm">⚙️ Intégration en cours — vérification manuelle par notre équipe en attendant.</div>
+          </div>
+          <div class="v-opt" id="voPSC" onclick="selectVerif('psc',this)">
+            <div class="v-opt-icon">🏥</div>
+            <div class="v-opt-body"><div class="v-opt-title">Pro Santé Connect</div><div class="v-opt-desc">Avec votre carte CPS ou e-CPS (recommandé)</div></div>
+            <div class="v-radio" id="rPSC"></div>
+          </div>
+          <div id="zonePSC" class="v-zone hidden">
+            <button type="button" class="btn-psc" onclick="lancerPSC()"><span>Se connecter avec</span><strong>Pro Santé Connect</strong></button>
+            <div class="info-sm">⚙️ Intégration en cours — vérification manuelle par notre équipe en attendant.</div>
           </div>
         </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-
-          <!-- FranceConnect -->
-          <div onclick="selectionnerVerif('fc',this)" style="border:1.5px solid #eef4ee;border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;" id="cardFC">
-            <div style="font-size:1.8rem;margin-bottom:.4rem;">🇫🇷</div>
-            <div style="font-weight:600;font-size:.85rem;margin-bottom:.25rem;">FranceConnect</div>
-            <div style="font-size:.7rem;color:#6b7b74;line-height:1.4;">Via Ameli, impots.gouv ou autres services de l'État</div>
-            <span id="statusFC" style="display:inline-block;margin-top:.5rem;font-size:.68rem;font-weight:600;padding:.15rem .6rem;border-radius:999px;background:#fff8e6;color:#92400e;">Non vérifié</span>
-          </div>
-
-          <!-- Pro Santé Connect -->
-          <div onclick="selectionnerVerif('psc',this)" style="border:1.5px solid #eef4ee;border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;" id="cardPSC">
-            <div style="font-size:1.8rem;margin-bottom:.4rem;">🏥</div>
-            <div style="font-weight:600;font-size:.85rem;margin-bottom:.25rem;">Pro Santé Connect</div>
-            <div style="font-size:.7rem;color:#6b7b74;line-height:1.4;">Avec votre carte CPS ou e-CPS</div>
-            <span id="statusPSC" style="display:inline-block;margin-top:.5rem;font-size:.68rem;font-weight:600;padding:.15rem .6rem;border-radius:999px;background:#fff8e6;color:#92400e;">Non vérifié</span>
-          </div>
-
-        </div>
-
-        <div style="background:#e1f5ee;border-radius:10px;padding:.75rem;font-size:.75rem;color:#0f6e56;margin-bottom:1rem;">
-          ⚠️ Ces services sont en cours d'intégration. Vous pouvez ignorer cette étape pour l'instant — la vérification pourra être faite depuis votre profil.
-        </div>
-
         <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="button" class="btn-next" onclick="nextStep()">Ignorer / Continuer →</button>
+          <button type="button" class="btn-bk" onclick="prevStep()">← Retour</button>
+          <button type="button" class="btn-n" id="btnVerifNext" onclick="validateVerif()" disabled>Continuer →</button>
         </div>
       </div>
 
-      <!-- Étape 4 : Formule + MDP -->
+      <!-- ÉTAPE 4 : Finalisation -->
       <div class="insc-step" data-step="4">
-        <div class="form-group">
-          <label>Formule choisie <span class="req">*</span></label>
-          <div class="formule-recap" id="formuleRecap">
-            <div class="formule-recap-name" id="formuleRecapName">Pro — 29€/mois</div>
-            <button type="button" class="formule-change" onclick="scrollToPricing()">Modifier ↑</button>
-          </div>
-          <input type="hidden" id="formuleHidden" name="formule" value="pro"/>
+        <div class="formule-recap"><div class="fr-name" id="formuleRecapName">Découverte — Gratuit 3 mois</div><button type="button" class="fr-change" onclick="scrollLeft()">Modifier ↑</button></div>
+        <input type="hidden" id="formuleHidden" value="decouverte"/>
+        <div class="form-row">
+          <div class="fg"><label>Mot de passe <span class="req">*</span></label><input type="password" id="password" placeholder="8 caractères min." required autocomplete="new-password"/><div id="pwdStrength"></div></div>
+          <div class="fg"><label>Confirmer <span class="req">*</span></label><input type="password" id="passwordConfirm" placeholder="Répéter" required autocomplete="new-password"/></div>
         </div>
-        <div class="form-group">
-          <label>Mot de passe <span class="req">*</span></label>
-          <input type="password" id="password" placeholder="Minimum 8 caractères" required autocomplete="new-password"/>
-          <div id="pwdStrength" style="margin-top:5px;"></div>
+        <div class="rcp-box">
+          <label class="chk" style="margin:0;">
+            <input type="checkbox" id="rcpCheckbox" required/>
+            <span>Je certifie disposer d'une assurance <strong>RCP</strong> couvrant les actes de nutrition à distance <span class="req">*</span></span>
+          </label>
         </div>
-        <div class="form-group">
-          <label>Confirmer le mot de passe <span class="req">*</span></label>
-          <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required autocomplete="new-password"/>
-        </div>
-        <label class="checkbox-option">
+        <label class="chk">
           <input type="checkbox" id="cgu" required/>
-          <span>J'accepte les <a href="cgu-dieteticien.html" target="_blank" style="color:#1D9E75;">CGU Diététicien</a> et la <a href="politique-confidentialite.html" target="_blank" style="color:#1D9E75;">politique de confidentialité</a> <span class="req">*</span></span>
+          <span>J'accepte les <a href="cgu-dieteticien.html" target="_blank" style="color:var(--green);">CGU Diét.</a> et la <a href="politique-confidentialite.html" target="_blank" style="color:var(--green);">politique de confidentialité</a> <span class="req">*</span></span>
         </label>
         <div class="btn-row">
-          <button type="button" class="btn-back" onclick="prevStep()">← Retour</button>
-          <button type="submit" class="btn-submit" id="btnSubmit">Créer mon compte →</button>
+          <button type="button" class="btn-bk" onclick="prevStep()">← Retour</button>
+          <button type="submit" class="btn-sub" id="btnSubmit">Créer mon compte →</button>
         </div>
       </div>
 
     </form>
 
-    <!-- Confirmation -->
-    <div id="inscriptionConfirmation" class="inscription-confirmation hidden">
+    <!-- CONFIRMATION -->
+    <div id="inscriptionConfirmation" class="confirm-wrap hidden">
       <div class="confirm-icon">✓</div>
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.5rem;">Bienvenue dans NutriDoc !</h3>
-      <p style="font-size:0.85rem;color:#6b7b74;">Votre RPPS a été vérifié. Compte créé avec succès.</p>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.35rem;margin-bottom:0.4rem;">Bienvenue dans NutriDoc !</h3>
+      <p style="font-size:0.82rem;color:var(--text2);max-width:320px;">Votre RPPS a été vérifié. Votre profil sera validé par notre équipe sous 24 h.</p>
       <div class="confirm-steps">
-        <div class="confirm-step"><span class="conf-dot done"></span><span>RPPS vérifié</span></div>
-        <div class="confirm-step"><span class="conf-dot pending"></span><span>Validation par notre équipe</span></div>
-        <div class="confirm-step"><span class="conf-dot"></span><span>Accès complet activé</span></div>
+        <div class="cs"><span class="cs-dot done"></span><span>RPPS vérifié ✓</span></div>
+        <div class="cs"><span class="cs-dot pend"></span><span>Validation équipe (24 h)</span></div>
+        <div class="cs"><span class="cs-dot"></span><span>Accès complet activé</span></div>
       </div>
-      <a href="dietitian.html" class="btn-next" style="display:inline-block;margin-top:1.5rem;">Accéder à mon espace →</a>
+      <a href="dietitian.html" style="display:inline-block;margin-top:1.25rem;background:var(--green);color:#fff;padding:0.7rem 1.75rem;border-radius:999px;text-decoration:none;font-weight:700;font-size:0.88rem;">Accéder à mon espace →</a>
     </div>
 
   </div>
 </div>
 
-<!-- FOOTER -->
-<footer class="nd-footer">
-  <div class="nd-footer-inner">
-    <div class="nd-footer-brand">
-      <div class="nd-logo-footer">Nutri<em>Doc</em></div>
-      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
-    </div>
-    <div class="nd-footer-links">
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Patients</div>
-        <a href="bilan.html">Faire mon bilan</a>
-        <a href="dashboard.html">Mon espace</a>
-        <a href="cgu-patient.html">CGU Patient</a>
-      </div>
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Professionnels</div>
-        <a href="accueil-dieteticien.html">Espace Diététicien</a>
-        <a href="accueil-prescripteur.html">Espace Prescripteur</a>
-        <a href="partenariats.html">Partenaires B2B</a>
-      </div>
-      <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Légal</div>
-        <a href="politique-confidentialite.html">Politique RGPD</a>
-        <a href="faq.html">FAQ</a>
-        <a href="mentions-legales.html">Mentions légales</a>
-        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
-      </div>
-    </div>
-  </div>
-  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
-</footer>
-
-
-<!-- PWA Service Worker (chemin relatif correct pour GitHub Pages) -->
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('js/sw.js', { scope: './' })
-      .catch(() => {}); // silencieux si absent
-  });
-}
-</script>
-
-<script src="js/utils/pwa.js"></script>
-
-<script>
-// ── SYSTÈME PROFIL ────────────────────────────────────────────
-const PROFIL_KEY = 'nutridoc_profil';
-const PROFIL_DATE_KEY = 'nutridoc_profil_date';
-const PROFILS = {
-  patient:      { name: 'Patient',      icon: '🧑', redirectUrl: 'index.html' },
-  dieteticien:  { name: 'Diététicien',  icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
-  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
-  structure:    { name: 'Structure',    icon: '🏛️', redirectUrl: 'partenariats.html' }
-};
-
-function getStoredProfil() {
-  const p = localStorage.getItem(PROFIL_KEY);
-  const d = localStorage.getItem(PROFIL_DATE_KEY);
-  if (!p || !d) return null;
-  if ((Date.now() - parseInt(d)) / 86400000 > 30) {
-    localStorage.removeItem(PROFIL_KEY); localStorage.removeItem(PROFIL_DATE_KEY); return null;
-  }
-  return p;
-}
-function setStoredProfil(p) {
-  localStorage.setItem(PROFIL_KEY, p);
-  localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString());
-}
-function updateUIForProfil(k) {}
-function openProfilModal() {
-  document.getElementById('profilModalContainer').innerHTML = `
-    <div onclick="closeProfilModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-      <div onclick="event.stopPropagation()" style="background:var(--bg-card,#fff);border-radius:20px;padding:2rem;max-width:420px;width:100%;">
-        <h2 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;">Bienvenue sur NutriDoc</h2>
-        <p style="font-size:0.85rem;color:#6b7b74;margin-bottom:1.5rem;">Je suis…</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
-          ${Object.entries(PROFILS).map(([k,v]) => `
-            <div  style="border:1.5px solid #eef4ee;border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#1D9E75'" onmouseout="this.style.borderColor='#eef4ee'">
-              <div style="font-size:1.5rem;margin-bottom:.25rem;">${v.icon}</div>
-              <div style="font-weight:600;font-size:.85rem;">${v.name}</div>
-            </div>`).join('')}
-        </div>
-        <button onclick="closeProfilModal()" style="background:none;border:none;color:#6b7b74;cursor:pointer;font-size:.8rem;">Plus tard</button>
-      </div>
-    </div>`;
-}
-function closeProfilModal(e) {
-  if (!e || e.target === e.currentTarget) document.getElementById('profilModalContainer').innerHTML = '';
-}
-function selectProfil(k) {
-  if (!PROFILS[k]) return;
-  setStoredProfil(k); closeProfilModal();
-  const t = PROFILS[k].redirectUrl;
-  if (t !== 'inscription-dieteticien.html') window.location.href = t;
-}
-function initProfilSystem() {
-  const s = getStoredProfil();
-  if (!s && !localStorage.getItem('nutridoc_profil_dismissed')) setTimeout(openProfilModal, 800);
-}
-window.selectProfil = selectProfil;
-window.closeProfilModal = closeProfilModal;
-window.openProfilModal = openProfilModal;
-
-// ── MENU CONNEXION ────────────────────────────────────────────
-function toggleConn() {
-  const m = document.getElementById('ndConnMenu');
-  if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block';
-}
-window.toggleConn = toggleConn;
+// HEADER
+function toggleConn(){ document.getElementById('ndConnMenu').classList.toggle('open'); }
 document.addEventListener('click', e => {
   const w = document.getElementById('ndConnWrap');
-  const m = document.getElementById('ndConnMenu');
-  if (w && m && !w.contains(e.target)) m.style.display = 'none';
+  if (w && !w.contains(e.target)) document.getElementById('ndConnMenu').classList.remove('open');
 });
 
-// ── FORMULAIRE ────────────────────────────────────────────────
-let selectedFormule = 'pro';
+// FORMULE
+let selectedFormule = 'decouverte';
+const FNAMES = { decouverte:'Découverte — Gratuit 3 mois', essentiel:'Essentiel — 39 €/mois' };
 
-document.querySelectorAll('.price-row').forEach(row => {
-  row.addEventListener('click', () => {
-    document.querySelectorAll('.price-row').forEach(r => r.classList.remove('selected'));
-    row.classList.add('selected');
-    selectedFormule = row.dataset.formule;
-    document.getElementById('formuleHidden').value = selectedFormule;
-    const names = { essentiel:'Essentiel (0€/mois)', starter:'Starter (9€/mois)', pro:'Pro (29€/mois)', expert:'Expert (59€/mois)' };
-    document.getElementById('formuleRecapName').textContent = names[selectedFormule];
-  });
-});
-document.querySelector('.price-row.featured')?.classList.add('selected');
-
-function scrollToPricing() {
-  document.querySelector('.pricing-col')?.scrollIntoView({ behavior: 'smooth' });
+function selectFormule(row) {
+  document.querySelectorAll('.p-row').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+  selectedFormule = row.dataset.formule;
+  document.getElementById('formuleHidden').value = selectedFormule;
+  document.getElementById('formuleRecapName').textContent = FNAMES[selectedFormule];
 }
 
-// Navigation
+// Init sélection par URL param
+(function(){
+  document.querySelector('.p-row[data-formule="decouverte"]')?.classList.add('selected');
+  const f = new URLSearchParams(location.search).get('formule');
+  if (f && FNAMES[f]) {
+    document.querySelectorAll('.p-row').forEach(r => { if(r.dataset.formule===f) selectFormule(r); });
+  }
+})();
+
+function scrollLeft() {
+  document.querySelector('.col-left')?.scrollIntoView({ behavior:'smooth' });
+}
+
+// NAVIGATION ÉTAPES
 let currentStep = 1;
-function updateProgress() {
-  document.querySelectorAll('.insc-step').forEach((s, i) => s.classList.toggle('active', i + 1 === currentStep));
-  document.querySelectorAll('.insc-progress-step').forEach((s, i) => {
-    s.classList.toggle('active', i + 1 === currentStep);
-    s.classList.toggle('done', i + 1 < currentStep);
+function updateProg() {
+  document.querySelectorAll('.insc-step').forEach((s,i) => s.classList.toggle('active', i+1===currentStep));
+  ['ps1','ps2','ps3','ps4'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.toggle('active', i+1===currentStep);
+    el.classList.toggle('done', i+1<currentStep);
   });
   document.getElementById('inscError')?.classList.add('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.col-right')?.scrollTo({ top:0, behavior:'smooth' });
 }
 
-function _showErr(msg) {
+function _err(msg) {
   const el = document.getElementById('inscError');
-  if (el) { el.textContent = msg; el.classList.remove('hidden'); el.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+  if(el){ el.textContent=msg; el.classList.remove('hidden'); }
 }
 
-function validateStep1Diet() {
-  const fields = [
-    { id:'prenom', label:'Prénom' },
-    { id:'nom',    label:'Nom' },
-    { id:'email',  label:'Email professionnel' },
-  ];
-  for (const f of fields) {
+function validateStep1() {
+  for (const f of [{id:'prenom',l:'Prénom'},{id:'nom',l:'Nom'},{id:'email',l:'Email'}]) {
     const el = document.getElementById(f.id);
-    if (!el) continue;
-    const empty = !el.value.trim();
-    el.style.borderColor = empty ? '#ef4444' : '';
-    if (empty) { _showErr(`⚠️ Le champ « ${f.label} » est obligatoire.`); el.focus(); return false; }
+    if(!el?.value.trim()){ el?.classList.add('err'); _err(`⚠️ Le champ « ${f.l} » est obligatoire.`); el?.focus(); return false; }
+    el?.classList.remove('err');
   }
-  const emailVal = document.getElementById('email')?.value.trim();
-  if (emailVal && !emailVal.includes('@')) {
-    document.getElementById('email').style.borderColor = '#ef4444';
-    _showErr('⚠️ Veuillez entrer une adresse email valide.'); return false;
-  }
+  const email = document.getElementById('email')?.value;
+  if(email && !email.includes('@')){ document.getElementById('email').classList.add('err'); _err('⚠️ Email invalide.'); return false; }
   return true;
 }
 
 function nextStep() {
-  if (currentStep === 1 && !validateStep1Diet()) return;
-  if (currentStep < 4) { currentStep++; updateProgress(); }
+  if(currentStep===1 && !validateStep1()) return;
+  if(currentStep===2 && !rppsVerified){ _err('⚠️ Veuillez rechercher votre RPPS et cliquer sur "C\'est bien moi".'); return; }
+  if(currentStep < 4){ currentStep++; updateProg(); }
 }
-function prevStep() { if (currentStep > 1) { currentStep--; updateProgress(); } }
+function prevStep() { if(currentStep>1){ currentStep--; updateProg(); } }
 
-function selectionnerVerif(type, el) {
-  // Visuel uniquement — intégration réelle à venir
-  document.querySelectorAll('#cardFC,#cardPSC').forEach(c => c.style.borderColor = '#eef4ee');
-  el.style.borderColor = '#1D9E75';
-  const statusId = type === 'fc' ? 'statusFC' : 'statusPSC';
-  document.getElementById(statusId).textContent = '⚙️ Bientôt disponible';
+// RPPS LOOKUP
+let rppsVerified = false, rppsData = {};
+
+function onRppsInput(el) {
+  const v = el.value.replace(/\D/g,''); el.value=v;
+  document.getElementById('rppsSearchBtn').disabled = v.length!==11;
+  if(rppsVerified){ rppsVerified=false; hideRppsResult(); }
+  document.getElementById('rppsFeedback').innerHTML='';
 }
 
-function validateRppsAndContinue() {
-  const rpps = document.getElementById('rppsInput').value.replace(/\s/g, '');
-  const fb = document.getElementById('rppsFeedback');
-  if (!rpps || rpps.length !== 11 || !/^\d+$/.test(rpps)) {
-    fb.innerHTML = '<span style="color:#ef4444;">Veuillez entrer un RPPS valide (11 chiffres)</span>';
-    return;
+async function lookupRpps() {
+  const rpps = document.getElementById('rppsInput').value.trim();
+  if(rpps.length!==11) return;
+  show('rppsLoader'); hide('rppsResult'); hide('rppsNotFound');
+  document.getElementById('rppsSearchBtn').disabled=true;
+  try {
+    const url=`https://gateway.api.esante.gouv.fr/fhir/v1/Practitioner?identifier=https://esante.gouv.fr/idp/identifiant/rpps|${rpps}&_format=json`;
+    const res = await fetch(url,{headers:{'Accept':'application/fhir+json'}});
+    if(!res.ok) throw new Error('unavailable');
+    const data = await res.json();
+    if(!data.entry?.length){ showNotFound(); return; }
+    const p = data.entry[0].resource;
+    const name=p.name?.[0];
+    const family=name?.family||'', given=(name?.given||[]).join(' ');
+    const fullName=`${given} ${family}`.trim();
+    const quals=p.qualification||[];
+    const specialite=quals.map(q=>q.code?.coding?.[0]?.display||'').filter(Boolean).join(' · ')||'Professionnel de santé';
+    const addr=p.address?.[0];
+    const ville=addr?.city||'', dept=addr?.postalCode?.substring(0,2)||'';
+    const loc=[ville,dept?`(${dept})`:''].filter(Boolean).join(' ');
+    rppsData={fullName,specialite,loc,rpps};
+    const ini=((given[0]||'')+(family[0]||'')).toUpperCase()||'?';
+    document.getElementById('rppsAvatar').textContent=ini;
+    document.getElementById('rppsResultName').textContent=fullName||'Professionnel vérifié';
+    document.getElementById('rppsResultDetails').innerHTML=`<strong>${specialite}</strong>${loc?'<br>📍 '+loc:''}`;
+    show('rppsResult');
+  } catch {
+    rppsData={rpps,manualCheck:true};
+    document.getElementById('rppsAvatar').textContent='?';
+    document.getElementById('rppsResultName').textContent='RPPS : '+rpps;
+    document.getElementById('rppsResultDetails').innerHTML='<span style="color:#f59e0b;">⚠️ Annuaire indisponible — vérification manuelle par notre équipe.</span>';
+    show('rppsResult');
+  } finally {
+    hide('rppsLoader');
+    document.getElementById('rppsSearchBtn').disabled=false;
   }
-  if (!document.getElementById('rcpCheckbox').checked) {
-    alert('Vous devez certifier disposer d\'une assurance RCP pour continuer.'); return;
-  }
-  fb.innerHTML = '<span style="color:#1D9E75;">✓ RPPS valide</span>';
-  nextStep();
 }
+function showNotFound(){ hide('rppsLoader'); show('rppsNotFound'); }
+function hideRppsResult(){ hide('rppsResult'); hide('rppsNotFound'); }
+function confirmRpps(){ rppsVerified=true; nextStep(); }
+function resetRpps(){ rppsVerified=false; rppsData={}; document.getElementById('rppsInput').value=''; document.getElementById('rppsSearchBtn').disabled=true; hideRppsResult(); }
 
-// Force du mot de passe
-document.getElementById('password')?.addEventListener('input', e => {
-  const v = e.target.value, bar = document.getElementById('pwdStrength');
-  if (!bar) return;
-  let s = 0;
-  if (v.length >= 8) s++; if (/[A-Z]/.test(v)) s++;
-  if (/[0-9]/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++;
-  const labels = ['','Faible','Moyen','Fort','Très fort'];
-  const colors = ['','#ef4444','#f97316','#22c55e','#16a34a'];
-  bar.innerHTML = v.length === 0 ? '' :
-    `<div style="height:4px;background:#eef4ee;border-radius:2px;margin-bottom:4px;"><div style="width:${s*25}%;height:100%;background:${colors[s]};border-radius:2px;"></div></div>
-     <span style="font-size:.75rem;color:${colors[s]}">${labels[s]}</span>`;
+// VÉRIFICATION IDENTITÉ
+let verifMethod=null, cniOk=false;
+function selectVerif(type, el) {
+  document.querySelectorAll('.v-opt').forEach(o=>o.classList.remove('selected'));
+  ['zoneID','zoneFC','zonePSC'].forEach(id=>hide(id));
+  el.classList.add('selected');
+  verifMethod=type;
+  if(type==='cni') show('zoneID');
+  if(type==='fc')  show('zoneFC');
+  if(type==='psc') show('zonePSC');
+  updateVerifBtn();
+}
+function updateVerifBtn() {
+  const btn=document.getElementById('btnVerifNext');
+  btn.disabled = !(verifMethod==='cni'?cniOk : verifMethod==='fc'||verifMethod==='psc');
+}
+function onCniUpload(input) {
+  if(!input.files?.[0]) return;
+  if(input.files[0].size>5*1024*1024){ alert('5 Mo max.'); input.value=''; return; }
+  cniOk=true;
+  document.getElementById('cniFileName').textContent='✓ '+input.files[0].name;
+  show('cniPreview'); document.querySelector('.upload-drop').style.display='none';
+  updateVerifBtn();
+}
+function removeCni() {
+  cniOk=false; document.getElementById('cniFile').value='';
+  hide('cniPreview'); document.querySelector('.upload-drop').style.display='';
+  updateVerifBtn();
+}
+function lancerFC(){ alert('FranceConnect bientôt disponible — votre identité sera vérifiée manuellement.'); document.getElementById('btnVerifNext').disabled=false; }
+function lancerPSC(){ alert('Pro Santé Connect bientôt disponible — votre identité sera vérifiée manuellement.'); document.getElementById('btnVerifNext').disabled=false; }
+function validateVerif() { if(!verifMethod){ _err('⚠️ Choisissez une méthode de vérification.'); return; } nextStep(); }
+
+// MDP
+document.getElementById('password')?.addEventListener('input', e=>{
+  const v=e.target.value, bar=document.getElementById('pwdStrength');
+  if(!bar) return; if(!v){bar.innerHTML='';return;}
+  let s=0;
+  if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const lb=['','Faible','Moyen','Fort','Très fort'],cl=['','#ef4444','#f97316','#22c55e','#16a34a'];
+  bar.innerHTML=`<div style="height:3px;background:#eee;border-radius:2px;margin-bottom:3px;"><div style="width:${s*25}%;height:100%;background:${cl[s]};border-radius:2px;transition:width 0.3s;"></div></div><span style="font-size:.68rem;color:${cl[s]}">${lb[s]}</span>`;
 });
 
-// ── SOUMISSION SUPABASE ───────────────────────────────────────
-function showError(msg) {
-  const el = document.getElementById('inscError');
-  if (el) { el.textContent = msg; el.classList.remove('hidden'); }
-  else alert(msg);
-}
-function hideError() {
-  document.getElementById('inscError')?.classList.add('hidden');
-}
+// SOUMISSION
+function showError(m){ const el=document.getElementById('inscError'); if(el){el.textContent=m;el.classList.remove('hidden');} }
+function hideError(){ document.getElementById('inscError')?.classList.add('hidden'); }
 
-document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  hideError();
+document.getElementById('inscriptionForm').addEventListener('submit', async e=>{
+  e.preventDefault(); hideError();
+  const pwd=document.getElementById('password').value;
+  const pwdC=document.getElementById('passwordConfirm').value;
+  if(pwd.length<8){showError('Mot de passe trop court (8 min.).'); return;}
+  if(pwd!==pwdC){showError('Les mots de passe ne correspondent pas.'); return;}
+  if(!document.getElementById('rcpCheckbox').checked){showError('Certifiez disposer d\'une assurance RCP.'); return;}
+  if(!document.getElementById('cgu').checked){showError('Acceptez les CGU pour continuer.'); return;}
 
-  const password        = document.getElementById('password').value;
-  const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-  if (password.length < 8) { showError('Le mot de passe doit contenir au moins 8 caractères.'); return; }
-  if (password !== passwordConfirm) { showError('Les mots de passe ne correspondent pas.'); return; }
-  if (!document.getElementById('cgu').checked) { showError('Vous devez accepter les CGU pour continuer.'); return; }
-
-  const payload = {
-    email:      document.getElementById('email').value.trim(),
-    password,
-    prenom:     document.getElementById('prenom').value.trim(),
-    nom:        document.getElementById('nom').value.trim(),
-    tel:        document.getElementById('tel').value.trim(),
-    siteWeb:    document.getElementById('siteWeb').value.trim(),
-    cabinet:    document.getElementById('cabinet').value.trim(),
-    rpps:       document.getElementById('rppsInput').value.trim(),
-    specialite: document.getElementById('specialite').value,
-    adeli:      '',
-    formule:    selectedFormule || document.getElementById('formuleHidden').value || 'essentiel',
+  const payload={
+    email:document.getElementById('email').value.trim(),
+    password:pwd,
+    prenom:rppsData.fullName?.split(' ')[0]||document.getElementById('prenom').value.trim(),
+    nom:rppsData.fullName?.split(' ').slice(1).join(' ')||document.getElementById('nom').value.trim(),
+    tel:document.getElementById('tel').value.trim(),
+    siteWeb:document.getElementById('siteWeb').value.trim(),
+    cabinet:document.getElementById('cabinet').value.trim(),
+    rpps:document.getElementById('rppsInput').value.trim(),
+    specialite:rppsData.specialite||'dieteticien',
+    localisation:rppsData.loc||'',
+    verif_method:verifMethod||'none',
+    verif_cni:cniOk,
+    rpps_manual:rppsData.manualCheck||false,
+    formule:selectedFormule||'decouverte',
   };
 
-  const btn = document.getElementById('btnSubmit');
-  if (btn) { btn.textContent = 'Création en cours…'; btn.disabled = true; }
+  const btn=document.getElementById('btnSubmit');
+  if(btn){btn.textContent='Création…';btn.disabled=true;}
 
-  // Mode Supabase
-  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof inscrireDieteticien !== 'undefined') {
-    const result = await inscrireDieteticien(payload);
-    if (result && result.error) {
-      const msg = result.error.message === 'User already registered'
-        ? 'Un compte existe déjà avec cet email. Connectez-vous.'
-        : (result.error.message || 'Erreur lors de la création du compte.');
-      showError(msg);
-      if (btn) { btn.textContent = 'Créer mon compte →'; btn.disabled = false; }
-      return;
+  if(typeof MODE_SUPA!=='undefined'&&MODE_SUPA&&typeof inscrireDieteticien!=='undefined'){
+    const r=await inscrireDieteticien(payload);
+    if(r?.error){
+      showError(r.error.message==='User already registered'?'Email déjà utilisé — connectez-vous.':(r.error.message||'Erreur de création.'));
+      if(btn){btn.textContent='Créer mon compte →';btn.disabled=false;} return;
     }
-    // Succès
-    document.getElementById('inscriptionForm').style.display = 'none';
-    document.getElementById('inscriptionConfirmation').classList.remove('hidden');
-    setTimeout(() => { if (typeof clearCurrentDraft === 'function') clearCurrentDraft('inscriptionForm'); }, 500);
-    return;
+    document.getElementById('inscriptionForm').style.display='none';
+    show('inscriptionConfirmation'); return;
   }
-
-  // Fallback localStorage
-  localStorage.setItem('nutridoc_dieteticien', JSON.stringify({ ...payload, statut: 'actif', created_at: new Date().toISOString() }));
-  document.getElementById('inscriptionForm').style.display = 'none';
-  document.getElementById('inscriptionConfirmation').classList.remove('hidden');
+  localStorage.setItem('nutridoc_dieteticien',JSON.stringify({...payload,statut:'actif',created_at:new Date().toISOString()}));
+  document.getElementById('inscriptionForm').style.display='none';
+  show('inscriptionConfirmation');
 });
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof initAutoSave === 'function') initAutoSave();
-});
+// Helpers
+function show(id){ document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id){ document.getElementById(id)?.classList.add('hidden'); }
+
+// PWA
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('js/sw.js',{scope:'./'}).catch(()=>{}); }); }
 </script>
-
-  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
-  <script src="js/theme-selector.js"></script>
-  <script src="js/error-handler.js"></script>
 </body>
 </html>

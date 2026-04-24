@@ -16,20 +16,21 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/dark-mode.css"/>
-  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#0d2018"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/ui/dark-mode.js"></script>
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Outfit',sans-serif; background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); line-height:1.5; }
+
+    :root {
+      --green:#1D9E75; --green-dark:#0f6e56; --green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2);
+      --dark:#0d2018; --cream:#f7f9f7; --white:#fff;
+      --text:#0d2018; --text2:#4b5563; --border:#eef4ee; --card:#fff;
+    }
+
+    body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); line-height:1.5; }
 
     /* ── HEADER ── */
     .nd-header { position:fixed; top:0; left:0; right:0; z-index:100; background:#0d2018 !important; border-bottom:1px solid rgba(29,158,117,.2); padding:.75rem 2rem; }
@@ -46,19 +47,27 @@
     .nd-btn-ghost:hover { background:rgba(255,255,255,.16); color:#fff; }
     @media (max-width:900px) { .nd-nav { display:none; } }
 
+    /* Badge cofond */
+    .cofond { display:flex; align-items:center; gap:.45rem; background:rgba(29,158,117,0.1); border:1px solid var(--green-border); border-radius:999px; padding:.2rem .75rem; position:relative; cursor:default; }
+    .cofond-av { width:22px; height:22px; background:linear-gradient(135deg,#1D9E75,#0f6e56); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:#fff; }
+    .cofond-txt { font-size:.6rem; color:rgba(255,255,255,.7); }
+    .cofond-txt strong { color:var(--green-light); }
+    .cofond-tip { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:var(--dark); border:1px solid #1D9E75; border-radius:10px; padding:.55rem; font-size:.65rem; color:var(--green-light); text-align:center; pointer-events:none; z-index:500; line-height:1.5; white-space:pre-line; }
+    .cofond:hover .cofond-tip { display:block; }
+
     /* ── MAIN CONTAINER ── */
     .main-container { max-width:820px; margin:0 auto; padding:5.5rem 1.5rem 4rem; }
 
     /* ── RETOUR + TITRE ── */
     .back-row { display:flex; align-items:center; gap:.5rem; margin-bottom:1.5rem; }
-    .back-btn { display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--text-secondary,#6b7b74); text-decoration:none; transition:color .2s; }
+    .back-btn { display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--text2); text-decoration:none; transition:color .2s; }
     .back-btn:hover { color:#1D9E75; }
     .sep { color:var(--text-tertiary,#9ca3af); font-size:.75rem; }
-    .crumb { font-size:.78rem; color:var(--text-primary,#0d2018); font-weight:500; }
+    .crumb { font-size:.78rem; color:var(--text); font-weight:500; }
 
     /* ── SECTION CARDS ── */
     .profil-section {
-      background:var(--bg-card,#fff); border:1px solid var(--border-light,#eef4ee);
+      background:var(--card); border:1px solid var(--border);
       border-radius:20px; padding:1.5rem; margin-bottom:1.5rem;
     }
     .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:.5rem; }
@@ -78,24 +87,24 @@
     }
     .avatar-info { flex:1; }
     .avatar-name { font-size:1.1rem; font-weight:600; }
-    .avatar-sub { font-size:.78rem; color:var(--text-secondary,#6b7b74); }
+    .avatar-sub { font-size:.78rem; color:var(--text2); }
 
     /* ── FORMULAIRE ── */
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
     @media (max-width:600px) { .form-grid { grid-template-columns:1fr; } }
     .form-group { margin-bottom:1rem; }
     .form-group.full { grid-column:1/-1; }
-    .form-group label { display:block; font-size:.78rem; font-weight:500; margin-bottom:.35rem; color:var(--text-primary,#0d2018); }
+    .form-group label { display:block; font-size:.78rem; font-weight:500; margin-bottom:.35rem; color:var(--text); }
     .form-group input, .form-group select, .form-group textarea {
-      width:100%; padding:.6rem .9rem; border:1.5px solid var(--border-light,#eef4ee);
+      width:100%; padding:.6rem .9rem; border:1.5px solid var(--border);
       border-radius:10px; font-size:.88rem; font-family:'Outfit',sans-serif;
-      background:var(--bg-input,#fff); color:var(--text-primary,#0d2018);
+      background:var(--white); color:var(--text);
       transition:border-color .2s;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#1D9E75; outline:none; }
     .form-group input::placeholder, .form-group textarea::placeholder { color:#b0bdb7; }
-    .form-group input:read-only { background:var(--bg-secondary,#f7f9f7); color:var(--text-secondary,#6b7b74); cursor:not-allowed; }
-    .field-hint { font-size:.7rem; color:var(--text-secondary,#6b7b74); margin-top:.25rem; display:block; }
+    .form-group input:read-only { background:var(--cream); color:var(--text2); cursor:not-allowed; }
+    .field-hint { font-size:.7rem; color:var(--text2); margin-top:.25rem; display:block; }
     .req { color:#ef4444; }
 
     /* ── RPPS STATUS ── */
@@ -110,40 +119,40 @@
 
     /* ── RCP UPLOAD ── */
     .rcp-upload {
-      border:2px dashed var(--border-light,#d1ddd7); border-radius:12px;
+      border:2px dashed var(--border); border-radius:12px;
       padding:1.25rem; text-align:center; cursor:pointer; transition:border-color .2s;
-      color:var(--text-secondary,#6b7b74);
+      color:var(--text2);
     }
     .rcp-upload:hover { border-color:#1D9E75; color:#1D9E75; }
     .rcp-upload-icon { font-size:1.5rem; margin-bottom:.25rem; }
     .rcp-upload-text { font-size:.78rem; line-height:1.5; }
-    .rcp-file-info { display:flex; align-items:center; gap:.5rem; background:var(--bg-secondary,#f7f9f7); border-radius:8px; padding:.5rem .75rem; font-size:.78rem; margin-top:.5rem; }
+    .rcp-file-info { display:flex; align-items:center; gap:.5rem; background:var(--cream); border-radius:8px; padding:.5rem .75rem; font-size:.78rem; margin-top:.5rem; }
 
 
 
     /* ── MOT DE PASSE ── */
     .pwd-row { position:relative; }
     .pwd-row input { padding-right:3.5rem; }
-    .pwd-toggle { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-secondary,#6b7b74); cursor:pointer; font-size:.75rem; font-family:'Outfit',sans-serif; }
-    .pwd-strength { height:4px; border-radius:2px; margin-top:.35rem; transition:all .3s; background:var(--border-light,#eef4ee); }
+    .pwd-toggle { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text2); cursor:pointer; font-size:.75rem; font-family:'Outfit',sans-serif; }
+    .pwd-strength { height:4px; border-radius:2px; margin-top:.35rem; transition:all .3s; background:var(--border); }
     .pwd-label { font-size:.72rem; margin-top:.2rem; }
 
     /* ── NOTIFICATIONS ── */
     .notif-list { display:flex; flex-direction:column; gap:.6rem; }
-    .notif-item { display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; background:var(--bg-secondary,#f7f9f7); border-radius:10px; font-size:.82rem; }
+    .notif-item { display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; background:var(--cream); border-radius:10px; font-size:.82rem; }
     .notif-left { display:flex; align-items:center; gap:.6rem; }
     /* Toggle switch */
     .toggle { position:relative; width:36px; height:20px; flex-shrink:0; }
     .toggle input { opacity:0; width:0; height:0; }
-    .toggle-track { position:absolute; inset:0; background:var(--border-medium,#d1d5db); border-radius:999px; transition:background .2s; cursor:pointer; }
+    .toggle-track { position:absolute; inset:0; background:var(--border); border-radius:999px; transition:background .2s; cursor:pointer; }
     .toggle input:checked + .toggle-track { background:#1D9E75; }
-    .toggle-thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--bg-card,#fff); border-radius:50%; transition:transform .2s; pointer-events:none; }
+    .toggle-thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--card); border-radius:50%; transition:transform .2s; pointer-events:none; }
     .toggle input:checked ~ .toggle-thumb { transform:translateX(16px); }
 
     /* ── BANCAIRE ── */
     .iban-row { display:flex; gap:.5rem; align-items:center; }
     .iban-row input { flex:1; font-family:monospace; letter-spacing:.05em; }
-    .reversement-card { background:var(--bg-secondary,#f7f9f7); border-radius:12px; padding:.85rem 1rem; margin-top:1rem; }
+    .reversement-card { background:var(--cream); border-radius:12px; padding:.85rem 1rem; margin-top:1rem; }
     .reversement-row { display:flex; justify-content:space-between; font-size:.8rem; padding:.2rem 0; }
     .reversement-row strong { color:#1D9E75; }
 
@@ -151,7 +160,7 @@
     .btn-save { background:#1D9E75; color:#fff; border:none; border-radius:999px; padding:.65rem 1.5rem; font-size:.85rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
     .btn-save:hover { background:#0f6e56; }
     .btn-save:disabled { opacity:.6; cursor:not-allowed; }
-    .btn-cancel { background:transparent; border:1.5px solid var(--border-light,#eef4ee); border-radius:999px; padding:.65rem 1.5rem; font-size:.85rem; cursor:pointer; font-family:'Outfit',sans-serif; color:var(--text-secondary,#6b7b74); transition:all .2s; }
+    .btn-cancel { background:transparent; border:1.5px solid var(--border); border-radius:999px; padding:.65rem 1.5rem; font-size:.85rem; cursor:pointer; font-family:'Outfit',sans-serif; color:var(--text2); transition:all .2s; }
     .btn-cancel:hover { border-color:#1D9E75; color:#1D9E75; }
     .btn-delete { background:transparent; border:1.5px solid #fca5a5; color:#dc2626; border-radius:999px; padding:.6rem 1.2rem; font-size:.82rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
     .btn-delete:hover { background:#fee2e2; }
@@ -165,9 +174,9 @@
     /* ── MODAL ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.open { display:flex; }
-    .modal { background:var(--bg-card,#fff); border-radius:20px; padding:1.5rem; max-width:420px; width:100%; }
+    .modal { background:var(--card); border-radius:20px; padding:1.5rem; max-width:420px; width:100%; }
     .modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:.5rem; }
-    .modal-desc { font-size:.8rem; color:var(--text-secondary,#6b7b74); line-height:1.6; margin-bottom:1.25rem; }
+    .modal-desc { font-size:.8rem; color:var(--text2); line-height:1.6; margin-bottom:1.25rem; }
     .modal-btns { display:flex; gap:.75rem; justify-content:flex-end; }
 
     /* ── SCROLL TOP ── */
@@ -176,7 +185,6 @@
 
     @media (max-width:600px) { .main-container { padding:5rem 1rem 3rem; } }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- HEADER -->
@@ -185,15 +193,17 @@
     <div class="header-left">
       <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
-        <a href="dietitian.html" class="nd-navlink">Mon espace</a>
-        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Tableau de bord</a>
         <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
         <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
-        <a href="gestion-forfait-dieteticien.html" class="nd-navlink">Forfait</a>
       </nav>
     </div>
     <div class="header-actions">
-      <span class="nd-user-badge" id="navUser">Chargement…</span>
+      <div class="cofond">
+        <div class="cofond-av">GM</div>
+        <div class="cofond-txt"><strong>Grégoire Martin</strong> · Diététicien RPPS</div>
+        <div class="cofond-tip">⭐ Diététicien co-fondateur NutriDoc<br>🏥 CHU Angoulême · 🏡 Cabinet libéral<br>🚒 Sapeur-Pompier Expert</div>
+      </div>
       <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
     </div>
   </div>
@@ -368,10 +378,47 @@
       <button class="btn-save" onclick="changerMotDePasse()" id="btnPwd">🔑 Changer le mot de passe</button>
     </div>
 
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-light,#eef4ee);">
-      <p style="font-size:.78rem;color:var(--text-secondary,#6b7b74);">Vous avez oublié votre mot de passe ?
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+      <p style="font-size:.78rem;color:var(--text2);">Vous avez oublié votre mot de passe ?
         <a href="#" onclick="envoyerResetMdp()" style="color:#1D9E75;text-decoration:none;">Recevoir un lien de réinitialisation →</a>
       </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4 — FORMULE ACTUELLE
+  ═══════════════════════════════════════════════════════ -->
+  <div class="profil-section">
+    <div class="section-header">
+      <h2 class="section-title">📦 Formule actuelle</h2>
+      <span class="section-badge badge-green" id="badgeFormule">Découverte</span>
+    </div>
+
+    <div id="formuleInfos" style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:.2rem;">Formule</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--text);" id="formuleNom">Découverte</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-top:.15rem;" id="formulePrix">Gratuit · 3 mois</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:.2rem;">Dossiers patients</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--green);">Illimités</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:.2rem;">Commission NutriDoc</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--green);">Aucune</div>
+        <div style="font-size:.72rem;color:var(--text2);">Frais Stripe à votre charge</div>
+      </div>
+    </div>
+
+    <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:1.25rem;">
+      💡 Vous encaissez <strong style="color:var(--green);">100 % du montant</strong> de chaque plan validé, directement via Stripe. L'abonnement Essentiel (39 €/mois) est rentabilisé dès 2 plans par mois.
+    </div>
+
+    <div class="action-row">
+      <a href="accueil-dieteticien.html#tarifs" class="btn-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;">
+        Voir les formules →
+      </a>
     </div>
   </div>
 
@@ -431,7 +478,7 @@
       <h2 class="section-title">💰 Informations bancaires</h2>
       <span class="section-badge badge-blue">Stripe Connect</span>
     </div>
-    <p style="font-size:.78rem;color:var(--text-secondary,#6b7b74);margin-bottom:1rem;">Ces informations permettent de recevoir vos reversements automatiques via Stripe.</p>
+    <p style="font-size:.78rem;color:var(--text2);margin-bottom:1rem;">Ces informations permettent de recevoir vos reversements automatiques via Stripe.</p>
 
     <div class="form-grid">
       <div class="form-group full">
@@ -452,7 +499,7 @@
 
     <div class="reversement-card">
       <div class="reversement-row"><span>💰 Prochain reversement estimé</span><strong id="prochainReversement">—</strong></div>
-      <div class="reversement-row" style="font-size:.72rem;color:var(--text-secondary,#6b7b74);"><span>📅 Date prévue</span><span id="dateReversement">—</span></div>
+      <div class="reversement-row" style="font-size:.72rem;color:var(--text2);"><span>📅 Date prévue</span><span id="dateReversement">—</span></div>
     </div>
 
     <div class="action-row">
@@ -467,7 +514,7 @@
     <div class="section-header">
       <h2 class="section-title" style="color:#dc2626;">⚠️ Zone dangereuse</h2>
     </div>
-    <p style="font-size:.85rem;color:var(--text-secondary,#6b7b74);margin-bottom:1rem;">La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.</p>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:1rem;">La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.</p>
     <button class="btn-delete" onclick="document.getElementById('modalSuppression').classList.add('open')">🗑️ Supprimer mon compte</button>
   </div>
 
@@ -518,7 +565,7 @@ function checkPwd(v) {
   if (/[0-9]/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++;
   const colors = ['#ef4444','#f97316','#22c55e','#16a34a'];
   const labels = ['Faible','Moyen','Fort','Très fort'];
-  bar.style.background = v.length === 0 ? 'var(--border-light,#eef4ee)' : colors[s-1] || colors[0];
+  bar.style.background = v.length === 0 ? 'var(--border)' : colors[s-1] || colors[0];
   bar.style.width = v.length === 0 ? '100%' : (s * 25) + '%';
   lbl.textContent = v.length === 0 ? '' : labels[s-1] || labels[0];
   lbl.style.color = v.length === 0 ? '' : colors[s-1] || colors[0];
@@ -539,8 +586,16 @@ async function chargerDonnees() {
   if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
 
   profileData = profile;
-  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
-  document.getElementById('navUser').textContent = nom;
+
+  // Formule actuelle
+  const formule = (profile.formule || 'decouverte').toLowerCase();
+  const formuleNoms = { decouverte: 'Découverte', essentiel: 'Essentiel' };
+  const formulePrix = { decouverte: 'Gratuit · 3 mois', essentiel: '39 € HT / mois' };
+  const fNom = formuleNoms[formule] || 'Découverte';
+  document.getElementById('formuleNom').textContent = fNom;
+  document.getElementById('formulePrix').textContent = formulePrix[formule] || 'Gratuit · 3 mois';
+  document.getElementById('badgeFormule').textContent = fNom;
+  document.getElementById('badgeFormule').className = formule === 'essentiel' ? 'section-badge badge-blue' : 'section-badge badge-green';
 
   // Avatar
   const initiales = ((profile.prenom||'')[0] + (profile.nom||'')[0]).toUpperCase() || '?';
@@ -639,16 +694,26 @@ async function verifierRPPS() {
   if (!rpps || rpps.length !== 11 || !/^\d+$/.test(rpps)) {
     fb.textContent = '✗ Format invalide (11 chiffres requis)'; fb.className = 'rpps-status rpps-error'; return;
   }
-  fb.textContent = '⏳ Vérification en cours…'; fb.className = 'rpps-status rpps-pending';
+  fb.textContent = '⏳ Consultation de l\'annuaire officiel…'; fb.className = 'rpps-status rpps-pending';
   try {
-    const res = await fetch(`https://api.annuaire.sante.fr/api/professionnel-de-sante?idpp=${rpps}`);
-    if (res.ok) {
-      fb.textContent = '✓ RPPS trouvé dans l\'Annuaire Santé national'; fb.className = 'rpps-status rpps-ok';
+    const url = `https://gateway.api.esante.gouv.fr/fhir/v1/Practitioner?identifier=https://esante.gouv.fr/idp/identifiant/rpps|${rpps}&_format=json`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/fhir+json' } });
+    if (!res.ok) throw new Error('unavailable');
+    const data = await res.json();
+    if (data.entry?.length) {
+      const p = data.entry[0].resource;
+      const name = p.name?.[0];
+      const fullName = [(name?.given||[]).join(' '), name?.family||''].filter(Boolean).join(' ');
+      const ville = p.address?.[0]?.city || '';
+      fb.innerHTML = `✓ RPPS vérifié — <strong>${fullName}</strong>${ville ? ' · 📍 '+ville : ''}`;
+      fb.className = 'rpps-status rpps-ok';
     } else {
-      fb.textContent = '⚠ RPPS non trouvé — vérification manuelle requise'; fb.className = 'rpps-status rpps-pending';
+      fb.textContent = '⚠ RPPS non trouvé dans l\'Annuaire Santé — vérification manuelle requise';
+      fb.className = 'rpps-status rpps-pending';
     }
   } catch {
-    fb.textContent = '⚠ API indisponible — enregistrement pour vérification manuelle'; fb.className = 'rpps-status rpps-pending';
+    fb.textContent = '⚠ Annuaire temporairement indisponible — enregistrement pour vérification manuelle';
+    fb.className = 'rpps-status rpps-pending';
   }
 }
 
@@ -702,10 +767,17 @@ async function supprimerCompte() {
   document.getElementById('modalSuppression').classList.remove('open');
 }
 
+// ── DÉCONNEXION ────────────────────────────────────────────────
+function deconnecter() {
+  if (typeof _supa !== 'undefined') _supa.auth.signOut();
+  localStorage.removeItem('nutridoc_profil');
+  window.location.href = 'index.html';
+}
+window.deconnecter = deconnecter;
+
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   chargerDonnees();
-  // Restaurer préférences notifs
   try {
     const prefs = JSON.parse(localStorage.getItem('nutridoc_notif_prefs') || '{}');
     if (typeof prefs.email   !== 'undefined') document.getElementById('notifEmail').checked   = prefs.email;
@@ -714,10 +786,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof prefs.mensuel !== 'undefined') document.getElementById('notifMensuel').checked = prefs.mensuel;
   } catch {}
 });
-</script>
-
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
 </script>
 </body>
 </html>

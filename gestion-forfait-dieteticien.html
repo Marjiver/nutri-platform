@@ -1,248 +1,228 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NutriDoc">
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
   <meta name="robots" content="noindex"/>
-  <title>Gestion du forfait — NutriDoc</title>
+  <meta name="description" content="Gérez votre formule NutriDoc diététicien."/>
+  <title>Ma formule — NutriDoc Diététicien</title>
 
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/dark-mode.css"/>
-  <link rel="stylesheet" href="css/dark-mode-variables.css"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/ui/dark-mode.js"></script>
 
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background: var(--bg-secondary, #f7f9f7); color: var(--text-primary, #0d2018); line-height: 1.5; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --green:#1D9E75; --green-dark:#0f6e56; --green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2);
+      --dark:#0d2018; --dark2:#0a1912; --cream:#f7f9f7; --white:#fff;
+      --text:#0d2018; --text2:#4b5563; --border:#eef4ee; --card:#fff;
+      --soon:#6366f1;
+    }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); line-height:1.5; }
 
     /* ── HEADER ── */
-    .nd-header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: #0d2018 !important;
-      border-bottom: 1px solid rgba(29,158,117,.2);
-      padding: 0.75rem 2rem;
-    }
-    .header-container {
-      max-width: 1400px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 1.5rem; }
-    .nd-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #fff; text-decoration: none; }
-    .nd-logo em { font-style: italic; color: #5DCAA5; }
-    .nd-nav { display: flex; gap: 1.25rem; }
-    .nd-navlink { font-size: 0.78rem; color: rgba(255,255,255,.6); text-decoration: none; transition: color .2s; }
-    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
-    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
-    .nd-user-badge {
-      font-size: 0.72rem; color: rgba(255,255,255,.55);
-      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-      border-radius: 999px; padding: 0.3rem 0.85rem;
-    }
-    .nd-btn-ghost {
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
-      border-radius: 999px; padding: 0.35rem 0.9rem;
-      color: rgba(255,255,255,.85); font-size: 0.75rem; cursor: pointer;
-      font-family: 'Outfit', sans-serif; transition: all .2s;
-    }
-    .nd-btn-ghost:hover { background: rgba(255,255,255,.16); color: #fff; }
-    @media (max-width: 900px) { .nd-nav { display: none; } }
+    .nd-header { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--dark); border-bottom:1px solid var(--green-border); padding:.7rem 2rem; }
+    .hc { max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+    .h-left { display:flex; align-items:center; gap:1.75rem; }
+    .nd-logo { font-family:'Playfair Display',serif; font-size:1.25rem; color:#fff; text-decoration:none; }
+    .nd-logo em { font-style:italic; color:var(--green-light); }
+    .nd-nav { display:flex; gap:1.25rem; }
+    .nd-navlink { font-size:.78rem; color:rgba(255,255,255,.6); text-decoration:none; transition:color .2s; }
+    .nd-navlink:hover,.nd-navlink.active { color:#fff; }
+    .cofond { display:flex; align-items:center; gap:.45rem; background:rgba(29,158,117,.1); border:1px solid var(--green-border); border-radius:999px; padding:.2rem .75rem; position:relative; cursor:default; }
+    .cofond-av { width:22px; height:22px; background:linear-gradient(135deg,#1D9E75,#0f6e56); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:#fff; }
+    .cofond-txt { font-size:.6rem; color:rgba(255,255,255,.7); }
+    .cofond-txt strong { color:var(--green-light); }
+    .cofond-tip { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:var(--dark); border:1px solid var(--green); border-radius:10px; padding:.55rem; font-size:.65rem; color:var(--green-light); text-align:center; pointer-events:none; z-index:500; line-height:1.5; white-space:pre-line; }
+    .cofond:hover .cofond-tip { display:block; }
+    .h-right { display:flex; align-items:center; gap:.75rem; }
+    .nd-btn-ghost { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:.35rem .9rem; color:rgba(255,255,255,.85); font-size:.75rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
+    .nd-btn-ghost:hover { background:rgba(255,255,255,.16); color:#fff; }
+    @media(max-width:900px){ .nd-nav,.cofond{display:none;} .nd-header{padding:.65rem 1rem;} }
 
     /* ── MAIN ── */
-    .main-container { max-width: 1100px; margin: 0 auto; padding: 5.5rem 2rem 3rem; }
+    .main-container { max-width:960px; margin:0 auto; padding:5.5rem 2rem 3rem; }
+    @media(max-width:768px){ .main-container{padding:5rem 1rem 2rem;} }
 
-    /* ── BREADCRUMB / RETOUR ── */
-    .back-row {
-      display: flex; align-items: center; gap: .5rem;
-      margin-bottom: 1.5rem;
-    }
-    .back-btn {
-      display: inline-flex; align-items: center; gap: .3rem;
-      font-size: .78rem; color: var(--text-secondary, #6b7b74);
-      text-decoration: none; transition: color .2s;
-    }
-    .back-btn:hover { color: #1D9E75; }
-    .breadcrumb-sep { color: var(--text-tertiary, #9ca3af); font-size: .75rem; }
-    .breadcrumb-current { font-size: .78rem; color: var(--text-primary, #0d2018); font-weight: 500; }
+    /* RETOUR */
+    .back-row { display:flex; align-items:center; gap:.4rem; margin-bottom:1.75rem; }
+    .back-btn { display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--text2); text-decoration:none; transition:color .2s; }
+    .back-btn:hover { color:var(--green); }
+    .sep { color:#9ca3af; font-size:.72rem; }
+    .crumb { font-size:.78rem; color:var(--text); font-weight:500; }
 
-    /* ── PAGE TITLE ── */
-    .page-header { margin-bottom: 1.75rem; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: .25rem; }
-    .page-sub { font-size: .85rem; color: var(--text-secondary, #6b7b74); }
+    /* PAGE TITLE */
+    .page-header { margin-bottom:2rem; }
+    .page-title { font-family:'Playfair Display',serif; font-size:1.75rem; color:var(--text); margin-bottom:.25rem; }
+    .page-sub { font-size:.85rem; color:var(--text2); }
 
-    /* ── BANNIÈRE PLAN GRATUIT ── */
-    .gratuit-banner {
-      background: #e1f5ee; border: 1px solid #1D9E75;
-      border-radius: 16px; padding: 1rem 1.5rem;
-      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem;
+    /* ── FORMULE ACTUELLE (bannière) ── */
+    .current-banner {
+      background:linear-gradient(135deg, var(--dark2), #122b1f);
+      border:1px solid rgba(29,158,117,.35);
+      border-radius:20px; padding:1.5rem 1.75rem;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:1.25rem; margin-bottom:2rem;
     }
-    .gratuit-icon { font-size: 1.8rem; }
-    .gratuit-text strong { font-size: .9rem; color: #0f6e56; display: block; }
-    .gratuit-text p { font-size: .75rem; color: #0f6e56; margin-top: .15rem; }
+    .cb-left {}
+    .cb-tag { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.35); margin-bottom:.2rem; }
+    .cb-name { font-family:'Playfair Display',serif; font-size:1.5rem; color:#fff; }
+    .cb-price { font-size:.8rem; color:rgba(255,255,255,.45); margin-top:.1rem; }
+    .cb-right { display:flex; flex-direction:column; align-items:flex-end; gap:.5rem; }
+    .cb-note { font-size:.72rem; color:rgba(255,255,255,.45); text-align:right; line-height:1.5; }
+    .cb-note strong { color:var(--green-light); }
+    .cb-since { font-size:.68rem; color:rgba(255,255,255,.25); }
 
     /* ── KPIs ── */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
-    @media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    .kpi {
-      background: var(--bg-card, #fff); border-radius: 16px; padding: 1rem;
-      text-align: center; border: 1px solid var(--border-light, #eef4ee);
-    }
-    .kpi-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary, #6b7b74); margin-bottom: .5rem; }
-    .kpi-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
-    .kpi-sub { font-size: .7rem; color: var(--text-secondary, #6b7b74); margin-top: .25rem; }
-    .kpi-green .kpi-val { color: #1D9E75; }
-    .kpi-blue  .kpi-val { color: #185FA5; }
-    .kpi-amber .kpi-val { color: #633806; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+    @media(max-width:600px){ .kpi-grid{grid-template-columns:1fr 1fr;} }
+    .kpi { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1rem; text-align:center; transition:transform .2s; }
+    .kpi:hover { transform:translateY(-3px); }
+    .kpi-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text2); margin-bottom:.4rem; }
+    .kpi-val { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; line-height:1; }
+    .kpi-sub { font-size:.68rem; color:var(--text2); margin-top:.25rem; }
+    .kpi-green .kpi-val { color:var(--green); }
+    .kpi-blue  .kpi-val { color:#2563eb; }
+    .kpi-dark  .kpi-val { color:var(--dark); }
 
-    /* ── FORFAITS ── */
-    .section-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 1rem; }
-    .forfaits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.75rem; }
-    @media (max-width: 1000px) { .forfaits { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px)  { .forfaits { grid-template-columns: 1fr; } }
+    /* ── SECTION CHANGER ── */
+    .section-hd { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.25rem; }
+    .section-title { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--text); }
+    .section-sub { font-size:.75rem; color:var(--text2); }
+
+    /* ── CARTES FORMULES ── */
+    .forfaits { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:2rem; }
+    @media(max-width:700px){ .forfaits{grid-template-columns:1fr;} }
 
     .forfait {
-      background: var(--bg-card, #fff); border-radius: 20px; padding: 1.25rem;
-      border: 1.5px solid var(--border-light, #eef4ee); position: relative;
-      transition: transform .2s, box-shadow .2s;
+      background:var(--card); border:1.5px solid var(--border); border-radius:20px;
+      padding:1.5rem; position:relative; transition:transform .2s, box-shadow .2s, border-color .2s;
     }
-    .forfait:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
-    .forfait.current { border: 2px solid #1D9E75; background: var(--bg-card, #fff); }
-    .forfait.recommended { border: 2px solid #185FA5; }
+    .forfait:hover:not(.disabled-card) { transform:translateY(-5px); box-shadow:0 12px 32px rgba(0,0,0,.08); }
+    .forfait.current { border:2px solid var(--green); background:linear-gradient(160deg,#f0faf6,#fff); }
+    .forfait.disabled-card { opacity:.65; cursor:default; background:var(--cream); }
 
-    .badge-top {
-      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-      font-size: .62rem; font-weight: 700; padding: .2rem .8rem;
-      border-radius: 999px; white-space: nowrap; color: #fff;
+    /* Badges top */
+    .f-badge {
+      position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+      font-size:.62rem; font-weight:700; padding:.22rem .85rem;
+      border-radius:999px; white-space:nowrap; color:#fff;
     }
-    .badge-current-color { background: #1D9E75; }
-    .badge-reco-color    { background: #185FA5; }
+    .f-badge.green  { background:var(--green); }
+    .f-badge.soon   { background:var(--soon); }
 
-    .forfait-tier { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary, #6b7b74); margin-bottom: .2rem; }
-    .forfait-price { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
-    .forfait-price span { font-size: .75rem; font-weight: 400; color: var(--text-secondary, #6b7b74); }
-    .forfait-quota { font-size: .72rem; color: #1D9E75; font-weight: 500; margin: .25rem 0 .2rem; }
-    .forfait-desc { font-size: .68rem; color: var(--text-secondary, #6b7b74); margin-bottom: .75rem; line-height: 1.4; }
-    .forfait-list { list-style: none; margin: .5rem 0; }
-    .forfait-list li { font-size: .7rem; display: flex; align-items: flex-start; gap: .3rem; padding: .18rem 0; }
-    .forfait-list li::before { content: "✓"; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
-    .btn-changer {
-      display: block; text-align: center; width: 100%;
-      padding: .55rem; border-radius: 999px; font-size: .75rem; font-weight: 600;
-      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
-      margin-top: .75rem; transition: all .2s;
-    }
-    .btn-main    { background: #1D9E75; color: #fff; }
-    .btn-main:hover { background: #0f6e56; }
-    .btn-outline-f { background: transparent; border: 1.5px solid var(--border-light, #eef4ee); color: var(--text-primary, #0d2018); }
-    .btn-outline-f:hover { border-color: #1D9E75; color: #1D9E75; }
-    .btn-blue    { background: #185FA5; color: #fff; }
-    .btn-blue:hover { background: #134A5C; }
-    .btn-disabled { background: var(--bg-secondary, #f7f9f7); color: var(--text-secondary, #6b7b74); cursor: default; }
+    /* Contenu carte */
+    .f-tier  { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text2); margin-bottom:.3rem; }
+    .f-price { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--text); line-height:1; }
+    .f-price span { font-size:.75rem; font-weight:400; color:var(--text2); font-family:'Outfit',sans-serif; }
+    .f-period { font-size:.7rem; color:var(--text2); margin-top:.15rem; margin-bottom:.9rem; }
 
-    /* ── SEUILS ── */
-    .seuils-box {
-      background: var(--bg-card, #fff); border: 1px solid var(--border-light, #eef4ee);
-      border-radius: 16px; padding: 1.25rem; margin-bottom: 1.75rem;
+    /* Features */
+    .f-list { list-style:none; margin-bottom:1.25rem; }
+    .f-list li { display:flex; align-items:flex-start; gap:.45rem; font-size:.75rem; padding:.28rem 0; border-bottom:1px solid rgba(0,0,0,.04); color:var(--text); }
+    .f-list li:last-child { border:none; }
+    .f-list li::before { content:"✓"; color:var(--green); font-weight:700; flex-shrink:0; font-size:.72rem; margin-top:.05rem; }
+    .f-list li.soon-item { color:var(--text2); }
+    .f-list li.soon-item::before { content:"→"; color:var(--soon); }
+    .soon-tag { font-size:.58rem; background:rgba(99,102,241,.1); color:var(--soon); border-radius:999px; padding:.06rem .38rem; margin-left:.2rem; }
+
+    /* Boutons d'action */
+    .btn-action {
+      display:block; text-align:center; width:100%;
+      padding:.65rem 1rem; border-radius:999px; font-size:.8rem; font-weight:600;
+      cursor:pointer; border:none; font-family:'Outfit',sans-serif;
+      transition:all .2s;
     }
-    .seuils-title { font-weight: 600; font-size: .85rem; margin-bottom: .75rem; }
-    .seuils-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
-    @media (max-width: 600px) { .seuils-grid { grid-template-columns: 1fr; } }
-    .seuil-item {
-      background: var(--bg-secondary, #f7f9f7); border-radius: 12px; padding: .6rem;
-      text-align: center; font-size: .73rem; color: var(--text-secondary, #6b7b74);
+    .btn-current { background:rgba(29,158,117,.1); color:var(--green); cursor:default; }
+    .btn-upgrade  { background:var(--green); color:#fff; box-shadow:0 4px 14px rgba(29,158,117,.3); }
+    .btn-upgrade:hover  { background:var(--green-dark); transform:translateY(-1px); }
+    .btn-downgrade { background:transparent; border:1.5px solid var(--border); color:var(--text2); }
+    .btn-downgrade:hover { border-color:var(--green); color:var(--green); }
+    .btn-soon { background:rgba(99,102,241,.1); color:var(--soon); cursor:default; }
+    .btn-notify {
+      display:block; text-align:center; width:100%;
+      padding:.65rem 1rem; border-radius:999px; font-size:.8rem; font-weight:600;
+      border:1.5px solid rgba(99,102,241,.35); color:var(--soon); background:transparent;
+      cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; margin-top:.5rem;
     }
-    .seuil-item strong { color: var(--text-primary, #0d2018); display: block; margin-bottom: .2rem; }
-    .seuil-item .eco { color: #1D9E75; font-size: .68rem; margin-top: .2rem; }
+    .btn-notify:hover { background:rgba(99,102,241,.07); }
+    .btn-notify.active { background:rgba(99,102,241,.12); border-color:var(--soon); }
+
+    /* ── NOTE STRIPE ── */
+    .stripe-note {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:1rem 1.25rem; margin-bottom:2rem;
+      display:flex; align-items:flex-start; gap:.75rem; font-size:.78rem; color:var(--text2); line-height:1.6;
+    }
+    .stripe-note-icon { font-size:1.2rem; flex-shrink:0; }
+    .stripe-note a { color:var(--green); text-decoration:none; font-weight:600; }
 
     /* ── HISTORIQUE ── */
-    .histo {
-      background: var(--bg-card, #fff); border: 1px solid var(--border-light, #eef4ee);
-      border-radius: 16px; padding: 1.25rem;
-    }
-    .histo-title { font-weight: 600; font-size: .85rem; margin-bottom: 1rem; }
-    .histo-row {
-      display: flex; align-items: center; gap: 1rem;
-      padding: .5rem 0; border-bottom: 1px solid var(--border-light, #eef4ee);
-      font-size: .75rem;
-    }
-    .histo-row:last-child { border-bottom: none; }
-    .histo-date { color: var(--text-secondary, #6b7b74); min-width: 80px; }
-    .histo-desc { flex: 1; }
-    .histo-montant { font-weight: 600; min-width: 70px; text-align: right; }
-    .histo-debit  { color: #b91c1c; }
-    .histo-credit { color: #1D9E75; }
-
-    /* État vide historique */
-    .histo-empty {
-      border: 2px dashed var(--border-light, #d1ddd7); border-radius: 10px;
-      padding: 1.5rem; text-align: center;
-      color: var(--text-tertiary, #9ca3af); font-size: .8rem;
-    }
+    .histo-block { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.25rem; }
+    .histo-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .histo-title { font-weight:600; font-size:.9rem; color:var(--text); }
+    .histo-row { display:flex; align-items:center; gap:.9rem; padding:.5rem 0; border-bottom:1px solid var(--border); font-size:.76rem; }
+    .histo-row:last-child { border:none; }
+    .histo-date  { color:var(--text2); min-width:90px; flex-shrink:0; }
+    .histo-desc  { flex:1; color:var(--text); }
+    .histo-badge { flex-shrink:0; }
+    .histo-montant { font-weight:600; min-width:65px; text-align:right; }
+    .histo-debit   { color:#ef4444; }
+    .histo-credit  { color:var(--green); }
+    .histo-empty { border:2px dashed #d1ddd7; border-radius:10px; padding:1.5rem; text-align:center; color:#9ca3af; font-size:.8rem; }
+    .badge-ok     { background:#e1f5ee; color:var(--green); font-size:.65rem; padding:.12rem .5rem; border-radius:999px; font-weight:600; }
+    .badge-pend   { background:#fff8e6; color:#f59e0b; font-size:.65rem; padding:.12rem .5rem; border-radius:999px; font-weight:600; }
 
     /* ── MODAL ── */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.5); z-index: 300;
-      align-items: center; justify-content: center; padding: 1rem;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--bg-card, #fff); border-radius: 24px; padding: 1.5rem;
-      max-width: 420px; width: 100%;
-    }
-    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: .5rem; }
-    .modal-desc { font-size: .8rem; color: var(--text-secondary, #6b7b74); line-height: 1.6; margin-bottom: 1.5rem; }
-    .modal-btns { display: flex; gap: .75rem; justify-content: flex-end; }
-    .btn-cancel {
-      background: var(--bg-secondary, #f7f9f7); border: 1px solid var(--border-light, #eef4ee);
-      border-radius: 999px; padding: .5rem 1.2rem; font-size: .8rem; cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
-    .btn-confirm {
-      background: #1D9E75; border: none; border-radius: 999px;
-      padding: .5rem 1.2rem; font-size: .8rem; font-weight: 600; color: #fff; cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--card); border-radius:22px; padding:1.75rem; max-width:440px; width:100%; }
+    .modal-title { font-family:'Playfair Display',serif; font-size:1.3rem; margin-bottom:.5rem; color:var(--text); }
+    .modal-desc { font-size:.82rem; color:var(--text2); line-height:1.7; margin-bottom:1.5rem; }
+    .modal-desc strong { color:var(--text); }
+    .modal-stripe { background:var(--cream); border-radius:12px; padding:.85rem 1rem; font-size:.75rem; color:var(--text2); margin-bottom:1.25rem; line-height:1.6; }
+    .modal-btns { display:flex; gap:.75rem; justify-content:flex-end; }
+    .btn-cancel-m { background:var(--cream); border:1px solid var(--border); border-radius:999px; padding:.55rem 1.25rem; font-size:.8rem; cursor:pointer; font-family:'Outfit',sans-serif; color:var(--text2); transition:background .2s; }
+    .btn-cancel-m:hover { background:var(--border); }
+    .btn-confirm-m { background:var(--green); border:none; border-radius:999px; padding:.55rem 1.25rem; font-size:.8rem; font-weight:600; color:#fff; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
+    .btn-confirm-m:hover { background:var(--green-dark); }
 
-    .hidden { display: none !important; }
-
-    @media (max-width: 768px) {
-      .main-container { padding: 5rem 1rem 2rem; }
-    }
+    /* Toast */
+    #toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:var(--dark); color:#fff; padding:.55rem 1.1rem; border-radius:999px; font-size:.78rem; z-index:2000; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
+    #toast.show { opacity:1; }
+    .hidden { display:none !important; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- HEADER -->
 <header class="nd-header">
-  <div class="header-container">
-    <div class="header-left">
+  <div class="hc">
+    <div class="h-left">
       <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
-        <a href="dietitian.html" class="nd-navlink">Mon espace</a>
-        <a href="dashboard-dieteticien.html" class="nd-navlink">Dashboard</a>
-        <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">Tableau de bord</a>
         <a href="compta-dieteticien.html" class="nd-navlink">Comptabilité</a>
-        <a href="gestion-forfait-dieteticien.html" class="nd-navlink active">Forfait</a>
+        <a href="profil-dieteticien.html" class="nd-navlink">Mon profil</a>
+        <a href="gestion-forfait-dieteticien.html" class="nd-navlink active">Ma formule</a>
       </nav>
     </div>
-    <div class="header-actions">
-      <!-- dark-mode.js injecte le toggle ici -->
-      <span class="nd-user-badge" id="navUser">Chargement…</span>
+    <div class="h-right">
+      <div class="cofond">
+        <div class="cofond-av">GM</div>
+        <div class="cofond-txt"><strong>Grégoire Martin</strong> · Diététicien RPPS</div>
+        <div class="cofond-tip">⭐ Diététicien co-fondateur NutriDoc
+🏥 CHU Angoulême · 🏡 Cabinet libéral
+🚒 Sapeur-Pompier Expert</div>
+      </div>
       <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
     </div>
   </div>
@@ -252,299 +232,409 @@
 
   <!-- RETOUR -->
   <div class="back-row">
-    <a href="dietitian.html" class="back-btn">← Mon espace</a>
-    <span class="breadcrumb-sep">/</span>
-    <span class="breadcrumb-current">Gestion du forfait</span>
+    <a href="dashboard-dieteticien.html" class="back-btn">← Tableau de bord</a>
+    <span class="sep">/</span>
+    <span class="crumb">Ma formule</span>
   </div>
 
   <div class="page-header">
-    <h1 class="page-title">Gestion du forfait</h1>
-    <p class="page-sub">Consultez votre consommation, votre plan gratuit mensuel et changez d'offre à tout moment.</p>
+    <h1 class="page-title">Ma formule</h1>
+    <p class="page-sub">Gérez votre abonnement NutriDoc · Aucune commission sur vos plans validés.</p>
   </div>
 
-  <!-- Bannière plan gratuit -->
-  <div class="gratuit-banner" id="gratuitBanner">
-    <div class="gratuit-icon" id="gratuitIcon">🎁</div>
-    <div class="gratuit-text">
-      <strong id="gratuitTitre">Plan gratuit du mois</strong>
-      <p id="gratuitDesc">Chargement…</p>
+  <!-- BANNIÈRE FORMULE ACTUELLE -->
+  <div class="current-banner">
+    <div class="cb-left">
+      <div class="cb-tag">Formule active</div>
+      <div class="cb-name" id="cbNom">Découverte</div>
+      <div class="cb-price" id="cbPrix">Gratuit · 3 mois d'essai</div>
+    </div>
+    <div class="cb-right">
+      <div class="cb-note"><strong>Aucune commission</strong> prélevée sur vos plans<br>Frais Stripe (~1,5 %) à votre charge</div>
+      <div class="cb-since" id="cbSince"></div>
     </div>
   </div>
 
   <!-- KPIs -->
   <div class="kpi-grid">
     <div class="kpi kpi-green">
-      <div class="kpi-label">Forfait actuel</div>
-      <div class="kpi-val" id="kForfait">—</div>
-      <div class="kpi-sub" id="kPrix">—</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Plans ce mois</div>
+      <div class="kpi-label">Plans validés ce mois</div>
       <div class="kpi-val" id="kPlans">—</div>
-      <div class="kpi-sub" id="kQuota">/ — quota</div>
+      <div class="kpi-sub">Dossiers illimités</div>
     </div>
     <div class="kpi kpi-blue">
-      <div class="kpi-label">Hors quota</div>
-      <div class="kpi-val" id="kHQ">—</div>
-      <div class="kpi-sub" id="kCommission">—</div>
+      <div class="kpi-label">Revenus bruts ce mois</div>
+      <div class="kpi-val" id="kRevenu">—</div>
+      <div class="kpi-sub" id="kRevenuSub">Avant Stripe</div>
     </div>
-    <div class="kpi kpi-amber">
-      <div class="kpi-label">Net perçu</div>
-      <div class="kpi-val" id="kNet">—</div>
-      <div class="kpi-sub">après commissions NutriDoc</div>
+    <div class="kpi kpi-dark">
+      <div class="kpi-label">Prochain prélèvement</div>
+      <div class="kpi-val" id="kProchain">—</div>
+      <div class="kpi-sub" id="kProchainDate">Abonnement NutriDoc</div>
     </div>
   </div>
 
-  <!-- Forfaits -->
-  <h2 class="section-title">Choisir un forfait</h2>
+  <!-- CHANGER DE FORMULE -->
+  <div class="section-hd">
+    <h2 class="section-title">Changer de formule</h2>
+    <span class="section-sub">Changement effectif au prochain cycle · Sans engagement</span>
+  </div>
+
   <div class="forfaits">
 
+    <!-- DÉCOUVERTE -->
+    <div class="forfait" id="card-decouverte">
+      <div class="f-tier">Découverte</div>
+      <div class="f-price">0 € <span>HT</span></div>
+      <div class="f-period">Gratuit pendant 3 mois · sans CB</div>
+      <ul class="f-list">
+        <li>Dossiers patients illimités</li>
+        <li>Certification RPPS visible</li>
+        <li>Suivi des dossiers</li>
+        <li>Revenus &amp; déclarations</li>
+        <li>Aucune commission</li>
+      </ul>
+      <button class="btn-action btn-current" id="btn-decouverte" disabled>✓ Formule actuelle</button>
+    </div>
+
+    <!-- ESSENTIEL -->
     <div class="forfait" id="card-essentiel">
-      <div class="forfait-tier">Essentiel</div>
-      <div class="forfait-price">0€ <span>HT/mois</span></div>
-      <div class="forfait-quota">1 plan gratuit + 0 dans le quota</div>
-      <div class="forfait-desc">Phase pilote, démarrage, très petit volume.</div>
-      <ul class="forfait-list">
-        <li>Profil public dans l'annuaire RPPS</li>
-        <li>Badge RPPS vérifié</li>
-        <li>✗ Accès aux dossiers patients</li>
-        <li>✗ Validation de plans (hors offert)</li>
+      <div class="f-tier">Essentiel</div>
+      <div class="f-price">39 € <span>HT / mois</span></div>
+      <div class="f-period">Sans engagement · résiliable à tout moment</div>
+      <ul class="f-list">
+        <li>Dossiers patients illimités</li>
+        <li>Certification RPPS visible</li>
+        <li>Suivi des dossiers</li>
+        <li>Revenus &amp; déclarations</li>
+        <li>Aucune commission</li>
       </ul>
-      <button class="btn-changer btn-outline-f" onclick="ouvrirModal('essentiel',0)">Choisir Essentiel</button>
+      <button class="btn-action btn-upgrade" id="btn-essentiel" onclick="ouvrirModal('essentiel')">Passer à Essentiel →</button>
     </div>
 
-    <div class="forfait" id="card-starter">
-      <div class="forfait-tier">Starter</div>
-      <div class="forfait-price">9€ <span>HT/mois</span></div>
-      <div class="forfait-quota">1 gratuit + 10 dans le quota</div>
-      <div class="forfait-desc">Diététicien libéral débutant — 5 à 15 plans/mois.</div>
-      <ul class="forfait-list">
-        <li>Accès aux dossiers patients</li>
-        <li>10 plans inclus par mois</li>
-        <li>Commission : 2,50€/plan (au-delà)</li>
-        <li>Agenda visio intégré</li>
+    <!-- PRO — BIENTÔT -->
+    <div class="forfait disabled-card" id="card-pro">
+      <div class="f-badge soon">🔮 Bientôt disponible</div>
+      <div class="f-tier" style="color:var(--soon);">Pro</div>
+      <div class="f-price" style="color:var(--soon);">? € <span>HT / mois</span></div>
+      <div class="f-period">Prix en cours de définition</div>
+      <ul class="f-list">
+        <li class="soon-item">Tout l'Essentiel inclus <span class="soon-tag">Bientôt</span></li>
+        <li class="soon-item">Téléconsultations &amp; RDV intégrés <span class="soon-tag">Bientôt</span></li>
+        <li class="soon-item">Mis en avant auprès des patients <span class="soon-tag">Bientôt</span></li>
+        <li class="soon-item">Rappels de suivi nutritionnel <span class="soon-tag">Bientôt</span></li>
+        <li class="soon-item">Statistiques avancées <span class="soon-tag">Bientôt</span></li>
+        <li class="soon-item">Support prioritaire <span class="soon-tag">Bientôt</span></li>
       </ul>
-      <button class="btn-changer btn-outline-f" onclick="ouvrirModal('starter',9)">Choisir Starter</button>
-    </div>
-
-    <div class="forfait" id="card-pro">
-      <div class="forfait-tier" style="color:#1D9E75;">Pro</div>
-      <div class="forfait-price">29€ <span>HT/mois</span></div>
-      <div class="forfait-quota">1 gratuit + 30 dans le quota</div>
-      <div class="forfait-desc">Diététicien installé — 20 à 50 plans/mois.</div>
-      <ul class="forfait-list">
-        <li>30 plans inclus par mois</li>
-        <li>Commission : 2,00€/plan (au-delà)</li>
-        <li>Support prioritaire</li>
-        <li>Statistiques avancées</li>
-      </ul>
-      <button class="btn-changer btn-main" onclick="ouvrirModal('pro',29)">Choisir Pro</button>
-    </div>
-
-    <div class="forfait" id="card-expert">
-      <div class="forfait-tier" style="color:#185FA5;">Expert</div>
-      <div class="forfait-price">59€ <span>HT/mois</span></div>
-      <div class="forfait-quota">1 gratuit + 100 dans le quota</div>
-      <div class="forfait-desc">Gros volume, cabinet structuré — +50 plans/mois.</div>
-      <ul class="forfait-list">
-        <li>100 plans inclus par mois</li>
-        <li>Commission : 1,50€/plan (au-delà)</li>
-        <li>Analytics avancés</li>
-        <li>Accès API (sur demande)</li>
-      </ul>
-      <button class="btn-changer btn-blue" onclick="ouvrirModal('expert',59)">Choisir Expert</button>
+      <div class="btn-action btn-soon" style="margin-bottom:.5rem;">Disponible prochainement</div>
+      <button class="btn-notify" id="btnNotifyPro" onclick="toggleNotifyPro()">🔔 Me prévenir à la sortie</button>
     </div>
 
   </div>
 
-  <!-- Seuils -->
-  <div class="seuils-box">
-    <div class="seuils-title">📈 Quand passer au forfait supérieur ?</div>
-    <div class="seuils-grid">
-      <div class="seuil-item"><strong>Essentiel → Starter</strong>dès 6 plans/mois<div class="eco">💰 Économie dès 6 plans</div></div>
-      <div class="seuil-item"><strong>Starter → Pro</strong>dès 25 plans/mois<div class="eco">💰 Économie jusqu'à 15€/mois</div></div>
-      <div class="seuil-item"><strong>Pro → Expert</strong>dès 80 plans/mois<div class="eco">💰 Économie jusqu'à 40€/mois</div></div>
+  <!-- NOTE STRIPE -->
+  <div class="stripe-note">
+    <div class="stripe-note-icon">💳</div>
+    <div>
+      <strong style="color:var(--text);">Paiement &amp; résiliation</strong> — Les abonnements sont gérés via <strong>Stripe</strong>.
+      Aucun prélèvement n'est effectué pendant votre période Découverte.
+      Vous pouvez <a href="#" onclick="ouvrirModalResiliation();return false;">résilier à tout moment</a> en un clic, sans préavis.
+      Les plans déjà validés et revenus versés restent acquis.
     </div>
-    <p style="font-size:.7rem;color:var(--text-secondary,#6b7b74);margin-top:.75rem;">💡 La plateforme vous notifie automatiquement lorsqu'un changement de forfait serait plus économique.</p>
   </div>
 
-  <!-- Historique -->
-  <div class="histo">
-    <div class="histo-title">📄 Historique de facturation</div>
+  <!-- HISTORIQUE DE FACTURATION -->
+  <div class="histo-block">
+    <div class="histo-header">
+      <div class="histo-title">📄 Historique de facturation</div>
+    </div>
     <div id="histoList">
       <div class="histo-empty">
-        <div style="font-size:1.5rem;opacity:.3;margin-bottom:.5rem;">📄</div>
-        Aucun mouvement ce mois-ci
+        <div style="font-size:1.5rem;opacity:.25;margin-bottom:.4rem;">📄</div>
+        Aucun mouvement enregistré — vos prélèvements d'abonnement apparaîtront ici.
       </div>
     </div>
   </div>
 
-</div>
+</div><!-- /main-container -->
 
-<!-- Modal confirmation -->
+<!-- MODAL CHANGEMENT -->
 <div class="modal-overlay" id="modalOverlay" onclick="fermerModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title" id="modalTitre">Changer de forfait</div>
+    <div class="modal-title" id="modalTitre">Changer de formule</div>
     <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-stripe" id="modalStripe"></div>
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-confirm" onclick="confirmerChangement()">Confirmer</button>
+      <button class="btn-cancel-m" onclick="fermerModal()">Annuler</button>
+      <button class="btn-confirm-m" id="btnConfirm" onclick="confirmerChangement()">Confirmer</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL RÉSILIATION -->
+<div class="modal-overlay" id="modalResiliation" onclick="fermerResiliation(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">⚠️ Résilier mon abonnement</div>
+    <div class="modal-desc">
+      Votre abonnement <strong>Essentiel</strong> sera annulé à la fin du cycle en cours.
+      Vous continuerez à bénéficier de toutes les fonctionnalités jusqu'à cette date.<br><br>
+      Après résiliation, votre compte passera automatiquement en formule <strong>Découverte</strong>
+      (dossiers illimités, accès complet maintenu).
+    </div>
+    <div class="modal-stripe">
+      💡 Vos dossiers patients, revenus et historique sont conservés intégralement après résiliation.
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel-m" onclick="fermerResiliation()">Garder mon abonnement</button>
+      <button style="background:#ef4444;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.8rem;font-weight:600;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif;" onclick="confirmerResiliation()">Résilier</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-const COMMISSIONS = { essentiel: 5.00, starter: 2.50, pro: 2.00, expert: 1.50 };
-const QUOTAS      = { essentiel: 0,    starter: 10,   pro: 30,   expert: 100  };
-const PRIX        = { essentiel: 0,    starter: 9,    pro: 29,   expert: 59   };
-const LABELS      = { essentiel: 'Essentiel (0€/mois)', starter: 'Starter (9€/mois)', pro: 'Pro (29€/mois)', expert: 'Expert (59€/mois)' };
+// ── CONSTANTES ─────────────────────────────────────────────────
+const FORMULES = {
+  decouverte: { nom:'Découverte', prix:0,  label:'Gratuit · 3 mois d\'essai', abo:0 },
+  essentiel:  { nom:'Essentiel',  prix:39, label:'39 € HT / mois',            abo:39 },
+};
 
-let forfaitActuel = null;
+let forfaitActuel = 'decouverte';
 let pendingForfait = null;
+let notifyPro = false;
 
-// ── CHARGEMENT SUPABASE ───────────────────────────────────────
+// ── CHARGEMENT ────────────────────────────────────────────────
 async function chargerDonnees() {
   if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
-    afficherNonConnecte(); return;
+    afficherDemo(); return;
   }
 
   const profile = await getProfile();
   if (!profile) { window.location.href = 'login.html'; return; }
   if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
 
-  forfaitActuel = profile.formule || 'essentiel';
-  const nom = [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
-  document.getElementById('navUser').textContent = nom;
+  forfaitActuel = (profile.formule || 'decouverte').toLowerCase();
+  if (!FORMULES[forfaitActuel]) forfaitActuel = 'decouverte';
 
-  // KPIs réels
-  const quota     = QUOTAS[forfaitActuel] || 0;
-  const prix      = PRIX[forfaitActuel]   || 0;
+  // Bannière
+  afficherBanniere(forfaitActuel);
 
-  // Compter les plans validés ce mois depuis Supabase
-  let plansMois = 0;
+  // Plans ce mois
+  let plans = 0, revenu = 0;
   try {
     const debut = new Date(); debut.setDate(1); debut.setHours(0,0,0,0);
-    const { count } = await _supa
-      .from('plans')
-      .select('id', { count: 'exact', head: true })
-      .eq('dietitian_id', profile.id)
-      .gte('created_at', debut.toISOString());
-    plansMois = count || 0;
-  } catch(e) { console.warn('plans count:', e); }
+    const { count } = await _supa.from('plans').select('id',{count:'exact',head:true})
+      .eq('dietitian_id', profile.id).gte('created_at', debut.toISOString());
+    plans = count || 0;
+    revenu = plans * 24.90; // approximation patients directs
+  } catch(e) { console.warn(e); }
 
-  const horsQuota   = Math.max(0, plansMois - 1 - quota); // -1 plan gratuit
-  const commission  = horsQuota * (COMMISSIONS[forfaitActuel] || 0);
-  const netEstime   = plansMois * 24.90 - commission - prix;
+  document.getElementById('kPlans').textContent  = plans;
+  document.getElementById('kRevenu').textContent = Math.round(revenu) + ' €';
 
-  document.getElementById('kForfait').textContent = forfaitActuel.charAt(0).toUpperCase() + forfaitActuel.slice(1);
-  document.getElementById('kPrix').textContent    = prix + '€/mois';
-  document.getElementById('kPlans').textContent   = plansMois;
-  document.getElementById('kQuota').textContent   = '/ ' + quota + ' quota';
-  document.getElementById('kHQ').textContent      = horsQuota;
-  document.getElementById('kCommission').textContent = commission.toFixed(2) + '€ commission';
-  document.getElementById('kNet').textContent     = plansMois > 0 ? Math.round(netEstime) + '€' : '—';
+  // Prochain prélèvement
+  majProchainPrelevement(forfaitActuel);
 
-  // Bannière plan gratuit
-  const gratuitUtilise = plansMois > 0;
-  if (gratuitUtilise) {
-    document.getElementById('gratuitIcon').textContent    = '✅';
-    document.getElementById('gratuitTitre').textContent   = 'Plan gratuit du mois — Utilisé';
-    document.getElementById('gratuitDesc').textContent    = 'Votre plan gratuit de ce mois a été utilisé. Le prochain sera disponible le 1er du mois.';
-    document.getElementById('gratuitBanner').style.background   = 'var(--bg-secondary,#f7f9f7)';
-    document.getElementById('gratuitBanner').style.borderColor  = 'var(--border-light,#eef4ee)';
-  } else {
-    document.getElementById('gratuitTitre').textContent = 'Plan gratuit du mois — Non utilisé';
-    document.getElementById('gratuitDesc').textContent  = 'Chaque mois, un plan est reversé intégralement au diététicien (24,90€) sans aucun frais NutriDoc.';
+  // Marquer les cartes
+  marquerCartes(forfaitActuel);
+
+  // Historique abonnements
+  chargerHistorique(profile.id);
+
+  // Notif Pro depuis localStorage
+  notifyPro = localStorage.getItem('nutridoc_notify_pro') === '1';
+  if (notifyPro) {
+    const btn = document.getElementById('btnNotifyPro');
+    btn.textContent = '✓ Vous serez prévenu';
+    btn.classList.add('active');
   }
-
-  // Marquer le forfait actuel
-  marquerForfaitActuel(forfaitActuel);
-
-  // Recommandation intelligente
-  if (forfaitActuel === 'essentiel' && plansMois >= 6) recommander('starter');
-  else if (forfaitActuel === 'starter' && plansMois >= 25) recommander('pro');
-  else if (forfaitActuel === 'pro' && plansMois >= 80) recommander('expert');
-
-  // Historique : vide pour l'instant (sera connecté Stripe plus tard)
-  document.getElementById('histoList').innerHTML =
-    `<div class="histo-empty">
-       <div style="font-size:1.5rem;opacity:.3;margin-bottom:.5rem;">📄</div>
-       Aucun mouvement enregistré pour le moment
-     </div>`;
 }
 
-function afficherNonConnecte() {
-  document.getElementById('navUser').textContent = 'Non connecté';
-  document.getElementById('kForfait').textContent = '—';
-  document.getElementById('kPrix').textContent = '—';
-  document.getElementById('kPlans').textContent = '—';
-  document.getElementById('kQuota').textContent = '—';
-  document.getElementById('kHQ').textContent = '—';
-  document.getElementById('kCommission').textContent = '—';
-  document.getElementById('kNet').textContent = '—';
-  document.getElementById('gratuitTitre').textContent = 'Connectez-vous pour voir vos données';
-  document.getElementById('gratuitDesc').textContent = '';
+function afficherDemo() {
+  forfaitActuel = 'essentiel';
+  afficherBanniere('essentiel');
+  document.getElementById('kPlans').textContent  = '12';
+  document.getElementById('kRevenu').textContent = '299 €';
+  majProchainPrelevement('essentiel');
+  marquerCartes('essentiel');
 }
 
-function marquerForfaitActuel(f) {
-  const card = document.getElementById('card-' + f);
-  if (!card) return;
-  card.classList.add('current');
-  const badge = document.createElement('div');
-  badge.className = 'badge-top badge-current-color';
-  badge.textContent = '✓ Forfait actuel';
-  card.appendChild(badge);
-  const btn = card.querySelector('.btn-changer');
-  if (btn) { btn.textContent = 'Forfait actuel'; btn.className = 'btn-changer btn-disabled'; btn.disabled = true; btn.onclick = null; }
+function afficherBanniere(f) {
+  const fo = FORMULES[f];
+  document.getElementById('cbNom').textContent   = fo.nom;
+  document.getElementById('cbPrix').textContent  = fo.label;
 }
 
-function recommander(f) {
-  const card = document.getElementById('card-' + f);
-  if (!card) return;
-  card.classList.add('recommended');
-  const badge = document.createElement('div');
-  badge.className = 'badge-top badge-reco-color';
-  badge.textContent = '💡 Recommandé';
-  card.appendChild(badge);
+function majProchainPrelevement(f) {
+  const el    = document.getElementById('kProchain');
+  const elSub = document.getElementById('kProchainDate');
+  if (f === 'essentiel') {
+    const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
+    el.textContent    = '39 €';
+    elSub.textContent = '1er ' + d.toLocaleDateString('fr-FR',{month:'long'});
+  } else {
+    el.textContent    = '0 €';
+    elSub.textContent = 'Période Découverte';
+  }
 }
 
-// ── MODAL ─────────────────────────────────────────────────────
-function ouvrirModal(forfait, prix) {
-  if (forfait === forfaitActuel) return;
-  pendingForfait = forfait;
-  document.getElementById('modalTitre').textContent = 'Passer au forfait ' + LABELS[forfait];
-  document.getElementById('modalDesc').innerHTML =
-    'Votre forfait passera à ' + LABELS[forfait] + ' à compter du prochain cycle de facturation.<br><br>' +
-    'Nouvelle commission : <strong>' + COMMISSIONS[forfait].toFixed(2) + '€/plan</strong> (au-delà du quota de ' + QUOTAS[forfait] + ' plans).';
+function marquerCartes(f) {
+  // Réinitialiser tous les boutons
+  const btnD = document.getElementById('btn-decouverte');
+  const btnE = document.getElementById('btn-essentiel');
+  const cardD = document.getElementById('card-decouverte');
+  const cardE = document.getElementById('card-essentiel');
+
+  if (f === 'decouverte') {
+    // Actuel = Découverte
+    cardD.classList.add('current');
+    ajouterBadge(cardD, '✓ Formule actuelle', 'green');
+    btnD.textContent = '✓ Formule actuelle';
+    btnD.className = 'btn-action btn-current';
+    btnD.disabled = true;
+    // Essentiel = upgrade
+    btnE.textContent = 'Passer à Essentiel →';
+    btnE.className = 'btn-action btn-upgrade';
+    btnE.onclick = () => ouvrirModal('essentiel');
+
+  } else if (f === 'essentiel') {
+    // Actuel = Essentiel
+    cardE.classList.add('current');
+    ajouterBadge(cardE, '✓ Formule actuelle', 'green');
+    btnE.textContent = '✓ Formule actuelle';
+    btnE.className = 'btn-action btn-current';
+    btnE.disabled = true;
+    // Découverte = downgrade / résiliation
+    btnD.textContent = 'Rétrograder (résiliation)';
+    btnD.className = 'btn-action btn-downgrade';
+    btnD.disabled = false;
+    btnD.onclick = () => ouvrirModalResiliation();
+  }
+}
+
+function ajouterBadge(card, texte, type) {
+  // Supprimer badge existant si présent
+  const old = card.querySelector('.f-badge');
+  if (old) old.remove();
+  const b = document.createElement('div');
+  b.className = 'f-badge ' + type;
+  b.textContent = texte;
+  card.appendChild(b);
+}
+
+async function chargerHistorique(uid) {
+  try {
+    const { data } = await _supa.from('payments_nutridoc')
+      .select('*').eq('dietitian_id', uid).order('created_at', {ascending:false}).limit(12);
+    if (!data || !data.length) return; // laisse l'état vide
+    const html = data.map(p => `
+      <div class="histo-row">
+        <span class="histo-date">${new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+        <span class="histo-desc">${p.description || 'Abonnement NutriDoc'}</span>
+        <span class="histo-badge"><span class="${p.statut === 'paye' ? 'badge-ok' : 'badge-pend'}">${p.statut === 'paye' ? 'Payé' : 'En attente'}</span></span>
+        <span class="histo-montant histo-debit">−${p.montant} €</span>
+      </div>`).join('');
+    document.getElementById('histoList').innerHTML = html;
+  } catch {}
+}
+
+// ── MODAL UPGRADE ──────────────────────────────────────────────
+function ouvrirModal(f) {
+  if (f === forfaitActuel) return;
+  pendingForfait = f;
+  const fo = FORMULES[f];
+  const isUpgrade = f === 'essentiel' && forfaitActuel === 'decouverte';
+
+  document.getElementById('modalTitre').textContent =
+    isUpgrade ? 'Passer à la formule Essentiel' : 'Changer de formule';
+
+  document.getElementById('modalDesc').innerHTML = isUpgrade
+    ? `Vous allez activer la formule <strong>Essentiel à 39 € HT/mois</strong>.<br><br>
+       Vos dossiers patients restent illimités. <strong>Aucune commission</strong> n'est prélevée sur vos plans validés.
+       L'abonnement est résiliable à tout moment sans préavis.`
+    : `Vous allez passer à la formule <strong>${fo.nom}</strong>.`;
+
+  document.getElementById('modalStripe').innerHTML =
+    isUpgrade
+    ? '💳 Le prélèvement de <strong>39 €</strong> débutera au prochain cycle mensuel via Stripe. Votre CB sera demandée.'
+    : '💳 Changement effectif au prochain cycle de facturation.';
+
+  document.getElementById('btnConfirm').textContent = isUpgrade ? 'Activer Essentiel →' : 'Confirmer';
   document.getElementById('modalOverlay').classList.add('open');
 }
 
 function fermerModal(e) {
-  if (!e || e.target === document.getElementById('modalOverlay')) {
+  if (!e || e.target === document.getElementById('modalOverlay'))
     document.getElementById('modalOverlay').classList.remove('open');
-  }
 }
 
 async function confirmerChangement() {
   document.getElementById('modalOverlay').classList.remove('open');
   if (!pendingForfait) return;
+  const btn = document.getElementById('btnConfirm');
+  btn.textContent = 'Traitement…'; btn.disabled = true;
 
   if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof _supa !== 'undefined') {
     const profile = await getProfile();
     if (profile) {
-      await _supa.from('profiles').update({ formule: pendingForfait }).eq('id', profile.id);
+      const { error } = await _supa.from('profiles').update({ formule: pendingForfait }).eq('id', profile.id);
+      if (error) { showToast('Erreur : ' + error.message, true); btn.textContent='Confirmer'; btn.disabled=false; return; }
     }
   }
 
-  alert('Forfait mis à jour : ' + LABELS[pendingForfait] + '\n(En production : prélèvement Stripe au prochain cycle)');
-  window.location.reload();
+  showToast('✓ Formule mise à jour — ' + FORMULES[pendingForfait].nom);
+  setTimeout(() => window.location.reload(), 1500);
+}
+
+// ── MODAL RÉSILIATION ─────────────────────────────────────────
+function ouvrirModalResiliation() {
+  document.getElementById('modalResiliation').classList.add('open');
+}
+function fermerResiliation(e) {
+  if (!e || e.target === document.getElementById('modalResiliation'))
+    document.getElementById('modalResiliation').classList.remove('open');
+}
+async function confirmerResiliation() {
+  document.getElementById('modalResiliation').classList.remove('open');
+  if (typeof MODE_SUPA !== 'undefined' && MODE_SUPA && typeof _supa !== 'undefined') {
+    const profile = await getProfile();
+    if (profile) await _supa.from('profiles').update({ formule:'decouverte' }).eq('id', profile.id);
+  }
+  showToast('✓ Abonnement résilié — passage en Découverte à la fin du cycle');
+  setTimeout(() => window.location.reload(), 1800);
+}
+
+// ── NOTIF PRO ─────────────────────────────────────────────────
+function toggleNotifyPro() {
+  notifyPro = !notifyPro;
+  localStorage.setItem('nutridoc_notify_pro', notifyPro ? '1' : '0');
+  const btn = document.getElementById('btnNotifyPro');
+  if (notifyPro) {
+    btn.textContent = '✓ Vous serez prévenu';
+    btn.classList.add('active');
+    showToast('✓ Vous serez notifié à la sortie de la formule Pro');
+  } else {
+    btn.textContent = '🔔 Me prévenir à la sortie';
+    btn.classList.remove('active');
+    showToast('Notification annulée');
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function deconnecter() {
+  if (typeof _supa !== 'undefined') _supa.auth.signOut();
+  localStorage.removeItem('nutridoc_profil');
+  window.location.href = 'index.html';
 }
 
 document.addEventListener('DOMContentLoaded', chargerDonnees);
-</script>
-
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js">function deconnecter(){if(typeof _supa!=="undefined")_supa.auth.signOut();localStorage.removeItem("nutridoc_profil");window.location.href="index.html";}window.deconnecter=deconnecter;
 </script>
 </body>
 </html>
