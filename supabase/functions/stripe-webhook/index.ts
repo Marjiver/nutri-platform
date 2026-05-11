@@ -1,242 +1,440 @@
-/**
- * Supabase Edge Function : stripe-webhook
- * Reçoit et traite les événements Stripe
- *
- * Déploiement :
- *   supabase functions deploy stripe-webhook
- *   supabase secrets set STRIPE_SECRET_KEY=sk_live_xxx
- *   supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxx
- *
- * Dans Stripe Dashboard → Webhooks → ajouter :
- *   https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/stripe-webhook
- * Événements :
- *   checkout.session.completed
- *   payment_intent.payment_failed
- */
+// ============================================================
+//  Supabase Edge Function : stripe-webhook
+//  Chemin : supabase/functions/stripe-webhook/index.ts
+//
+//  Reçoit les événements Stripe et déclenche les actions
+//  métier correspondantes.
+//
+//  Événements gérés :
+//    • checkout.session.completed  → plan payé, visio payée, crédits achetés
+//    • payment_intent.payment_failed → notification échec paiement
+//
+//  IMPORTANT : cette fonction n'utilise PAS de JWT patient.
+//  Elle est appelée directement par Stripe. La sécurité repose
+//  sur la vérification de la signature Stripe (HMAC-SHA256).
+//
+//  Variables d'env requises :
+//    STRIPE_WEBHOOK_SECRET     → whsec_xxxx (depuis Stripe Dashboard > Webhooks)
+//    RESEND_API_KEY            → clé Resend (optionnelle)
+//    SUPABASE_URL              → fournie automatiquement
+//    SUPABASE_SERVICE_ROLE_KEY → fournie automatiquement
+// ============================================================
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve }        from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import Stripe           from "https://esm.sh/stripe@14.21.0?target=deno";
 
-const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
-const SUPABASE_URL          = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const cors = {
+// ── CORS (minimal — Stripe ne préflighte pas) ──────────────────────────────────
+const corsHeaders = {
   "Access-Control-Allow-Origin":  "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "stripe-signature, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
-  const sig  = req.headers.get("stripe-signature") ?? "";
-  const body = await req.text();
-
-  let event: any;
+// ── EMAIL PATIENT (Resend) ─────────────────────────────────────────────────────
+async function sendEmail(
+  resendKey: string,
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  if (!resendKey || !to) return;
   try {
-    event = await verifyStripe(body, sig, STRIPE_WEBHOOK_SECRET);
-  } catch (e) {
-    return new Response(JSON.stringify({ error: "Signature invalide" }), {
-      status: 400, headers: { ...cors, "Content-Type": "application/json" }
+    const res = await fetch("https://api.resend.com/emails", {
+      method:  "POST",
+      headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "NutriDoc <noreply@nutridoc.calidoc-sante.fr>",
+        to:   [to],
+        subject,
+        html,
+      }),
     });
+    if (!res.ok) console.error("[Resend] Échec :", await res.text());
+  } catch (e) {
+    console.error("[Resend] Exception :", e);
+  }
+}
+
+// ── TEMPLATES EMAILS ──────────────────────────────────────────────────────────
+function emailPlanConfirmation(prenom: string): string {
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018">
+      <h2>Bonjour ${prenom} 👋</h2>
+      <p>Votre paiement de <strong>24,90 €</strong> a bien été reçu.</p>
+      <p>Votre demande de plan alimentaire est maintenant dans la file d'attente.
+         Un diététicien certifié RPPS, proche de chez vous, va prendre en charge
+         votre dossier dans les prochaines heures.</p>
+      <p><strong>Délai de livraison : 48h maximum.</strong></p>
+      <a href="https://nutridoc.calidoc-sante.fr/dashboard.html"
+         style="display:inline-block;margin-top:16px;padding:12px 24px;
+                background:#1D9E75;color:#fff;border-radius:8px;
+                text-decoration:none;font-weight:700">
+        Suivre mon dossier →
+      </a>
+      <p style="margin-top:32px;font-size:12px;color:#888">
+        NutriDoc by CaliDoc Santé · SIRET 939 166 690 00019<br>
+        Une question ? <a href="mailto:contact@nutridoc.calidoc-sante.fr">contact@nutridoc.calidoc-sante.fr</a>
+      </p>
+    </div>`;
+}
+
+function emailVisioConfirmation(prenom: string, lienVisio: string): string {
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018">
+      <h2>Votre visio est confirmée, ${prenom} ! 📹</h2>
+      <p>Votre paiement de <strong>55,00 €</strong> a bien été reçu.</p>
+      <p>Votre diététicien va vous confirmer le créneau sous peu.</p>
+      ${lienVisio ? `<a href="${lienVisio}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#1D9E75;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">Rejoindre la visio →</a>` : ""}
+      <p style="margin-top:32px;font-size:12px;color:#888">
+        NutriDoc by CaliDoc Santé · SIRET 939 166 690 00019
+      </p>
+    </div>`;
+}
+
+function emailCreditsConfirmation(prenom: string, credits: number, pack: string): string {
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018">
+      <h2>Vos crédits sont disponibles, ${prenom} ! 🎉</h2>
+      <p>Pack <strong>${pack}</strong> : <strong>${credits} crédits</strong> ajoutés à votre compte.</p>
+      <p>Vous pouvez dès maintenant commander des plans alimentaires pour vos clients.</p>
+      <a href="https://nutridoc.calidoc-sante.fr/prescripteur-dashboard.html"
+         style="display:inline-block;margin-top:16px;padding:12px 24px;
+                background:#1D9E75;color:#fff;border-radius:8px;
+                text-decoration:none;font-weight:700">
+        Mon espace prescripteur →
+      </a>
+      <p style="margin-top:32px;font-size:12px;color:#888">
+        NutriDoc by CaliDoc Santé · SIRET 939 166 690 00019
+      </p>
+    </div>`;
+}
+
+function emailEchecPaiement(prenom: string): string {
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018">
+      <h2>Problème de paiement, ${prenom}</h2>
+      <p>Votre paiement n'a pas pu aboutir.</p>
+      <p>Votre dossier n'a pas été débité. Réessayez depuis votre tableau de bord.</p>
+      <a href="https://nutridoc.calidoc-sante.fr/dashboard.html"
+         style="display:inline-block;margin-top:16px;padding:12px 24px;
+                background:#ef4444;color:#fff;border-radius:8px;
+                text-decoration:none;font-weight:700">
+        Réessayer →
+      </a>
+    </div>`;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  HANDLER PRINCIPAL
+// ═════════════════════════════════════════════════════════════════════════════
+serve(async (req) => {
+
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+  // ── Variables d'env ────────────────────────────────────────────────────────
+  const supabaseUrl    = Deno.env.get("SUPABASE_URL");
+  const supabaseKey    = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const webhookSecret  = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  const resendKey      = Deno.env.get("RESEND_API_KEY") ?? "";
 
+  if (!supabaseUrl || !supabaseKey || !webhookSecret) {
+    console.error("[Config] Variables d'env manquantes");
+    return json({ error: "Configuration serveur incomplète" }, 500);
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  // ── Récupérer le body brut (obligatoire pour la vérification de signature) ─
+  const body = await req.text();
+  const signature = req.headers.get("stripe-signature");
+
+  if (!signature) {
+    console.warn("[Stripe] Requête sans signature rejetée");
+    return json({ error: "Signature manquante" }, 400);
+  }
+
+  // ── Vérification de la signature Stripe ───────────────────────────────────
+  // C'est la seule protection contre les faux appels.
+  // Ne JAMAIS traiter un événement sans cette vérification.
+  const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
+    apiVersion: "2024-04-10",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+
+  let event: Stripe.Event;
   try {
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const meta    = session.metadata ?? {};
+    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
+  } catch (err) {
+    console.error("[Stripe] Signature invalide :", err);
+    return json({ error: "Signature Stripe invalide" }, 400);
+  }
 
-      switch (meta.type) {
-        case "plan":    await planPaid(db, session, meta);    break;
-        case "visio":   await visioPaid(db, session, meta);   break;
-        case "credits": await creditsPaid(db, session, meta); break;
+  console.log(`[Stripe] Événement reçu : ${event.type} | id : ${event.id}`);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  ROUTAGE DES ÉVÉNEMENTS
+  // ═══════════════════════════════════════════════════════════════════════════
+  try {
+
+    // ── checkout.session.completed ─────────────────────────────────────────
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      // Les métadonnées sont définies lors de la création de la session Stripe
+      // depuis le frontend (dashboard.html ou prescripteur-dashboard.html).
+      const meta = session.metadata ?? {};
+
+      const type           = meta.type;          // "plan" | "visio" | "credits"
+      const patientId      = meta.patient_id;    // UUID auth.users
+      const bilanId        = meta.bilan_id;      // UUID bilans
+      const planId         = meta.plan_id;       // UUID plans (pré-créé)
+      const visioId        = meta.visio_id;      // UUID visios
+      const prescripteurId = meta.prescripteur_id ?? null;
+      const pack           = meta.pack ?? "";    // "starter" | "pro" | "premium"
+      const stripeId       = session.id;
+      const montant        = session.amount_total ?? 0; // en centimes
+
+      // ── CAS 1 : Achat d'un plan (patient direct) ─────────────────────────
+      if (type === "plan" && patientId && bilanId) {
+
+        // 1a. Récupérer le profil patient pour l'email + la ville
+        const { data: patient } = await supabase
+          .from("profiles")
+          .select("email, prenom, ville")
+          .eq("id", patientId)
+          .single();
+
+        const { data: bilan } = await supabase
+          .from("bilans")
+          .select("objectif, repas_actifs")
+          .eq("id", bilanId)
+          .single();
+
+        // 1b. Mettre à jour le bilan → payé
+        await supabase.from("bilans").update({
+          paiement:  "payé",
+          paid_at:   new Date().toISOString(),
+          stripe_id: stripeId,
+          montant:   montant,
+          statut:    "payé",
+        }).eq("id", bilanId);
+
+        // 1c. Créer ou mettre à jour le plan
+        let planRecordId = planId;
+
+        if (planId) {
+          // Plan pré-créé → on le marque comme payé
+          await supabase.from("plans").update({
+            statut:    "paid",
+            paid_at:   new Date().toISOString(),
+            stripe_id: stripeId,
+            montant:   montant,
+          }).eq("id", planId);
+        } else {
+          // Créer le plan maintenant
+          const { data: newPlan } = await supabase.from("plans").insert({
+            patient_id:  patientId,
+            bilan_id:    bilanId,
+            statut:      "paid",
+            stripe_id:   stripeId,
+            montant:     montant,
+            paid_at:     new Date().toISOString(),
+          }).select("id").single();
+          planRecordId = newPlan?.id ?? null;
+        }
+
+        // 1d. Trouver le diét. le plus proche (même ville, actif, RPPS valide)
+        let dietId: string | null = null;
+
+        if (patient?.ville) {
+          const { data: dietLocal } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("role", "dietitian")
+            .eq("statut_rpps", "valide")
+            .eq("statut", "actif")
+            .ilike("ville", `%${patient.ville}%`)
+            .limit(1)
+            .single();
+
+          dietId = dietLocal?.id ?? null;
+        }
+
+        // Fallback → n'importe quel diét. valide
+        if (!dietId) {
+          const { data: dietAny } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("role", "dietitian")
+            .eq("statut_rpps", "valide")
+            .eq("statut", "actif")
+            .limit(1)
+            .single();
+          dietId = dietAny?.id ?? null;
+        }
+
+        // 1e. Créer l'entrée dans queue_plans
+        await supabase.from("queue_plans").insert({
+          patient_id:     patientId,
+          patient_prenom: patient?.prenom ?? "",
+          ville:          patient?.ville  ?? "",
+          objectif:       bilan?.objectif ?? "",
+          bilan_id:       bilanId,
+          source:         prescripteurId ? "prescripteur" : "patient",
+          prescripteur_id:prescripteurId,
+          dietitian_id:   dietId,
+          statut:         dietId ? "accepted" : "pending",
+          priorite:       prescripteurId ? 1 : 0,
+          expires_at:     new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        });
+
+        // 1f. Email de confirmation patient
+        if (patient?.email) {
+          await sendEmail(
+            resendKey,
+            patient.email,
+            "✅ Paiement reçu — Votre plan est en cours de préparation",
+            emailPlanConfirmation(patient.prenom ?? ""),
+          );
+        }
+
+        console.log(`✅ Plan payé | patient:${patientId} | bilan:${bilanId} | plan:${planRecordId} | diét:${dietId}`);
+      }
+
+      // ── CAS 2 : Achat d'une visio ─────────────────────────────────────────
+      else if (type === "visio" && visioId) {
+
+        // 2a. Mettre à jour la visio
+        await supabase.from("visios").update({
+          stripe_id:    stripeId,
+          statut:       "confirmee",
+          confirmed_at: new Date().toISOString(),
+        }).eq("id", visioId);
+
+        // 2b. Récupérer les infos pour l'email
+        const { data: visio } = await supabase
+          .from("visios")
+          .select("patient_id, lien_visio")
+          .eq("id", visioId)
+          .single();
+
+        if (visio?.patient_id) {
+          const { data: patient } = await supabase
+            .from("profiles")
+            .select("email, prenom")
+            .eq("id", visio.patient_id)
+            .single();
+
+          if (patient?.email) {
+            await sendEmail(
+              resendKey,
+              patient.email,
+              "📹 Votre visio est confirmée — NutriDoc",
+              emailVisioConfirmation(patient.prenom ?? "", visio.lien_visio ?? ""),
+            );
+          }
+        }
+
+        console.log(`✅ Visio payée | visio:${visioId}`);
+      }
+
+      // ── CAS 3 : Achat de crédits prescripteur ────────────────────────────
+      else if (type === "credits" && patientId) {
+
+        // Crédits selon le pack
+        const PACKS: Record<string, number> = {
+          starter:  5,
+          pro:      15,
+          premium:  40,
+          illimite: 999, // cas particulier, géré manuellement
+        };
+        const creditsAjoutes = PACKS[pack] ?? 5;
+
+        // 3a. Incrémenter les crédits du prescripteur
+        const { data: current } = await supabase
+          .from("profiles")
+          .select("credits")
+          .eq("id", patientId)
+          .single();
+
+        await supabase.from("profiles").update({
+          credits: (current?.credits ?? 0) + creditsAjoutes,
+          pack:    pack,
+        }).eq("id", patientId);
+
+        // 3b. Email de confirmation prescripteur
+        const { data: prescripteur } = await supabase
+          .from("profiles")
+          .select("email, prenom")
+          .eq("id", patientId)
+          .single();
+
+        if (prescripteur?.email) {
+          await sendEmail(
+            resendKey,
+            prescripteur.email,
+            `🎉 ${creditsAjoutes} crédits ajoutés à votre compte — NutriDoc`,
+            emailCreditsConfirmation(prescripteur.prenom ?? "", creditsAjoutes, pack),
+          );
+        }
+
+        console.log(`✅ Crédits ajoutés | prescripteur:${patientId} | pack:${pack} | crédits:${creditsAjoutes}`);
+      }
+
+      else {
+        // Type de paiement non reconnu → on log mais on renvoie 200
+        // pour que Stripe ne retente pas l'envoi
+        console.warn(`[Stripe] type de checkout non géré : "${type}" | session:${session.id}`);
       }
     }
 
-    if (event.type === "payment_intent.payment_failed") {
-      console.warn("Paiement échoué :", event.data.object.id);
+    // ── payment_intent.payment_failed ──────────────────────────────────────
+    else if (event.type === "payment_intent.payment_failed") {
+      const pi   = event.data.object as Stripe.PaymentIntent;
+      const meta = pi.metadata ?? {};
+      const patientId = meta.patient_id;
+
+      console.warn(`[Stripe] Paiement échoué | patient:${patientId} | raison:${pi.last_payment_error?.message}`);
+
+      if (patientId) {
+        const { data: patient } = await supabase
+          .from("profiles")
+          .select("email, prenom")
+          .eq("id", patientId)
+          .single();
+
+        if (patient?.email) {
+          await sendEmail(
+            resendKey,
+            patient.email,
+            "⚠️ Problème de paiement — NutriDoc",
+            emailEchecPaiement(patient.prenom ?? ""),
+          );
+        }
+      }
     }
 
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...cors, "Content-Type": "application/json" }
-    });
+    // ── Autres événements → on accuse réception sans traitement ───────────
+    else {
+      console.log(`[Stripe] Événement ignoré : ${event.type}`);
+    }
 
-  } catch (e) {
-    console.error(e);
-    return new Response(JSON.stringify({ error: e.message }), {
-      status: 500, headers: { ...cors, "Content-Type": "application/json" }
-    });
+    // Toujours renvoyer 200 à Stripe pour accuser réception
+    return json({ received: true, type: event.type });
+
+  } catch (err) {
+    // En cas d'erreur métier → on log mais on renvoie 200 quand même.
+    // Sinon Stripe retentera indéfiniment et doublonnera les actions.
+    console.error("[stripe-webhook] Erreur métier :", err);
+    return json({ received: true, error: String(err) });
   }
 });
-
-
-// ── ABONNEMENT PATIENT (5€ ou 9€) ───────────────────────────
-async function abonnementPatientPaid(db: any, session: any, meta: any) {
-  const niveau = meta.niveau ?? 'essentiel';
-  const mois   = niveau === 'premium_an' ? 12 : 1;
-
-  await db.from("profiles").update({
-    niveau_abo:   niveau,
-    abo_debut:    new Date().toISOString(),
-    abo_fin:      new Date(Date.now() + mois * 30 * 86400000).toISOString(),
-    stripe_id:    session.id,
-    updated_at:   new Date().toISOString(),
-  }).eq("id", meta.patient_id);
-
-  // Email de bienvenue
-  await email("bienvenue_abo", meta.patient_email, {
-    prenom: meta.patient_prenom,
-    niveau,
-    montant: niveau === 'essentiel' ? '5€/mois' : niveau === 'premium_an' ? '99€/an' : '9€/mois',
-  });
-
-  // Si Premium : créer un rappel pour le plan offert dans 3 mois
-  if (niveau === 'premium' || niveau === 'premium_an') {
-    await db.from("alertes").insert({
-      type:      'plan_offert',
-      patient_id: meta.patient_id,
-      flags:     ['Plan offert Premium — dans 3 mois'],
-      lu:        false,
-    });
-  }
-  console.log(`Abonnement ${niveau} activé — patient ${meta.patient_id}`);
-}
-
-// ── PLAN PREMIUM (24,90€) ─────────────────────────────────────
-async function planPaid(db: any, session: any, meta: any) {
-  // 1. Enregistrer le paiement
-  await db.from("plans").upsert({
-    patient_id: meta.patient_id,
-    bilan_id:   meta.bilan_id,
-    statut:     "paid",
-    paid_at:    new Date().toISOString(),
-    stripe_id:  session.id,
-    montant:    2490,
-  });
-
-  // 2. Ajouter à la file d'attente
-  await db.from("queue_plans").insert({
-    patient_id: meta.patient_id,
-    bilan_id:   meta.bilan_id,
-    statut:     "pending",
-    ville:      meta.ville ?? "",
-    objectif:   meta.objectif ?? "",
-    type:       "plan",
-    expires_at: new Date(Date.now() + 48 * 3_600_000).toISOString(),
-  });
-
-  // 3. Email patient
-  await email("confirmation_bilan", meta.patient_email, {
-    prenom:   meta.patient_prenom,
-    objectif: meta.objectif,
-    ville:    meta.ville,
-  });
-
-  // 4. Notifier les diét. proches
-  const { data: diets } = await db.from("profiles")
-    .select("email, prenom, nom")
-    .eq("role", "dietitian").eq("statut", "actif").limit(5);
-
-  for (const d of diets ?? []) {
-    await email("nouvelle_demande_diet", d.email, {
-      patient_prenom: meta.patient_prenom,
-      objectif:       meta.objectif,
-      ville:          meta.ville,
-      remuneration:   "18",
-    });
-  }
-}
-
-// ── VISIO (50€) ───────────────────────────────────────────────
-async function visioPaid(db: any, session: any, meta: any) {
-  const [date, heure] = (meta.slot_key ?? "_").split("_");
-
-  await db.from("visios").upsert({
-    patient_id:  meta.patient_id,
-    diet_id:     meta.diet_id,
-    slot_key:    meta.slot_key,
-    statut:      "confirmee",
-    montant:     5000,
-    reversement: 5000,
-    stripe_id:   session.id,
-    confirmed_at: new Date().toISOString(),
-  });
-
-  // Patient
-  await email("confirmation_visio", meta.patient_email, {
-    diet_nom:   meta.diet_nom,
-    date, heure,
-    lien_visio: `https://meet.nutridoc.fr/${meta.diet_id}`,
-  });
-
-  // Diét
-  await email("nouvelle_visio_diet", meta.diet_email, {
-    patient_prenom: meta.patient_prenom,
-    date, heure,
-  });
-}
-
-// ── CRÉDITS PRESCRIPTEUR (49/89/219€ HT) ─────────────────────
-async function creditsPaid(db: any, session: any, meta: any) {
-  const credits = parseInt(meta.credits ?? "10");
-
-  // Lire crédits actuels
-  const { data: profile } = await db.from("profiles")
-    .select("credits").eq("id", meta.prescriber_id).single();
-
-  // Créditer
-  await db.from("profiles").update({
-    credits:    (profile?.credits ?? 0) + credits,
-    updated_at: new Date().toISOString(),
-  }).eq("id", meta.prescriber_id);
-
-  // Facture
-  const num = `PRO-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
-  await db.from("factures_prescripteur").insert({
-    prescriber_id: meta.prescriber_id,
-    numero:        num,
-    pack:          meta.pack,
-    credits,
-    montant_ht:    session.amount_subtotal,  // en centimes
-    montant_ttc:   session.amount_total,
-    stripe_id:     session.id,
-  });
-
-  // Email
-  await email("bienvenue", meta.prescriber_email, {
-    prenom:  meta.prescriber_prenom,
-    role:    "prescriber",
-    credits,
-  });
-}
-
-// ── Email helper ──────────────────────────────────────────────
-async function email(type: string, to: string, data: any) {
-  if (!to) return;
-  await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${SUPABASE_SERVICE_KEY}` },
-    body:    JSON.stringify({ type, to, data }),
-  }).catch(e => console.error("email err:", e));
-}
-
-// ── Vérification signature Stripe (sans npm) ──────────────────
-async function verifyStripe(payload: string, sig: string, secret: string) {
-  const t  = sig.match(/t=(\d+)/)?.[1];
-  const v1 = sig.match(/v1=([a-f0-9]+)/)?.[1];
-  if (!t || !v1) throw new Error("Sig malformée");
-  if (Math.abs(Date.now() / 1000 - +t) > 300) throw new Error("Timestamp expiré");
-
-  const key = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
-  );
-  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${payload}`));
-  const hex = [...new Uint8Array(mac)].map(b => b.toString(16).padStart(2,"0")).join("");
-  if (hex !== v1) throw new Error("Signature invalide");
-
-  return JSON.parse(payload);
-}

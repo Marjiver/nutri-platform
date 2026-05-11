@@ -1135,12 +1135,7 @@ document.addEventListener('click', (e) => {
 
 // ===== DONNÉES PATIENTS =====
 const PATIENTS = [
-  { id:'p1', prenom:'Marie', nom:'Dupont', age:34, ville:'Angoulême', objectif:'perte_poids', statut:'a_faire', avatar:'#1D9E75', email:'marie@mail.fr', tel:'06 12 34 56 78', bmi:26.4, notes:'Régime sans gluten. Préfère les menus simples.' },
-  { id:'p2', prenom:'Thomas', nom:'Klein', age:28, ville:'Poitiers', objectif:'prise_masse', statut:'en_cours', avatar:'#5DCAA5', email:'thomas@mail.fr', tel:'06 98 76 54 32', bmi:22.1, notes:'Sportif 5x/semaine. Objectif +5kg muscle.' },
-  { id:'p3', prenom:'Sophie', nom:'Martin', age:41, ville:'Bordeaux', objectif:'equilibre', statut:'valide', avatar:'#97C459', email:'sophie@mail.fr', tel:'07 11 22 33 44', bmi:24.8, notes:'Végétarienne. Travail sédentaire.' },
-  { id:'p4', prenom:'Lucas', nom:'Bernard', age:25, ville:'La Rochelle', objectif:'sport_perf', statut:'valide', avatar:'#f59e0b', email:'lucas@mail.fr', tel:'06 55 66 77 88', bmi:21.3, notes:'Course à pied 3x/semaine. Objectif semi-marathon.' },
-  { id:'p5', prenom:'Emma', nom:'Rousseau', age:33, ville:'Niort', objectif:'perte_poids', statut:'a_faire', avatar:'#0ea5e9', email:'emma@mail.fr', tel:'06 44 55 66 77', bmi:29.1, notes:'Stress au travail. Fringales le soir.' },
-  { id:'p6', prenom:'Paul', nom:'Laurent', age:52, ville:'Périgueux', objectif:'sante', statut:'en_cours', avatar:'#8b5cf6', email:'paul@mail.fr', tel:'06 33 44 55 66', bmi:27.6, notes:'Antécédent cholestérol. Médecin suivi.' },
+  // Aucune donnée de démonstration — les dossiers sont chargés depuis Supabase
 ];
 
 const OBJECTIFS = [
@@ -1313,8 +1308,8 @@ function renderPatientsGrid(patients) {
 }
 
 function ouvrirDossier(id) {
-  const p = PATIENTS.find(x => x.id === id);
-  if (p) alert(`📁 Dossier de ${p.prenom} ${p.nom}\n\nObjectif : ${getObjectifLabel(p.objectif)}\nNotes : ${p.notes}\nEmail : ${p.email}\nTél : ${p.tel}`);
+  // Redirige vers la page de validation du plan
+  window.location.href = 'validation-plan.html?plan_id=' + id;
 }
 
 function validerPlan(id) {
@@ -1369,5 +1364,6 @@ window.addEventListener('scroll', () => {
 });
 
 </script>
+<div id="profilModalContainer"></div>
 </body>
 </html>

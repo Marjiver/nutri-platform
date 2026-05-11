@@ -1,1002 +1,600 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
-  <meta name="theme-color" content="#0d2018">
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NutriDoc">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
   <title>Espace prescripteur — NutriDoc</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/home.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/ui/support.js"></script>
-  <script src="js/payments/stripe.js"></script>
-
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background:var(--bg-secondary,#f7f9f7);
-      color:var(--text-primary,#0d2018);
-      line-height: 1.5;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --green:#1D9E75;--green-dark:#0f6e56;--green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2);
+      --dark:#0d2018;--dark2:#0a1912;
+      --cream:#f7f9f7;--white:#fff;
+      --text:#0d2018;--text2:#4b5563;--border:#eef4ee;
     }
+    html{scroll-behavior:smooth;}
+    body{font-family:"Outfit",sans-serif;background:var(--cream);color:var(--text);line-height:1.5;}
 
     /* HEADER */
-    .nd-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #0d2018;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.75rem 2rem;
-    }
-    .header-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 2rem; }
-    .nd-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: #fff;
-      text-decoration: none;
-    }
-    .nd-logo em { font-style: italic; color: #5DCAA5; }
-    .nd-nav { display: flex; gap: 1.5rem; }
-    .nd-navlink {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--green-border);padding:.7rem 2rem;}
+    .hc{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;}
+    .h-left{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:"Playfair Display",serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:var(--green-light);}
+    .nd-nav{display:flex;gap:1.5rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .cofond{display:flex;align-items:center;gap:.45rem;background:rgba(29,158,117,.1);border:1px solid var(--green-border);border-radius:999px;padding:.2rem .75rem;position:relative;cursor:default;}
+    .cofond-av{width:24px;height:24px;background:linear-gradient(135deg,#1D9E75,#0f6e56);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;}
+    .cofond-txt{font-size:.62rem;color:rgba(255,255,255,.7);}
+    .cofond-txt strong{color:var(--green-light);}
+    .cofond-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:240px;background:var(--dark);border:1px solid var(--green-light);border-radius:10px;padding:.55rem;font-size:.65rem;color:var(--green-light);text-align:center;pointer-events:none;z-index:500;line-height:1.5;white-space:pre-line;}
+    .cofond:hover .cofond-tip{display:block;}
+    .h-right{display:flex;align-items:center;gap:.75rem;}
+    .nd-conn-wrap{position:relative;}
+    .nd-conn-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.38rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .nd-conn-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--dark);border:1px solid var(--green-border);border-radius:12px;min-width:175px;overflow:hidden;z-index:300;}
+    .nd-conn-menu.open{display:block;}
+    .nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;transition:background .15s;cursor:pointer;}
+    .nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff;}
+    @media(max-width:900px){.nd-nav,.cofond{display:none;}.nd-header{padding:.65rem 1rem;}}
 
-    .gregoire-mini {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(29,158,117,0.1);
-      padding: 0.25rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid rgba(29,158,117,0.2);
-      cursor: help;
-    }
-    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
-    .tooltip-text {
-      visibility: hidden;
-      opacity: 0;
-      width: 250px;
-      background-color:var(--text-primary,#0d2018);
-      color: #5DCAA5;
-      text-align: center;
-      border-radius: 10px;
-      padding: 0.6rem;
-      position: absolute;
-      z-index: 1000;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 10px;
-      font-size: 0.7rem;
-      border: 1px solid #1D9E75;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-    .tooltip-text::after {
-      content: "";
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
-    .gregoire-mini-avatar {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, #1D9E75, #0f6e56);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .gregoire-mini-text {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.7);
-    }
-    .gregoire-mini-text strong { color: #5DCAA5; }
-
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
-    .nd-btn-ghost {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px;
-      padding: 0.4rem 1rem;
-      color: #fff;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .nd-btn-ghost:hover { background: rgba(255,255,255,0.16); }
-    .nd-conn-wrap { position: relative; }
-    .nd-conn-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: #0d2018;
-      border: 1px solid rgba(29,158,117,0.2);
-      border-radius: 12px;
-      width: 180px;
-      margin-top: 0.5rem;
-      z-index: 101;
-    }
-    .nd-conn-menu.open { display: block; }
-    .nd-conn-item {
-      display: block;
-      padding: 0.5rem 1rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      font-size: 0.75rem;
-    }
-    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
-
-    @media (max-width: 900px) {
-      .nd-header { padding: 0.75rem 1rem; }
-      .nd-nav { display: none; }
-      .gregoire-mini { display: none; }
-    }
-
-    /* BARRE PROFIL DYNAMIQUE */
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
+    /* LAYOUT */
+    .dashboard-layout{display:flex;gap:1.5rem;max-width:1400px;margin:0 auto;padding:5rem 2rem 3rem;}
+    @media(max-width:900px){.dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;}}
 
     /* SIDEBAR */
-    .sidebar {
-      width: 260px;
-      flex-shrink: 0;
-    }
-    .sidebar-nav {
-      background:var(--bg-card,#fff);
-      border-radius: 20px;
-      border: 1px solid var(--border-light,#eef4ee);
-      overflow: hidden;
-      position: sticky;
-      top: 100px;
-    }
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1.25rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 1px solid #eef4ee;
-      color:var(--text-secondary,#6b7b74);
-      font-size: 0.85rem;
-    }
-    .sidebar-item:last-child { border-bottom: none; }
-    .sidebar-item:hover { background:var(--bg-secondary,#f7f9f7); color:var(--text-primary,#0d2018); }
-    .sidebar-item.active {
-      background: rgba(29,158,117,0.1);
-      color: #1D9E75;
-      border-left: 3px solid #1D9E75;
-    }
-    .sidebar-icon { font-size: 1.2rem; width: 28px; }
+    .sidebar{width:240px;flex-shrink:0;}
+    .sidebar-nav{background:var(--white);border-radius:18px;border:1px solid var(--border);overflow:hidden;position:sticky;top:75px;}
+    .sidebar-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;cursor:pointer;transition:all .2s;border-bottom:1px solid var(--border);color:var(--text2);font-size:.83rem;user-select:none;}
+    .sidebar-item:last-child{border-bottom:none;}
+    .sidebar-item:hover{background:var(--cream);color:var(--text);}
+    .sidebar-item.active{background:rgba(29,158,117,.08);color:var(--green);border-left:3px solid var(--green);font-weight:600;}
+    .sidebar-icon{font-size:1.1rem;width:26px;flex-shrink:0;}
+    .sidebar-pro{margin-left:auto;font-size:.58rem;background:linear-gradient(135deg,#5DCAA5,#1D9E75);color:#fff;padding:.1rem .4rem;border-radius:999px;font-weight:700;}
+    @media(max-width:900px){.sidebar{width:100%;}.sidebar-nav{display:flex;overflow-x:auto;border-radius:14px;}.sidebar-item{white-space:nowrap;border-bottom:none;border-right:1px solid var(--border);}.sidebar-item.active{border-left:none;border-bottom:3px solid var(--green);}}
 
-    /* MAIN CONTENT */
-    .main-content { flex: 1; min-width: 0; }
-    .section { display: none; animation: fadeIn 0.3s ease; }
-    .section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    /* FORMULE BADGE */
+    .formule-badge{background:linear-gradient(135deg,#0d2018,#142c1f);border:1px solid rgba(93,202,165,.25);border-radius:12px;padding:.7rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+    .fb-left{display:flex;align-items:center;gap:.6rem;}
+    .fb-pill{font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;}
+    .fb-pill.gratuit{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+    .fb-pill.pro{background:linear-gradient(135deg,#5DCAA5,#1D9E75);color:#fff;}
+    .fb-txt{font-size:.72rem;color:rgba(255,255,255,.75);}
+    .fb-txt strong{color:#fff;}
+    .fb-btn{font-size:.68rem;background:var(--green);color:#fff;border:none;border-radius:999px;padding:.25rem .75rem;cursor:pointer;font-family:"Outfit",sans-serif;white-space:nowrap;}
 
-    .section-header {
-      margin-bottom: 1.5rem;
-    }
-    .section-header h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color:var(--text-primary,#0d2018);
-    }
-    .section-header p {
-      font-size: 0.85rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.2rem;
-    }
+    /* PRO LOCK OVERLAY */
+    .pro-lock{position:relative;}
+    .pro-lock-overlay{position:absolute;inset:0;background:rgba(247,249,247,.88);backdrop-filter:blur(3px);border-radius:inherit;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;text-align:center;padding:1rem;}
+    .pro-lock-icon{font-size:1.5rem;}
+    .pro-lock-txt{font-size:.78rem;font-weight:700;color:var(--text);}
+    .pro-lock-sub{font-size:.7rem;color:var(--text2);}
+    .pro-lock-btn{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.4rem 1.1rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:"Outfit",sans-serif;margin-top:.25rem;}
 
-    /* MÉTRIQUES */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .metric-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1rem;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .metric-label {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .metric-value {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1D9E75;
-      line-height: 1;
-    }
-    .metric-alert { color: #f59e0b; }
+    /* MAIN */
+    .main-content{flex:1;min-width:0;}
+    .section{display:none;animation:fadeIn .3s ease;}
+    .section.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    .sec-hd{margin-bottom:1.5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+    .sec-hd h2{font-family:"Playfair Display",serif;font-size:1.55rem;color:var(--text);}
+    .sec-hd p{font-size:.82rem;color:var(--text2);margin-top:.2rem;}
 
-    /* JAUGE DE MARGE - Pour le prescripteur (simulateur de marge personnelle) */
-    .marge-gauge {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .gauge-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .gauge-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    .gauge-percent {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #1D9E75;
-    }
-    .gauge-bar {
-      height: 12px;
-      background:var(--bg-tertiary,#eef4ee);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-    .gauge-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.5s ease;
-    }
-    .gauge-fill.high { background: #1D9E75; }
-    .gauge-fill.medium { background: #f59e0b; }
-    .gauge-fill.low { background: #ef4444; }
-    .gauge-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-    }
-    .gauge-value {
-      font-weight: 700;
-      color:var(--text-primary,#0d2018);
-    }
+    /* METRIQUES */
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;}
+    @media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+    .metric-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;transition:transform .2s,box-shadow .2s;}
+    .metric-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.07);}
+    .metric-label{font-size:.63rem;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+    .metric-value{font-family:"Playfair Display",serif;font-size:1.85rem;font-weight:700;color:var(--green);line-height:1;}
+    .metric-value.warn{color:#f59e0b;}
+    .metric-value.small{font-size:1.2rem;}
+    .metric-sub{font-size:.63rem;color:var(--text2);margin-top:.25rem;}
 
-    /* FORMULAIRES */
-    .form-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-bottom: 0.3rem;
-    }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      padding: 0.65rem 1rem;
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 12px;
-      font-size: 0.85rem;
-      background:var(--bg-card,#fff);
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: #1D9E75;
-      outline: none;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    /* CARDS */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;}
+    .card-title{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
 
-    .btn-submit {
-      background: #1D9E75;
-      color: #fff;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
-    }
-    .btn-submit:hover { background: #0f6e56; }
-    .btn-secondary {
-      background:var(--bg-secondary,#f7f9f7);
-      border: 1px solid var(--border-light,#eef4ee);
-      color:var(--text-primary,#0d2018);
-      padding: 0.6rem 1rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover { border-color: #1D9E75; color: #1D9E75; }
+    /* FORMULAIRE */
+    .form-group{margin-bottom:1rem;}
+    .form-group label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;color:var(--text);}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:.6rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:.85rem;font-family:"Outfit",sans-serif;background:var(--white);color:var(--text);transition:border-color .2s;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px rgba(29,158,117,.08);}
+    .form-group input.error,.form-group select.error,.form-group textarea.error{border-color:#ef4444;background:#fef2f2;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+    @media(max-width:540px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+    .req{color:#ef4444;}
+    .field-hint{font-size:.67rem;color:var(--text2);margin-top:.2rem;display:block;}
+    .field-warn{font-size:.7rem;color:#92400e;background:#fff8e6;border:1px solid #fcd34d;border-radius:8px;padding:.35rem .65rem;margin-top:.3rem;display:block;}
+    .field-ok{font-size:.67rem;color:var(--green);margin-top:.2rem;display:block;}
 
-    /* PATIENTS GRID */
-    .patients-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1rem;
-    }
-    .patient-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1rem;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .patient-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      border-color: #1D9E75;
-    }
-    .patient-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-    .patient-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .patient-info h4 { font-size: 0.9rem; font-weight: 600; }
-    .patient-info p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
-    .patient-status {
-      margin-left: auto;
-      font-size: 0.65rem;
-      font-weight: 500;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
-    .status-valide { background: #e1f5ee; color: #1D9E75; }
-    .status-en-cours { background: #eff6ff; color: #0ea5e9; }
-    .status-en-attente { background: #fff8e6; color: #f59e0b; }
-    .patient-notes {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid #eef4ee;
-    }
+    /* SECTION FORMULAIRE */
+    .form-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin:1.25rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
 
-    /* PROFIL PATIENT */
-    .patient-profile {
-      background:var(--bg-card,#fff);
-      border-radius: 20px;
-      padding: 1.25rem;
-    }
-    .profile-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .profile-avatar {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .profile-name h3 { font-size: 1.1rem; font-weight: 600; }
-    .profile-name p { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); }
-    .profile-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .profile-stat {
-      background:var(--bg-secondary,#f7f9f7);
-      border-radius: 12px;
-      padding: 0.6rem;
-      text-align: center;
-    }
-    .profile-stat-label { font-size: 0.6rem; color:var(--text-secondary,#6b7b74); text-transform: uppercase; }
-    .profile-stat-value { font-size: 0.9rem; font-weight: 600; color:var(--text-primary,#0d2018); }
-    .profile-section {
-      margin-top: 1rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid #eef4ee;
-    }
-    .profile-section-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #1D9E75;
-      margin-bottom: 0.5rem;
-    }
-    .btn-commander {
-      background: #1D9E75;
-      color: #fff;
-      border: none;
-      padding: 0.7rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
-    }
-    .btn-commander:hover { background: #0f6e56; }
-    .btn-commander:disabled { background: #ccc; cursor: not-allowed; }
+    /* BOUTONS */
+    .btn-primary{background:var(--green);color:#fff;border:none;padding:.7rem 1.25rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-primary:hover{background:var(--green-dark);}
+    .btn-secondary{background:var(--cream);border:1px solid var(--border);color:var(--text2);padding:.6rem 1rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-secondary:hover{border-color:var(--green);color:var(--green);}
 
-    /* RECHARGE GRID - Sans commission visible */
-    .recharge-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    @media (max-width: 700px) { .recharge-grid { grid-template-columns: 1fr; } }
-    .recharge-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.25rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .recharge-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: #1D9E75; }
-    .recharge-card.featured { 
-      border: 2px solid #1D9E75; 
-      background: linear-gradient(135deg, #fff, #f0f9f5);
-    }
-    .recharge-badge {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1D9E75;
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 0.2rem 0.8rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .recharge-nb { font-size: 1rem; font-weight: 600; color:var(--text-primary,#0d2018); margin-bottom: 0.25rem; }
-    .recharge-prix { font-size: 1.3rem; font-weight: 700; color: #1D9E75; }
-    .recharge-unitaire { font-size: 0.7rem; color:var(--text-secondary,#6b7b74); margin-top: 0.2rem; }
+    /* CLIENTS */
+    .patients-toolbar{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+    .search-input{flex:1;min-width:180px;padding:.6rem 1rem;border:1.5px solid var(--border);border-radius:999px;font-size:.8rem;font-family:"Outfit",sans-serif;}
+    .search-input:focus{outline:none;border-color:var(--green);}
+    .patients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem;}
+    .patient-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:1rem 1.1rem;cursor:pointer;transition:all .2s;}
+    .patient-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.07);border-color:var(--green);}
+    .pt-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;}
+    .pt-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .pt-info h4{font-size:.88rem;font-weight:700;}
+    .pt-info p{font-size:.68rem;color:var(--text2);}
+    .pt-status{margin-left:auto;font-size:.62rem;font-weight:600;padding:.18rem .55rem;border-radius:999px;white-space:nowrap;}
+    .st-valide{background:#e1f5ee;color:var(--green);}
+    .st-encours{background:#eff6ff;color:#0ea5e9;}
+    .st-attente{background:#fff8e6;color:#f59e0b;}
+    .st-flag{background:#fef2f2;color:#ef4444;}
+    .pt-notes{font-size:.68rem;color:var(--text2);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);}
+    .pt-tags{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.4rem;}
+    .pt-tag{font-size:.6rem;background:var(--cream);border:1px solid var(--border);border-radius:999px;padding:.1rem .4rem;color:var(--text2);}
 
-    /* TABLEAUX COMPTA */
-    .compta-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    .compta-table th {
-      background:var(--bg-secondary,#f7f9f7);
-      padding: 0.75rem 1rem;
-      text-align: left;
-      font-weight: 600;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .compta-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #eef4ee;
-      color:var(--text-secondary,#6b7b74);
-    }
-    .badge-ok { background: #e1f5ee; color: #1D9E75; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
+    /* JAUGE MARGE */
+    .marge-gauge{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.25rem;margin-bottom:1.25rem;}
+    .gauge-hd{display:flex;justify-content:space-between;margin-bottom:.65rem;font-size:.85rem;font-weight:600;}
+    .gauge-pct{color:var(--green);}
+    .gauge-bar{height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.5rem;}
+    .gauge-fill{height:100%;border-radius:999px;transition:width .5s ease;}
+    .gauge-fill.hi{background:var(--green);}
+    .gauge-fill.mid{background:#f59e0b;}
+    .gauge-fill.lo{background:#ef4444;}
+    .gauge-stats{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text2);flex-wrap:wrap;gap:.5rem;}
+    .gauge-val{font-weight:700;color:var(--text);}
 
-    /* SIMULATEUR BULLE - Pour la marge du prescripteur */
-    .sim-bubble {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      z-index: 300;
-    }
-    .sim-toggle {
-      width: 56px;
-      height: 56px;
-      background: #1D9E75;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      font-size: 1.5rem;
-      transition: transform 0.2s;
-    }
-    .sim-toggle:hover { transform: scale(1.05); background: #0f6e56; }
-    .sim-window {
-      display: none;
-      position: absolute;
-      bottom: 70px;
-      left: 0;
-      width: 320px;
-      background:var(--bg-card,#fff);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-      overflow: hidden;
-      border: 1px solid rgba(29,158,117,0.2);
-    }
-    .sim-window.open { display: block; }
-    .sim-header {
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .sim-close {
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .sim-body { padding: 1rem; }
-    .sim-field { margin-bottom: 1rem; }
-    .sim-field-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.3rem;
-    }
-    .sim-field-label { font-size: 0.75rem; color:var(--text-secondary,#6b7b74); font-weight: 500; }
-    .sim-field-val { font-size: 0.8rem; font-weight: 600; color:var(--text-primary,#0d2018); }
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 999px;
-      background:var(--bg-tertiary,#eef4ee);
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #1D9E75;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-    .sim-btns {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.3rem;
-      margin: 0.5rem 0 1rem;
-    }
-    .sim-abtn {
-      background:var(--bg-secondary,#f7f9f7);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 10px;
-      padding: 0.4rem 0.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.7rem;
-    }
-    .sim-abtn.active {
-      background: #e1f5ee;
-      border-color: #1D9E75;
-    }
-    .sim-abtn-price { font-weight: 700; color: #1D9E75; font-size: 0.75rem; }
-    .sim-results {
-      background:var(--bg-secondary,#f7f9f7);
-      border-radius: 12px;
-      padding: 0.75rem;
-      margin: 0.75rem 0;
-    }
-    .sim-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      margin-bottom: 0.3rem;
-    }
-    .sim-row.highlight { font-weight: 700; color: #1D9E75; font-size: 0.85rem; }
-    .sim-note { font-size: 0.65rem; color:var(--text-secondary,#6b7b74); text-align: center; margin-top: 0.5rem; }
+    /* TABLEAU */
+    .data-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+    .data-table th{background:var(--cream);padding:.65rem 1rem;text-align:left;font-weight:600;border-bottom:1px solid var(--border);font-size:.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
+    .data-table td{padding:.7rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);}
+    .data-table tr:last-child td{border-bottom:none;}
+    .badge{font-size:.62rem;padding:.15rem .5rem;border-radius:999px;font-weight:600;}
+    .badge-green{background:#e1f5ee;color:var(--green);}
+    .badge-orange{background:#fff8e6;color:#f59e0b;}
+
+    /* PACKS PYRAMIDE */
+    .pack-included{background:linear-gradient(135deg,#f0faf6,#e8f7f1);border:1px solid rgba(29,158,117,.2);border-radius:12px;padding:.75rem 1.1rem;margin-bottom:1.1rem;display:flex;flex-wrap:wrap;gap:.4rem .65rem;align-items:center;}
+    .pack-incl-lbl{font-size:.7rem;font-weight:700;color:var(--green-dark);white-space:nowrap;}
+    .pack-incl-feat{font-size:.7rem;color:var(--text2);display:inline-flex;align-items:center;gap:.25rem;}
+    .pack-incl-feat::before{content:"checkmark";color:var(--green);font-weight:700;}
+    .pyr{display:flex;flex-direction:column;gap:.45rem;}
+    .pyr-row{display:flex;align-items:center;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:.65rem 1rem;transition:all .2s;cursor:pointer;position:relative;overflow:hidden;}
+    .pyr-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border);transition:background .2s;}
+    .pyr-row:hover,.pyr-row.selected{border-color:var(--green);}
+    .pyr-row:hover::before,.pyr-row.selected::before{background:var(--green);}
+    .pyr-row.featured{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,.1);}
+    .pyr-row.featured::before{background:var(--green);}
+    .pyr-name{font-size:.82rem;font-weight:700;color:var(--text);min-width:85px;}
+    .pyr-qty{font-size:.75rem;color:var(--text2);flex:1;padding:0 .65rem;}
+    .pyr-prices{display:flex;align-items:baseline;gap:.4rem;margin-right:.75rem;}
+    .pyr-old{font-size:.7rem;color:#9ca3af;text-decoration:line-through;}
+    .pyr-new{font-family:"Playfair Display",serif;font-size:1.2rem;font-weight:700;color:var(--green-dark);}
+    .pyr-per{font-size:.7rem;font-weight:700;color:var(--green);white-space:nowrap;min-width:75px;text-align:right;}
+    .promo-dash{background:linear-gradient(135deg,#0d2018,#142c1f);border:1px solid rgba(93,202,165,.3);border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;}
+    .promo-dash-pill{background:linear-gradient(135deg,#5DCAA5,#1D9E75);color:#fff;font-size:.68rem;font-weight:800;padding:.22rem .65rem;border-radius:999px;white-space:nowrap;}
+    .promo-dash-txt{font-size:.78rem;color:rgba(255,255,255,.88);line-height:1.45;}
+    .promo-dash-txt strong{color:#5DCAA5;}
+    .promo-dash-note{font-size:.62rem;color:rgba(255,255,255,.45);margin-top:.1rem;}
 
     /* MODALS */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background:var(--bg-card,#fff);
-      border-radius: 24px;
-      padding: 1.5rem;
-      max-width: 500px;
-      width: 90%;
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-    .modal-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      margin-bottom: 0.5rem;
-    }
-    .modal-close {
-      float: right;
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color:var(--text-secondary,#6b7b74);
-    }
-    .modal-btns {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:22px;padding:1.5rem;max-width:580px;width:100%;max-height:92vh;overflow-y:auto;}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+    .modal-title{font-family:"Playfair Display",serif;font-size:1.25rem;color:var(--text);}
+    .modal-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text2);padding:.25rem;}
+    .modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;}
+
+    /* SIMULATEUR */
+    .sim-bubble{position:fixed;bottom:1.5rem;left:1.5rem;z-index:300;}
+    .sim-toggle{width:52px;height:52px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:1.3rem;transition:all .2s;}
+    .sim-toggle:hover{transform:scale(1.05);background:var(--green-dark);}
+    .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid var(--green-border);}
+    .sim-window.open{display:block;}
+    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
+    .sim-body{padding:.9rem;}
+    .sim-field{margin-bottom:.75rem;}
+    .sim-fh{display:flex;justify-content:space-between;margin-bottom:.2rem;font-size:.72rem;}
+    .sim-fl{color:var(--text2);font-weight:600;}
+    .sim-fv{font-weight:700;color:var(--green);}
+    input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:999px;background:var(--border);outline:none;cursor:pointer;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--green);border:2px solid #fff;cursor:pointer;}
+    .sim-packs{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin:.35rem 0 .65rem;}
+    .sim-pack{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:.28rem .2rem;text-align:center;cursor:pointer;font-size:.6rem;transition:all .15s;}
+    .sim-pack.active{background:#e1f5ee;border-color:var(--green);}
+    .sim-pack-p{font-weight:700;color:var(--green);font-size:.65rem;}
+    .sim-results{background:var(--cream);border-radius:10px;padding:.6rem .75rem;}
+    .sim-row{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.2rem;color:var(--text2);}
+    .sim-row strong{color:var(--text);}
+    .sim-row.hl{font-weight:700;font-size:.8rem;}
+    .sim-row.hl strong{color:var(--green);}
+    .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.35rem;}
 
     /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.6rem 1.2rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      z-index: 2000;
-      animation: fadeInOut 2.5s ease;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    }
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
+    .toast.error{background:#ef4444;}
+    @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
 
     /* FOOTER */
-    .nd-footer {
-      background: #080f0b;
-      color: rgba(255,255,255,0.5);
-      padding: 3rem 2rem 1.5rem;
-      margin-top: 0;
-    }
-    .nd-footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.5fr 2fr;
-      gap: 2rem;
-    }
-    .nd-logo-footer {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: #fff;
-      margin-bottom: 0.5rem;
-    }
-    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
-    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
-    .nd-footer-links {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-    .nd-footer-col-title {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 0.5rem;
-    }
-    .nd-footer-col a {
-      display: block;
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      margin-bottom: 0.3rem;
-    }
-    .nd-footer-col a:hover { color: #fff; }
-    .nd-footer-bottom {
-      text-align: center;
-      font-size: 0.65rem;
-      padding-top: 2rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-    @media (max-width: 768px) {
-      .nd-footer-inner { grid-template-columns: 1fr; }
-      .nd-footer-links { grid-template-columns: 1fr 1fr; }
-      .dashboard-layout { flex-direction: column; padding: 6rem 1rem 2rem; }
-      .sidebar { width: 100%; }
-      .sidebar-nav { display: flex; overflow-x: auto; }
-      .sidebar-item { white-space: nowrap; border-bottom: none; border-right: 1px solid #eef4ee; }
-      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .scroll-top-btn {
-      position: fixed; bottom: 1rem; right: 1rem;
-      width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      opacity: 0; transition: opacity 0.2s;
-      z-index: 200;
-    }
-    .scroll-top-btn.visible { opacity: 1; }
+    .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:2.5rem 2rem 1.5rem;}
+    .nd-footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 2fr;gap:2rem;}
+    .nd-logo-footer{font-family:"Playfair Display",serif;font-size:1.1rem;color:#fff;margin-bottom:.4rem;}
+    .nd-logo-footer em{font-style:italic;color:var(--green-light);}
+    .nd-footer-brand p{font-size:.7rem;line-height:1.6;max-width:280px;}
+    .nd-footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .nd-footer-col-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:.5rem;}
+    .nd-footer-col a{display:block;font-size:.7rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:.3rem;transition:color .2s;}
+    .nd-footer-col a:hover{color:#fff;}
+    .nd-footer-bottom{text-align:center;font-size:.62rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.05);}
+    @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn.visible{opacity:1;}
   </style>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/dark-mode.css">
 </head>
+<body>
 
-<!-- HEADER -->
-<header class="nd-header" id="ndHeader">
-  <div class="header-container">
-    <div class="header-left">
+<header class="nd-header">
+  <div class="hc">
+    <div class="h-left">
       <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
         <a href="accueil-prescripteur.html" class="nd-navlink">Accueil</a>
-        <a href="prescripteur-dashboard.html" class="nd-navlink active">Dashboard</a>
+        <a href="prescripteur-dashboard.html" class="nd-navlink active">Mon espace</a>
         <a href="faq.html" class="nd-navlink">FAQ</a>
       </nav>
     </div>
-    
-    <div class="gregoire-mini">
-      <div class="gregoire-mini-avatar">GM</div>
-      <div class="gregoire-mini-text">
-        <strong>Grégoire Martin</strong> · Diététicien RPPS
-      </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert · 🚒 Pompier expert</span>
+    <div class="cofond">
+      <div class="cofond-av">GM</div>
+      <div class="cofond-txt"><strong>Gr&eacute;goire Martin</strong> &middot; Di&eacute;t. RPPS r&eacute;f&eacute;rent</div>
+      <div class="cofond-tip">&#11088; Di&eacute;t&eacute;ticien co-fondateur NutriDoc
+&#127973; CHU Angoul&ecirc;me &middot; &#127968; Cabinet lib&eacute;ral
+&#128658; Sapeur-Pompier Expert</div>
     </div>
-
-    <div class="header-actions">
-      <div class="nd-conn-wrap" id="ndConnWrap">
-        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
-        <div class="nd-conn-menu" id="ndConnMenu">
-          <a href="#" class="nd-conn-item">👤 Mon profil</a>
-          <a href="#" class="nd-conn-item" onclick="deconnecter()">🔓 Se déconnecter</a>
+    <div class="h-right">
+      <div class="nd-conn-wrap">
+        <button class="nd-conn-btn" onclick="toggleConn()">Mon compte &#9662;</button>
+        <div class="nd-conn-menu" id="connMenu">
+          <a href="#" class="nd-conn-item">&#128100; Mon profil</a>
+          <a href="accueil-prescripteur.html#tarifs" class="nd-conn-item">&#128230; Acheter des plans</a>
+          <div class="nd-conn-item" onclick="deconnecter()" style="border-top:1px solid rgba(255,255,255,.08);margin-top:.25rem;">&#128275; Se d&eacute;connecter</div>
         </div>
       </div>
     </div>
   </div>
 </header>
 
-<!-- LAYOUT AVEC SIDEBAR -->
 <div class="dashboard-layout">
-  
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-nav">
-      <div class="sidebar-item active" data-section="dashboard">
-        <span class="sidebar-icon">📊</span>
-        <span>Tableau de bord</span>
+      <div class="sidebar-item active" data-section="dashboard" onclick="showSection('dashboard')">
+        <span class="sidebar-icon">&#128202;</span><span>Tableau de bord</span>
       </div>
-      <div class="sidebar-item" data-section="patients">
-        <span class="sidebar-icon">👥</span>
-        <span>Mes patients</span>
+      <div class="sidebar-item" data-section="clients" onclick="showSection('clients')">
+        <span class="sidebar-icon">&#128101;</span><span>Mes clients</span>
       </div>
-      <div class="sidebar-item" data-section="compta">
-        <span class="sidebar-icon">💰</span>
-        <span>Comptabilité</span>
+      <div class="sidebar-item" data-section="commande" onclick="showSection('commande')">
+        <span class="sidebar-icon">&#129367;</span><span>Commander un plan</span>
       </div>
-      <div class="sidebar-item" data-section="nutridoc">
-        <span class="sidebar-icon">📄</span>
-        <span>Mes achats</span>
+      <div class="sidebar-item" data-section="compta" onclick="showSection('compta')">
+        <span class="sidebar-icon">&#128176;</span><span>Comptabilit&eacute;</span>
+      </div>
+      <div class="sidebar-item" data-section="achats" onclick="showSection('achats')">
+        <span class="sidebar-icon">&#128230;</span><span>Mes achats</span>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Tableau de bord Prescripteur</h1>
-<main class="main-content">
+  <main class="main-content">
 
-    <!-- SECTION DASHBOARD -->
+    <!-- TABLEAU DE BORD -->
     <div id="section-dashboard" class="section active">
-      <div class="section-header">
-        <h2>Tableau de bord</h2>
-        <p>Vue d'ensemble de votre activité prescripteur.</p>
+      <div class="sec-hd">
+        <div>
+          <h2>Tableau de bord</h2>
+          <p>Vue d&apos;ensemble de votre activit&eacute; prescripteur.</p>
+        </div>
+        <button class="btn-primary" onclick="showSection('commande')">+ Commander un plan</button>
       </div>
+
+      <div id="formule-banner"></div>
 
       <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-label">Plans restants</div><div class="metric-value" id="metricCredits">—</div></div>
-        <div class="metric-card"><div class="metric-label">Patients</div><div class="metric-value" id="metricPatients">0</div></div>
-        <div class="metric-card"><div class="metric-label">Plans validés</div><div class="metric-value" id="metricValides">0</div></div>
-        <div class="metric-card"><div class="metric-label">Alerte santé</div><div class="metric-value metric-alert" id="metricFlags">0</div></div>
+        <div class="metric-card">
+          <div class="metric-label">Plans disponibles</div>
+          <div class="metric-value" id="metricPlans">0</div>
+          <div class="metric-sub"><a href="#" onclick="showSection('achats')" style="color:var(--green);text-decoration:none;font-size:.68rem;">Recharger &rarr;</a></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Clients</div>
+          <div class="metric-value" id="metricClients">0</div>
+          <div class="metric-sub" id="metricClientsSub">&nbsp;</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Plans valid&eacute;s</div>
+          <div class="metric-value" id="metricValides">0</div>
+          <div class="metric-sub">Ce mois</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Alertes sant&eacute;</div>
+          <div class="metric-value warn" id="metricFlags">0</div>
+          <div class="metric-sub">&Agrave; traiter</div>
+        </div>
       </div>
 
-      <!-- RECHARGER - Sans commission visible -->
-      <div class="form-card">
-        <h3 style="font-size:1rem; margin-bottom:1rem;">💰 Recharger des crédits</h3>
-        <div class="recharge-grid">
-          <div class="recharge-card" onclick="recharger(1, 24.90)">
-            <div class="recharge-nb">1 plan</div>
-            <div class="recharge-prix">24,90 € HT</div>
-            <div class="recharge-unitaire">24,90 € / plan</div>
-          </div>
-          <div class="recharge-card featured" onclick="recharger(10, 130)">
-            <div class="recharge-badge">⭐ RECOMMANDÉ</div>
-            <div class="recharge-nb">10 plans</div>
-            <div class="recharge-prix">130 € HT</div>
-            <div class="recharge-unitaire">13,00 € / plan</div>
-          </div>
-          <div class="recharge-card" onclick="recharger(50, 500)">
-            <div class="recharge-nb">50 plans</div>
-            <div class="recharge-prix">500 € HT</div>
-            <div class="recharge-unitaire">10,00 € / plan</div>
-          </div>
-        </div>
-        <p style="font-size:0.7rem; color:#6b7b74; text-align:center; margin-top:1rem;">
-          💳 Paiement sécurisé Stripe Connect — Votre diététicien référent encaisse directement<br>
-          📋 Crédits valables 12 mois · TVA non applicable (art. 293 B du CGI)
-        </p>
+      <div class="card">
+        <div class="card-title">&#128101; Derniers clients</div>
+        <div id="recentClients" style="font-size:.82rem;color:var(--text2);">Aucun client pour l&apos;instant. <a href="#" onclick="showSection('clients')" style="color:var(--green);">Ajouter un client &rarr;</a></div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#129367; Plans en cours</div>
+        <div id="plansEnCours" style="font-size:.82rem;color:var(--text2);">Aucun plan en cours.</div>
       </div>
     </div>
 
-    <!-- SECTION PATIENTS -->
-    <div id="section-patients" class="section">
-      <div class="section-header">
-        <h2>Mes patients</h2>
-        <p>Gérez vos patients et commandez des plans nutritionnels.</p>
+    <!-- MES CLIENTS -->
+    <div id="section-clients" class="section">
+      <div class="sec-hd">
+        <div>
+          <h2>Mes clients</h2>
+          <p>G&eacute;rez vos clients et leurs dossiers nutritionnels.</p>
+        </div>
+        <button class="btn-primary" onclick="openModalClient()">+ Nouveau client</button>
       </div>
-
-      <div style="margin-bottom:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-        <input type="text" id="searchPatient" placeholder="🔍 Rechercher un patient..." style="flex:1; padding:0.7rem 1rem; border:1px solid #eef4ee; border-radius:999px; font-size:0.8rem;">
-        <button class="btn-secondary" onclick="openAjoutPatientModal()">➕ Nouveau patient</button>
+      <div class="patients-toolbar">
+        <input type="text" class="search-input" id="searchClient" placeholder="Rechercher un client..." oninput="filterClients()"/>
+        <select style="padding:.6rem .9rem;border:1.5px solid var(--border);border-radius:999px;font-size:.78rem;font-family:Outfit,sans-serif;" id="filterStatut" onchange="filterClients()">
+          <option value="">Tous les statuts</option>
+          <option value="valide">Plan valid&eacute;</option>
+          <option value="encours">En cours</option>
+          <option value="attente">En attente</option>
+        </select>
       </div>
-
-      <div id="patientsGrid" class="patients-grid"></div>
+      <div id="clientsGrid" class="patients-grid"></div>
     </div>
 
-    <!-- SECTION COMPTABILITÉ - Marge du prescripteur -->
-    <div id="section-compta" class="section">
-      <div class="section-header">
-        <h2>Comptabilité</h2>
-        <p>Suivi de vos revenus, dépenses et marge.</p>
+    <!-- COMMANDER UN PLAN -->
+    <div id="section-commande" class="section">
+      <div class="sec-hd">
+        <div>
+          <h2>Commander un plan</h2>
+          <p>Toutes les informations marqu&eacute;es <span style="color:#ef4444">*</span> sont n&eacute;cessaires au di&eacute;t. pour &eacute;tablir le plan.</p>
+        </div>
       </div>
-
-      <!-- JAUGE DE MARGE PRESCRIPTEUR -->
-      <div class="marge-gauge">
-        <div class="gauge-header">
-          <span class="gauge-title">📈 Marge par plan</span>
-          <span class="gauge-percent" id="margePercent">0%</span>
-        </div>
-        <div class="gauge-bar">
-          <div class="gauge-fill" id="margeFill" style="width:0%"></div>
-        </div>
-        <div class="gauge-stats">
-          <span>💰 Prix facturé: <span class="gauge-value" id="prixFacture">35€</span></span>
-          <span>📦 Coût crédit: <span class="gauge-value" id="coutCredit">13,00€</span></span>
-          <span>💵 Marge: <span class="gauge-value" id="margeValue">0€</span></span>
-        </div>
-        <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-          <input type="range" id="sliderPrix" min="15" max="80" value="35" step="1" style="flex:1" oninput="updateMargeGauge()">
-          <select id="selectCoutCredit" onchange="updateMargeGauge()" style="padding:0.4rem; border-radius:12px; border:1px solid #eef4ee;">
-            <option value="24.90">24,90€ (Solo - 1 crédit)</option>
-            <option value="13.00" selected>13,00€ (Standard - 10 crédits) ⭐</option>
-            <option value="10.00">10,00€ (Expert - 50 crédits)</option>
+      <div class="card">
+        <div class="card-title">1&#65039;&#8419; Client</div>
+        <div class="form-group">
+          <label>Client <span class="req">*</span></label>
+          <select id="selectClient" style="width:100%;" onchange="showCommandeDetails()">
+            <option value="">&#8212; Choisir un client existant &#8212;</option>
           </select>
         </div>
-        <p class="gauge-stats" style="margin-top:0.5rem;">💡 Ajustez les curseurs pour visualiser votre marge par plan</p>
+        <div style="text-align:center;font-size:.78rem;color:var(--text2);margin-top:-.25rem;">
+          ou <a href="#" onclick="openModalClient()" style="color:var(--green);">cr&eacute;er un nouveau client</a>
+        </div>
       </div>
 
-      <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-label">CA total</div><div class="metric-value" id="comptaCa">—</div></div>
-        <div class="metric-card"><div class="metric-label">Dépenses crédits</div><div class="metric-value" id="comptaDepenses">—</div></div>
-        <div class="metric-card"><div class="metric-label">Marge nette</div><div class="metric-value" id="comptaMarge">—</div></div>
-        <div class="metric-card"><div class="metric-label">TVA collectée</div><div class="metric-value" id="comptaTva">—</div></div>
+      <div class="card" id="commandeDetails" style="display:none;">
+        <div class="card-title">2&#65039;&#8419; Dossier nutritionnel</div>
+        <div class="form-section-title">Objectif &amp; mode de vie</div>
+        <div class="form-group">
+          <label>Objectif principal <span class="req">*</span></label>
+          <select id="cmdObjectif">
+            <option value="poids">Perte de poids / de gras</option>
+            <option value="masse">Prise de masse / muscle</option>
+            <option value="equilibre">Alimentation &eacute;quilibr&eacute;e</option>
+            <option value="energie">Am&eacute;liorer mon &eacute;nergie</option>
+            <option value="prevention">Pr&eacute;vention sant&eacute;</option>
+            <option value="sport">Performance sportive</option>
+            <option value="reeq">R&eacute;&eacute;quilibrage alimentaire</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Taille (cm) <span class="req">*</span></label>
+            <input type="number" id="cmdTaille" placeholder="170" min="100" max="250"/>
+          </div>
+          <div class="form-group">
+            <label>Poids (kg) <span class="req">*</span></label>
+            <input type="number" id="cmdPoids" placeholder="70" step="0.1" min="30" max="300"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
+          <select id="cmdActivite">
+            <option value="sedentaire">S&eacute;dentaire (peu ou pas d&apos;exercice)</option>
+            <option value="leger">L&eacute;g&egrave;rement actif (1&#8211;2&times;/semaine)</option>
+            <option value="modere" selected>Mod&eacute;r&eacute;ment actif (3&#8211;4&times;/semaine)</option>
+            <option value="actif">Tr&egrave;s actif (5+&times;/semaine)</option>
+            <option value="tres_actif">Athl&egrave;te / sport quotidien</option>
+          </select>
+        </div>
+        <div class="form-section-title">Restrictions &amp; s&eacute;curit&eacute;</div>
+        <div class="form-group">
+          <label>R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
+          <select id="cmdRegime">
+            <option value="aucun">Aucune restriction</option>
+            <option value="vegetarien">V&eacute;g&eacute;tarien</option>
+            <option value="vegan">Vegan</option>
+            <option value="sans_gluten">Sans gluten</option>
+            <option value="sans_lactose">Sans lactose</option>
+            <option value="halal">Halal</option>
+            <option value="casher">Casher</option>
+            <option value="autre">Autre (pr&eacute;ciser dans les notes)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Allergies ou intol&eacute;rances <span class="req">*</span></label>
+          <input type="text" id="cmdAllergies" placeholder="Arachides, fruits de mer, lait... ou &quot;aucune&quot;"/>
+          <span class="field-hint">Indiquez &laquo; aucune &raquo; si pas d&apos;allergie</span>
+        </div>
+        <div class="form-group">
+          <label>Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
+          <textarea id="cmdPathologies" rows="2" placeholder="Diab&egrave;te, hypertension, grossesse, TCA, insuffisance r&eacute;nale, chirurgie r&eacute;cente... ou &quot;aucun&quot;"></textarea>
+          <span class="field-warn">&#9888;&#65039; Obligatoire. Le di&eacute;t. adaptera le plan en cons&eacute;quence. Tout ant&eacute;c&eacute;dent non signal&eacute; engage votre responsabilit&eacute;.</span>
+        </div>
+        <div class="form-section-title">Pr&eacute;f&eacute;rences (facultatif)</div>
+        <div class="form-group">
+          <label>Aliments &agrave; exclure (aversions)</label>
+          <input type="text" id="cmdAversions" placeholder="Brocolis, foie, sardines..."/>
+        </div>
+        <div class="form-group">
+          <label>Notes compl&eacute;mentaires pour le di&eacute;t.</label>
+          <textarea id="cmdNotes" rows="2" placeholder="Contexte de votre accompagnement, objectifs sp&eacute;cifiques..."></textarea>
+        </div>
       </div>
 
-      <div class="form-card">
-        <h3 style="font-size:1rem; margin-bottom:1rem;">📊 Récapitulatif mensuel</h3>
-        <canvas id="comptaChart" height="200" style="max-height:200px; width:100%;"></canvas>
+      <div class="card" id="commandeConfirm" style="display:none;">
+        <div class="card-title">3&#65039;&#8419; Valider et envoyer</div>
+        <div id="commandeRecap" style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;"></div>
+        <div style="display:flex;align-items:center;gap:.75rem;background:#fff8e6;border:1px solid #fcd34d;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;">
+          <span style="font-size:1.2rem;">&#9888;&#65039;</span>
+          <span style="font-size:.78rem;color:#92400e;">Plans disponibles&nbsp;: <strong id="plansRestants">0</strong>. 1 plan sera d&eacute;bit&eacute; pour cette commande.</span>
+        </div>
+        <button class="btn-primary" onclick="confirmerCommande()" style="width:100%;">Envoyer au di&eacute;t. RPPS &rarr;</button>
       </div>
     </div>
 
-    <!-- SECTION MES ACHATS (ex Paiements NutriDoc) - Sans commission visible -->
-    <div id="section-nutridoc" class="section">
-      <div class="section-header">
-        <h2>Mes achats</h2>
-        <p>Suivi de vos achats de crédits et factures.</p>
+    <!-- COMPTABILITE -->
+    <div id="section-compta" class="section">
+      <div class="sec-hd">
+        <div><h2>Comptabilit&eacute;</h2><p>Suivi de vos revenus, d&eacute;penses et marge.</p></div>
       </div>
-
+      <div class="marge-gauge">
+        <div class="gauge-hd"><span>&#128200; Marge par plan</span><span class="gauge-pct" id="margePercent">0 %</span></div>
+        <div class="gauge-bar"><div class="gauge-fill hi" id="margeFill" style="width:0%"></div></div>
+        <div class="gauge-stats">
+          <span>Prix factur&eacute;&nbsp;: <span class="gauge-val" id="prixFacture">35 &#8364;</span></span>
+          <span>Co&ucirc;t plan&nbsp;: <span class="gauge-val" id="coutPlan">18 &#8364;</span></span>
+          <span>Marge&nbsp;: <span class="gauge-val" id="margeValue">0 &#8364;</span></span>
+        </div>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+          <input type="range" id="sliderPrix" min="15" max="90" value="35" step="1" style="flex:1;" oninput="updateMarge()"/>
+          <select id="selectCoutPlan" onchange="updateMarge()" style="padding:.38rem .65rem;border-radius:10px;border:1.5px solid var(--border);font-size:.75rem;font-family:Outfit,sans-serif;">
+            <option value="22">22 &#8364; (D&eacute;couverte)</option>
+            <option value="20">20 &#8364; (Essentiel)</option>
+            <option value="18" selected>18 &#8364; (Confort &#11088;)</option>
+            <option value="15">15 &#8364; (Volume)</option>
+          </select>
+        </div>
+        <p style="font-size:.68rem;color:var(--text2);margin-top:.5rem;">Ajustez le curseur selon le prix que vous facturez &agrave; votre client.</p>
+      </div>
       <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-label">Total dépensé</div><div class="metric-value" id="nutridocTotal">—</div></div>
-        <div class="metric-card"><div class="metric-label">Dernier achat</div><div class="metric-value" id="nutridocDernier">—</div></div>
+        <div class="metric-card"><div class="metric-label">CA total</div><div class="metric-value small" id="comptaCa">&#8212;</div></div>
+        <div class="metric-card"><div class="metric-label">D&eacute;penses plans</div><div class="metric-value small" id="comptaDepenses">&#8212;</div></div>
+        <div class="metric-card"><div class="metric-label">Marge nette</div><div class="metric-value small" id="comptaMarge">&#8212;</div></div>
+        <div class="metric-card"><div class="metric-label">Plans factur&eacute;s</div><div class="metric-value small" id="comptaPlans">&#8212;</div></div>
+      </div>
+      <div class="card pro-lock" id="statsCard">
+        <div class="card-title">&#128202; Activit&eacute; mensuelle</div>
+        <canvas id="comptaChart" height="160" style="max-height:200px;width:100%;"></canvas>
+        <div id="statsLock" class="pro-lock-overlay" style="display:none;">
+          <div class="pro-lock-icon">&#128274;</div>
+          <div class="pro-lock-txt">Statistiques d&apos;activit&eacute;</div>
+          <div class="pro-lock-sub">Disponible avec le CRM Pro</div>
+          <button class="pro-lock-btn" onclick="showSection('achats')">Passer au Pro &rarr;</button>
+        </div>
+      </div>
+      <div class="card pro-lock" id="exportCard">
+        <div class="card-title">&#128196; Export &amp; facturation</div>
+        <p style="font-size:.8rem;color:var(--text2);">G&eacute;n&eacute;rez un CSV de vos transactions et vos factures clients automatiquement.</p>
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+          <button class="btn-secondary" id="btnExportCsv">&#11015;&#65039; Export CSV</button>
+          <button class="btn-secondary" id="btnFactures">&#128196; Factures clients</button>
+        </div>
+        <div id="exportLock" class="pro-lock-overlay" style="display:none;">
+          <div class="pro-lock-icon">&#128274;</div>
+          <div class="pro-lock-txt">Export &amp; facturation auto</div>
+          <div class="pro-lock-sub">Disponible avec le CRM Pro</div>
+          <button class="pro-lock-btn" onclick="showSection('achats')">Passer au Pro &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MES ACHATS -->
+    <div id="section-achats" class="section">
+      <div class="sec-hd">
+        <div><h2>Mes achats</h2><p>Historique de vos achats de plans et factures.</p></div>
+      </div>
+      <div class="metrics-grid" style="grid-template-columns:repeat(2,1fr);max-width:500px;">
+        <div class="metric-card"><div class="metric-label">Total d&eacute;pens&eacute;</div><div class="metric-value small" id="achatTotal">&#8212;</div></div>
+        <div class="metric-card"><div class="metric-label">Dernier achat</div><div class="metric-value small" id="achatDernier">&#8212;</div></div>
+      </div>
+      <div class="promo-dash" id="promoDash">
+        <div class="promo-dash-pill">&#127873; &#8722;10%</div>
+        <div>
+          <div class="promo-dash-txt"><strong>Offre de bienvenue</strong> &#8212; &#8722;10 % sur vos achats de plans pendant votre premier mois</div>
+          <div class="promo-dash-note" id="promoRestant">Calcul&eacute; &agrave; partir de votre date d&apos;inscription</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128230; Commander des plans alimentaires sur-mesure</div>
+        <div class="pack-included">
+          <span class="pack-incl-lbl">Inclus dans tous les packs :</span>
+          <span class="pack-incl-feat">Plan sur-mesure valid&eacute; RPPS</span>
+          <span class="pack-incl-feat">Sign&eacute; sous 48h</span>
+          <span class="pack-incl-feat">Votre logo sur le PDF</span>
+          <span class="pack-incl-feat">Valable 12 mois</span>
+        </div>
+        <div class="pyr">
+          <div class="pyr-row" onclick="achetterPack('decouverte',22,19.80,1)">
+            <div class="pyr-name">D&eacute;couverte</div>
+            <div class="pyr-qty">1 plan sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">22 &#8364;</span><span class="pyr-new" id="priceD">19,80 &#8364;</span></div>
+            <div class="pyr-per">22 &#8364; / plan</div>
+          </div>
+          <div class="pyr-row" onclick="achetterPack('essentiel',100,90,5)">
+            <div class="pyr-name">Essentiel</div>
+            <div class="pyr-qty">5 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">100 &#8364;</span><span class="pyr-new" id="priceE">90 &#8364;</span></div>
+            <div class="pyr-per">20 &#8364; / plan</div>
+          </div>
+          <div class="pyr-row featured" onclick="achetterPack('confort',180,162,10)">
+            <div class="pyr-name">Confort &#11088;</div>
+            <div class="pyr-qty">10 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">180 &#8364;</span><span class="pyr-new" id="priceC">162 &#8364;</span></div>
+            <div class="pyr-per">18 &#8364; / plan</div>
+          </div>
+          <div class="pyr-row" onclick="achetterPack('volume',375,337.50,25)">
+            <div class="pyr-name">Volume</div>
+            <div class="pyr-qty">25 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">375 &#8364;</span><span class="pyr-new" id="priceV">337,50 &#8364;</span></div>
+            <div class="pyr-per">15 &#8364; / plan</div>
+          </div>
+        </div>
+        <p style="font-size:.68rem;color:var(--text2);text-align:center;margin-top:.85rem;">Paiement s&eacute;curis&eacute; Stripe &middot; Facture automatique &middot; Plans valables 12 mois</p>
       </div>
 
-      <div class="form-card">
-        <table class="compta-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th>Montant HT</th>
-              <th>Facture</th>
-            </tr>
-          </thead>
-          <tbody id="nutridocPaymentsBody"></tbody>
+      <!-- CRM PRO -->
+      <div class="card" id="crmCard">
+        <div class="card-title">&#9733; CRM Pro &#8212; 14,90 &#8364; HT / mois</div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;">Passez au CRM Pro pour acc&eacute;der &agrave; la facturation automatique, aux statistiques, &agrave; la marque blanche et aux relances clients.</p>
+        <div id="crmProContent"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">&#128203; Historique d&apos;achats</div>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Pack</th><th>Plans achet&eacute;s</th><th>Montant HT</th><th>Facture</th></tr></thead>
+          <tbody id="achatBody"></tbody>
         </table>
       </div>
     </div>
@@ -1004,504 +602,731 @@
   </main>
 </div>
 
-<!-- SIMULATEUR BULLE - Pour la marge du prescripteur -->
-<div class="sim-bubble">
-  <button class="sim-toggle" onclick="toggleSim()">💰</button>
-  <div class="sim-window" id="simWindow">
-    <div class="sim-header">
-      <span>💰 Simulateur de marge</span>
-      <button class="sim-close" onclick="toggleSim()">✕</button>
-    </div>
-    <div class="sim-body">
-      <div class="sim-field">
-        <div class="sim-field-header"><span>👥 Clients / mois</span><span id="simClientsVal">25</span></div>
-        <input type="range" min="5" max="200" value="25" step="5" id="simClients" oninput="updateSimulator()">
-      </div>
-      <div class="sim-field">
-        <div class="sim-field-header"><span>📈 Taux conversion</span><span id="simTauxVal">30%</span></div>
-        <input type="range" min="5" max="80" value="30" step="5" id="simTaux" oninput="updateSimulator()">
-      </div>
-      <div class="sim-field">
-        <div class="sim-field-header"><span>💰 Prix facturé (€)</span><span id="simPrixVal">35€</span></div>
-        <input type="range" min="15" max="80" value="35" step="1" id="simPrix" oninput="updateSimulator()">
-      </div>
-      <div class="sim-field">
-        <div class="sim-field-header"><span>📦 Coût crédit</span></div>
-        <div class="sim-btns">
-          <div class="sim-abtn" onclick="setCoutPlan(24.90, this)"><div>Solo</div><div class="sim-abtn-price">24,90€</div></div>
-          <div class="sim-abtn active" onclick="setCoutPlan(13.00, this)"><div>Standard</div><div class="sim-abtn-price">13,00€</div></div>
-          <div class="sim-abtn" onclick="setCoutPlan(10.00, this)"><div>Expert</div><div class="sim-abtn-price">10,00€</div></div>
-        </div>
-      </div>
-      <div class="sim-results">
-        <div class="sim-row"><span>📋 Plans / mois</span><strong id="simPlans">—</strong></div>
-        <div class="sim-row"><span>💰 CA mensuel</span><strong id="simCa">—</strong></div>
-        <div class="sim-row"><span>📉 Coût crédits</span><strong id="simCouts">—</strong></div>
-        <div class="sim-row highlight"><span>📈 Marge nette</span><strong id="simMarge">—</strong></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL AJOUT PATIENT -->
-<div class="modal-overlay" id="modalAjoutOverlay" onclick="fermerAjoutModal(event)">
+<!-- MODAL NOUVEAU CLIENT -->
+<div class="modal-overlay" id="modalClient" onclick="closeModal('modalClient',event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="fermerAjoutModal()">✕</button>
-    <div class="modal-title">➕ Nouveau patient</div>
-    <form id="ajoutPatientForm">
+    <div class="modal-head">
+      <div class="modal-title">Nouveau client</div>
+      <button class="modal-close" onclick="closeModal('modalClient')">&#10005;</button>
+    </div>
+    <form id="formClient" onsubmit="submitClient(event)" novalidate>
+      <div class="form-section-title">Identit&eacute;</div>
       <div class="form-row">
-        <div class="form-group"><label>Prénom *</label><input type="text" id="ajoutPrenom" required></div>
-        <div class="form-group"><label>Nom *</label><input type="text" id="ajoutNom" required></div>
+        <div class="form-group"><label>Pr&eacute;nom <span class="req">*</span></label><input type="text" id="cPrenom" required/></div>
+        <div class="form-group"><label>Nom <span class="req">*</span></label><input type="text" id="cNom" required/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Âge</label><input type="number" id="ajoutAge"></div>
-        <div class="form-group"><label>Sexe</label><select id="ajoutSexe"><option>Femme</option><option>Homme</option><option>Autre</option></select></div>
+        <div class="form-group"><label>&#194;ge <span class="req">*</span></label><input type="number" id="cAge" min="1" max="120" required/></div>
+        <div class="form-group"><label>Sexe <span class="req">*</span></label><select id="cSexe" required><option value="F">Femme</option><option value="H">Homme</option><option value="A">Autre</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Taille (cm)</label><input type="number" id="ajoutTaille" step="1"></div>
-        <div class="form-group"><label>Poids (kg)</label><input type="number" id="ajoutPoids" step="0.1"></div>
+        <div class="form-group"><label>Taille (cm) <span class="req">*</span></label><input type="number" id="cTaille" min="100" max="250" required/></div>
+        <div class="form-group"><label>Poids (kg) <span class="req">*</span></label><input type="number" id="cPoids" step="0.1" min="30" max="300" required/></div>
       </div>
+      <div class="form-section-title">Objectif &amp; mode de vie</div>
       <div class="form-group">
-        <label>Objectif principal</label>
-        <select id="ajoutObjectif">
-          <option>Perte de poids / de gras</option><option>Prise de masse / muscle</option>
-          <option>Alimentation équilibrée</option><option>Améliorer mon énergie</option>
-          <option>Prévention santé</option><option>Performance sportive</option>
+        <label>Objectif principal <span class="req">*</span></label>
+        <select id="cObjectif" required>
+          <option value="">&#8212; Choisir &#8212;</option>
+          <option value="poids">Perte de poids / de gras</option>
+          <option value="masse">Prise de masse / muscle</option>
+          <option value="equilibre">Alimentation &eacute;quilibr&eacute;e</option>
+          <option value="energie">Am&eacute;liorer mon &eacute;nergie</option>
+          <option value="prevention">Pr&eacute;vention sant&eacute;</option>
+          <option value="sport">Performance sportive</option>
+          <option value="reeq">R&eacute;&eacute;quilibrage alimentaire</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Niveau d'activité physique</label>
-        <select id="ajoutActivite">
-          <option value="Sédentaire">Sédentaire (peu ou pas d'exercice)</option>
-          <option value="Légèrement actif">Légèrement actif (1-2x/semaine)</option>
-          <option value="Modérément actif">Modérément actif (3-4x/semaine)</option>
-          <option value="Très actif">Très actif (5+x/semaine)</option>
+        <label>Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
+        <select id="cActivite" required>
+          <option value="">&#8212; Choisir &#8212;</option>
+          <option value="sedentaire">S&eacute;dentaire (peu ou pas d&apos;exercice)</option>
+          <option value="leger">L&eacute;g&egrave;rement actif (1&#8211;2&times;/semaine)</option>
+          <option value="modere">Mod&eacute;r&eacute;ment actif (3&#8211;4&times;/semaine)</option>
+          <option value="actif">Tr&egrave;s actif (5+&times;/semaine)</option>
+          <option value="tres_actif">Athl&egrave;te / sport quotidien</option>
+        </select>
+      </div>
+      <div class="form-section-title">Restrictions &amp; s&eacute;curit&eacute;</div>
+      <div class="form-group">
+        <label>R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
+        <select id="cRegime" required>
+          <option value="aucun">Aucune restriction</option>
+          <option value="vegetarien">V&eacute;g&eacute;tarien</option>
+          <option value="vegan">Vegan</option>
+          <option value="sans_gluten">Sans gluten</option>
+          <option value="sans_lactose">Sans lactose</option>
+          <option value="halal">Halal</option>
+          <option value="casher">Casher</option>
+          <option value="autre">Autre (pr&eacute;ciser dans les notes)</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Régime alimentaire</label>
-        <select id="ajoutRegime">
-          <option value="">Aucune restriction</option>
-          <option value="Végétarien">Végétarien</option>
-          <option value="Vegan">Vegan</option>
-          <option value="Sans gluten">Sans gluten</option>
-          <option value="Sans lactose">Sans lactose</option>
-        </select>
+        <label>Allergies ou intol&eacute;rances <span class="req">*</span></label>
+        <input type="text" id="cAllergies" placeholder="Arachides, gluten... ou &quot;aucune&quot;" required/>
+        <span class="field-hint">Indiquez &laquo;&nbsp;aucune&nbsp;&raquo; si pas d&apos;allergie connue</span>
       </div>
-      <div class="form-group"><label>Allergies ou intolérances</label><textarea id="ajoutAllergies" rows="1"></textarea></div>
-      <div class="form-group"><label>Aliments que vous n'aimez pas</label><textarea id="ajoutAversions" rows="1"></textarea></div>
-      <div class="form-group"><label>Email</label><input type="email" id="ajoutEmail"></div>
-      <div class="form-group"><label>Téléphone</label><input type="tel" id="ajoutTel"></div>
-      <div class="form-group"><label>Notes supplémentaires</label><textarea id="ajoutNotes" rows="2"></textarea></div>
-      <div class="modal-btns">
-        <button type="button" class="btn-secondary" onclick="fermerAjoutModal()">Annuler</button>
-        <button type="submit" class="btn-submit" style="width:auto;">Créer le patient</button>
+      <div class="form-group">
+        <label>Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
+        <textarea id="cPathologies" rows="2" placeholder="Diab&egrave;te, hypertension, grossesse, TCA, insuffisance r&eacute;nale... ou &quot;aucun&quot;" required></textarea>
+        <span class="field-warn">&#9888;&#65039; Obligatoire. Transmis au di&eacute;t. pour adapter le plan. Tout ant&eacute;c&eacute;dent non signal&eacute; engage votre responsabilit&eacute;.</span>
+      </div>
+      <div class="form-section-title">Coordonn&eacute;es (facultatif)</div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input type="email" id="cEmail"/></div>
+        <div class="form-group"><label>T&eacute;l&eacute;phone</label><input type="tel" id="cTel"/></div>
+      </div>
+      <div class="form-group"><label>Notes libres</label><textarea id="cNotes" rows="2" placeholder="Contexte, habitudes alimentaires, pr&eacute;f&eacute;rences..."></textarea></div>
+      <div id="formClientError" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:.6rem 1rem;font-size:.78rem;color:#b91c1c;margin-bottom:.75rem;"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalClient')">Annuler</button>
+        <button type="submit" class="btn-primary">Cr&eacute;er le client</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- MODAL PROFIL PATIENT -->
-<div class="modal-overlay" id="modalProfilOverlay" onclick="fermerProfilModal(event)">
-  <div class="modal" onclick="event.stopPropagation()" style="max-width: 550px;">
-    <button class="modal-close" onclick="fermerProfilModal()">✕</button>
-    <div id="patientProfilContent"></div>
+<!-- MODAL PROFIL CLIENT -->
+<div class="modal-overlay" id="modalProfil" onclick="closeModal('modalProfil',event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:560px;">
+    <div class="modal-head">
+      <div class="modal-title" id="profilTitle">Profil client</div>
+      <button class="modal-close" onclick="closeModal('modalProfil')">&#10005;</button>
+    </div>
+    <div id="profilContent"></div>
   </div>
 </div>
 
-<!-- MODAL RECHARGE - Sans commission visible -->
-<div class="modal-overlay" id="modalRechargeOverlay" onclick="fermerRechargeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title">Confirmer l'achat</div>
-    <p id="modalRechargeDesc"></p>
-    <div class="modal-btns">
-      <button class="btn-secondary" onclick="fermerRechargeModal()">Annuler</button>
-      <button class="btn-submit" id="modalRechargeConfirm" style="width:auto;">Confirmer</button>
+<!-- MODAL ACHAT -->
+<div class="modal-overlay" id="modalAchat" onclick="closeModal('modalAchat',event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title">Confirmer l&apos;achat</div>
+      <button class="modal-close" onclick="closeModal('modalAchat')">&#10005;</button>
+    </div>
+    <div id="achatDesc" style="font-size:.85rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.65;"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalAchat')">Annuler</button>
+      <button class="btn-primary" onclick="confirmerAchat()">Confirmer et payer &rarr;</button>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- SIMULATEUR -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()">&#128176;</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-hd"><span>&#128176; Simulateur de marge</span><button class="sim-close" onclick="toggleSim()">&#10005;</button></div>
+    <div class="sim-body">
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Plans / mois</span><span class="sim-fv" id="sPlV">10</span></div>
+        <input type="range" min="1" max="100" value="10" step="1" id="sPl" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Prix factur&eacute; au client</span><span class="sim-fv" id="sPxV">40 &#8364;</span></div>
+        <input type="range" min="20" max="90" value="40" step="1" id="sPx" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Pack de plans</span></div>
+        <div class="sim-packs">
+          <div class="sim-pack" onclick="setSimPack(22,this)"><div>D&eacute;c.</div><div class="sim-pack-p">22&#8364;</div></div>
+          <div class="sim-pack" onclick="setSimPack(20,this)"><div>Ess.</div><div class="sim-pack-p">20&#8364;</div></div>
+          <div class="sim-pack active" onclick="setSimPack(18,this)"><div>Conf.</div><div class="sim-pack-p">18&#8364;</div></div>
+          <div class="sim-pack" onclick="setSimPack(15,this)"><div>Vol.</div><div class="sim-pack-p">15&#8364;</div></div>
+        </div>
+      </div>
+      <div class="sim-results">
+        <div class="sim-row"><span>CA mensuel</span><strong id="sCa">&#8212;</strong></div>
+        <div class="sim-row"><span>Co&ucirc;t plans</span><strong id="sCout">&#8212;</strong></div>
+        <div class="sim-row hl"><span>Marge nette</span><strong id="sMarge">&#8212;</strong></div>
+      </div>
+      <div class="sim-note" id="sNote">Marge annuelle estim&eacute;e : &#8212;</div>
+    </div>
+  </div>
+</div>
+
 <footer class="nd-footer">
   <div class="nd-footer-inner">
     <div class="nd-footer-brand">
       <div class="nd-logo-footer">Nutri<em>Doc</em></div>
-      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
-      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+      <p>Plans alimentaires sur-mesure valid&eacute;s par des di&eacute;t. certifi&eacute;s RPPS. Par CaliDoc Sant&eacute;.</p>
     </div>
     <div class="nd-footer-links">
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Prescripteurs</div><a href="accueil-prescripteur.html">Espace prescripteur</a><a href="inscription-prescripteur.html">S'inscrire</a><a href="cgu-prescripteur.html">CGU Prescripteur</a></div>
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Patients</div><a href="index.html">Accueil patient</a><a href="bilan.html">Faire mon bilan</a><a href="cgu-patient.html">CGU Patient</a></div>
-      <div class="nd-footer-col"><div class="nd-footer-col-title">Légal</div><a href="politique-confidentialite.html">Politique RGPD</a><a href="faq.html">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a></div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Prescripteurs</div>
+        <a href="accueil-prescripteur.html">Espace prescripteur</a>
+        <a href="inscription-prescripteur.html">S&apos;inscrire</a>
+        <a href="cgu-prescripteur.html">CGU Prescripteur</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">Plateforme</div>
+        <a href="accueil-patient.html">Espace patient</a>
+        <a href="accueil-dieteticien.html">Espace di&eacute;t.</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+      <div class="nd-footer-col">
+        <div class="nd-footer-col-title">L&eacute;gal</div>
+        <a href="politique-confidentialite.html">Confidentialit&eacute;</a>
+        <a href="mentions-legales.html">Mentions l&eacute;gales</a>
+        <a href="mailto:contact@calidoc-sante.fr">Contact</a>
+      </div>
     </div>
   </div>
-  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+  <div class="nd-footer-bottom">&copy; 2025&ndash;2026 NutriDoc by CaliDoc Sant&eacute; &middot; RGPD &middot; HDS</div>
 </footer>
 
-<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
 
 <script>
-// ===== PROFIL SYSTEM =====
-const PROFIL_KEY = 'nutridoc_profil';
-const PROFIL_DATE_KEY = 'nutridoc_profil_date';
-const PROFIL_EXPIRY_DAYS = 30;
-const PROFILS = {
-  patient: { name: 'Patient', icon: '🧑', redirectUrl: 'index.html' },
-  dieteticien: { name: 'Diététicien', icon: '🥗', redirectUrl: 'accueil-dieteticien.html' },
-  prescripteur: { name: 'Prescripteur', icon: '🏢', redirectUrl: 'accueil-prescripteur.html' },
-  structure: { name: 'Structure', icon: '🏛️', redirectUrl: 'partenariats.html' }
-};
+// ── FORMULE ──────────────────────────────────────────────────────
+var FORMULE = localStorage.getItem('nutridoc_crm_formule') || 'gratuit';
+function isPro() { return FORMULE === 'pro'; }
 
-function getStoredProfil() {
-  const profil = localStorage.getItem(PROFIL_KEY);
-  const date = localStorage.getItem(PROFIL_DATE_KEY);
-  if (!profil || !date) return null;
-  const daysSince = (Date.now() - parseInt(date)) / (1000 * 3600 * 24);
-  if (daysSince > PROFIL_EXPIRY_DAYS) {
-    localStorage.removeItem(PROFIL_KEY);
-    localStorage.removeItem(PROFIL_DATE_KEY);
-    return null;
+function applyFormule() {
+  var banner = document.getElementById('formule-banner');
+  if (banner) {
+    if (isPro()) {
+      banner.innerHTML = '<div class="formule-badge"><div class="fb-left"><span class="fb-pill pro">CRM Pro</span><span class="fb-txt"><strong>Formule Pro CRM active</strong> &mdash; Toutes les fonctionnalit&eacute;s d&eacute;bloqu&eacute;es</span></div></div>';
+    } else {
+      banner.innerHTML = '<div class="formule-badge"><div class="fb-left"><span class="fb-pill gratuit">Gratuit</span><span class="fb-txt">Formule gratuite &mdash; <strong>Passez au Pro</strong> pour la facturation, les stats et la marque blanche</span></div><button class="fb-btn" data-action="goto-achats">Passer au Pro</button></div>';
+    }
   }
-  return profil;
+  var statsLock  = document.getElementById('statsLock');
+  var exportLock = document.getElementById('exportLock');
+  if (statsLock)  statsLock.style.display  = isPro() ? 'none' : 'flex';
+  if (exportLock) exportLock.style.display = isPro() ? 'none' : 'flex';
+  renderCrmCard();
 }
-function setStoredProfil(profil) { localStorage.setItem(PROFIL_KEY, profil); localStorage.setItem(PROFIL_DATE_KEY, Date.now().toString()); }
-function updateUIForProfil(profilKey) {}
-function openProfilModal() {
-  const container = document.getElementById('profilModalContainer');
-  if (!container) return;
-  container.innerHTML = `<div class="profil-modal-overlay" onclick="closeProfilModal(event)"><div class="profil-modal" onclick="event.stopPropagation()"><h2>Bienvenue sur NutriDoc</h2><div class="profil-modal-sub">Je suis...</div><div class="profil-grid"><div class="profil-card" >Ne plus afficher</button></div></div></div>`;
+
+function renderCrmCard() {
+  var el = document.getElementById('crmProContent');
+  if (!el) return;
+  if (isPro()) {
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--green);font-weight:600;">&#10003; CRM Pro actif &mdash; toutes les fonctionnalit&eacute;s disponibles</div><button class="btn-secondary" style="margin-top:.75rem;" onclick="downgradeCrm()">R&eacute;silier le Pro CRM</button>';
+  } else {
+    el.innerHTML = '<ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;font-size:.78rem;color:var(--text2);margin-bottom:1rem;">'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Facturation client automatique (PDF &agrave; votre nom)</li>'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Statistiques et tableau de bord complet</li>'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Votre logo en avant &mdash; coordonn&eacute;es RPPS du di&eacute;t. toujours pr&eacute;sentes</li>'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Relances automatiques clients (J+7)</li>'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Historique illimit&eacute; &middot; Notes &amp; &eacute;tiquettes clients</li>'
+      + '<li style="display:flex;gap:.4rem;align-items:flex-start;"><span style="color:var(--green);font-weight:700;">&#10003;</span> Export comptable CSV &middot; Support prioritaire</li>'
+      + '</ul>'
+      + '<button class="btn-primary" onclick="upgradeCrm()">Activer Pro CRM &mdash; 14,90 &euro;/mois</button>'
+      + '<p style="font-size:.65rem;color:var(--text2);margin-top:.5rem;">Sans engagement &middot; R&eacute;siliable &agrave; tout moment</p>';
+  }
 }
-function closeProfilModal() { document.getElementById('profilModalContainer').innerHTML = ''; }
-function dismissProfilForever() { localStorage.setItem('nutridoc_profil_dismissed', 'true'); closeProfilModal(); }
-function selectProfil(profilKey) {
-  if (!PROFILS[profilKey]) return;
-  setStoredProfil(profilKey);
-  closeProfilModal();
-  const target = PROFILS[profilKey].redirectUrl;
-  if (target !== window.location.pathname.split('/').pop() && target !== 'index.html') window.location.href = target;
+
+function upgradeCrm() {
+  FORMULE = 'pro';
+  localStorage.setItem('nutridoc_crm_formule','pro');
+  applyFormule();
+  toast('&#11088; CRM Pro activ&eacute; !');
 }
-function initProfilSystem() {
-  const dismissed = localStorage.getItem('nutridoc_profil_dismissed');
-  const stored = getStoredProfil();
-  if (!stored && !dismissed) setTimeout(openProfilModal, 500);
+function downgradeCrm() {
+  if (!confirm('R&eacute;silier le CRM Pro ? Vous reviendrez &agrave; la formule gratuite.')) return;
+  FORMULE = 'gratuit';
+  localStorage.setItem('nutridoc_crm_formule','gratuit');
+  applyFormule();
+  toast('Formule gratuite r&eacute;activ&eacute;e');
 }
-window.selectProfil = selectProfil;
-window.closeProfilModal = closeProfilModal;
-window.dismissProfilForever = dismissProfilForever;
-window.openProfilModal = openProfilModal;
-function toggleConn() { document.getElementById('ndConnMenu').classList.toggle('open'); }
-window.toggleConn = toggleConn;
+
+// ── UTILS ──────────────────────────────────────────────────────────
+function toggleConn() { document.getElementById('connMenu').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.querySelector('.nd-conn-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('connMenu').classList.remove('open');
+});
+window.addEventListener('scroll', function() {
+  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 300);
+});
+function toast(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' error' : '');
+  el.innerHTML = msg;
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 2900);
+}
 function deconnecter() { localStorage.clear(); window.location.href = 'index.html'; }
-window.deconnecter = deconnecter;
-document.addEventListener('click', (e) => {
-  const wrap = document.getElementById('ndConnWrap');
-  const menu = document.getElementById('ndConnMenu');
-  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
-});
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
+
+// ── EVENT DELEGATION (évite les onclick dans innerHTML) ──────────
+document.addEventListener('click', function(e) {
+  var t = e.target;
+  if (t.dataset.action === 'goto-achats')  { showSection('achats');  return; }
+  if (t.dataset.action === 'goto-clients') { showSection('clients'); return; }
+  if (t.dataset.action === 'cmd-plan') {
+    var idx = t.dataset.idx;
+    closeModal('modalProfil');
+    showSection('commande');
+    setTimeout(function() {
+      var sel = document.getElementById('selectClient');
+      if (sel) { sel.value = idx; showCommandeDetails(); }
+    }, 80);
+    return;
+  }
+  if (t.dataset.action === 'del-client') {
+    supprimerClient(parseInt(t.dataset.idx));
+    return;
+  }
 });
 
-// ===== SIDEBAR NAVIGATION =====
-document.querySelectorAll('.sidebar-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const section = item.dataset.section;
-    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(`section-${section}`).classList.add('active');
+// ── SIDEBAR ──────────────────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-item').forEach(function(s) { s.classList.remove('active'); });
+  var sec = document.getElementById('section-' + id);
+  if (sec) sec.classList.add('active');
+  var item = document.querySelector('[data-section="' + id + '"]');
+  if (item) item.classList.add('active');
+  if (id === 'compta') setTimeout(initComptaChart, 80);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── DONNEES ──────────────────────────────────────────────────────
+var CLIENTS_KEY = 'nutridoc_presc_clients';
+var PLANS_KEY   = 'nutridoc_presc_plans';
+var ACHATS_KEY  = 'nutridoc_presc_achats';
+function loadClients() { try { return JSON.parse(localStorage.getItem(CLIENTS_KEY)) || []; } catch(e) { return []; } }
+function saveClients(d) { localStorage.setItem(CLIENTS_KEY, JSON.stringify(d)); }
+function loadPlans()   { return parseInt(localStorage.getItem(PLANS_KEY)) || 0; }
+function savePlans(n)  { localStorage.setItem(PLANS_KEY, String(n)); }
+function loadAchats()  { try { return JSON.parse(localStorage.getItem(ACHATS_KEY)) || []; } catch(e) { return []; } }
+function saveAchats(d) { localStorage.setItem(ACHATS_KEY, JSON.stringify(d)); }
+
+// ── DASHBOARD ──────────────────────────────────────────────────────
+function statutLabel(s) {
+  var labels = { valide:'Plan valid&eacute;', encours:'En cours', attente:'En attente', flag:'Alerte sant&eacute;' };
+  return labels[s] || 'En attente';
+}
+var COULEURS = ['#1D9E75','#0ea5e9','#8b5cf6','#f59e0b','#ef4444','#0f6e56','#3b82f6'];
+
+function refreshDashboard() {
+  var clients = loadClients();
+  var plans   = loadPlans();
+  document.getElementById('metricPlans').textContent   = plans || '0';
+  document.getElementById('metricClients').textContent = clients.length;
+  document.getElementById('metricValides').textContent = clients.filter(function(c){return c.statut==='valide';}).length;
+  document.getElementById('metricFlags').textContent   = clients.filter(function(c){return c.statut==='flag';}).length;
+  document.getElementById('plansRestants').textContent = plans + ' plan' + (plans > 1 ? 's' : '');
+
+  var recents = document.getElementById('recentClients');
+  if (clients.length === 0) {
+    recents.innerHTML = 'Aucun client pour l&apos;instant. <a href="#" data-action="goto-clients" style="color:var(--green);">Ajouter un client &rarr;</a>';
+  } else {
+    recents.innerHTML = clients.slice(-3).reverse().map(function(c) {
+      return '<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border);">'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + (c.couleur||'#1D9E75') + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;">' + c.prenom.charAt(0) + c.nom.charAt(0) + '</div>'
+        + '<div style="flex:1;"><div style="font-size:.82rem;font-weight:600;">' + c.prenom + ' ' + c.nom + '</div>'
+        + '<div style="font-size:.68rem;color:var(--text2);">' + (c.age ? c.age + ' ans' : '') + (c.objectifLabel ? ' &middot; ' + c.objectifLabel : '') + '</div></div>'
+        + '<span class="pt-status st-' + (c.statut||'attente') + '">' + statutLabel(c.statut) + '</span>'
+        + '</div>';
+    }).join('');
+  }
+
+  var enCours = clients.filter(function(c){return c.statut==='encours';});
+  var pc = document.getElementById('plansEnCours');
+  pc.innerHTML = enCours.length === 0
+    ? 'Aucun plan en cours.'
+    : enCours.map(function(c){
+        return '<div style="padding:.4rem 0;font-size:.82rem;border-bottom:1px solid var(--border);">&#129367; Plan de <strong>' + c.prenom + ' ' + c.nom + '</strong> &mdash; en cours de validation</div>';
+      }).join('');
+}
+
+// ── CLIENTS ──────────────────────────────────────────────────────
+function renderClients() {
+  var clients = loadClients();
+  var q  = (document.getElementById('searchClient') ? document.getElementById('searchClient').value : '').toLowerCase();
+  var sf = document.getElementById('filterStatut') ? document.getElementById('filterStatut').value : '';
+  var filtered = clients.filter(function(c) {
+    var match = (c.prenom + ' ' + c.nom).toLowerCase().indexOf(q) !== -1;
+    var st    = !sf || c.statut === sf;
+    return match && st;
   });
-});
-
-// ===== DONNÉES =====
-let credits = 25;
-let patients = [
-  { id: 'p1', prenom: 'Julien', nom: 'Dubois', age: 34, sexe: 'Homme', taille: 180, poids: 78, objectif: 'Prise de masse / muscle', activite: 'Très actif', regime: '', allergies: '', aversions: '', email: 'julien@mail.fr', tel: '06 12 34 56 78', notes: 'Sportif confirmé, 5 séances/semaine.', statut: 'valide', avatar: '#1D9E75', commande_en_cours: false },
-  { id: 'p2', prenom: 'Sophie', nom: 'Martin', age: 28, sexe: 'Femme', taille: 165, poids: 65, objectif: 'Perte de poids / de gras', activite: 'Légèrement actif', regime: 'Végétarien', allergies: '', aversions: '', email: 'sophie@mail.fr', tel: '06 98 76 54 32', notes: 'Débutante, 2 séances/semaine.', statut: 'en_attente', avatar: '#5DCAA5', commande_en_cours: false },
-  { id: 'p3', prenom: 'Thomas', nom: 'Laurent', age: 42, sexe: 'Homme', taille: 175, poids: 85, objectif: 'Alimentation équilibrée', activite: 'Sédentaire', regime: '', allergies: '', aversions: '', email: 'thomas@mail.fr', tel: '06 55 66 77 88', notes: 'Sédentaire, souhaite reprendre le sport.', statut: 'en_attente', avatar: '#f59e0b', commande_en_cours: false },
-];
-
-// PAIEMENTS NUTRIDOC - Sans commission visible
-const NUTRIDOC_PAYMENTS = [
-  { date: '15/03/2025', type: 'Achat', description: 'Pack Standard - 10 crédits', montant: 130, facture: 'FAC-2025-001' },
-  { date: '15/02/2025', type: 'Achat', description: 'Pack Solo - 1 crédit', montant: 24.90, facture: 'FAC-2025-002' },
-];
-
-let coutCreditActuel = 13.00;
-let prixFactureActuel = 35;
-
-function updateMargeGauge() {
-  prixFactureActuel = parseInt(document.getElementById('sliderPrix').value);
-  coutCreditActuel = parseFloat(document.getElementById('selectCoutCredit').value);
-  const margeUnitaire = prixFactureActuel - coutCreditActuel;
-  const pourcentage = Math.round((margeUnitaire / prixFactureActuel) * 100);
-  document.getElementById('prixFacture').textContent = prixFactureActuel + '€';
-  document.getElementById('coutCredit').textContent = coutCreditActuel.toFixed(2) + '€';
-  document.getElementById('margeValue').textContent = margeUnitaire.toFixed(2) + '€';
-  document.getElementById('margePercent').textContent = pourcentage + '%';
-  const fill = document.getElementById('margeFill');
-  fill.style.width = Math.min(100, Math.max(0, pourcentage)) + '%';
-  fill.className = 'gauge-fill ' + (pourcentage >= 40 ? 'high' : (pourcentage >= 20 ? 'medium' : 'low'));
-}
-
-function updateMetrics() {
-  document.getElementById('metricCredits').textContent = credits;
-  document.getElementById('metricPatients').textContent = patients.length;
-  document.getElementById('metricValides').textContent = patients.filter(p => p.statut === 'valide').length;
-}
-
-function renderPatients() {
-  const searchTerm = document.getElementById('searchPatient')?.value.toLowerCase() || '';
-  let filtered = patients;
-  if (searchTerm) filtered = filtered.filter(p => (p.prenom + ' ' + p.nom).toLowerCase().includes(searchTerm));
-  const statusLabels = { valide: '✅ Validé', en_cours: '🔄 En cours', en_attente: '⏳ En attente' };
-  const statusClasses = { valide: 'status-valide', en_cours: 'status-en-cours', en_attente: 'status-en-attente' };
-  const container = document.getElementById('patientsGrid');
-  container.innerHTML = filtered.map(p => `
-    <div class="patient-card" onclick="ouvrirProfilPatient('${p.id}')">
-      <div class="patient-header">
-        <div class="patient-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        <div class="patient-info"><h4>${p.prenom} ${p.nom} · ${p.age} ans</h4><p>${p.objectif}</p></div>
-        <div class="patient-status ${statusClasses[p.statut]}">${statusLabels[p.statut]}</div>
-      </div>
-      <div class="patient-notes">📝 ${p.notes}</div>
-    </div>
-  `).join('');
-}
-
-function ouvrirProfilPatient(id) {
-  const p = patients.find(p => p.id === id);
-  if (!p) return;
-  const imc = p.poids && p.taille ? (p.poids / ((p.taille/100)*(p.taille/100))).toFixed(1) : '—';
-  const statusLabels = { valide: '✅ Validé', en_cours: '🔄 En cours', en_attente: '⏳ En attente' };
-  const isCommandePossible = p.statut !== 'en_cours' && credits > 0 && !p.commande_en_cours;
-  
-  document.getElementById('patientProfilContent').innerHTML = `
-    <div class="patient-profile">
-      <div class="profile-header">
-        <div class="profile-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        <div class="profile-name"><h3>${p.prenom} ${p.nom}</h3><p>${p.objectif}</p></div>
-      </div>
-      <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-label">Âge</div><div class="profile-stat-value">${p.age} ans</div></div>
-        <div class="profile-stat"><div class="profile-stat-label">Taille</div><div class="profile-stat-value">${p.taille || '—'} cm</div></div>
-        <div class="profile-stat"><div class="profile-stat-label">Poids</div><div class="profile-stat-value">${p.poids || '—'} kg</div></div>
-      </div>
-      <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-label">IMC</div><div class="profile-stat-value">${imc}</div></div>
-        <div class="profile-stat"><div class="profile-stat-label">Activité</div><div class="profile-stat-value">${p.activite || '—'}</div></div>
-        <div class="profile-stat"><div class="profile-stat-label">Statut</div><div class="profile-stat-value">${statusLabels[p.statut]}</div></div>
-      </div>
-      <div class="profile-section"><div class="profile-section-title">🥗 Régime / Allergies</div><p>${p.regime || 'Aucune restriction'}${p.allergies ? ' · Allergies: ' + p.allergies : ''}</p></div>
-      <div class="profile-section"><div class="profile-section-title">📞 Contact</div><p>📧 ${p.email}<br>📞 ${p.tel}</p></div>
-      <div class="profile-section"><div class="profile-section-title">📝 Notes</div><p>${p.notes}</p></div>
-      ${p.statut === 'valide' ? `<div class="profile-section"><button class="btn-secondary" onclick="telechargerPDF('${p.id}')">📄 Télécharger le plan</button></div>` : ''}
-      <div style="margin-top:1rem;">
-        <button class="btn-commander" onclick="commanderPlan('${p.id}')" ${!isCommandePossible ? 'disabled' : ''}>
-          ${p.statut === 'en_cours' ? '🔄 Plan en cours...' : (credits <= 0 ? '❌ Crédits insuffisants' : '🎯 Commander un plan — 1 crédit')}
-        </button>
-      </div>
-    </div>
-  `;
-  document.getElementById('modalProfilOverlay').classList.add('open');
-}
-
-function fermerProfilModal(e) {
-  if (!e || e.target === document.getElementById('modalProfilOverlay') || e.target.classList.contains('modal-close')) {
-    document.getElementById('modalProfilOverlay').classList.remove('open');
+  var grid = document.getElementById('clientsGrid');
+  if (!grid) return;
+  if (filtered.length === 0) {
+    grid.innerHTML = '<p style="font-size:.82rem;color:var(--text2);grid-column:1/-1;">Aucun client trouv&eacute;.</p>';
+  } else {
+    grid.innerHTML = filtered.map(function(c, i) {
+      var tags = [];
+      if (c.regime && c.regime !== 'aucun') tags.push(c.regime);
+      if (c.activite) tags.push(c.activite);
+      return '<div class="patient-card" onclick="openProfil(' + i + ')">'
+        + '<div class="pt-header">'
+        + '<div class="pt-av" style="background:' + (c.couleur||COULEURS[0]) + ';">' + c.prenom.charAt(0) + c.nom.charAt(0) + '</div>'
+        + '<div class="pt-info"><h4>' + c.prenom + ' ' + c.nom + '</h4><p>' + (c.age ? c.age + ' ans' : '') + ' &middot; ' + (c.sexeLabel||'') + '</p></div>'
+        + '<span class="pt-status st-' + (c.statut||'attente') + '">' + statutLabel(c.statut) + '</span>'
+        + '</div>'
+        + (c.pathologies && c.pathologies.toLowerCase() !== 'aucun' ? '<div class="pt-notes">&#9888;&#65039; ' + c.pathologies.substring(0,70) + (c.pathologies.length>70?'&hellip;':'') + '</div>' : '')
+        + (tags.length ? '<div class="pt-tags">' + tags.map(function(t){return '<span class="pt-tag">'+t+'</span>';}).join('') + '</div>' : '')
+        + '</div>';
+    }).join('');
+  }
+  var sel = document.getElementById('selectClient');
+  if (sel) {
+    sel.innerHTML = '<option value="">&#8212; Choisir un client &#8212;</option>'
+      + clients.map(function(c,i){return '<option value="'+i+'">'+c.prenom+' '+c.nom+'</option>';}).join('');
   }
 }
+function filterClients() { renderClients(); }
 
-function commanderPlan(id) {
-  const p = patients.find(p => p.id === id);
-  if (!p) return;
-  if (credits <= 0) { showToast('❌ Crédits insuffisants. Veuillez recharger.'); return; }
-  if (p.commande_en_cours) { showToast('🔄 Une commande est déjà en cours pour ce patient.'); return; }
-  credits--;
-  p.commande_en_cours = true;
-  p.statut = 'en_cours';
-  updateMetrics();
-  renderPatients();
-  showToast(`📦 Commande de plan envoyée pour ${p.prenom} ${p.nom} !`);
-  setTimeout(() => {
-    p.commande_en_cours = false;
-    p.statut = 'valide';
-    updateMetrics();
-    renderPatients();
-    fermerProfilModal();
-    setTimeout(() => ouvrirProfilPatient(id), 100);
-    showToast(`✅ Le plan de ${p.prenom} ${p.nom} est disponible !`);
-  }, 5000);
+function openModalClient() {
+  document.getElementById('formClient').reset();
+  document.getElementById('formClientError').style.display = 'none';
+  document.querySelectorAll('#formClient input,#formClient select,#formClient textarea').forEach(function(el){el.classList.remove('error');});
+  document.getElementById('modalClient').classList.add('open');
+}
+function closeModal(id, e) {
+  if (e && e.target !== document.getElementById(id)) return;
+  document.getElementById(id).classList.remove('open');
 }
 
-function openAjoutPatientModal() {
-  document.getElementById('ajoutPatientForm').reset();
-  document.getElementById('modalAjoutOverlay').classList.add('open');
-}
-function fermerAjoutModal(e) {
-  if (!e || e.target === document.getElementById('modalAjoutOverlay') || e.target.classList.contains('modal-close')) {
-    document.getElementById('modalAjoutOverlay').classList.remove('open');
-  }
-}
+var OBJECTIF_LABELS = {poids:'Perte de poids',masse:'Prise de masse',equilibre:'Alimentation &eacute;quilibr&eacute;e',energie:'Am&eacute;liorer l&apos;&eacute;nergie',prevention:'Pr&eacute;vention sant&eacute;',sport:'Performance sportive',reeq:'R&eacute;&eacute;quilibrage'};
+var SEXE_LABELS = {F:'Femme',H:'Homme',A:'Autre'};
+var ACTIVITE_LABELS = {sedentaire:'S&eacute;dentaire',leger:'L&eacute;g&egrave;rement actif',modere:'Mod&eacute;r&eacute;ment actif',actif:'Tr&egrave;s actif',tres_actif:'Athl&egrave;te'};
 
-document.getElementById('ajoutPatientForm')?.addEventListener('submit', (e) => {
+function submitClient(e) {
   e.preventDefault();
-  const newPatient = {
-    id: 'p' + (patients.length + 1),
-    prenom: document.getElementById('ajoutPrenom').value,
-    nom: document.getElementById('ajoutNom').value,
-    age: parseInt(document.getElementById('ajoutAge').value) || 30,
-    sexe: document.getElementById('ajoutSexe').value,
-    taille: parseInt(document.getElementById('ajoutTaille').value) || null,
-    poids: parseFloat(document.getElementById('ajoutPoids').value) || null,
-    objectif: document.getElementById('ajoutObjectif').value,
-    activite: document.getElementById('ajoutActivite').value,
-    regime: document.getElementById('ajoutRegime').value || '',
-    allergies: document.getElementById('ajoutAllergies').value || '',
-    aversions: document.getElementById('ajoutAversions').value || '',
-    email: document.getElementById('ajoutEmail').value || 'non renseigné',
-    tel: document.getElementById('ajoutTel').value || 'non renseigné',
-    notes: document.getElementById('ajoutNotes').value || '',
-    statut: 'en_attente',
-    avatar: ['#1D9E75', '#5DCAA5', '#f59e0b', '#0ea5e9', '#8b5cf6'][Math.floor(Math.random()*5)],
-    commande_en_cours: false,
+  var errEl = document.getElementById('formClientError');
+  errEl.style.display = 'none';
+  var mandatory = [
+    {id:'cPrenom',  label:'Pr&eacute;nom'},
+    {id:'cNom',     label:'Nom'},
+    {id:'cAge',     label:'&#194;ge'},
+    {id:'cTaille',  label:'Taille'},
+    {id:'cPoids',   label:'Poids'},
+    {id:'cObjectif',label:'Objectif'},
+    {id:'cActivite',label:'Niveau d&apos;activit&eacute;'},
+    {id:'cAllergies',label:'Allergies'},
+    {id:'cPathologies',label:'Ant&eacute;c&eacute;dents m&eacute;dicaux'},
+  ];
+  var errors = [];
+  mandatory.forEach(function(f) {
+    var el = document.getElementById(f.id);
+    if (!el) return;
+    var val = el.value.trim();
+    if (!val || val === '') {
+      el.classList.add('error');
+      errors.push(f.label);
+    } else {
+      el.classList.remove('error');
+    }
+  });
+  if (errors.length > 0) {
+    errEl.innerHTML = '&#9888;&#65039; Champs obligatoires manquants : ' + errors.join(', ');
+    errEl.style.display = 'block';
+    return;
+  }
+  var clients = loadClients();
+  var obj = document.getElementById('cObjectif').value;
+  var sex = document.getElementById('cSexe').value;
+  var act = document.getElementById('cActivite').value;
+  var c = {
+    prenom:       document.getElementById('cPrenom').value.trim(),
+    nom:          document.getElementById('cNom').value.trim(),
+    age:          document.getElementById('cAge').value,
+    sexe:         sex,
+    sexeLabel:    SEXE_LABELS[sex] || sex,
+    taille:       document.getElementById('cTaille').value,
+    poids:        document.getElementById('cPoids').value,
+    objectif:     obj,
+    objectifLabel:OBJECTIF_LABELS[obj] || obj,
+    activite:     act,
+    activiteLabel:ACTIVITE_LABELS[act] || act,
+    regime:       document.getElementById('cRegime').value,
+    allergies:    document.getElementById('cAllergies').value.trim(),
+    pathologies:  document.getElementById('cPathologies').value.trim(),
+    email:        document.getElementById('cEmail').value.trim(),
+    tel:          document.getElementById('cTel').value.trim(),
+    notes:        document.getElementById('cNotes').value.trim(),
+    statut:       'attente',
+    couleur:      COULEURS[clients.length % COULEURS.length],
+    created:      new Date().toISOString(),
   };
-  patients.push(newPatient);
-  renderPatients();
-  updateMetrics();
-  fermerAjoutModal();
-  showToast(`✅ Patient ${newPatient.prenom} ${newPatient.nom} ajouté !`);
-});
-
-function showToast(msg) {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
+  clients.push(c);
+  saveClients(clients);
+  closeModal('modalClient');
+  renderClients();
+  refreshDashboard();
+  toast('&#10003; Client ' + c.prenom + ' ' + c.nom + ' ajout&eacute;');
 }
 
-// RECHARGE - Sans mention de commission
-let pendingRecharge = null;
-function recharger(nb, prix) {
-  pendingRecharge = { nb, prix };
-  document.getElementById('modalRechargeDesc').innerHTML = `
-    <strong>${nb} crédit${nb > 1 ? 's' : ''}</strong> · ${prix.toFixed(2)}€ HT<br><br>
-    Le paiement est sécurisé par Stripe Connect — votre diététicien référent encaisse directement.<br>
-    Les crédits sont valables 12 mois.
-  `;
-  document.getElementById('modalRechargeOverlay').classList.add('open');
+function openProfil(idx) {
+  var clients = loadClients();
+  var c = clients[idx];
+  if (!c) return;
+  document.getElementById('profilTitle').textContent = c.prenom + ' ' + c.nom;
+  var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:1rem;">';
+  html += statBox('&#194;ge', c.age ? c.age + ' ans' : '&#8212;');
+  html += statBox('Sexe', c.sexeLabel || '&#8212;');
+  html += statBox('IMC', (c.taille && c.poids) ? (c.poids / Math.pow(c.taille/100,2)).toFixed(1) : '&#8212;');
+  html += statBox('Taille', c.taille ? c.taille + ' cm' : '&#8212;');
+  html += statBox('Poids', c.poids ? c.poids + ' kg' : '&#8212;');
+  html += statBox('Activit&eacute;', c.activiteLabel || '&#8212;');
+  html += '</div>';
+  if (c.objectifLabel) html += '<div style="font-size:.78rem;background:#f0faf6;border-radius:8px;padding:.5rem .75rem;margin-bottom:.65rem;"><strong>&#127919; Objectif :</strong> ' + c.objectifLabel + '</div>';
+  if (c.pathologies && c.pathologies.toLowerCase() !== 'aucun') {
+    html += '<div style="background:#fff8e6;border:1px solid #fcd34d;border-radius:10px;padding:.65rem .85rem;margin-bottom:.65rem;font-size:.78rem;color:#92400e;"><strong>&#9888;&#65039; Ant&eacute;c&eacute;dents :</strong> ' + c.pathologies + '</div>';
+  }
+  if (c.allergies && c.allergies.toLowerCase() !== 'aucune') html += infoLine('&#128683; Allergies', c.allergies);
+  if (c.regime && c.regime !== 'aucun') html += infoLine('&#127807; R&eacute;gime', c.regime);
+  if (c.email) html += infoLine('&#9993;&#65039;', c.email);
+  if (c.tel)   html += infoLine('&#128222;', c.tel);
+  if (c.notes) html += '<div style="font-size:.78rem;color:var(--text2);margin-bottom:.75rem;padding:.5rem;background:var(--cream);border-radius:8px;">&#128221; ' + c.notes + '</div>';
+  html += '<div style="display:flex;gap:.75rem;margin-top:.75rem;">';
+  html += '<button class="btn-primary" data-action="cmd-plan" data-idx="' + idx + '" style="flex:1;">&#129367; Commander un plan</button>';
+  html += '<button class="btn-secondary" data-action="del-client" data-idx="' + idx + '">&#128465;</button>';
+  html += '</div>';
+  document.getElementById('profilContent').innerHTML = html;
+  document.getElementById('modalProfil').classList.add('open');
 }
-function fermerRechargeModal(e) {
-  if (!e || e.target === document.getElementById('modalRechargeOverlay')) {
-    document.getElementById('modalRechargeOverlay').classList.remove('open');
-    pendingRecharge = null;
+function statBox(lbl, val) {
+  return '<div style="background:var(--cream);border-radius:10px;padding:.55rem;text-align:center;">'
+    + '<div style="font-size:.58rem;color:var(--text2);text-transform:uppercase;margin-bottom:.2rem;">' + lbl + '</div>'
+    + '<div style="font-weight:600;font-size:.82rem;">' + val + '</div></div>';
+}
+function infoLine(lbl, val) {
+  return '<div style="font-size:.78rem;color:var(--text2);margin-bottom:.3rem;">' + lbl + ' : ' + val + '</div>';
+}
+function supprimerClient(idx) {
+  if (!confirm('Supprimer ce client ?')) return;
+  var clients = loadClients();
+  clients.splice(idx, 1);
+  saveClients(clients);
+  closeModal('modalProfil');
+  renderClients();
+  refreshDashboard();
+  toast('Client supprim&eacute;');
+}
+
+// ── COMMANDE ─────────────────────────────────────────────────────
+function showCommandeDetails() {
+  var v = document.getElementById('selectClient').value;
+  var card = document.getElementById('commandeDetails');
+  var conf = document.getElementById('commandeConfirm');
+  if (!v) { card.style.display='none'; conf.style.display='none'; return; }
+  card.style.display = 'block';
+  conf.style.display = 'block';
+  var c = loadClients()[parseInt(v)];
+  if (c) {
+    if (c.pathologies) document.getElementById('cmdPathologies').value = c.pathologies;
+    if (c.allergies)   document.getElementById('cmdAllergies').value   = c.allergies;
+    if (c.activite)    document.getElementById('cmdActivite').value    = c.activite;
+    if (c.regime)      document.getElementById('cmdRegime').value      = c.regime;
+    var plans = loadPlans();
+    document.getElementById('plansRestants').textContent = plans + ' plan' + (plans > 1 ? 's' : '');
+    document.getElementById('commandeRecap').innerHTML =
+      '<strong>' + c.prenom + ' ' + c.nom + '</strong> &middot; ' + (c.age||'&#8212;') + ' ans &middot; ' + (c.sexeLabel||'') + '<br>'
+      + (c.pathologies && c.pathologies.toLowerCase() !== 'aucun' ? '<span style="color:#f59e0b;">&#9888;&#65039; Ant&eacute;c&eacute;dents : ' + c.pathologies + '</span>' : '');
   }
 }
-document.getElementById('modalRechargeConfirm')?.addEventListener('click', () => {
-  if (pendingRecharge) {
-    credits += pendingRecharge.nb;
-    updateMetrics();
-    showToast(`✅ ${pendingRecharge.nb} crédit${pendingRecharge.nb > 1 ? 's' : ''} ajouté${pendingRecharge.nb > 1 ? 's' : ''} !`);
-    pendingRecharge = null;
+
+function confirmerCommande() {
+  var idx        = document.getElementById('selectClient').value;
+  var pathologies = document.getElementById('cmdPathologies').value.trim();
+  var taille      = document.getElementById('cmdTaille').value;
+  var poids       = document.getElementById('cmdPoids').value;
+  var allergies   = document.getElementById('cmdAllergies').value.trim();
+  if (!idx)        { toast('&#9888;&#65039; S&eacute;lectionnez un client', 'error'); return; }
+  if (!pathologies){ toast('&#9888;&#65039; Ant&eacute;c&eacute;dents m&eacute;dicaux obligatoires', 'error'); return; }
+  if (!taille)     { toast('&#9888;&#65039; La taille est obligatoire', 'error'); return; }
+  if (!poids)      { toast('&#9888;&#65039; Le poids est obligatoire', 'error'); return; }
+  if (!allergies)  { toast('&#9888;&#65039; Indiquez les allergies (ou &laquo; aucune &raquo;)', 'error'); return; }
+  var plans = loadPlans();
+  if (plans < 1) {
+    toast('&#9888;&#65039; Aucun plan disponible &mdash; rechargez depuis Mes achats', 'error');
+    showSection('achats');
+    return;
   }
-  document.getElementById('modalRechargeOverlay').classList.remove('open');
-});
+  savePlans(plans - 1);
+  var clients = loadClients();
+  clients[parseInt(idx)].statut = 'encours';
+  saveClients(clients);
+  refreshDashboard();
+  renderClients();
+  toast('&#10003; Plan envoy&eacute; au di&eacute;t. RPPS &mdash; livraison sous 48h');
+  showSection('dashboard');
+}
 
-// COMPTABILITÉ
-let comptaChart = null;
-function renderCompta() {
-  const caTotal = patients.filter(p => p.statut === 'valide').length * prixFactureActuel;
-  const depenses = (25 - credits) * coutCreditActuel;
-  const marge = caTotal - depenses;
-  document.getElementById('comptaCa').textContent = Math.round(caTotal) + '€';
-  document.getElementById('comptaDepenses').textContent = Math.max(0, Math.round(depenses)) + '€';
-  document.getElementById('comptaMarge').textContent = Math.round(marge) + '€';
-  document.getElementById('comptaTva').textContent = Math.round(caTotal * 0.2) + '€';
-  const ctx = document.getElementById('comptaChart');
-  if (ctx && typeof Chart !== 'undefined') {
-    if (comptaChart) comptaChart.destroy();
-    comptaChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'], datasets: [{ label: 'CA (€)', data: [120, 150, 180, 220, 250, 280], backgroundColor: '#1D9E75', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } } });
+// ── ACHATS ──────────────────────────────────────────────────────
+var pendingAchat = null;
+
+function isPromoActive() {
+  var inscDate = localStorage.getItem('nutridoc_inscription_date');
+  if (!inscDate) {
+    localStorage.setItem('nutridoc_inscription_date', new Date().toISOString());
+    return true;
+  }
+  var diff = (Date.now() - new Date(inscDate).getTime()) / (1000 * 3600 * 24);
+  return diff <= 30;
+}
+
+function applyPackPricing() {
+  var promo = isPromoActive();
+  window._promoActive = promo;
+  var band = document.getElementById('promoDash');
+  var PACKS = {decouverte:{normal:22,promo:19.80},essentiel:{normal:100,promo:90},confort:{normal:180,promo:162},volume:{normal:375,promo:337.50}};
+  var ids = {priceD:'decouverte',priceE:'essentiel',priceC:'confort',priceV:'volume'};
+  for (var elId in ids) {
+    var el   = document.getElementById(elId);
+    var pack = PACKS[ids[elId]];
+    if (!el || !pack) continue;
+    if (promo) {
+      el.textContent = fmtPrice(pack.promo) + ' €';
+      el.style.color = 'var(--green-dark)';
+    } else {
+      el.textContent = fmtPrice(pack.normal) + ' €';
+      el.style.color = 'var(--text)';
+      var prev = el.previousElementSibling;
+      if (prev && prev.classList.contains('pyr-old')) prev.style.display = 'none';
+    }
+  }
+  if (band) {
+    if (promo) {
+      var inscDate     = new Date(localStorage.getItem('nutridoc_inscription_date'));
+      var fin          = new Date(inscDate.getTime() + 30 * 24 * 3600 * 1000);
+      var jours        = Math.max(0, Math.ceil((fin - Date.now()) / (1000 * 3600 * 24)));
+      var note         = document.getElementById('promoRestant');
+      if (note) note.textContent = jours + ' jour' + (jours > 1 ? 's' : '') + ' restant' + (jours > 1 ? 's' : '') + ' sur votre offre de bienvenue';
+      band.style.display = 'flex';
+    } else {
+      band.style.display = 'none';
+    }
   }
 }
 
-// PAIEMENTS NUTRIDOC - Sans commission visible
-function renderNutridocPayments() {
-  const total = NUTRIDOC_PAYMENTS.reduce((s, p) => s + p.montant, 0);
-  const dernier = NUTRIDOC_PAYMENTS[0]?.date || '—';
-  document.getElementById('nutridocTotal').textContent = total.toFixed(2) + '€';
-  document.getElementById('nutridocDernier').textContent = dernier;
-  const tbody = document.getElementById('nutridocPaymentsBody');
-  tbody.innerHTML = NUTRIDOC_PAYMENTS.map(p => `
-    <tr>
-      <td>${p.date}</td>
-      <td>${p.type}</td>
-      <td>${p.description}</td>
-      <td>${p.montant.toFixed(2)}€</td>
-      <td><button class="btn-secondary" onclick="telechargerFacture('${p.facture}')">PDF</button></td>
-    </tr>
-  `).join('');
-}
-function telechargerFacture(num) { showToast(`📎 Téléchargement de ${num}.pdf`); }
-function telechargerPDF(id) { showToast('📄 Téléchargement du plan alimentaire...'); }
-
-// SIMULATEUR
-let coutPlanSim = 13.00;
-function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
-function setCoutPlan(val, btn) {
-  coutPlanSim = val;
-  document.querySelectorAll('.sim-abtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  updateSimulator();
-}
-function updateSimulator() {
-  const clients = parseInt(document.getElementById('simClients').value);
-  const taux = parseInt(document.getElementById('simTaux').value) / 100;
-  const prix = parseInt(document.getElementById('simPrix').value);
-  document.getElementById('simClientsVal').textContent = clients;
-  document.getElementById('simTauxVal').textContent = (taux * 100) + '%';
-  document.getElementById('simPrixVal').textContent = prix + '€';
-  const plans = Math.round(clients * taux);
-  const ca = plans * prix;
-  const couts = plans * coutPlanSim;
-  const marge = ca - couts;
-  document.getElementById('simPlans').textContent = plans;
-  document.getElementById('simCa').textContent = Math.round(ca) + '€';
-  document.getElementById('simCouts').textContent = Math.round(couts) + '€';
-  document.getElementById('simMarge').textContent = (marge >= 0 ? '+' : '') + Math.round(marge) + '€';
+function fmtPrice(n) {
+  return n % 1 === 0 ? String(n) : n.toFixed(2).replace('.', ',');
 }
 
-document.getElementById('searchPatient')?.addEventListener('input', () => renderPatients());
-document.getElementById('sliderPrix')?.addEventListener('input', () => { updateMargeGauge(); renderCompta(); });
-document.getElementById('selectCoutCredit')?.addEventListener('change', () => { updateMargeGauge(); renderCompta(); });
+function achetterPack(nom, prixNormal, prixPromo, qte) {
+  var promo = window._promoActive;
+  var prix  = promo ? prixPromo : prixNormal;
+  pendingAchat = {nom:nom, prixNormal:prixNormal, prixPromo:prixPromo, prix:prix, qte:qte, promo:promo};
+  var desc = '<strong>Pack ' + nom.charAt(0).toUpperCase() + nom.slice(1) + '</strong> &mdash; ' + qte + ' plan' + (qte>1?'s':'') + ' alimentaire' + (qte>1?'s':'') + ' sur-mesure<br><br>';
+  if (promo) {
+    desc += 'Prix normal : <span style="text-decoration:line-through;color:#9ca3af;">' + prixNormal + ' &euro;</span><br>';
+    desc += '<strong style="color:var(--green);">Prix offre de bienvenue : ' + fmtPrice(prix) + ' &euro;</strong> (&minus;10 %)<br>';
+  } else {
+    desc += 'Montant : <strong>' + prixNormal + ' &euro;</strong><br>';
+  }
+  desc += '<br>Paiement s&eacute;curis&eacute; Stripe &middot; Facture automatique &middot; Plans valables 12 mois';
+  document.getElementById('achatDesc').innerHTML = desc;
+  document.getElementById('modalAchat').classList.add('open');
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  updateMetrics();
-  renderPatients();
-  renderCompta();
-  renderNutridocPayments();
-  updateMargeGauge();
-  updateSimulator();
-  if (typeof initSupportWidget !== 'undefined') initSupportWidget('supportWidget_prescriber', 'prescriber');
-});
+function confirmerAchat() {
+  if (!pendingAchat) return;
+  var plans = loadPlans() + pendingAchat.qte;
+  savePlans(plans);
+  var achats = loadAchats();
+  achats.unshift({date:new Date().toLocaleDateString('fr-FR'), pack:pendingAchat.nom, qte:pendingAchat.qte, montant:pendingAchat.prix});
+  saveAchats(achats);
+  closeModal('modalAchat');
+  refreshDashboard();
+  renderAchats();
+  toast('&#10003; ' + pendingAchat.qte + ' plan' + (pendingAchat.qte>1?'s':'') + ' ajout&eacute;' + (pendingAchat.qte>1?'s':'') + ' &agrave; votre compte');
+  pendingAchat = null;
+}
 
-</script>
+function renderAchats() {
+  var achats = loadAchats();
+  var tbody  = document.getElementById('achatBody');
+  if (!tbody) return;
+  if (achats.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:1.5rem;">Aucun achat pour l&apos;instant.</td></tr>';
+  } else {
+    tbody.innerHTML = achats.map(function(a) {
+      return '<tr>'
+        + '<td>' + a.date + '</td>'
+        + '<td>Pack ' + a.pack.charAt(0).toUpperCase() + a.pack.slice(1) + '</td>'
+        + '<td>' + a.qte + ' plan' + (a.qte>1?'s':'') + '</td>'
+        + '<td>' + a.montant + ' &euro;</td>'
+        + '<td><span class="badge badge-green">PDF</span></td>'
+        + '</tr>';
+    }).join('');
+    var total = achats.reduce(function(s,a){return s + parseFloat(a.montant);}, 0);
+    document.getElementById('achatTotal').textContent = total.toFixed(2) + ' €';
+    document.getElementById('achatDernier').textContent = achats[0] ? achats[0].date : '&#8212;';
+  }
+}
 
-  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
-  <script src="js/theme-selector.js"></script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/auto-save.js"></script>
-  <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js")
-        .then(reg => console.log("Service Worker enregistré:", reg))
-        .catch(err => console.error("Erreur SW:", err));
+// ── COMPTABILITE ─────────────────────────────────────────────────
+function updateMarge() {
+  var px   = parseInt(document.getElementById('sliderPrix').value);
+  var cout = parseFloat(document.getElementById('selectCoutPlan').value);
+  var marge = px - cout;
+  var pct   = Math.round((marge / px) * 100);
+  document.getElementById('prixFacture').textContent  = px + ' €';
+  document.getElementById('coutPlan').textContent     = cout + ' €';
+  document.getElementById('margeValue').textContent   = marge.toFixed(2) + ' €';
+  document.getElementById('margePercent').textContent = pct + ' %';
+  var fill = document.getElementById('margeFill');
+  fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  fill.className   = 'gauge-fill ' + (pct >= 50 ? 'hi' : pct >= 30 ? 'mid' : 'lo');
+}
+updateMarge();
+
+var comptaChartInst = null;
+function initComptaChart() {
+  try {
+    var ctx = document.getElementById('comptaChart');
+    if (!ctx) return;
+    var rect = ctx.getBoundingClientRect();
+    if (rect.width === 0) return;
+    if (comptaChartInst) { comptaChartInst.destroy(); comptaChartInst = null; }
+    var mois = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+    comptaChartInst = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: mois,
+        datasets: [
+          {label:'CA (€)', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:'rgba(29,158,117,.2)', borderColor:'#1D9E75', borderWidth:1.5, borderRadius:6},
+          {label:'Coût plans (€)', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:'rgba(239,68,68,.15)', borderColor:'#ef4444', borderWidth:1.5, borderRadius:6},
+        ]
+      },
+      options: {responsive:true, plugins:{legend:{labels:{font:{family:'Outfit'},boxWidth:12}}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(0,0,0,.05)'}}}}
     });
-  }
-  </script>
+  } catch(e) { console.warn('Chart:', e); }
+}
+
+// ── SIMULATEUR ──────────────────────────────────────────────────
+var simCout = 18;
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+function setSimPack(c, btn) {
+  simCout = c;
+  document.querySelectorAll('.sim-pack').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  updateSim();
+}
+function updateSim() {
+  var plans = parseInt(document.getElementById('sPl').value);
+  var px    = parseInt(document.getElementById('sPx').value);
+  document.getElementById('sPlV').textContent = plans;
+  document.getElementById('sPxV').textContent = px + ' €';
+  var ca    = plans * px;
+  var cout  = plans * simCout;
+  var marge = ca - cout;
+  document.getElementById('sCa').textContent    = ca + ' €';
+  document.getElementById('sCout').textContent  = cout + ' €';
+  document.getElementById('sMarge').textContent = (marge >= 0 ? '+' : '') + marge + ' €';
+  document.getElementById('sNote').textContent  = 'Marge annuelle : ' + Math.round(marge * 12).toLocaleString('fr-FR') + ' €';
+}
+updateSim();
+
+// ── INIT ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  applyFormule();
+  applyPackPricing();
+  refreshDashboard();
+  renderClients();
+  renderAchats();
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+}
+</script>
 </body>
 </html>

@@ -685,10 +685,7 @@
 const PRIX_VISIO = 55;
 
 const PATIENTS = [
-  { id:'p1', prenom:'Marie',  nom:'Dupont',  age:34, objectif:'Perte de poids', email:'marie.d@mail.fr', tel:'06 12 34 56 78', color:'#1D9E75' },
-  { id:'p2', prenom:'Thomas', nom:'Klein',   age:28, objectif:'Prise de masse', email:'t.klein@mail.fr', tel:'06 98 76 54 32', color:'#5DCAA5' },
-  { id:'p3', prenom:'Sophie', nom:'Martin',  age:41, objectif:'Équilibre',      email:'soph.m@mail.fr',  tel:'07 11 22 33 44', color:'#97C459' },
-  { id:'p4', prenom:'Lucas',  nom:'Bernard', age:25, objectif:'Sport & perf.',  email:'lucas.b@mail.fr', tel:'06 55 66 77 88', color:'#f59e0b' },
+  // Patients chargés depuis Supabase
 ];
 
 const STATUTS = {
@@ -1784,7 +1781,7 @@ function toggleSettings() {
   if (isOpen) { closeSettings(); return; }
 
   const formule = (localStorage.getItem('nutridoc_formule') || 'decouverte').toLowerCase();
-  const locked  = formule !== 'essentiel';
+  const locked  = false; // Agenda accessible sur toutes les formules
 
   initSettingsPanel(locked);
   overlay.classList.add('open');

@@ -2,764 +2,1126 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="robots" content="noindex"/>
-  <meta name="description" content="Comptabilité NutriDoc — Suivez vos revenus, factures et paiements."/>
-  <title>Comptabilité — NutriDoc Diététicien</title>
-
+  <meta name="description" content="Comptabilite NutriDoc - Revenus, reversements Stripe, abonnement, factures, fiscalite."/>
+  <title>Comptabilit&eacute; &mdash; Di&eacute;t&eacute;ticien NutriDoc</title>
   <link rel="manifest" href="/manifest.json"/>
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
-
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    :root {
-      --green:#1D9E75; --green-dark:#0f6e56; --green-light:#5DCAA5;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --green:#1D9E75;--green-dark:#0f6e56;--green-light:#5DCAA5;
       --green-border:rgba(29,158,117,0.2);
-      --dark:#0d2018; --dark2:#0a1912; --cream:#f7f9f7; --white:#fff;
-      --text:#0d2018; --text2:#4b5563; --border:#eef4ee; --card:#fff;
+      --dark:#0d2018;--dark2:#0a1912;
+      --cream:#f7f9f7;--white:#fff;
+      --text:#0d2018;--text2:#4b5563;--border:#eef4ee;
     }
-    body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); line-height:1.5; }
-
-    /* ── HEADER ── */
-    .nd-header { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--dark); border-bottom:1px solid var(--green-border); padding:.7rem 2rem; }
-    .hc { max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
-    .h-left { display:flex; align-items:center; gap:1.75rem; }
-    .nd-logo { font-family:'Playfair Display',serif; font-size:1.25rem; color:#fff; text-decoration:none; }
-    .nd-logo em { font-style:italic; color:var(--green-light); }
-    .nd-nav { display:flex; gap:1.25rem; }
-    .nd-navlink { font-size:.78rem; color:rgba(255,255,255,.6); text-decoration:none; transition:color .2s; }
-    .nd-navlink:hover,.nd-navlink.active { color:#fff; }
-    .cofond { display:flex; align-items:center; gap:.45rem; background:rgba(29,158,117,.1); border:1px solid var(--green-border); border-radius:999px; padding:.2rem .75rem; position:relative; cursor:default; }
-    .cofond-av { width:22px; height:22px; background:linear-gradient(135deg,#1D9E75,#0f6e56); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:#fff; }
-    .cofond-txt { font-size:.6rem; color:rgba(255,255,255,.7); }
-    .cofond-txt strong { color:var(--green-light); }
-    .cofond-tip { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:var(--dark); border:1px solid var(--green); border-radius:10px; padding:.55rem; font-size:.65rem; color:var(--green-light); text-align:center; pointer-events:none; z-index:500; line-height:1.5; white-space:pre-line; }
-    .cofond:hover .cofond-tip { display:block; }
-    .h-right { display:flex; align-items:center; gap:.75rem; }
-    .nd-btn-ghost { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:.35rem .9rem; color:rgba(255,255,255,.85); font-size:.75rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
-    .nd-btn-ghost:hover { background:rgba(255,255,255,.16); color:#fff; }
-    @media(max-width:900px){ .nd-nav,.cofond{display:none;} .nd-header{padding:.65rem 1rem;} }
-
-    /* ── LAYOUT ── */
-    .dashboard-layout { display:flex; max-width:1400px; margin:0 auto; padding:5.5rem 2rem 3rem; gap:1.75rem; }
-    @media(max-width:768px){ .dashboard-layout{flex-direction:column;padding:5rem 1rem 2rem;} }
-
-    /* ── SIDEBAR ── */
-    .sidebar { width:220px; flex-shrink:0; }
-    .sidebar-nav { background:var(--card); border-radius:18px; border:1px solid var(--border); overflow:hidden; position:sticky; top:80px; }
-    .sidebar-back { display:flex; align-items:center; gap:.4rem; padding:.65rem 1.1rem; font-size:.76rem; color:var(--text2); text-decoration:none; border-bottom:1px solid var(--border); transition:color .2s; }
-    .sidebar-back:hover { color:var(--green); }
-    .sidebar-item { display:flex; align-items:center; gap:.7rem; padding:.75rem 1.1rem; cursor:pointer; transition:all .2s; border-bottom:1px solid var(--border); color:var(--text2); font-size:.82rem; }
-    .sidebar-item:last-child { border-bottom:none; }
-    .sidebar-item:hover { background:var(--cream); color:var(--text); }
-    .sidebar-item.active { background:rgba(29,158,117,.08); color:var(--green); font-weight:600; border-left:3px solid var(--green); }
-    .sidebar-icon { font-size:1rem; width:22px; flex-shrink:0; }
-    @media(max-width:768px){
-      .sidebar{width:100%;}
-      .sidebar-nav{display:flex;overflow-x:auto;}
-      .sidebar-back{display:none;}
-      .sidebar-item{white-space:nowrap;border-bottom:none;border-right:1px solid var(--border);flex-shrink:0;}
-    }
-
-    /* ── MAIN ── */
-    .main-content { flex:1; min-width:0; }
-    .section { display:none; animation:fadeIn .3s ease; }
-    .section.active { display:block; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-
-    /* ── PAGE HEADER ── */
-    .page-header { margin-bottom:1.5rem; }
-    .page-title { font-family:'Playfair Display',serif; font-size:1.55rem; color:var(--text); }
-    .page-sub { font-size:.82rem; color:var(--text2); margin-top:.2rem; }
-
-    /* ── MÉTRIQUES ── */
-    .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
-    @media(max-width:700px){ .metrics-grid{grid-template-columns:repeat(2,1fr);} }
-    .metric-card {
-      background:var(--card); border:1px solid var(--border);
-      border-radius:18px; padding:1.1rem; text-align:center;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .metric-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.07); }
-    .metric-card.dark { background:linear-gradient(135deg,var(--dark),#142c1f); border-color:rgba(29,158,117,.25); }
-    .metric-val { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700; color:var(--green); line-height:1; }
-    .metric-card.dark .metric-val { color:var(--green-light); }
-    .metric-label { font-size:.68rem; color:var(--text2); margin-top:.3rem; line-height:1.4; }
-    .metric-card.dark .metric-label { color:rgba(255,255,255,.45); }
-    .metric-trend { font-size:.65rem; margin-top:.35rem; }
-    .metric-trend.up { color:var(--green); }
-    .metric-trend.neutral { color:var(--text2); }
-
-    /* ── CARDS ── */
-    .card-block { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:1.25rem; margin-bottom:1.5rem; }
-    .card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; padding-bottom:.6rem; border-bottom:1px solid var(--border); }
-    .card-header h3 { font-size:.98rem; font-weight:600; color:var(--text); }
-    .btn-sm-action { background:transparent; border:1px solid var(--border); border-radius:999px; padding:.28rem .75rem; font-size:.7rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; color:var(--text2); }
-    .btn-sm-action:hover { border-color:var(--green); color:var(--green); }
-
-    /* ── TABLEAUX ── */
-    .compta-table { width:100%; border-collapse:collapse; font-size:.8rem; }
-    .compta-table th { background:var(--cream); padding:.65rem 1rem; text-align:left; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text2); border-bottom:1px solid var(--border); }
-    .compta-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border); color:var(--text2); }
-    .compta-table tbody tr:last-child td { border-bottom:none; }
-    .compta-table tbody tr:hover td { background:var(--cream); }
-    .badge-ok      { background:#e1f5ee; color:var(--green); font-size:.66rem; padding:.14rem .5rem; border-radius:999px; font-weight:600; }
-    .badge-pending { background:#fff8e6; color:#f59e0b; font-size:.66rem; padding:.14rem .5rem; border-radius:999px; font-weight:600; }
-    .badge-presc   { background:#eff6ff; color:#2563eb; font-size:.66rem; padding:.14rem .5rem; border-radius:999px; font-weight:600; }
-    .text-green { color:var(--green); font-weight:600; }
-    .text-muted { color:var(--text2); }
-
-    /* ── GRAPHIQUE ── */
-    .chart-wrapper { position:relative; height:230px; }
-
-    /* ── RÉSUMÉ SOURCES ── */
-    .sources-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.85rem; margin-bottom:1.25rem; }
-    @media(max-width:600px){ .sources-grid{grid-template-columns:1fr;} }
-    .source-card { background:var(--cream); border-radius:14px; padding:.9rem 1rem; }
-    .source-icon { font-size:1.3rem; margin-bottom:.3rem; }
-    .source-label { font-size:.7rem; color:var(--text2); margin-bottom:.2rem; }
-    .source-val { font-size:1.15rem; font-weight:700; color:var(--text); }
-    .source-detail { font-size:.65rem; color:var(--text2); margin-top:.1rem; }
-
-    /* ── ABONNEMENT CARD ── */
-    .abo-card { background:linear-gradient(135deg,var(--dark),#142c1f); border-radius:18px; padding:1.25rem 1.5rem; color:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }
-    .abo-left {}
-    .abo-label { font-size:.7rem; color:rgba(255,255,255,.45); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem; }
-    .abo-name { font-family:'Playfair Display',serif; font-size:1.3rem; color:#fff; }
-    .abo-prix { font-size:.8rem; color:rgba(255,255,255,.5); margin-top:.1rem; }
-    .abo-right { text-align:right; }
-    .abo-note { font-size:.72rem; color:rgba(255,255,255,.5); }
-    .abo-note strong { color:var(--green-light); }
-    .btn-abo-upgrade { background:var(--green); color:#fff; border:none; border-radius:999px; padding:.5rem 1.2rem; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; text-decoration:none; display:inline-block; transition:background .2s; }
-    .btn-abo-upgrade:hover { background:var(--green-dark); }
-
-    /* ── ÉCHÉANCIER ── */
-    .echeancier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:1rem; }
-    .echeance-card { background:var(--cream); border-radius:14px; padding:.9rem 1rem; display:flex; align-items:center; gap:.9rem; }
-    .echeance-date { background:var(--green); color:#fff; border-radius:10px; padding:.5rem .6rem; text-align:center; min-width:58px; flex-shrink:0; }
-    .echeance-date .day { font-size:1.15rem; font-weight:700; line-height:1; }
-    .echeance-date .month { font-size:.58rem; opacity:.85; }
-    .echeance-info h4 { font-size:.83rem; font-weight:600; }
-    .echeance-info p { font-size:.68rem; color:var(--text2); margin-top:.1rem; }
-    .echeance-montant { margin-left:auto; font-weight:700; font-size:.88rem; color:var(--green); }
-
-    /* ── ÉTAT VIDE ── */
-    .empty-dashed { border:2px dashed #d1ddd7; border-radius:14px; padding:2rem 1rem; text-align:center; }
-    .empty-dashed-icon { font-size:1.8rem; opacity:.25; margin-bottom:.4rem; }
-    .empty-dashed h4 { font-size:.88rem; font-weight:500; color:var(--text2); margin-bottom:.25rem; }
-    .empty-dashed p { font-size:.75rem; color:#9ca3af; }
-
-    /* ── SIMULATEUR bulle ── */
-    .sim-bubble { position:fixed; bottom:1.5rem; left:1.5rem; z-index:300; }
-    .sim-toggle { width:52px; height:52px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; box-shadow:0 4px 16px rgba(0,0,0,.2); font-size:1.4rem; transition:transform .2s,background .2s; }
-    .sim-toggle:hover { transform:scale(1.06); background:var(--green-dark); }
-    .sim-window { display:none; position:absolute; bottom:64px; left:0; width:300px; background:var(--card); border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,.15); border:1px solid var(--green-border); overflow:hidden; }
-    .sim-window.open { display:block; }
-    .sim-header { background:var(--green); color:#fff; padding:.7rem 1rem; font-size:.86rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
-    .sim-close { background:none; border:none; color:#fff; cursor:pointer; font-size:1rem; }
-    .sim-body { padding:.9rem; }
-    .sim-field { margin-bottom:.75rem; }
-    .sim-field-header { display:flex; justify-content:space-between; margin-bottom:.22rem; }
-    .sim-field-label { font-size:.7rem; color:var(--text2); font-weight:500; }
-    .sim-field-val { font-size:.75rem; font-weight:700; color:var(--green); }
-    input[type=range] { -webkit-appearance:none; width:100%; height:4px; border-radius:999px; background:var(--border); outline:none; cursor:pointer; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--green); border:2px solid #fff; cursor:pointer; }
-    .sim-results { background:var(--cream); border-radius:10px; padding:.65rem .75rem; margin:.55rem 0; }
-    .sim-row { display:flex; justify-content:space-between; font-size:.71rem; margin-bottom:.22rem; color:var(--text2); }
-    .sim-row strong { color:var(--text); }
-    .sim-row.sep { border-top:1px solid var(--border); padding-top:.22rem; margin-top:.22rem; }
-    .sim-row.highlight { font-weight:700; font-size:.8rem; }
-    .sim-row.highlight span { color:var(--text); }
-    .sim-row.highlight strong { color:var(--green); }
-    .sim-note { font-size:.62rem; color:var(--text2); text-align:center; margin-top:.35rem; }
-
-    /* ── FOOTER ── */
-    .nd-footer { background:#080f0b; color:rgba(255,255,255,.5); padding:2.5rem 2rem 1.5rem; margin-top:2rem; }
-    .nd-footer-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.5fr 2fr; gap:2rem; }
-    .nd-logo-footer { font-family:'Playfair Display',serif; font-size:1.1rem; color:#fff; margin-bottom:.4rem; }
-    .nd-logo-footer em { font-style:italic; color:var(--green-light); }
-    .nd-footer-brand p { font-size:.7rem; line-height:1.6; max-width:280px; }
-    .nd-footer-links { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-    .nd-footer-col-title { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.25); margin-bottom:.5rem; }
-    .nd-footer-col a { display:block; font-size:.7rem; color:rgba(255,255,255,.45); text-decoration:none; margin-bottom:.3rem; transition:color .2s; }
-    .nd-footer-col a:hover { color:#fff; }
-    .nd-footer-bottom { text-align:center; font-size:.62rem; padding-top:1.5rem; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,.05); }
-    @media(max-width:768px){ .nd-footer-inner{grid-template-columns:1fr;} .nd-footer-links{grid-template-columns:1fr 1fr;} }
-
-    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:var(--green); color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; display:flex; align-items:center; justify-content:center; }
-    .scroll-top-btn.visible { opacity:1; }
+    html{scroll-behavior:smooth;}
+    body{font-family:"Outfit",sans-serif;background:var(--cream);color:var(--text);line-height:1.5;}
+    /* HEADER */
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--green-border);padding:.7rem 2rem;}
+    .hc{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;}
+    .h-left{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:"Playfair Display",serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:var(--green-light);}
+    .nd-nav{display:flex;gap:1.5rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .cofond{display:flex;align-items:center;gap:.45rem;background:rgba(29,158,117,.1);border:1px solid var(--green-border);border-radius:999px;padding:.2rem .75rem;position:relative;cursor:default;}
+    .cofond-av{width:24px;height:24px;background:linear-gradient(135deg,#1D9E75,#0f6e56);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;}
+    .cofond-txt{font-size:.62rem;color:rgba(255,255,255,.7);}
+    .cofond-txt strong{color:var(--green-light);}
+    .cofond-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:240px;background:var(--dark);border:1px solid var(--green-light);border-radius:10px;padding:.55rem;font-size:.65rem;color:var(--green-light);text-align:center;pointer-events:none;z-index:500;line-height:1.5;white-space:pre-line;}
+    .cofond:hover .cofond-tip{display:block;}
+    .h-right{display:flex;align-items:center;gap:.75rem;}
+    .nd-conn-wrap{position:relative;}
+    .nd-conn-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.38rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .nd-conn-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--dark);border:1px solid var(--green-border);border-radius:12px;min-width:185px;overflow:hidden;z-index:300;}
+    .nd-conn-menu.open{display:block;}
+    .nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;transition:background .15s;cursor:pointer;}
+    .nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff;}
+    @media(max-width:900px){.nd-nav,.cofond{display:none;}.nd-header{padding:.65rem 1rem;}}
+    /* SPLIT */
+    .split{display:grid;grid-template-columns:270px 1fr;min-height:100vh;padding-top:57px;}
+    @media(max-width:960px){.split{grid-template-columns:1fr;}}
+    /* SIDEBAR */
+    .compta-sidebar{background:var(--dark2);padding:1.75rem 1.25rem;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;display:flex;flex-direction:column;gap:.35rem;}
+    @media(max-width:960px){.compta-sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:.85rem 1rem;}}
+    .sidebar-kpi{padding:.85rem 1rem;margin-bottom:.75rem;background:linear-gradient(135deg,rgba(29,158,117,.15),rgba(29,158,117,.08));border:1px solid rgba(29,158,117,.25);border-radius:14px;flex-shrink:0;}
+    .sk-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:.2rem;}
+    .sk-value{font-family:"Playfair Display",serif;font-size:2rem;color:var(--green-light);line-height:1;}
+    .sk-unit{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:.15rem;}
+    .sk-sub{font-size:.62rem;color:rgba(255,255,255,.3);margin-top:.3rem;}
+    .sidebar-nav-btn{display:flex;align-items:center;gap:.6rem;padding:.65rem .9rem;border-radius:10px;cursor:pointer;font-size:.78rem;color:rgba(255,255,255,.5);transition:all .2s;border:none;background:transparent;text-align:left;width:100%;font-family:"Outfit",sans-serif;white-space:nowrap;}
+    .sidebar-nav-btn:hover{background:rgba(255,255,255,.06);color:#fff;}
+    .sidebar-nav-btn.active{background:rgba(29,158,117,.12);color:var(--green-light);font-weight:600;}
+    .sidebar-nav-icon{font-size:.95rem;width:20px;flex-shrink:0;}
+    .sidebar-abo{margin-top:auto;padding:.85rem 1rem;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.2);border-radius:12px;flex-shrink:0;}
+    .sa-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:.2rem;}
+    .sa-name{font-size:.82rem;font-weight:700;color:var(--green-light);}
+    .sa-prix{font-size:.65rem;color:rgba(255,255,255,.35);margin-top:.15rem;}
+    .sa-link{display:inline-block;margin-top:.4rem;font-size:.65rem;color:var(--green-light);text-decoration:none;border-bottom:1px solid rgba(93,202,165,.3);}
+    @media(max-width:960px){.sidebar-kpi,.sidebar-abo{display:none;}}
+    /* MAIN */
+    .compta-main{padding:2rem 2.5rem 3rem;overflow-y:auto;}
+    @media(max-width:600px){.compta-main{padding:1.5rem 1rem 2rem;}}
+    .sec{display:none;animation:fadeIn .3s ease;}
+    .sec.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    .sec-hd{margin-bottom:1.5rem;}
+    .sec-hd h2{font-family:"Playfair Display",serif;font-size:1.55rem;color:var(--text);}
+    .sec-hd p{font-size:.82rem;color:var(--text2);margin-top:.2rem;}
+    /* CARDS */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;}
+    .card-title{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .card-title-lbl{display:flex;align-items:center;gap:.5rem;}
+    /* KPIs */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;}
+    @media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+    .kpi-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1rem;text-align:center;transition:transform .2s,box-shadow .2s;}
+    .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.07);}
+    .kpi-card.dark{background:linear-gradient(135deg,var(--dark),#142c1f);border-color:rgba(29,158,117,.25);}
+    .kpi-val{font-family:"Playfair Display",serif;font-size:1.75rem;font-weight:700;color:var(--green);line-height:1;}
+    .kpi-card.dark .kpi-val{color:var(--green-light);}
+    .kpi-lbl{font-size:.65rem;color:var(--text2);margin-top:.3rem;line-height:1.4;}
+    .kpi-card.dark .kpi-lbl{color:rgba(255,255,255,.4);}
+    .kpi-trend{font-size:.63rem;margin-top:.3rem;}
+    .kpi-trend.up{color:var(--green);}
+    /* SOURCES */
+    .sources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem;}
+    @media(max-width:600px){.sources-grid{grid-template-columns:1fr;}}
+    .source-card{background:var(--cream);border-radius:14px;padding:.9rem 1rem;}
+    .source-icon{font-size:1.4rem;margin-bottom:.3rem;}
+    .source-lbl{font-size:.7rem;color:var(--text2);margin-bottom:.15rem;}
+    .source-val{font-size:1.1rem;font-weight:700;color:var(--text);}
+    .source-detail{font-size:.65rem;color:var(--text2);margin-top:.1rem;}
+    /* CHART */
+    .chart-wrap{position:relative;height:240px;margin-top:.75rem;}
+    /* TABLEAU */
+    .data-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+    .data-table th{background:var(--cream);padding:.65rem 1rem;text-align:left;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);border-bottom:1px solid var(--border);}
+    .data-table td{padding:.7rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tbody tr:hover td{background:var(--cream);}
+    .badge{font-size:.62rem;padding:.15rem .5rem;border-radius:999px;font-weight:600;}
+    .badge-green{background:#e1f5ee;color:var(--green);}
+    .badge-orange{background:#fff8e6;color:#f59e0b;}
+    .badge-blue{background:#eff6ff;color:#0ea5e9;}
+    .badge-red{background:#fef2f2;color:#ef4444;}
+    /* REVERSEMENT HERO */
+    .rev-hero{background:linear-gradient(135deg,var(--dark),#142c1f);border-radius:18px;padding:1.5rem;margin-bottom:1.25rem;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+    .rh-left .rh-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:.25rem;}
+    .rh-left .rh-val{font-family:"Playfair Display",serif;font-size:3rem;color:var(--green-light);line-height:1;}
+    .rh-left .rh-unit{font-size:.78rem;color:rgba(255,255,255,.35);margin-top:.2rem;}
+    .rh-right{text-align:right;}
+    .rh-detail{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.65;}
+    .rh-detail strong{color:var(--green-light);}
+    /* ECHEANCIER */
+    .echeancier{display:flex;flex-direction:column;gap:.6rem;}
+    .echean-item{display:flex;align-items:center;gap:1rem;padding:.85rem 1.1rem;background:var(--cream);border-radius:14px;}
+    .echean-date{background:var(--green);color:#fff;border-radius:10px;padding:.45rem .65rem;text-align:center;min-width:52px;flex-shrink:0;}
+    .echean-date .ed-day{font-size:1.1rem;font-weight:700;line-height:1;}
+    .echean-date .ed-month{font-size:.58rem;opacity:.85;}
+    .echean-date.orange{background:#f59e0b;}
+    .echean-date.red{background:#ef4444;}
+    .echean-info{flex:1;}
+    .echean-info h4{font-size:.82rem;font-weight:600;color:var(--text);}
+    .echean-info p{font-size:.68rem;color:var(--text2);margin-top:.1rem;}
+    .echean-montant{font-weight:700;font-size:.88rem;white-space:nowrap;}
+    /* ABO CARDS */
+    .abo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem;}
+    @media(max-width:680px){.abo-grid{grid-template-columns:1fr;}}
+    .abo-card{border:1.5px solid var(--border);border-radius:14px;padding:1.1rem;position:relative;transition:all .2s;}
+    .abo-card.active{border-color:var(--green);background:rgba(29,158,117,.04);box-shadow:0 0 0 3px rgba(29,158,117,.1);}
+    .abo-ribbon{position:absolute;top:-10px;right:.85rem;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:999px;background:var(--green);color:#fff;}
+    .abo-name{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.25rem;}
+    .abo-price{font-family:"Playfair Display",serif;font-size:1.5rem;font-weight:700;color:var(--green);}
+    .abo-price span{font-family:"Outfit",sans-serif;font-size:.72rem;font-weight:400;color:var(--text2);}
+    .abo-desc{font-size:.72rem;color:var(--text2);margin:.35rem 0 .65rem;line-height:1.55;}
+    .abo-feats{display:flex;flex-direction:column;gap:.3rem;}
+    .abo-feat{font-size:.7rem;color:var(--text2);display:flex;align-items:flex-start;gap:.35rem;}
+    .abo-feat::before{content:"\2713";color:var(--green);font-weight:700;flex-shrink:0;}
+    .abo-feat.off{color:#9ca3af;}
+    .abo-feat.off::before{content:"\2014";color:#d1d5db;}
+    /* FACTURES */
+    .facture-item{display:flex;align-items:center;gap:1rem;padding:.85rem 1.1rem;background:var(--cream);border-radius:14px;margin-bottom:.55rem;}
+    .facture-icon{width:40px;height:40px;border-radius:10px;background:#e1f5ee;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .facture-info{flex:1;}
+    .facture-info h4{font-size:.82rem;font-weight:600;color:var(--text);}
+    .facture-info p{font-size:.68rem;color:var(--text2);margin-top:.1rem;}
+    .facture-montant{font-weight:700;font-size:.9rem;color:var(--green);white-space:nowrap;margin-right:.5rem;}
+    .btn-dl{background:none;border:1px solid var(--border);border-radius:999px;padding:.25rem .65rem;font-size:.65rem;cursor:pointer;color:var(--text2);font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-dl:hover{border-color:var(--green);color:var(--green);}
+    /* FISCALITE */
+    .fisc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+    @media(max-width:540px){.fisc-grid{grid-template-columns:1fr;}}
+    .fisc-card{background:var(--cream);border-radius:14px;padding:1.1rem;}
+    .fisc-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;}
+    .fisc-row{display:flex;justify-content:space-between;font-size:.78rem;padding:.3rem 0;color:var(--text2);}
+    .fisc-row.important{font-weight:700;font-size:.85rem;color:var(--text);}
+    .fisc-row strong{color:var(--green);}
+    .fisc-sep{height:1px;background:var(--border);margin:.4rem 0;}
+    .fisc-info{font-size:.7rem;color:var(--text2);background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.7rem .9rem;line-height:1.65;margin-bottom:1rem;}
+    .seuil-bar{height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin:.4rem 0;}
+    .seuil-fill{height:100%;border-radius:999px;transition:width .5s ease;}
+    .seuil-fill.ok{background:var(--green);}
+    .seuil-fill.warn{background:#f59e0b;}
+    .seuil-fill.danger{background:#ef4444;}
+    .seuil-labels{display:flex;justify-content:space-between;font-size:.6rem;color:var(--text2);}
+    /* SIMULATEUR */
+    .sim-bubble{position:fixed;bottom:1.5rem;left:1.5rem;z-index:300;}
+    .sim-toggle{width:52px;height:52px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:1.4rem;transition:all .2s;}
+    .sim-toggle:hover{transform:scale(1.06);background:var(--green-dark);}
+    .sim-window{display:none;position:absolute;bottom:64px;left:0;width:320px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid var(--green-border);overflow:hidden;}
+    .sim-window.open{display:block;}
+    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
+    .sim-body{padding:.9rem;}
+    .sim-field{margin-bottom:.75rem;}
+    .sim-fh{display:flex;justify-content:space-between;margin-bottom:.2rem;font-size:.72rem;}
+    .sim-fl{color:var(--text2);font-weight:600;}
+    .sim-fv{font-weight:700;color:var(--green);}
+    input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:999px;background:var(--border);outline:none;cursor:pointer;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--green);border:2px solid #fff;cursor:pointer;}
+    .sim-results{background:var(--cream);border-radius:10px;padding:.65rem .75rem;}
+    .sim-row{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.25rem;color:var(--text2);}
+    .sim-row strong{color:var(--text);}
+    .sim-row.hl{font-weight:700;font-size:.8rem;}
+    .sim-row.hl strong{color:var(--green);}
+    .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.4rem;}
+    /* TOAST */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;pointer-events:none;}
+    .toast.error{background:#ef4444;}
+    @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
+    /* BOUTONS */
+    .btn-primary{background:var(--green);color:#fff;border:none;padding:.65rem 1.5rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-primary:hover{background:var(--green-dark);}
+    .btn-secondary{background:var(--cream);border:1px solid var(--border);color:var(--text2);padding:.6rem 1rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-secondary:hover{border-color:var(--green);color:var(--green);}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn.visible{opacity:1;}
+    /* FOOTER */
+    .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:2.5rem 2rem 1.5rem;}
+    .nd-footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 2fr;gap:2rem;}
+    .nd-logo-footer{font-family:"Playfair Display",serif;font-size:1.1rem;color:#fff;margin-bottom:.4rem;}
+    .nd-logo-footer em{font-style:italic;color:var(--green-light);}
+    .nd-footer-brand p{font-size:.7rem;line-height:1.6;max-width:280px;}
+    .nd-footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .nd-footer-col-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:.5rem;}
+    .nd-footer-col a{display:block;font-size:.7rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:.3rem;transition:color .2s;}
+    .nd-footer-col a:hover{color:#fff;}
+    .nd-footer-bottom{text-align:center;font-size:.62rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.05);}
+    @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
   </style>
 </head>
+<body>
 
-<!-- HEADER -->
 <header class="nd-header">
   <div class="hc">
     <div class="h-left">
-      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <a href="dashboard-dieteticien.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
-        <a href="dashboard-dieteticien.html" class="nd-navlink">Tableau de bord</a>
+        <a href="dashboard-dieteticien.html" class="nd-navlink">&#8592; Tableau de bord</a>
         <a href="agenda-dieteticien.html" class="nd-navlink">Agenda</a>
-        <a href="compta-dieteticien.html" class="nd-navlink active">Comptabilité</a>
+        <a href="compta-dieteticien.html" class="nd-navlink active">Comptabilit&eacute;</a>
         <a href="profil-dieteticien.html" class="nd-navlink">Mon profil</a>
       </nav>
     </div>
+    <div class="cofond">
+      <div class="cofond-av">GM</div>
+      <div class="cofond-txt"><strong>Gr&eacute;goire Martin</strong> &middot; Di&eacute;t. RPPS</div>
+      <div class="cofond-tip">&#11088; Di&eacute;t&eacute;ticien co-fondateur NutriDoc
+&#127973; CHU Angoul&ecirc;me &middot; &#127968; Cabinet lib&eacute;ral
+&#128658; Sapeur-Pompier Expert</div>
+    </div>
     <div class="h-right">
-      <div class="cofond">
-        <div class="cofond-av">GM</div>
-        <div class="cofond-txt"><strong>Grégoire Martin</strong> · Diététicien RPPS</div>
-        <div class="cofond-tip">⭐ Diététicien co-fondateur NutriDoc
-🏥 CHU Angoulême · 🏡 Cabinet libéral
-🚒 Sapeur-Pompier Expert</div>
+      <div class="nd-conn-wrap">
+        <button class="nd-conn-btn" onclick="toggleConn()">Mon compte &#9662;</button>
+        <div class="nd-conn-menu" id="connMenu">
+          <a href="profil-dieteticien.html" class="nd-conn-item">&#128100; Mon profil</a>
+          <a href="dashboard-dieteticien.html" class="nd-conn-item">&#128202; Tableau de bord</a>
+          <a href="agenda-dieteticien.html" class="nd-conn-item">&#128197; Agenda</a>
+          <div class="nd-conn-item" onclick="deconnecter()">&#128275; Se d&eacute;connecter</div>
+        </div>
       </div>
-      <button class="nd-btn-ghost" onclick="deconnecter()">Déconnexion</button>
     </div>
   </div>
 </header>
 
-<!-- LAYOUT -->
-<div class="dashboard-layout">
+<div class="split">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-nav">
-      <a href="dashboard-dieteticien.html" class="sidebar-back">← Tableau de bord</a>
-      <div class="sidebar-item active" data-section="dashboard">
-        <span class="sidebar-icon">📊</span><span>Vue d'ensemble</span>
-      </div>
-      <div class="sidebar-item" data-section="transactions">
-        <span class="sidebar-icon">💳</span><span>Transactions</span>
-      </div>
-      <div class="sidebar-item" data-section="factures">
-        <span class="sidebar-icon">📄</span><span>Factures</span>
-      </div>
-      <div class="sidebar-item" data-section="attestations">
-        <span class="sidebar-icon">📋</span><span>Attestations</span>
-      </div>
-      <div class="sidebar-item" data-section="echeancier">
-        <span class="sidebar-icon">📅</span><span>Échéancier</span>
-      </div>
-      <div class="sidebar-item" data-section="abonnement">
-        <span class="sidebar-icon">📦</span><span>Mon abonnement</span>
-      </div>
+  <aside class="compta-sidebar">
+    <div class="sidebar-kpi">
+      <div class="sk-label">Revenus ce mois</div>
+      <div class="sk-value" id="skRevenu">0 &#8364;</div>
+      <div class="sk-unit">net Stripe</div>
+      <div class="sk-sub" id="skPlans">0 plan valid&eacute;</div>
+    </div>
+
+    <button class="sidebar-nav-btn active" onclick="showSec('overview',this)">
+      <span class="sidebar-nav-icon">&#128202;</span>Vue d&apos;ensemble
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('reversements',this)">
+      <span class="sidebar-nav-icon">&#128176;</span>Reversements Stripe
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('abonnement',this)">
+      <span class="sidebar-nav-icon">&#128230;</span>Mon abonnement
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('factures',this)">
+      <span class="sidebar-nav-icon">&#128196;</span>Factures &amp; re&ccedil;us
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('fiscalite',this)">
+      <span class="sidebar-nav-icon">&#128203;</span>Fiscalit&eacute; &amp; d&eacute;clarations
+    </button>
+
+    <div class="sidebar-abo">
+      <div class="sa-label">Mon abonnement</div>
+      <div class="sa-name" id="saName">D&eacute;couverte</div>
+      <div class="sa-prix" id="saPrix">Gratuit &middot; 3 mois</div>
+      <a href="#" data-action="goto-abo" class="sa-link">G&eacute;rer mon abonnement &rarr;</a>
     </div>
   </aside>
 
-  <!-- MAIN -->
-  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Comptabilité Diététicien</h1>
-  <main class="main-content">
+  <main class="compta-main">
 
-    <!-- ═══ SECTION 1 : VUE D'ENSEMBLE ═══ -->
-    <div id="section-dashboard" class="section active">
-      <div class="page-header">
-        <h2 class="page-title">Vue d'ensemble</h2>
-        <p class="page-sub">Synthèse de vos revenus du mois en cours · Aucune commission NutriDoc prélevée</p>
+    <!-- 1. VUE D'ENSEMBLE -->
+    <div id="sec-overview" class="sec active">
+      <div class="sec-hd">
+        <h2>Vue d&apos;ensemble</h2>
+        <p>R&eacute;sum&eacute; de votre activit&eacute; et de vos revenus NutriDoc.</p>
       </div>
 
-      <!-- Métriques -->
-      <div class="metrics-grid" id="metricsGrid">
-        <div class="metric-card">
-          <div class="metric-val" id="mPlansPatients">—</div>
-          <div class="metric-label">Plans patients directs</div>
-          <div class="metric-trend neutral" id="mPlansPatientsCA">— €</div>
+      <div class="kpi-grid">
+        <div class="kpi-card dark">
+          <div class="kpi-val" id="kpiMois">0 &#8364;</div>
+          <div class="kpi-lbl">Revenus nets ce mois</div>
+          <div class="kpi-trend up" id="kpiMoisTrend"></div>
         </div>
-        <div class="metric-card">
-          <div class="metric-val" id="mPlansPresc">—</div>
-          <div class="metric-label">Plans prescripteurs</div>
-          <div class="metric-trend neutral" id="mPlansPrescCA">— €</div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpiAnnee">0 &#8364;</div>
+          <div class="kpi-lbl">Cumul ann&eacute;e en cours</div>
+          <div class="kpi-trend up" id="kpiAnneeTrend"></div>
         </div>
-        <div class="metric-card">
-          <div class="metric-val" id="mVisios">—</div>
-          <div class="metric-label">Téléconsultations</div>
-          <div class="metric-trend neutral" id="mVisiosCA">— €</div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpiPlans">0</div>
+          <div class="kpi-lbl">Plans valid&eacute;s ce mois</div>
+          <div class="kpi-trend neutral" id="kpiPlansTrend"></div>
         </div>
-        <div class="metric-card dark">
-          <div class="metric-val" id="mNet">—</div>
-          <div class="metric-label">Revenu net estimé (mois)</div>
-          <div class="metric-trend neutral" id="mNetNote">Après abonnement &amp; Stripe</div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpiStripe">0 &#8364;</div>
+          <div class="kpi-lbl">Frais Stripe estim&eacute;s</div>
+          <div class="kpi-trend neutral">~1,5 % + 0,25 &#8364;/trans.</div>
         </div>
       </div>
 
       <!-- Sources de revenus -->
-      <div class="card-block">
-        <div class="card-header">
-          <h3>💰 Répartition des revenus ce mois</h3>
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-lbl">&#128181; Sources de revenus</span>
         </div>
-        <div class="sources-grid" id="sourcesGrid">
+        <div class="sources-grid">
           <div class="source-card">
-            <div class="source-icon">👤</div>
-            <div class="source-label">Patients directs</div>
-            <div class="source-val" id="srcPatients">0 €</div>
-            <div class="source-detail" id="srcPatientsDetail">0 plan × 24,90 €</div>
+            <div class="source-icon">&#128100;</div>
+            <div class="source-lbl">Patients directs</div>
+            <div class="source-val" id="srcPatients">0 &#8364;</div>
+            <div class="source-detail" id="srcPatientsDetail">0 plan</div>
           </div>
           <div class="source-card">
-            <div class="source-icon">🏋️</div>
-            <div class="source-label">Prescripteurs</div>
-            <div class="source-val" id="srcPresc">0 €</div>
-            <div class="source-detail" id="srcPrescDetail">0 plan (tarif moyen 18 €)</div>
+            <div class="source-icon">&#127947;</div>
+            <div class="source-lbl">Via prescripteurs</div>
+            <div class="source-val" id="srcPresc">0 &#8364;</div>
+            <div class="source-detail" id="srcPrescDetail">0 plan</div>
           </div>
           <div class="source-card">
-            <div class="source-icon">🎥</div>
-            <div class="source-label">Téléconsultations</div>
-            <div class="source-val" id="srcVisios">0 €</div>
-            <div class="source-detail" id="srcVisiosDetail">0 visio × 55 €</div>
+            <div class="source-icon">&#127909;</div>
+            <div class="source-lbl">T&eacute;l&eacute;consultations</div>
+            <div class="source-val" id="srcVisios">0 &#8364;</div>
+            <div class="source-detail" id="srcVisiosDetail">0 visio</div>
           </div>
-        </div>
-        <div style="background:var(--cream);border-radius:12px;padding:.85rem 1rem;font-size:.75rem;color:var(--text2);line-height:1.6;" id="netDetail">
-          Revenu brut : <strong id="netBrut">0 €</strong> ·
-          Frais Stripe : <strong id="netStripe">0 €</strong> ·
-          Abonnement NutriDoc : <strong id="netAbo">39 €</strong> →
-          <strong style="color:var(--green);" id="netFinal">Revenu net : 0 €</strong>
-        </div>
-      </div>
-
-      <!-- Graphique 6 mois -->
-      <div class="card-block">
-        <div class="card-header">
-          <h3>📈 Évolution des revenus (6 mois)</h3>
-          <select id="selectAnnee" onchange="renderChart()" style="padding:.28rem .75rem;border-radius:999px;border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:.76rem;background:var(--card);">
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-          </select>
         </div>
         <div id="chartZone">
-          <div class="empty-dashed">
-            <div class="empty-dashed-icon">📈</div>
-            <h4>Pas encore de données</h4>
-            <p>Le graphique apparaîtra dès vos premiers plans validés.</p>
+          <div class="chart-wrap"><canvas id="revenusChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- D&eacute;tail r&eacute;venu net -->
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#128200; D&eacute;tail du revenu net</span></div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--text2);padding:.35rem 0;border-bottom:1px solid var(--border);">
+            <span>CA brut (toutes sources)</span><strong id="detailBrut" style="color:var(--text);">0 &#8364;</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--text2);padding:.35rem 0;border-bottom:1px solid var(--border);">
+            <span>&#8722; Frais Stripe (~1,5 % + 0,25 &#8364;/transaction)</span><strong id="detailStripe" style="color:#ef4444;">0 &#8364;</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--text2);padding:.35rem 0;border-bottom:1px solid var(--border);">
+            <span>&#8722; Abonnement NutriDoc</span><strong id="detailAbo" style="color:#f59e0b;">0 &#8364;</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.95rem;font-weight:700;padding:.5rem 0;">
+            <span>= Revenu net</span><strong id="detailNet" style="color:var(--green);">0 &#8364;</strong>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ═══ SECTION 2 : TRANSACTIONS ═══ -->
-    <div id="section-transactions" class="section">
-      <div class="page-header">
-        <h2 class="page-title">Transactions</h2>
-        <p class="page-sub">Historique de tous vos encaissements via Stripe.</p>
-      </div>
-      <div class="card-block">
-        <div class="card-header">
-          <h3>💳 Historique des paiements reçus</h3>
-          <button class="btn-sm-action" onclick="exportTransactions()">⬇ Exporter CSV</button>
+      <!-- Transactions r&eacute;centes -->
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-lbl">&#128203; Transactions r&eacute;centes</span>
+          <button class="btn-secondary" style="font-size:.7rem;padding:.3rem .75rem;" onclick="exportCSV()">&#11015;&#65039; Export CSV</button>
         </div>
-        <div id="transactionsZone">
-          <div class="empty-dashed">
-            <div class="empty-dashed-icon">💳</div>
-            <h4>Aucune transaction</h4>
-            <p>Vos encaissements Stripe apparaîtront ici.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ SECTION 3 : FACTURES ═══ -->
-    <div id="section-factures" class="section">
-      <div class="page-header">
-        <h2 class="page-title">Factures électroniques</h2>
-        <p class="page-sub">Vos factures mensuelles générées automatiquement.</p>
-      </div>
-      <div class="card-block">
-        <div class="card-header">
-          <h3>📄 Historique des factures</h3>
-          <button class="btn-sm-action">⬇ Tout télécharger</button>
-        </div>
-        <div id="facturesZone">
-          <div class="empty-dashed">
-            <div class="empty-dashed-icon">📄</div>
-            <h4>Aucune facture</h4>
-            <p>Vos factures mensuelles apparaîtront ici une fois générées.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ SECTION 4 : ATTESTATIONS ═══ -->
-    <div id="section-attestations" class="section">
-      <div class="page-header">
-        <h2 class="page-title">Attestations mutuelle</h2>
-        <p class="page-sub">Envoyez les attestations de téléconsultation à vos patients.</p>
-      </div>
-      <div class="card-block">
-        <div class="card-header">
-          <h3>📋 Téléconsultations réalisées</h3>
-          <button class="btn-sm-action">⬇ Exporter</button>
-        </div>
-        <div id="attestationsZone">
-          <div class="empty-dashed">
-            <div class="empty-dashed-icon">📋</div>
-            <h4>Aucune téléconsultation</h4>
-            <p>Les attestations apparaîtront ici après vos premières visios.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ SECTION 5 : ÉCHÉANCIER ═══ -->
-    <div id="section-echeancier" class="section">
-      <div class="page-header">
-        <h2 class="page-title">Échéancier</h2>
-        <p class="page-sub">Paiements à recevoir et abonnement à venir.</p>
-      </div>
-      <div class="card-block">
-        <div class="card-header"><h3>📅 Échéances à venir</h3></div>
-        <div class="echeancier-grid" id="echeancierZone">
-          <!-- Injecté par JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ SECTION 6 : MON ABONNEMENT ═══ -->
-    <div id="section-abonnement" class="section">
-      <div class="page-header">
-        <h2 class="page-title">Mon abonnement</h2>
-        <p class="page-sub">Votre formule NutriDoc — aucune commission prélevée sur vos plans.</p>
-      </div>
-
-      <div class="abo-card" id="aboCard">
-        <div class="abo-left">
-          <div class="abo-label">Formule active</div>
-          <div class="abo-name" id="aboNom">Découverte</div>
-          <div class="abo-prix" id="aboPrix">Gratuit · 3 mois</div>
-        </div>
-        <div class="abo-right">
-          <div class="abo-note" style="margin-bottom:.5rem;">
-            <strong>Aucune commission</strong> sur vos plans<br>
-            Frais Stripe (~1,5 %) à votre charge
-          </div>
-          <a href="accueil-dieteticien.html#tarifs" class="btn-abo-upgrade">Voir les formules →</a>
-        </div>
-      </div>
-
-      <div class="card-block">
-        <div class="card-header"><h3>📋 Ce qui est inclus</h3></div>
-        <table class="compta-table">
+        <table class="data-table">
           <thead>
             <tr>
-              <th>Fonctionnalité</th>
-              <th>Découverte</th>
-              <th>Essentiel</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Source</th>
+              <th>Montant brut</th>
+              <th>Frais Stripe</th>
+              <th>Net</th>
+              <th>Statut</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td>Dossiers patients</td><td class="text-green">Illimités</td><td class="text-green">Illimités</td></tr>
-            <tr><td>Certification RPPS visible</td><td class="text-green">✓</td><td class="text-green">✓</td></tr>
-            <tr><td>Suivi des dossiers</td><td class="text-green">✓</td><td class="text-green">✓</td></tr>
-            <tr><td>Revenus &amp; déclarations</td><td class="text-green">✓</td><td class="text-green">✓</td></tr>
-            <tr><td>Commission NutriDoc</td><td class="text-green">Aucune</td><td class="text-green">Aucune</td></tr>
-            <tr><td>Téléconsultations &amp; RDV</td><td class="text-muted">Bientôt</td><td class="text-muted">Bientôt</td></tr>
-            <tr><td>Mis en avant patients</td><td class="text-muted">Bientôt</td><td class="text-muted">Bientôt</td></tr>
-            <tr><td>Prix mensuel</td><td><strong>0 €</strong> (3 mois)</td><td><strong>39 € HT</strong></td></tr>
-          </tbody>
+          <tbody id="transBody"></tbody>
         </table>
       </div>
+    </div>
 
-      <div class="card-block">
-        <div class="card-header"><h3>📜 Historique des paiements NutriDoc</h3></div>
-        <div id="aboHistoriqueZone">
-          <div class="empty-dashed">
-            <div class="empty-dashed-icon">📦</div>
-            <h4>Aucun paiement d'abonnement</h4>
-            <p>Les prélèvements de votre abonnement Essentiel apparaîtront ici.</p>
+    <!-- 2. REVERSEMENTS -->
+    <div id="sec-reversements" class="sec">
+      <div class="sec-hd">
+        <h2>Reversements Stripe</h2>
+        <p>Vos paiements sont revers&eacute;s automatiquement via Stripe Connect. NutriDoc ne pr&eacute;l&egrave;ve aucune commission.</p>
+      </div>
+
+      <div class="rev-hero">
+        <div class="rh-left">
+          <div class="rh-label">Prochain reversement estim&eacute;</div>
+          <div class="rh-val" id="revProchain">&#8212;</div>
+          <div class="rh-unit">brut avant frais Stripe</div>
+        </div>
+        <div class="rh-right">
+          <div class="rh-detail">
+            Date pr&eacute;vue : <strong id="revDate">&#8212;</strong><br>
+            D&eacute;lai Stripe : J+2 &agrave; J+5 ouvr&eacute;s<br>
+            Compte : <strong id="revIban">&#8212;</strong>
           </div>
         </div>
+      </div>
+
+      <!-- &Eacute;ch&eacute;ancier -->
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#128197; &Eacute;ch&eacute;ancier des prochains mouvements</span></div>
+        <div class="echeancier" id="echeancierZone"></div>
+      </div>
+
+      <!-- Historique reversements -->
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-lbl">&#128220; Historique des reversements</span>
+          <button class="btn-secondary" style="font-size:.7rem;padding:.3rem .75rem;" onclick="exportCSV()">&#11015;&#65039; CSV</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Date</th><th>Montant brut</th><th>Frais Stripe</th><th>Net re&ccedil;u</th><th>Compte</th><th>Statut</th></tr>
+          </thead>
+          <tbody id="revBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. ABONNEMENT -->
+    <div id="sec-abonnement" class="sec">
+      <div class="sec-hd">
+        <h2>Mon abonnement NutriDoc</h2>
+        <p>Choisissez la formule adapt&eacute;e &agrave; votre activit&eacute;. Aucune commission pr&eacute;lev&eacute;e sur vos revenus.</p>
+      </div>
+
+      <div style="background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.25rem;font-size:.82rem;color:var(--text2);line-height:1.65;">
+        &#128161; Vous encaissez <strong style="color:var(--green);">100 % du montant</strong> de chaque plan valid&eacute; directement via Stripe. L&apos;Essentiel (39 &#8364;/mois) est rentabilis&eacute; d&egrave;s <strong style="color:var(--green);">2 plans par mois</strong>.
+      </div>
+
+      <div class="abo-grid">
+        <div class="abo-card" id="aboDecouverte">
+          <div class="abo-name">D&eacute;couverte</div>
+          <div class="abo-price">Gratuit <span>&middot; 3 mois</span></div>
+          <div class="abo-desc">Testez NutriDoc sans engagement.</div>
+          <div class="abo-feats">
+            <div class="abo-feat">Dossiers illimit&eacute;s</div>
+            <div class="abo-feat">RPPS visible sur les plans</div>
+            <div class="abo-feat">Revenus &amp; d&eacute;clarations</div>
+            <div class="abo-feat off">T&eacute;l&eacute;consultations</div>
+            <div class="abo-feat off">Rappels suivi patients</div>
+            <div class="abo-feat off">Mis en avant annuaire</div>
+          </div>
+        </div>
+        <div class="abo-card" id="aboEssentiel">
+          <div class="abo-ribbon">&#11088; Recommand&eacute;</div>
+          <div class="abo-name">Essentiel</div>
+          <div class="abo-price">39 &#8364; <span>HT / mois &middot; sans engagement</span></div>
+          <div class="abo-desc">Pour les di&eacute;t. qui d&eacute;veloppent leur activit&eacute;.</div>
+          <div class="abo-feats">
+            <div class="abo-feat">Tout le D&eacute;couverte inclus</div>
+            <div class="abo-feat">T&eacute;l&eacute;consultations &amp; RDV</div>
+            <div class="abo-feat">Rappels automatiques suivi</div>
+            <div class="abo-feat">Mis en avant dans l&apos;annuaire</div>
+            <div class="abo-feat">Statistiques avanc&eacute;es</div>
+            <div class="abo-feat">Support prioritaire</div>
+          </div>
+        </div>
+        <div class="abo-card" style="border-color:rgba(168,85,247,.3);">
+          <div class="abo-ribbon" style="background:#a855f7;">Bient&ocirc;t</div>
+          <div class="abo-name" style="color:#a855f7;">Pro</div>
+          <div class="abo-price" style="color:#a855f7;">&#8212; <span>Prix &agrave; d&eacute;finir</span></div>
+          <div class="abo-desc">Pour les cabinets et di&eacute;t. &agrave; fort volume.</div>
+          <div class="abo-feats">
+            <div class="abo-feat" style="color:#a855f7;">Multi-praticiens</div>
+            <div class="abo-feat" style="color:#a855f7;">API &amp; int&eacute;grations</div>
+            <div class="abo-feat" style="color:#a855f7;">Dashboard avanc&eacute;</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="aboCta" style="margin-top:.75rem;"></div>
+
+      <!-- Historique abonnement -->
+      <div class="card" style="margin-top:1.25rem;">
+        <div class="card-title"><span class="card-title-lbl">&#128203; Historique des pr&eacute;l&egrave;vements</span></div>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Libell&eacute;</th><th>Montant</th><th>Statut</th><th>Re&ccedil;u</th></tr></thead>
+          <tbody id="aboHistoBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. FACTURES -->
+    <div id="sec-factures" class="sec">
+      <div class="sec-hd">
+        <h2>Factures &amp; re&ccedil;us</h2>
+        <p>Vos factures g&eacute;n&eacute;r&eacute;es automatiquement &agrave; chaque encaissement.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-lbl">&#128196; Factures &eacute;mises</span>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <select id="factureFilter" style="padding:.3rem .65rem;border:1px solid var(--border);border-radius:999px;font-size:.72rem;font-family:Outfit,sans-serif;" onchange="renderFactures()">
+              <option value="">Toutes les p&eacute;riodes</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+            </select>
+            <button class="btn-secondary" style="font-size:.7rem;padding:.3rem .75rem;" onclick="exportCSV()">&#11015;&#65039; Export CSV</button>
+          </div>
+        </div>
+        <div id="facturesZone"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#128221; Param&egrave;tres de facturation</span></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:.85rem;line-height:1.65;">
+          Vos factures incluent automatiquement vos coordonn&eacute;es professionnelles et vos informations bancaires. Mettez-les &agrave; jour dans votre profil.
+        </p>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="profil-dieteticien.html" class="btn-primary" style="text-decoration:none;font-size:.78rem;padding:.5rem 1rem;">Mettre &agrave; jour mon profil &rarr;</a>
+          <button class="btn-secondary" style="font-size:.78rem;" onclick="toast('G&eacute;n&eacute;ration de factures disponible avec la formule Essentiel')">&#128196; G&eacute;n&eacute;rer une facture</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. FISCALITE -->
+    <div id="sec-fiscalite" class="sec">
+      <div class="sec-hd">
+        <h2>Fiscalit&eacute; &amp; d&eacute;clarations</h2>
+        <p>Aide au suivi de vos obligations fiscales en tant que professionnel de sant&eacute; lib&eacute;ral.</p>
+      </div>
+
+      <div class="fisc-info">
+        &#9888;&#65039; Ces informations sont fournies &agrave; titre indicatif. Consultez un expert-comptable pour votre situation personnelle.
+        NutriDoc n&apos;est pas habilit&eacute; &agrave; dispenser des conseils fiscaux.
+      </div>
+
+      <!-- Seuils auto-entrepreneur -->
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#128200; Suivi du seuil de franchise de TVA</span></div>
+        <div class="fisc-grid">
+          <div class="fisc-card">
+            <div class="fisc-title">&#127981; Micro-BNC (professions lib&eacute;rales)</div>
+            <div class="fisc-row"><span>CA ann&eacute;el cumul&eacute;</span><strong id="fiscCa">0 &#8364;</strong></div>
+            <div class="fisc-sep"></div>
+            <div class="fisc-row important"><span>Seuil franchise TVA</span><strong>77 700 &#8364;</strong></div>
+            <div class="seuil-bar"><div class="seuil-fill ok" id="seuilBar1" style="width:0%;"></div></div>
+            <div class="seuil-labels"><span>0 &#8364;</span><span id="seuilLabel1">0 %</span><span>77 700 &#8364;</span></div>
+          </div>
+          <div class="fisc-card">
+            <div class="fisc-title">&#128203; Seuil exon&eacute;ration URSSAF</div>
+            <div class="fisc-row"><span>CA ann&eacute;el cumul&eacute;</span><strong id="fiscCa2">0 &#8364;</strong></div>
+            <div class="fisc-sep"></div>
+            <div class="fisc-row important"><span>Seuil micro-BNC</span><strong>77 700 &#8364;</strong></div>
+            <div class="seuil-bar"><div class="seuil-fill ok" id="seuilBar2" style="width:0%;"></div></div>
+            <div class="seuil-labels"><span>0 &#8364;</span><span id="seuilLabel2">0 %</span><span>77 700 &#8364;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estimation cotisations -->
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#128181; Estimation des charges &amp; cotisations</span></div>
+        <div class="fisc-grid">
+          <div class="fisc-card">
+            <div class="fisc-title">&#128203; R&eacute;gime micro-BNC</div>
+            <div class="fisc-row"><span>CA annuel estim&eacute;</span><strong id="fiscCaEstim">0 &#8364;</strong></div>
+            <div class="fisc-row"><span>Abattement forfaitaire (34 %)</span><strong id="fiscAbattement">0 &#8364;</strong></div>
+            <div class="fisc-sep"></div>
+            <div class="fisc-row important"><span>B&eacute;n&eacute;fice imposable</span><strong id="fiscBenef">0 &#8364;</strong></div>
+            <div class="fisc-row"><span>URSSAF (~21,2 % CA)</span><strong id="fiscUrssaf" style="color:#f59e0b;">0 &#8364;</strong></div>
+            <div class="fisc-sep"></div>
+            <div class="fisc-row important"><span>Revenu net estim&eacute;</span><strong id="fiscNet" style="color:var(--green);">0 &#8364;</strong></div>
+          </div>
+          <div class="fisc-card">
+            <div class="fisc-title">&#128197; Calendrier fiscal</div>
+            <div class="fisc-row"><span>D&eacute;claration TVA</span><strong>Non assujetti si &lt; seuil</strong></div>
+            <div class="fisc-row"><span>Cotisations URSSAF</span><strong>Trimestriel ou mensuel</strong></div>
+            <div class="fisc-row"><span>D&eacute;claration revenus 2042 C Pro</span><strong>Mai-juin N+1</strong></div>
+            <div class="fisc-row"><span>D&eacute;claration SNIR</span><strong>Automatique via CNAVPL</strong></div>
+            <div class="fisc-sep"></div>
+            <div class="fisc-row"><span>CFE (Cotisation Fonci&egrave;re)</span><strong>D&eacute;cembre</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export comptable -->
+      <div class="card">
+        <div class="card-title"><span class="card-title-lbl">&#11015;&#65039; Export comptable</span></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.65;">
+          T&eacute;l&eacute;chargez vos transactions au format CSV pour les importer dans votre logiciel de comptabilit&eacute; ou les transmettre &agrave; votre expert-comptable.
+        </p>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="exportCSV()">&#11015;&#65039; Export CSV transactions</button>
+          <button class="btn-secondary" onclick="exportAnnuel()">&#128196; R&eacute;capitulatif annuel</button>
+        </div>
+        <p style="font-size:.68rem;color:var(--text2);margin-top:.75rem;">Contient : date, libell&eacute;, source, montant brut, frais Stripe, montant net, num&eacute;ro de transaction Stripe</p>
       </div>
     </div>
 
   </main>
 </div>
 
-<!-- SIMULATEUR bulle -->
+<!-- SIMULATEUR BULLE -->
 <div class="sim-bubble">
-  <button class="sim-toggle" onclick="toggleSim()" title="Simulateur de revenus">💰</button>
+  <button class="sim-toggle" onclick="toggleSim()">&#128200;</button>
   <div class="sim-window" id="simWindow">
-    <div class="sim-header">
-      <span>💰 Simulateur</span>
-      <button class="sim-close" onclick="toggleSim()">✕</button>
+    <div class="sim-hd">
+      <span>&#128200; Simulateur de revenus</span>
+      <button class="sim-close" onclick="toggleSim()">&#10005;</button>
     </div>
     <div class="sim-body">
-      <p style="font-size:.68rem;color:var(--text2);margin-bottom:.65rem;">Projection mensuelle · sans commission NutriDoc</p>
       <div class="sim-field">
-        <div class="sim-field-header"><span class="sim-field-label">👤 Patients directs / mois</span><span class="sim-field-val" id="simPatientsVal">6</span></div>
-        <input type="range" min="0" max="60" value="6" id="simPatients" oninput="updateSim()">
+        <div class="sim-fh"><span class="sim-fl">Patients directs / mois</span><span class="sim-fv" id="sPpV">5</span></div>
+        <input type="range" min="0" max="50" value="5" step="1" id="sPp" oninput="updateSim()">
       </div>
       <div class="sim-field">
-        <div class="sim-field-header"><span class="sim-field-label">🏋️ Prescripteurs / mois</span><span class="sim-field-val" id="simPrescVal">10</span></div>
-        <input type="range" min="0" max="80" value="10" id="simPresc" oninput="updateSim()">
+        <div class="sim-fh"><span class="sim-fl">Plans prescripteurs / mois</span><span class="sim-fv" id="sPrV">10</span></div>
+        <input type="range" min="0" max="80" value="10" step="1" id="sPr" oninput="updateSim()">
       </div>
       <div class="sim-field">
-        <div class="sim-field-header"><span class="sim-field-label">🎥 Téléconsultations / mois</span><span class="sim-field-val" id="simVisiosVal">2</span></div>
-        <input type="range" min="0" max="20" value="2" id="simVisios" oninput="updateSim()">
+        <div class="sim-fh"><span class="sim-fl">T&eacute;l&eacute;consultations / mois</span><span class="sim-fv" id="sVV">3</span></div>
+        <input type="range" min="0" max="30" value="3" step="1" id="sV" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Formule</span></div>
+        <div style="display:flex;gap:.4rem;margin-top:.35rem;">
+          <button id="sbDec" onclick="setSimFormule('decouverte')" style="flex:1;padding:.28rem;border-radius:8px;border:1.5px solid var(--green);background:#e1f5ee;font-size:.65rem;cursor:pointer;font-family:Outfit,sans-serif;color:var(--green);font-weight:600;">D&eacute;c.</button>
+          <button id="sbEss" onclick="setSimFormule('essentiel')" style="flex:1;padding:.28rem;border-radius:8px;border:1.5px solid var(--border);background:var(--cream);font-size:.65rem;cursor:pointer;font-family:Outfit,sans-serif;color:var(--text2);">Ess. 39&#8364;</button>
+        </div>
       </div>
       <div class="sim-results">
-        <div class="sim-row"><span>👤 Patients directs</span><strong id="simCaP">—</strong></div>
-        <div class="sim-row"><span>🏋️ Prescripteurs</span><strong id="simCaR">—</strong></div>
-        <div class="sim-row"><span>🎥 Téléconsultations</span><strong id="simCaV">—</strong></div>
-        <div class="sim-row sep"><span>📦 Abonnement Essentiel</span><strong style="color:#ef4444;">− 39 €</strong></div>
-        <div class="sim-row"><span>💳 Frais Stripe (est.)</span><strong id="simStripe" style="color:#ef4444;">—</strong></div>
-        <div class="sim-row highlight"><span>📈 Revenu net / mois</span><strong id="simNet">—</strong></div>
-        <div class="sim-row"><span>⏱ Taux horaire</span><strong id="simTaux">—</strong></div>
+        <div class="sim-row"><span>Patients</span><strong id="sCaP">&#8212;</strong></div>
+        <div class="sim-row"><span>Prescripteurs</span><strong id="sCaR">&#8212;</strong></div>
+        <div class="sim-row"><span>Visios</span><strong id="sCaV">&#8212;</strong></div>
+        <div class="sim-row"><span>Frais Stripe</span><strong id="sStripe">&#8212;</strong></div>
+        <div class="sim-row"><span>Abonnement</span><strong id="sAbo">&#8212;</strong></div>
+        <div class="sim-row hl"><span>Revenu net</span><strong id="sNet">&#8212;</strong></div>
       </div>
-      <div class="sim-note" id="simNote">Revenu annuel estimé : —</div>
+      <div class="sim-note" id="sNote">Revenu annuel estim&eacute; : &#8212;</div>
+      <div class="sim-note" id="sTaux">Taux horaire estim&eacute; : &#8212;</div>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
+
 <footer class="nd-footer">
   <div class="nd-footer-inner">
     <div class="nd-footer-brand">
       <div class="nd-logo-footer">Nutri<em>Doc</em></div>
-      <p>Plateforme de plans alimentaires légaux par CaliDoc Santé.</p>
+      <p>Plans alimentaires sur-mesure valid&eacute;s par des di&eacute;t. certifi&eacute;s RPPS. Par CaliDoc Sant&eacute;.</p>
     </div>
     <div class="nd-footer-links">
       <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Diététiciens</div>
+        <div class="nd-footer-col-title">Di&eacute;t&eacute;ticiens</div>
+        <a href="accueil-dieteticien.html">Espace di&eacute;t.</a>
         <a href="dashboard-dieteticien.html">Tableau de bord</a>
         <a href="profil-dieteticien.html">Mon profil</a>
-        <a href="accueil-dieteticien.html">Espace diét.</a>
       </div>
       <div class="nd-footer-col">
         <div class="nd-footer-col-title">Plateforme</div>
-        <a href="accueil-patient.html">Espace patient</a>
-        <a href="accueil-prescripteur.html">Espace prescripteur</a>
+        <a href="agenda-dieteticien.html">Agenda</a>
+        <a href="accueil-prescripteur.html">Prescripteurs</a>
         <a href="faq.html">FAQ</a>
       </div>
       <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Légal</div>
-        <a href="politique-confidentialite.html">Confidentialité</a>
-        <a href="mentions-legales.html">Mentions légales</a>
+        <div class="nd-footer-col-title">L&eacute;gal</div>
+        <a href="politique-confidentialite.html">Confidentialit&eacute;</a>
+        <a href="mentions-legales.html">Mentions l&eacute;gales</a>
         <a href="mailto:contact@calidoc-sante.fr">Contact</a>
       </div>
     </div>
   </div>
-  <div class="nd-footer-bottom">© 2025 NutriDoc by CaliDoc Santé · Données hébergées en France · HDS</div>
+  <div class="nd-footer-bottom">&copy; 2025&ndash;2026 NutriDoc by CaliDoc Sant&eacute; &middot; RGPD &middot; HDS</div>
 </footer>
 
-<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
 <script>
-// ── NAVIGATION SIDEBAR ────────────────────────────────────────
-document.querySelectorAll('.sidebar-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const s = item.dataset.section;
-    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-    item.classList.add('active');
-    document.getElementById('section-' + s)?.classList.add('active');
-  });
-});
+// CONSTANTES
+var TARIF_PATIENT = 35;
+var TARIF_PRESC   = 18;
+var TARIF_VISIO   = 45;
+var ABO_ESSENTIEL = 39;
+var STRIPE_PCT    = 0.015;
+var STRIPE_FIX    = 0.25;
 
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
-});
+function calcStripe(montant) {
+  return Math.round((montant * STRIPE_PCT + STRIPE_FIX) * 100) / 100;
+}
+function fmt(n) {
+  if (n === undefined || n === null || isNaN(n)) return '&#8212;';
+  return Math.round(n).toLocaleString('fr-FR') + ' €';
+}
+function fmtDec(n) {
+  return n.toFixed(2).replace('.', ',') + ' €';
+}
 
-// ── CONSTANTES MODÈLE ─────────────────────────────────────────
-const TARIF_PATIENT = 24.90;
-const TARIF_PRESC   = 18;     // tarif Confort de référence
-const TARIF_VISIO   = 55;
-const ABO_ESSENTIEL = 39;
-const STRIPE_RATE   = 0.015;
-const STRIPE_FIXED  = 0.25;
-
-function calcStripe(montant) { return montant * STRIPE_RATE + STRIPE_FIXED; }
-function fmt(n)               { return Math.round(n) + ' €'; }
-
-// ── CHARGEMENT SUPABASE ───────────────────────────────────────
-let chartInstance = null;
-let formuleActuelle = 'decouverte';
-
-async function chargerDonnees() {
-  if (typeof MODE_SUPA === 'undefined' || !MODE_SUPA || typeof getProfile === 'undefined') {
-    afficherDemoData(); return;
+// UTILS
+function toggleConn() { document.getElementById('connMenu').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.querySelector('.nd-conn-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('connMenu').classList.remove('open');
+  if (e.target.dataset.action === 'goto-abo') { e.preventDefault(); showSec('abonnement', null); }
+  if (e.target.dataset.factureId) {
+    toast('Téléchargement ' + e.target.dataset.factureId + '.pdf');
   }
-  const profile = await getProfile();
-  if (!profile) { window.location.href = 'login.html'; return; }
-  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
-
-  formuleActuelle = (profile.formule || 'decouverte').toLowerCase();
-  afficherFormule(formuleActuelle);
-
-  let plansPatients = 0, plansPresc = 0, visios = 0;
-  try {
-    const debut = new Date(); debut.setDate(1); debut.setHours(0,0,0,0);
-    const { count: pp } = await _supa.from('plans').select('id',{count:'exact',head:true})
-      .eq('dietitian_id', profile.id).eq('source','patient').gte('created_at', debut.toISOString());
-    plansPatients = pp || 0;
-    const { count: pr } = await _supa.from('plans').select('id',{count:'exact',head:true})
-      .eq('dietitian_id', profile.id).eq('source','prescripteur').gte('created_at', debut.toISOString());
-    plansPresc = pr || 0;
-    const { count: vc } = await _supa.from('visios').select('id',{count:'exact',head:true})
-      .eq('dietitian_id', profile.id).eq('statut','terminee').gte('created_at', debut.toISOString());
-    visios = vc || 0;
-  } catch(e) { console.warn('compta:', e); }
-
-  afficherMetriques(plansPatients, plansPresc, visios, formuleActuelle);
-  if (plansPatients + plansPresc + visios > 0) renderChart(plansPatients, plansPresc, visios);
-  afficherEcheancier(formuleActuelle);
-}
-
-function afficherDemoData() {
-  // Données de démo pour visualisation
-  afficherFormule('essentiel');
-  afficherMetriques(6, 10, 2, 'essentiel');
-  renderChart(6, 10, 2);
-  afficherEcheancier('essentiel');
-}
-
-function afficherFormule(f) {
-  const noms  = { decouverte:'Découverte', essentiel:'Essentiel' };
-  const prix  = { decouverte:'Gratuit · 3 mois', essentiel:'39 € HT / mois' };
-  document.getElementById('aboNom').textContent  = noms[f]  || 'Découverte';
-  document.getElementById('aboPrix').textContent = prix[f]  || 'Gratuit · 3 mois';
-}
-
-function afficherMetriques(pp, pr, v, formule) {
-  const caP    = pp * TARIF_PATIENT;
-  const caR    = pr * TARIF_PRESC;
-  const caV    = v  * TARIF_VISIO;
-  const brut   = caP + caR + caV;
-  const stripe = pp*calcStripe(TARIF_PATIENT) + pr*calcStripe(TARIF_PRESC) + v*calcStripe(TARIF_VISIO);
-  const abo    = formule === 'essentiel' ? ABO_ESSENTIEL : 0;
-  const net    = Math.max(0, brut - stripe - abo);
-
-  // Cards
-  document.getElementById('mPlansPatients').textContent   = pp;
-  document.getElementById('mPlansPatientsCA').textContent = fmt(caP);
-  document.getElementById('mPlansPresc').textContent      = pr;
-  document.getElementById('mPlansPrescCA').textContent    = fmt(caR);
-  document.getElementById('mVisios').textContent          = v;
-  document.getElementById('mVisiosCA').textContent        = fmt(caV);
-  document.getElementById('mNet').textContent             = fmt(net);
-
-  // Sources
-  document.getElementById('srcPatients').textContent      = fmt(caP);
-  document.getElementById('srcPatientsDetail').textContent = pp + ' plan' + (pp>1?'s':'') + ' × ' + TARIF_PATIENT + ' €';
-  document.getElementById('srcPresc').textContent         = fmt(caR);
-  document.getElementById('srcPrescDetail').textContent   = pr + ' plan' + (pr>1?'s':'') + ' × ' + TARIF_PRESC + ' € (tarif Confort)';
-  document.getElementById('srcVisios').textContent        = fmt(caV);
-  document.getElementById('srcVisiosDetail').textContent  = v + ' visio' + (v>1?'s':'') + ' × ' + TARIF_VISIO + ' €';
-
-  // Détail net
-  document.getElementById('netBrut').textContent   = fmt(brut);
-  document.getElementById('netStripe').textContent = '~' + fmt(stripe);
-  document.getElementById('netAbo').textContent    = fmt(abo);
-  document.getElementById('netFinal').textContent  = 'Revenu net : ' + fmt(net);
-}
-
-function renderChart(pp, pr, v) {
-  const zone = document.getElementById('chartZone');
-  zone.innerHTML = '<div class="chart-wrapper"><canvas id="revenusChart"></canvas></div>';
-  if (chartInstance) chartInstance.destroy();
-  const now = new Date();
-  const labels = Array.from({length:6}, (_,i) => {
-    const d = new Date(now.getFullYear(), now.getMonth()-5+i, 1);
-    return d.toLocaleDateString('fr-FR',{month:'short'});
-  });
-  // Données simulées pour les mois précédents (vide sauf dernier)
-  const dataP = [...Array(5).fill(0), Math.round(pp * TARIF_PATIENT)];
-  const dataR = [...Array(5).fill(0), Math.round(pr * TARIF_PRESC)];
-  const dataV = [...Array(5).fill(0), Math.round(v  * TARIF_VISIO)];
-
-  chartInstance = new Chart(document.getElementById('revenusChart').getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label:'Patients directs',  data:dataP, backgroundColor:'rgba(29,158,117,.8)',  borderRadius:5 },
-        { label:'Prescripteurs',     data:dataR, backgroundColor:'rgba(93,202,165,.7)', borderRadius:5 },
-        { label:'Téléconsultations', data:dataV, backgroundColor:'rgba(14,165,233,.6)', borderRadius:5 },
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins: { legend:{ position:'bottom', labels:{ font:{family:'Outfit',size:11}, boxWidth:12 } } },
-      scales: {
-        x:{ stacked:true, grid:{display:false}, ticks:{font:{family:'Outfit',size:11}} },
-        y:{ stacked:true, beginAtZero:true, ticks:{font:{family:'Outfit',size:11}, callback: v => v+' €'} }
-      }
-    }
-  });
-}
-
-function afficherEcheancier(formule) {
-  const zone = document.getElementById('echeancierZone');
-  const now  = new Date();
-  const next15 = new Date(now.getFullYear(), now.getMonth()+1, 15);
-  const items = [];
-
-  if (formule === 'essentiel') {
-    items.push({ day:1, month:'mois +1', label:'Abonnement Essentiel', detail:'Prélèvement automatique Stripe', montant:'−39 €', style:'color:#ef4444;' });
-  }
-  items.push({ day:next15.getDate(), month:next15.toLocaleDateString('fr-FR',{month:'short'}), label:'Prochain reversement Stripe', detail:'Délai habituel : J+2 à J+5 après paiement', montant:'—', style:'color:var(--green);' });
-
-  zone.innerHTML = items.map(e => `
-    <div class="echeance-card">
-      <div class="echeance-date"><div class="day">${e.day}</div><div class="month">${e.month}</div></div>
-      <div class="echeance-info"><h4>${e.label}</h4><p>${e.detail}</p></div>
-      <div class="echeance-montant" style="${e.style}">${e.montant}</div>
-    </div>`).join('');
-}
-
-function exportTransactions() {
-  showToast('Export CSV en cours de développement');
-}
-
-// ── SIMULATEUR ────────────────────────────────────────────────
-function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
-
-function updateSim() {
-  const pp  = parseInt(document.getElementById('simPatients').value);
-  const pr  = parseInt(document.getElementById('simPresc').value);
-  const v   = parseInt(document.getElementById('simVisios').value);
-  document.getElementById('simPatientsVal').textContent = pp;
-  document.getElementById('simPrescVal').textContent    = pr;
-  document.getElementById('simVisiosVal').textContent   = v;
-
-  const caP    = pp * TARIF_PATIENT;
-  const caR    = pr * TARIF_PRESC;
-  const caV    = v  * TARIF_VISIO;
-  const stripe = pp*calcStripe(TARIF_PATIENT) + pr*calcStripe(TARIF_PRESC) + v*calcStripe(TARIF_VISIO);
-  const net    = caP + caR + caV - stripe - ABO_ESSENTIEL;
-  const heures = (pp*15 + pr*15 + v*45) / 60;
-  const taux   = heures > 0 ? Math.round(net / heures) : 0;
-
-  document.getElementById('simCaP').textContent    = fmt(caP);
-  document.getElementById('simCaR').textContent    = fmt(caR);
-  document.getElementById('simCaV').textContent    = fmt(caV);
-  document.getElementById('simStripe').textContent = '−' + fmt(stripe);
-  document.getElementById('simNet').textContent    = fmt(Math.max(0,net));
-  document.getElementById('simTaux').textContent   = taux + ' €/h';
-  document.getElementById('simNote').textContent   = 'Revenu annuel estimé : ' + Math.round(Math.max(0,net)*12).toLocaleString('fr-FR') + ' €';
-}
-
-// ── TOAST ─────────────────────────────────────────────────────
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:.55rem 1.1rem;border-radius:999px;font-size:.78rem;z-index:2000;transition:opacity .3s;'; document.body.appendChild(t); }
-  t.textContent = msg; t.style.opacity = '1';
-  setTimeout(()=> t.style.opacity='0', 2500);
-}
-
-// ── DÉCONNEXION ───────────────────────────────────────────────
+});
+window.addEventListener('scroll', function() {
+  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 300);
+});
 function deconnecter() {
   if (typeof _supa !== 'undefined') _supa.auth.signOut();
-  localStorage.removeItem('nutridoc_profil');
   window.location.href = 'index.html';
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  chargerDonnees();
+function toast(msg, type) {
+  var ex = document.querySelector('.toast');
+  if (ex) ex.remove();
+  var t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 3000);
+}
+
+// SIDEBAR NAVIGATION
+function showSec(id, btn) {
+  document.querySelectorAll('.sec').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  var el = document.getElementById('sec-' + id);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'overview') setTimeout(initChart, 80);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// DONNEES DEMO
+var DEMO_TRANS = []; // Transactions depuis Supabase
+
+var DEMO_REV = []; // Reversements depuis Supabase
+
+var DEMO_FACTURES = []; // Factures depuis Supabase
+
+var DEMO_ABO_HISTO = []; // Historique depuis Supabase
+
+// CALCUL METRIQUES
+function calcMetriques() {
+  var trans = DEMO_TRANS;
+  var moisCourant = new Date().getMonth();
+  var anCourant   = new Date().getFullYear();
+
+  var transMois = trans.filter(function(t) {
+    var d = new Date(t.date);
+    return d.getMonth() === moisCourant && d.getFullYear() === anCourant;
+  });
+  var transAnnee = trans.filter(function(t) {
+    return new Date(t.date).getFullYear() === anCourant;
+  });
+
+  var caMois   = transMois.reduce(function(s,t){ return s + t.brut; }, 0);
+  var caAnnee  = transAnnee.reduce(function(s,t){ return s + t.brut; }, 0);
+  var plansMois = transMois.filter(function(t){ return t.source !== 'visio'; }).length;
+  var stripeMois = transMois.reduce(function(s,t){ return s + t.stripe; }, 0);
+  var aboMois   = localStorage.getItem('nutridoc_formule') === 'essentiel' ? ABO_ESSENTIEL : 0;
+  var netMois   = caMois - stripeMois - aboMois;
+
+  var patientsMois  = transMois.filter(function(t){ return t.source === 'patient'; });
+  var prescMois     = transMois.filter(function(t){ return t.source === 'prescripteur'; });
+  var visiosMois    = transMois.filter(function(t){ return t.source === 'visio'; });
+  var caP = patientsMois.reduce(function(s,t){ return s + t.brut; }, 0);
+  var caR = prescMois.reduce(function(s,t){ return s + t.brut; }, 0);
+  var caV = visiosMois.reduce(function(s,t){ return s + t.brut; }, 0);
+
+  // Mise &agrave; jour UI
+  var e = function(id) { return document.getElementById(id); };
+  if (e('kpiMois')) e('kpiMois').innerHTML = fmt(netMois);
+  if (e('kpiAnnee')) e('kpiAnnee').innerHTML = fmt(caAnnee);
+  if (e('kpiPlans')) e('kpiPlans').textContent = plansMois;
+  if (e('kpiStripe')) e('kpiStripe').innerHTML = fmt(stripeMois);
+  if (e('skRevenu')) e('skRevenu').innerHTML = fmt(netMois);
+  if (e('skPlans')) e('skPlans').textContent = plansMois + ' plan' + (plansMois > 1 ? 's' : '') + ' validé' + (plansMois > 1 ? 's' : '');
+  if (e('srcPatients')) e('srcPatients').innerHTML = fmt(caP);
+  if (e('srcPatientsDetail')) e('srcPatientsDetail').textContent = patientsMois.length + ' plan' + (patientsMois.length > 1 ? 's' : '') + ' × ' + TARIF_PATIENT + ' €';
+  if (e('srcPresc')) e('srcPresc').innerHTML = fmt(caR);
+  if (e('srcPrescDetail')) e('srcPrescDetail').textContent = prescMois.length + ' plan' + (prescMois.length > 1 ? 's' : '') + ' × ' + TARIF_PRESC + ' €';
+  if (e('srcVisios')) e('srcVisios').innerHTML = fmt(caV);
+  if (e('srcVisiosDetail')) e('srcVisiosDetail').textContent = visiosMois.length + ' visio' + (visiosMois.length > 1 ? 's' : '') + ' × ' + TARIF_VISIO + ' €';
+  if (e('detailBrut')) e('detailBrut').innerHTML = fmt(caMois);
+  if (e('detailStripe')) e('detailStripe').innerHTML = '− ' + fmtDec(stripeMois);
+  if (e('detailAbo')) e('detailAbo').innerHTML = '− ' + aboMois + ' €';
+  if (e('detailNet')) e('detailNet').innerHTML = fmt(netMois);
+
+  // Fiscalit&eacute;
+  if (e('fiscCa')) e('fiscCa').innerHTML = fmt(caAnnee);
+  if (e('fiscCa2')) e('fiscCa2').innerHTML = fmt(caAnnee);
+  if (e('fiscCaEstim')) e('fiscCaEstim').innerHTML = fmt(caAnnee);
+  var abattement = Math.round(caAnnee * 0.34);
+  var benef      = caAnnee - abattement;
+  var urssaf     = Math.round(caAnnee * 0.212);
+  var fiscNet    = caAnnee - urssaf;
+  if (e('fiscAbattement')) e('fiscAbattement').innerHTML = fmt(abattement);
+  if (e('fiscBenef')) e('fiscBenef').innerHTML = fmt(benef);
+  if (e('fiscUrssaf')) e('fiscUrssaf').innerHTML = fmt(urssaf);
+  if (e('fiscNet')) e('fiscNet').innerHTML = fmt(fiscNet);
+  var seuilTVA = 77700;
+  var pct = Math.min(100, Math.round((caAnnee / seuilTVA) * 100));
+  var cls = pct < 60 ? 'ok' : pct < 85 ? 'warn' : 'danger';
+  ['seuilBar1','seuilBar2'].forEach(function(id2) {
+    var b = e(id2);
+    if (b) { b.style.width = pct + '%'; b.className = 'seuil-fill ' + cls; }
+  });
+  ['seuilLabel1','seuilLabel2'].forEach(function(id2) {
+    var l = e(id2);
+    if (l) l.textContent = pct + ' %';
+  });
+
+  return {caMois:caMois, caAnnee:caAnnee, netMois:netMois, caP:caP, caR:caR, caV:caV, plansMois:plansMois};
+}
+
+// CHART
+var chartInst = null;
+function initChart() {
+  try {
+    var ctx = document.getElementById('revenusChart');
+    if (!ctx) return;
+    var rect = ctx.getBoundingClientRect();
+    if (rect.width === 0) return;
+    if (chartInst) { chartInst.destroy(); chartInst = null; }
+    var now = new Date();
+    var labels = [];
+    var dataP = [], dataR = [], dataV = [];
+    for (var i = 5; i >= 0; i--) {
+      var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      labels.push(d.toLocaleDateString('fr-FR', {month:'short', year:'2-digit'}));
+      var mIdx = d.getMonth();
+      var yIdx = d.getFullYear();
+      var tM = DEMO_TRANS.filter(function(t) {
+        var td = new Date(t.date);
+        return td.getMonth() === mIdx && td.getFullYear() === yIdx;
+      });
+      dataP.push(tM.filter(function(t){return t.source==='patient';}).reduce(function(s,t){return s+t.brut;},0));
+      dataR.push(tM.filter(function(t){return t.source==='prescripteur';}).reduce(function(s,t){return s+t.brut;},0));
+      dataV.push(tM.filter(function(t){return t.source==='visio';}).reduce(function(s,t){return s+t.brut;},0));
+    }
+    chartInst = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:labels,
+        datasets:[
+          {label:'Patients directs', data:dataP, backgroundColor:'rgba(29,158,117,.8)', borderRadius:4},
+          {label:'Prescripteurs',    data:dataR, backgroundColor:'rgba(93,202,165,.75)', borderRadius:4},
+          {label:'Téléconsultations', data:dataV, backgroundColor:'rgba(14,165,233,.65)', borderRadius:4},
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom', labels:{font:{family:'Outfit', size:11}, boxWidth:12}}},
+        scales:{
+          x:{stacked:true, grid:{display:false}, ticks:{font:{family:'Outfit', size:11}}},
+          y:{stacked:true, beginAtZero:true, ticks:{font:{family:'Outfit', size:11}, callback:function(v){return v+' €';}}}
+        }
+      }
+    });
+  } catch(e2) { console.warn('Chart:', e2); }
+}
+
+// TRANSACTIONS
+function renderTransactions() {
+  var tbody = document.getElementById('transBody');
+  if (!tbody) return;
+  tbody.innerHTML = DEMO_TRANS.map(function(t) {
+    var srcBadge = t.source === 'patient' ? '<span class="badge badge-green">Patient</span>'
+                 : t.source === 'prescripteur' ? '<span class="badge badge-blue">Prescripteur</span>'
+                 : '<span class="badge badge-orange">Visio</span>';
+    var net = t.brut - t.stripe;
+    return '<tr>'
+      + '<td style="font-size:.75rem;">' + new Date(t.date).toLocaleDateString('fr-FR') + '</td>'
+      + '<td>' + t.desc + '</td>'
+      + '<td>' + srcBadge + '</td>'
+      + '<td style="font-weight:600;">' + t.brut + ' €</td>'
+      + '<td style="color:#ef4444;">−' + fmtDec(t.stripe) + '</td>'
+      + '<td style="color:var(--green);font-weight:600;">' + fmtDec(net) + '</td>'
+      + '<td><span class="badge badge-green">' + t.statut + '</span></td>'
+      + '</tr>';
+  }).join('');
+}
+
+// REVERSEMENTS
+function renderReversements() {
+  var tbody = document.getElementById('revBody');
+  if (!tbody) return;
+  tbody.innerHTML = DEMO_REV.map(function(r) {
+    return '<tr>'
+      + '<td>' + new Date(r.date).toLocaleDateString('fr-FR') + '</td>'
+      + '<td style="font-weight:600;">' + fmtDec(r.brut) + '</td>'
+      + '<td style="color:#ef4444;">−' + fmtDec(r.stripe) + '</td>'
+      + '<td style="color:var(--green);font-weight:700;">' + fmtDec(r.net) + '</td>'
+      + '<td style="font-family:monospace;font-size:.75rem;">' + r.iban + '</td>'
+      + '<td><span class="badge badge-green">' + r.statut + '</span></td>'
+      + '</tr>';
+  }).join('');
+
+  // Prochain reversement
+  var now     = new Date();
+  var next15  = new Date(now.getFullYear(), now.getMonth() + 1, 15);
+  var dateStr = next15.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+  var e = document.getElementById('revDate');
+  if (e) e.textContent = dateStr;
+
+  var totalEnAttente = DEMO_TRANS.reduce(function(s,t){ return s + t.brut; }, 0);
+  var rp = document.getElementById('revProchain');
+  if (rp) rp.innerHTML = fmtDec(totalEnAttente);
+
+  var ibanData = '';
+  try { ibanData = JSON.parse(localStorage.getItem('nutridoc_profil_diet') || '{}').ibanMasked || 'FR76 **** 6411'; } catch(e2) { ibanData = 'Non renseigné'; }
+  var ri = document.getElementById('revIban');
+  if (ri) ri.textContent = ibanData;
+
+  // Ech&eacute;ancier
+  var zone = document.getElementById('echeancierZone');
+  if (!zone) return;
+  var formule = localStorage.getItem('nutridoc_formule') || 'decouverte';
+  var items = [];
+  if (formule === 'essentiel') {
+    var p1 = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    items.push({
+      day: p1.getDate(), month: p1.toLocaleDateString('fr-FR', {month:'short'}), cls:'orange',
+      title:'Abonnement NutriDoc Essentiel', desc:'Prélèvement automatique via Stripe', montant:'−39 €', mColor:'#ef4444'
+    });
+  }
+  items.push({
+    day: next15.getDate(), month: next15.toLocaleDateString('fr-FR', {month:'short'}), cls:'',
+    title:'Reversement Stripe estimé', desc:'J+2 à J+5 ouvrés après encaissement', montant: fmtDec(totalEnAttente), mColor:'var(--green)'
+  });
+  items.push({
+    day: 31, month: 'déc.', cls:'',
+    title:'CFE - Cotisation Foncière des Entreprises', desc:'Si assujetti - Montant variable selon commune', montant:'Variable', mColor:'var(--text2)'
+  });
+
+  zone.innerHTML = items.map(function(it) {
+    return '<div class="echean-item">'
+      + '<div class="echean-date ' + it.cls + '"><div class="ed-day">' + it.day + '</div><div class="ed-month">' + it.month + '</div></div>'
+      + '<div class="echean-info"><h4>' + it.title + '</h4><p>' + it.desc + '</p></div>'
+      + '<div class="echean-montant" style="color:' + it.mColor + ';">' + it.montant + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// FACTURES
+function renderFactures() {
+  var zone   = document.getElementById('facturesZone');
+  if (!zone) return;
+  var filter = document.getElementById('factureFilter') ? document.getElementById('factureFilter').value : '';
+  var facts  = filter ? DEMO_FACTURES.filter(function(f) { return f.date.startsWith(filter); }) : DEMO_FACTURES;
+  if (facts.length === 0) {
+    zone.innerHTML = '<p style="font-size:.82rem;color:var(--text2);text-align:center;padding:1.5rem;">Aucune facture pour la période sélectionnée.</p>';
+    return;
+  }
+  zone.innerHTML = facts.map(function(f) {
+    return '<div class="facture-item">'
+      + '<div class="facture-icon">&#128196;</div>'
+      + '<div class="facture-info"><h4>' + f.id + ' &mdash; ' + f.desc + '</h4>'
+      + '<p>' + new Date(f.date).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) + '</p></div>'
+      + '<div class="facture-montant">' + f.montant + ' €</div>'
+      + '<span class="badge badge-green">' + f.statut + '</span>'
+      + '<button class="btn-dl" data-facture-id="' + f.id + '">&#11015;&#65039; PDF</button>'
+      + '</div>';
+  }).join('');
+}
+
+// ABONNEMENT
+function applyFormule() {
+  var f   = localStorage.getItem('nutridoc_formule') || 'decouverte';
+  var fcD = document.getElementById('aboDecouverte');
+  var fcE = document.getElementById('aboEssentiel');
+  if (f === 'essentiel') {
+    if (fcE) fcE.classList.add('active');
+    if (fcD) fcD.classList.remove('active');
+  } else {
+    if (fcD) fcD.classList.add('active');
+    if (fcE) fcE.classList.remove('active');
+  }
+  var sn = document.getElementById('saName');
+  var sp = document.getElementById('saPrix');
+  if (sn) sn.textContent = f === 'essentiel' ? 'Essentiel' : 'Découverte';
+  if (sp) sp.textContent = f === 'essentiel' ? '39 € HT / mois' : 'Gratuit · 3 mois';
+  renderAboCta(f);
+  renderAboHisto(f);
+}
+
+function renderAboCta(f) {
+  var el = document.getElementById('aboCta');
+  if (!el) return;
+  if (f === 'essentiel') {
+    el.innerHTML = '<button class="btn-secondary" onclick="downgradeDiet()">Résilier l’Essentiel</button>';
+  } else {
+    el.innerHTML = '<button class="btn-primary" onclick="upgradeDiet()">Passer à l’Essentiel &mdash; 39 €/mois</button><p style="font-size:.65rem;color:var(--text2);margin-top:.4rem;">Sans engagement · Résiliable à tout moment · Paiement Stripe sécurisé</p>';
+  }
+}
+
+function renderAboHisto(f) {
+  var tbody = document.getElementById('aboHistoBody');
+  if (!tbody) return;
+  if (f !== 'essentiel') {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:1.5rem;">Aucun prélèvement (formule Gratuite)</td></tr>';
+    return;
+  }
+  tbody.innerHTML = DEMO_ABO_HISTO.map(function(a) {
+    return '<tr>'
+      + '<td>' + new Date(a.date).toLocaleDateString('fr-FR') + '</td>'
+      + '<td>' + a.libelle + '</td>'
+      + '<td style="font-weight:600;">' + a.montant + '</td>'
+      + '<td><span class="badge badge-green">' + a.statut + '</span></td>'
+      + '<td><button class="btn-dl" data-abo-dl="1">PDF</button></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function upgradeDiet() {
+  localStorage.setItem('nutridoc_formule','essentiel');
+  applyFormule();
+  calcMetriques();
+  toast('&#11088; Formule Essentiel activée !');
+}
+function downgradeDiet() {
+  if (!confirm('Résilier la formule Essentiel ?')) return;
+  localStorage.setItem('nutridoc_formule','decouverte');
+  applyFormule();
+  calcMetriques();
+  toast('Formule Découverte réactivée');
+}
+
+// EXPORT
+function exportCSV() {
+  var lignes = ['Date,Description,Source,Montant brut,Frais Stripe,Net,Statut'];
+  DEMO_TRANS.forEach(function(t) {
+    lignes.push([t.date, '"' + t.desc + '"', t.source, t.brut, t.stripe.toFixed(2), (t.brut - t.stripe).toFixed(2), t.statut].join(','));
+  });
+  var csv  = lignes.join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'nutridoc_transactions_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('&#10003; Export CSV généré');
+}
+
+function exportAnnuel() {
+  toast('Récapitulatif annuel en cours de préparation…');
+}
+
+// SIMULATEUR
+var simFormule = 'decouverte';
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+function setSimFormule(f) {
+  simFormule = f;
+  var bd = document.getElementById('sbDec');
+  var be = document.getElementById('sbEss');
+  if (f === 'essentiel') {
+    if (bd) { bd.style.background='var(--cream)'; bd.style.borderColor='var(--border)'; bd.style.color='var(--text2)'; }
+    if (be) { be.style.background='#e1f5ee'; be.style.borderColor='var(--green)'; be.style.color='var(--green)'; }
+  } else {
+    if (bd) { bd.style.background='#e1f5ee'; bd.style.borderColor='var(--green)'; bd.style.color='var(--green)'; }
+    if (be) { be.style.background='var(--cream)'; be.style.borderColor='var(--border)'; be.style.color='var(--text2)'; }
+  }
   updateSim();
+}
+
+function updateSim() {
+  var pp = parseInt(document.getElementById('sPp').value) || 0;
+  var pr = parseInt(document.getElementById('sPr').value) || 0;
+  var v  = parseInt(document.getElementById('sV').value) || 0;
+  document.getElementById('sPpV').textContent = pp;
+  document.getElementById('sPrV').textContent = pr;
+  document.getElementById('sVV').textContent  = v;
+  var caP  = pp * TARIF_PATIENT;
+  var caR  = pr * TARIF_PRESC;
+  var caV  = v  * TARIF_VISIO;
+  var strP = pp * calcStripe(TARIF_PATIENT);
+  var strR = pr * calcStripe(TARIF_PRESC);
+  var strV = v  * calcStripe(TARIF_VISIO);
+  var abo  = simFormule === 'essentiel' ? ABO_ESSENTIEL : 0;
+  var net  = caP + caR + caV - strP - strR - strV - abo;
+  var heures = (pp * 15 + pr * 15 + v * 45) / 60;
+  var taux = heures > 0 ? Math.round(net / heures) : 0;
+  var e = function(id) { return document.getElementById(id); };
+  if (e('sCaP')) e('sCaP').innerHTML  = fmt(caP);
+  if (e('sCaR')) e('sCaR').innerHTML  = fmt(caR);
+  if (e('sCaV')) e('sCaV').innerHTML  = fmt(caV);
+  if (e('sStripe')) e('sStripe').innerHTML = '− ' + fmt(strP + strR + strV);
+  if (e('sAbo')) e('sAbo').innerHTML   = '− ' + abo + ' €';
+  if (e('sNet')) e('sNet').innerHTML   = fmt(Math.max(0, net));
+  if (e('sNote')) e('sNote').textContent = 'Annuel estimé : ' + Math.round(Math.max(0, net) * 12).toLocaleString('fr-FR') + ' €';
+  if (e('sTaux')) e('sTaux').textContent = 'Taux horaire : ' + taux + ' €/h';
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', function() {
+  applyFormule();
+  calcMetriques();
+  renderTransactions();
+  renderReversements();
+  renderFactures();
+  setTimeout(initChart, 80);
 });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+}
 </script>
 </body>
 </html>

@@ -1,629 +1,353 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
-  <meta name="description" content="Gérez vos crédits de plans alimentaires sur NutriDoc. Consultez votre solde, votre historique et rechargez des crédits en toute sécurité."/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestion crédits — Prescripteur NutriDoc</title>
-  
-  <!-- Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="description" content="Gerez vos plans alimentaires sur-mesure NutriDoc. Consultez votre solde, historique et commandez de nouveaux plans."/>
+  <title>Mes plans alimentaires &mdash; Prescripteur NutriDoc</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/home.css"/>
-  
-  <!-- ==================== PWA MANIFEST ==================== -->
-  <link rel="manifest" href="/manifest.json">
-  
-  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
-  <meta name="theme-color" content="#0d2018">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NutriDoc Credits">
-  
-  <!-- ==================== ICÔNES APPLE ==================== -->
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-  
-  <!-- ==================== DARK MODE CSS ==================== -->
-  <link rel="stylesheet" href="css/dark-mode.css">
-  <link rel="stylesheet" href="css/dark-mode-variables.css">
-  
-  <!-- ==================== BIBLIOTHÈQUES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  
-  <!-- ==================== PERFORMANCE ==================== -->
-  <script defer src="js/utils/performance.js"></script>
-  
-  <!-- ==================== VERSION MANAGER ==================== -->
-  <script defer src="js/utils/version-manager.js"></script>
-  
-  <!-- ==================== ERROR HANDLER ==================== -->
-  <script defer src="js/utils/error-handler.js"></script>
-  
-  <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
-  
-  <!-- ==================== AUTO-SAVE JS ==================== -->
-  <script defer src="js/utils/auto-save.js"></script>
-  
-  <!-- ==================== PWA MANAGER ==================== */
-  <script defer src="js/utils/pwa.js"></script>
-  
-  <!-- ==================== CORE ==================== -->
   <script defer src="js/core/auth.js"></script>
-  <script defer src="js/core/constants.js"></script>
-  <script defer src="js/core/validation.js"></script>
-  
-  <!-- ==================== STRIPE ==================== -->
-  <script src="js/payments/stripe.js"></script>
-
+  <script defer src="js/ui/cookies.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background:var(--bg-secondary,#f7f9f7);
-      color:var(--text-primary,#0d2018);
-      line-height: 1.5;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --green:#1D9E75;--green-dark:#0f6e56;--green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2);
+      --dark:#0d2018;--dark2:#0a1912;
+      --cream:#f7f9f7;--white:#fff;
+      --text:#0d2018;--text2:#4b5563;--border:#eef4ee;
     }
+    html{scroll-behavior:smooth;}
+    body{font-family:"Outfit",sans-serif;background:var(--cream);color:var(--text);line-height:1.5;}
 
     /* HEADER */
-    .credits-header {
-      background: #0d2018;
-      padding: 0.75rem 2rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-    }
-    .header-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .credits-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: #fff;
-      text-decoration: none;
-    }
-    .credits-logo em { font-style: italic; color: #5DCAA5; }
-    .credits-nav { display: flex; gap: 1.5rem; }
-    .credits-nav a {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .credits-nav a:hover, .credits-nav a.active { color: #fff; }
-    .credits-user {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .user-badge {
-      background: rgba(29,158,117,0.15);
-      border-radius: 999px;
-      padding: 0.3rem 1rem;
-      font-size: 0.75rem;
-      color: #5DCAA5;
-    }
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--green-border);padding:.7rem 2rem;}
+    .hc{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;}
+    .h-left{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:"Playfair Display",serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:var(--green-light);}
+    .nd-nav{display:flex;gap:1.5rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .h-right{display:flex;align-items:center;gap:.75rem;}
+    .nd-conn-wrap{position:relative;}
+    .nd-conn-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.38rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .nd-conn-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--dark);border:1px solid var(--green-border);border-radius:12px;min-width:175px;overflow:hidden;z-index:300;}
+    .nd-conn-menu.open{display:block;}
+    .nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;transition:background .15s;cursor:pointer;}
+    .nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff;}
+    @media(max-width:900px){.nd-nav{display:none;}.nd-header{padding:.65rem 1rem;}}
 
-    /* THEME SELECTOR */
+    /* CONTAINER */
+    .container{max-width:1100px;margin:0 auto;padding:5.5rem 1.5rem 3rem;}
 
-    /* MAIN CONTENT */
-    .credits-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 6rem 1.5rem 3rem;
+    /* SOLDE HERO */
+    .solde-hero{
+      background:linear-gradient(135deg,#0d2018,#142c1f);
+      border-radius:24px;padding:2rem;margin-bottom:1.75rem;
+      color:#fff;text-align:center;position:relative;overflow:hidden;
     }
+    .solde-hero::before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse 60% 70% at 70% 40%,rgba(29,158,117,.15),transparent 65%);
+    }
+    .solde-hero-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:.5rem;}
+    .solde-hero-value{font-family:"Playfair Display",serif;font-size:5rem;color:var(--green-light);line-height:1;}
+    .solde-hero-unit{font-size:1rem;color:rgba(255,255,255,.4);display:block;margin-top:.2rem;}
+    .solde-hero-sub{font-size:.78rem;color:rgba(255,255,255,.35);margin-top:.35rem;}
+    .solde-bar{max-width:320px;margin:.85rem auto 0;height:5px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;}
+    .solde-fill{height:100%;background:var(--green-light);border-radius:999px;transition:width .5s ease;}
 
-    /* SOLDE CARD */
-    .solde-card {
-      background: linear-gradient(135deg, #0d2018, #142c1f);
-      border-radius: 32px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      color: #fff;
-      text-align: center;
-    }
-    .solde-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 0.5rem;
-    }
-    .solde-value {
-      font-family: 'Playfair Display', serif;
-      font-size: 4rem;
-      color: #5DCAA5;
-      line-height: 1;
-    }
-    .solde-unite {
-      font-size: 1rem;
-      color: rgba(255,255,255,0.5);
-      margin-left: 0.5rem;
-    }
-    .solde-sub {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
-      margin-top: 0.5rem;
-    }
-    .solde-bar {
-      max-width: 300px;
-      margin: 1rem auto 0;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .solde-fill {
-      height: 100%;
-      background: #5DCAA5;
-      border-radius: 999px;
-      transition: width 0.5s;
-    }
+    /* PROMO BAND */
+    .promo-band{background:linear-gradient(135deg,#0d2018,#142c1f);border:1px solid rgba(93,202,165,.3);border-radius:14px;padding:.85rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;}
+    .promo-pill{background:linear-gradient(135deg,#5DCAA5,#1D9E75);color:#fff;font-size:.7rem;font-weight:800;padding:.28rem .7rem;border-radius:999px;white-space:nowrap;}
+    .promo-txt{font-size:.82rem;color:rgba(255,255,255,.9);line-height:1.45;}
+    .promo-txt strong{color:#5DCAA5;}
+    .promo-note{font-size:.65rem;color:rgba(255,255,255,.45);margin-top:.1rem;}
 
     /* KPIs */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    @media (max-width: 700px) {
-      .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    .kpi-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.25rem;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-    .kpi-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color:var(--text-secondary,#6b7b74);
-      margin-bottom: 0.5rem;
-    }
-    .kpi-value {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1D9E75;
-      line-height: 1;
-    }
-    .kpi-sub {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.25rem;
-    }
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+    .kpi-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.1rem;text-align:center;transition:transform .2s,box-shadow .2s;}
+    .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08);}
+    .kpi-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:.4rem;}
+    .kpi-value{font-family:"Playfair Display",serif;font-size:1.85rem;font-weight:700;color:var(--green);line-height:1;}
+    .kpi-sub{font-size:.67rem;color:var(--text2);margin-top:.25rem;}
 
-    /* PACKS GRID */
-    .packs-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-      margin: 1.5rem 0 1rem;
+    /* PYRAMIDE */
+    .section-title{font-family:"Playfair Display",serif;font-size:1.35rem;color:var(--text);margin:1.75rem 0 1rem;}
+    .pack-included{background:linear-gradient(135deg,#f0faf6,#e8f7f1);border:1px solid rgba(29,158,117,.2);border-radius:12px;padding:.75rem 1.1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:.4rem .65rem;align-items:center;}
+    .pack-incl-lbl{font-size:.7rem;font-weight:700;color:var(--green-dark);white-space:nowrap;}
+    .pack-incl-feat{font-size:.7rem;color:var(--text2);display:inline-flex;align-items:center;gap:.25rem;}
+    .pack-incl-feat::before{content:"\2713";color:var(--green);font-weight:700;font-family:monospace;}
+    .pyr{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;}
+    .pyr-row{
+      display:flex;align-items:center;background:var(--white);border:1.5px solid var(--border);
+      border-radius:14px;padding:.8rem 1.1rem;transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
     }
-    .packs-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    @media (max-width: 900px) {
-      .packs-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    @media (max-width: 500px) {
-      .packs-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .pack-card {
-      background:var(--bg-card,#fff);
-      border: 2px solid #eef4ee;
-      border-radius: 24px;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .pack-card:hover {
-      transform: translateY(-4px);
-      border-color: #1D9E75;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
-    }
-    .pack-card.selected {
-      border-color: #1D9E75;
-      background: rgba(29,158,117,0.05);
-    }
-    .pack-card.recommended {
-      border-color: #f59e0b;
-    }
-    .pack-card.recommended::before {
-      content: "⭐ RECOMMANDÉ";
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #f59e0b;
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 0.2rem 0.8rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .pack-credits {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-bottom: 0.5rem;
-    }
-    .pack-price {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1D9E75;
-    }
-    .pack-price span {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color:var(--text-secondary,#6b7b74);
-    }
-    .pack-per-plan {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.25rem;
-    }
-    .pack-economy {
-      font-size: 0.7rem;
-      color: #22c55e;
-      margin-top: 0.5rem;
-    }
-    .pack-btn {
-      background: #1D9E75;
-      color: #fff;
-      border: none;
-      border-radius: 999px;
-      padding: 0.6rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 1rem;
-      transition: background 0.2s;
-    }
-    .pack-btn:hover {
-      background: #0f6e56;
-    }
-    .pack-btn:disabled {
-      background:var(--bg-tertiary,#eef4ee);
-      color:var(--text-secondary,#6b7b74);
-      cursor: not-allowed;
-    }
+    .pyr-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--border);transition:background .2s;}
+    .pyr-row:hover,.pyr-row.selected{border-color:var(--green);}
+    .pyr-row:hover::before,.pyr-row.selected::before{background:var(--green);}
+    .pyr-row.featured{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.1);}
+    .pyr-row.featured::before{background:var(--green);}
+    .pyr-name{font-size:.88rem;font-weight:700;color:var(--text);min-width:95px;}
+    .pyr-qty{font-size:.78rem;color:var(--text2);flex:1;padding:0 .75rem;}
+    .pyr-prices{display:flex;align-items:baseline;gap:.45rem;margin-right:.85rem;}
+    .pyr-old{font-size:.72rem;color:#9ca3af;text-decoration:line-through;}
+    .pyr-new{font-family:"Playfair Display",serif;font-size:1.3rem;font-weight:700;color:var(--green-dark);}
+    .pyr-per{font-size:.72rem;font-weight:700;color:var(--green);white-space:nowrap;min-width:80px;text-align:right;}
 
-    /* RÉCAPITULATIF COMMANDE */
-    .recap-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .recap-title {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .recap-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      font-size: 0.85rem;
-    }
-    .recap-row.total {
-      font-weight: 700;
-      font-size: 1rem;
-      border-top: 1px solid #eef4ee;
-      margin-top: 0.5rem;
-      padding-top: 0.75rem;
-      color: #1D9E75;
-    }
-    .recap-note {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      text-align: center;
-      margin-top: 1rem;
-    }
+    /* RECAP */
+    .recap-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:1.5rem;margin-bottom:1.75rem;}
+    .recap-title{font-weight:700;font-size:.95rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+    .recap-row{display:flex;justify-content:space-between;padding:.45rem 0;font-size:.85rem;}
+    .recap-row.total{font-weight:700;font-size:1rem;border-top:1px solid var(--border);margin-top:.5rem;padding-top:.75rem;color:var(--green);}
+    .recap-note{font-size:.7rem;color:var(--text2);text-align:center;margin-top:.85rem;line-height:1.6;}
+    .btn-payer{background:#0ea5e9;color:#fff;border:none;border-radius:999px;padding:.75rem 1.5rem;font-size:.88rem;font-weight:700;cursor:pointer;width:100%;margin-top:1rem;font-family:"Outfit",sans-serif;transition:background .2s;}
+    .btn-payer:hover{background:#0284c7;}
 
     /* HISTORIQUE */
-    .historique-card {
-      background:var(--bg-card,#fff);
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 20px;
-      padding: 1.5rem;
+    .histo-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:1.5rem;}
+    .histo-title{font-weight:700;font-size:.95rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .btn-export{background:var(--cream);border:1px solid var(--border);color:var(--text2);border-radius:999px;padding:.3rem .85rem;font-size:.72rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-export:hover{border-color:var(--green);color:var(--green);}
+    .histo-list{display:flex;flex-direction:column;gap:.65rem;}
+    .histo-item{
+      display:grid;grid-template-columns:auto 1fr auto auto;
+      align-items:center;gap:.85rem;
+      background:var(--cream);border-radius:14px;padding:.85rem 1.1rem;
+      border:1.5px solid transparent;transition:border-color .2s,box-shadow .2s;
     }
-    .historique-title {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .historique-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    .historique-table th {
-      text-align: left;
-      padding: 0.75rem 0.5rem;
-      border-bottom: 1px solid #eef4ee;
-      color:var(--text-secondary,#6b7b74);
-      font-weight: 500;
-    }
-    .historique-table td {
-      padding: 0.75rem 0.5rem;
-      border-bottom: 1px solid #eef4ee;
-    }
-    .badge-credit {
-      background: #e1f5ee;
-      color: #1D9E75;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-    }
-    .badge-debit {
-      background: #fef2f2;
-      color: #dc2626;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
+    .histo-item:hover{border-color:var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06);}
+    .histo-item.achat{border-left:4px solid var(--green);}
+    .histo-item.conso{border-left:4px solid #e5e7eb;}
+    .histo-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+    .histo-icon.achat{background:#e1f5ee;}
+    .histo-icon.conso{background:#f3f4f6;}
+    .histo-body{}
+    .histo-body-title{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:.15rem;}
+    .histo-body-sub{font-size:.68rem;color:var(--text2);}
+    .histo-badge{font-size:.62rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;white-space:nowrap;}
+    .histo-badge.paye{background:#e1f5ee;color:var(--green);}
+    .histo-badge.livre{background:#eff6ff;color:#0ea5e9;}
+    .histo-badge.encours{background:#fff8e6;color:#f59e0b;}
+    .histo-right{text-align:right;flex-shrink:0;}
+    .histo-montant{font-family:"Playfair Display",serif;font-size:1.1rem;font-weight:700;}
+    .histo-montant.pos{color:var(--green);}
+    .histo-montant.neg{color:var(--text2);}
+    .histo-qte{font-size:.68rem;color:var(--text2);margin-top:.1rem;}
+    .histo-pdf{background:none;border:1px solid var(--border);border-radius:999px;padding:.15rem .55rem;font-size:.62rem;cursor:pointer;color:var(--text2);font-family:"Outfit",sans-serif;margin-top:.3rem;display:inline-block;transition:all .2s;}
+    .histo-pdf:hover{border-color:var(--green);color:var(--green);}
+    @media(max-width:600px){
+      .histo-item{grid-template-columns:auto 1fr auto;}
+      .histo-right{grid-column:3;grid-row:1/3;}
     }
 
-    /* MODAL PAIEMENT */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 300;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open {
-      display: flex;
-    }
-    .modal {
-      background:var(--bg-card,#fff);
-      border-radius: 24px;
-      padding: 1.5rem;
-      max-width: 450px;
-      width: 90%;
-    }
-    .modal-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      margin-bottom: 0.75rem;
-    }
-    .modal-desc {
-      font-size: 0.85rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-bottom: 1.5rem;
-    }
-    .modal-btns {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-    }
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:22px;padding:1.5rem;max-width:460px;width:100%;}
+    .modal-title{font-family:"Playfair Display",serif;font-size:1.2rem;margin-bottom:.65rem;}
+    .modal-desc{font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;line-height:1.65;}
+    .modal-btns{display:flex;gap:.75rem;justify-content:flex-end;}
+    .btn-cancel{background:var(--cream);border:1px solid var(--border);color:var(--text2);border-radius:999px;padding:.6rem 1.1rem;font-size:.82rem;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .btn-confirm{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.6rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .btn-confirm:hover{background:var(--green-dark);}
 
     /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1D9E75;
-      color: #fff;
-      padding: 0.6rem 1.2rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      z-index: 2000;
-      animation: fadeInOut 2.5s ease;
-    }
-    .toast.error {
-      background: #ef4444;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    }
-
-    .scroll-top-btn {
-      position: fixed; bottom: 1rem; right: 1rem;
-      width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      opacity: 0; transition: opacity 0.2s;
-      z-index: 200;
-    }
-    .scroll-top-btn.visible { opacity: 1; }
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
+    .toast.error{background:#ef4444;}
+    @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
+    .cofond{display:flex;align-items:center;gap:.45rem;background:rgba(29,158,117,.1);border:1px solid var(--green-border);border-radius:999px;padding:.2rem .75rem;position:relative;cursor:default;}
+    .cofond-av{width:24px;height:24px;background:linear-gradient(135deg,#1D9E75,#0f6e56);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;}
+    .cofond-txt{font-size:.62rem;color:rgba(255,255,255,.7);}
+    .cofond-txt strong{color:var(--green-light);}
+    .cofond-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:240px;background:var(--dark);border:1px solid var(--green-light);border-radius:10px;padding:.55rem;font-size:.65rem;color:var(--green-light);text-align:center;pointer-events:none;z-index:500;line-height:1.5;white-space:pre-line;}
+    .cofond:hover .cofond-tip{display:block;}
+    @media(max-width:900px){.cofond{display:none;}}
+    /* SIMULATEUR */
+    .sim-bubble{position:fixed;bottom:1.5rem;left:1.5rem;z-index:300;}
+    .sim-toggle{width:52px;height:52px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:1.3rem;transition:all .2s;}
+    .sim-toggle:hover{transform:scale(1.05);background:var(--green-dark);}
+    .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid var(--green-border);}
+    .sim-window.open{display:block;}
+    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-close-btn{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
+    .sim-body{padding:.9rem;}
+    .sim-field{margin-bottom:.75rem;}
+    .sim-fh{display:flex;justify-content:space-between;margin-bottom:.2rem;font-size:.72rem;}
+    .sim-fl{color:var(--text2);font-weight:600;}
+    .sim-fv{font-weight:700;color:var(--green);}
+    input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:999px;background:var(--border);outline:none;cursor:pointer;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--green);border:2px solid #fff;cursor:pointer;}
+    .sim-packs{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin:.35rem 0 .65rem;}
+    .sim-pack{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:.28rem .2rem;text-align:center;cursor:pointer;font-size:.6rem;transition:all .15s;}
+    .sim-pack.active{background:#e1f5ee;border-color:var(--green);}
+    .sim-pack-p{font-weight:700;color:var(--green);font-size:.65rem;}
+    .sim-results{background:var(--cream);border-radius:10px;padding:.6rem .75rem;}
+    .sim-row{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.2rem;color:var(--text2);}
+    .sim-row strong{color:var(--text);}
+    .sim-row.hl{font-weight:700;font-size:.8rem;}
+    .sim-row.hl strong{color:var(--green);}
+    .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.35rem;}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn.visible{opacity:1;}
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
+<body>
 
-<!-- ==================== THÈME SELECTOR ==================== -->
-
-<!-- HEADER -->
-<header class="credits-header">
-  <div class="header-container">
-    <a href="prescripteur-dashboard.html" class="credits-logo">Nutri<em>Doc</em></a>
-    <nav class="credits-nav">
-      <a href="prescripteur-dashboard.html">Dashboard</a>
-      <a href="prescripteur-crm.html">CRM Clients</a>
-      <a href="gestion-credits-prescripteur.html" class="active">Crédits</a>
-      <a href="compta-prescripteur.html">Comptabilité</a>
-    </nav>
-    <div class="credits-user">
-      <span class="user-badge" id="userName">Antoine D.</span>
+<header class="nd-header">
+  <div class="hc">
+    <div class="h-left">
+      <a href="prescripteur-dashboard.html" class="nd-logo">Nutri<em>Doc</em></a>
+      <nav class="nd-nav">
+        <a href="prescripteur-dashboard.html" class="nd-navlink">&#8592; Tableau de bord</a>
+        <a href="prescripteur-dashboard.html#clients" class="nd-navlink">Mes clients</a>
+        <a href="gestion-credits-prescripteur.html" class="nd-navlink active">Mes plans</a>
+        <a href="compta-prescripteur.html" class="nd-navlink">Comptabilit&eacute;</a>
+      </nav>
+    </div>
+    <div class="h-right">
+      <div class="cofond">
+        <div class="cofond-av">GM</div>
+        <div class="cofond-txt"><strong>Gr&eacute;goire Martin</strong> &middot; Di&eacute;t. RPPS r&eacute;f&eacute;rent</div>
+        <div class="cofond-tip">&#11088; Di&eacute;t&eacute;ticien co-fondateur NutriDoc
+&#127973; CHU Angoul&ecirc;me &middot; &#127968; Cabinet lib&eacute;ral
+&#128658; Sapeur-Pompier Expert</div>
+      </div>
+      <div class="nd-conn-wrap">
+        <button class="nd-conn-btn" onclick="toggleConn()">Mon compte &#9662;</button>
+        <div class="nd-conn-menu" id="connMenu">
+          <a href="prescripteur-dashboard.html" class="nd-conn-item">&#128202; Tableau de bord</a>
+          <a href="prescripteur-dashboard.html" class="nd-conn-item" data-section="clients">&#128101; Mes clients</a>
+          <div class="nd-conn-item" onclick="deconnecter()" style="border-top:1px solid rgba(255,255,255,.08);margin-top:.25rem;">&#128275; Se d&eacute;connecter</div>
+        </div>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- MAIN CONTENT -->
-<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Gestion des crédits</h1>
-<main class="credits-container">
+<main class="container">
 
-  <!-- SOLDE CARD -->
-  <div class="solde-card">
-    <div class="solde-label">💰 SOLDE DE CRÉDITS</div>
-    <div class="solde-value" id="soldeCredits">—</div>
-    <div class="solde-unite">crédits</div>
-    <div class="solde-sub">1 crédit = 1 plan alimentaire validé par un diététicien RPPS</div>
-    <div class="solde-bar">
-      <div class="solde-fill" id="soldeFill" style="width: 0%;"></div>
+  <!-- SOLDE HERO -->
+  <div class="solde-hero">
+    <div class="solde-hero-label">Plans alimentaires disponibles</div>
+    <div class="solde-hero-value" id="soldePlans">0</div>
+    <span class="solde-hero-unit">plans sur-mesure</span>
+    <div class="solde-hero-sub">1 plan = 1 plan alimentaire personnalis&eacute; valid&eacute; par un di&eacute;t. RPPS &bull; livr&eacute; sous 48h</div>
+    <div class="solde-bar"><div class="solde-fill" id="soldeFill" style="width:0%;"></div></div>
+  </div>
+
+  <!-- PROMO -->
+  <div class="promo-band" id="promoBand">
+    <div class="promo-pill">&#127873; &minus;10%</div>
+    <div>
+      <div class="promo-txt"><strong>Offre de bienvenue</strong> &mdash; &minus;10&nbsp;% sur vos achats de plans pendant votre premier mois</div>
+      <div class="promo-note" id="promoNote">Calcul&eacute; &agrave; partir de votre date d&apos;inscription</div>
     </div>
   </div>
 
   <!-- KPIs -->
   <div class="kpi-grid">
     <div class="kpi-card">
-      <div class="kpi-label">Crédits utilisés</div>
-      <div class="kpi-value" id="creditsUtilises">—</div>
+      <div class="kpi-label">Plans utilis&eacute;s</div>
+      <div class="kpi-value" id="kpiUtilises">0</div>
       <div class="kpi-sub">ce mois</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Plans commandés</div>
-      <div class="kpi-value" id="plansCommandes">—</div>
-      <div class="kpi-sub">total</div>
+      <div class="kpi-label">Plans command&eacute;s</div>
+      <div class="kpi-value" id="kpiTotal">0</div>
+      <div class="kpi-sub">au total</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Total dépensé</div>
-      <div class="kpi-value" id="totalDepense">— €</div>
+      <div class="kpi-label">Total d&eacute;pens&eacute;</div>
+      <div class="kpi-value" id="kpiDepense">0 &euro;</div>
       <div class="kpi-sub">HT</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Économie réalisée</div>
-      <div class="kpi-value" id="economieRealisee">— €</div>
-      <div class="kpi-sub">vs tarif solo</div>
+      <div class="kpi-label">&Eacute;conomie r&eacute;alis&eacute;e</div>
+      <div class="kpi-value" id="kpiEconomie">0 &euro;</div>
+      <div class="kpi-sub">vs tarif d&eacute;couverte</div>
     </div>
   </div>
 
-  <!-- PACKS -->
-  <h2 class="packs-title">📦 Recharger mes crédits</h2>
-  <div class="packs-grid">
-    <div class="pack-card" data-pack="solo" data-credits="1" data-price="24.90" data-economy="0">
-      <div class="pack-credits">1 crédit</div>
-      <div class="pack-price">24,90<span>€</span></div>
-      <div class="pack-per-plan">24,90 € / plan</div>
-      <button class="pack-btn" onclick="selectPack('solo')">Choisir</button>
+  <!-- PYRAMIDE PACKS -->
+  <h2 class="section-title">&#128230; Commander des plans alimentaires sur-mesure</h2>
+
+  <div class="pack-included">
+    <span class="pack-incl-lbl">Inclus dans tous les packs :</span>
+    <span class="pack-incl-feat">Plan sur-mesure valid&eacute; RPPS</span>
+    <span class="pack-incl-feat">Sign&eacute; et livr&eacute; sous 48h</span>
+    <span class="pack-incl-feat">Votre logo sur le PDF</span>
+    <span class="pack-incl-feat">Valable 12 mois</span>
+  </div>
+
+  <div class="pyr" id="pyrContainer">
+    <div class="pyr-row" id="pack-decouverte" data-pack="decouverte" data-normal="22" data-promo="19.80" data-qte="1" onclick="selectPack('decouverte')">
+      <div class="pyr-name">D&eacute;couverte</div>
+      <div class="pyr-qty">1 plan sur-mesure</div>
+      <div class="pyr-prices">
+        <span class="pyr-old" id="old-decouverte">22 &euro;</span>
+        <span class="pyr-new" id="new-decouverte">19,80 &euro;</span>
+      </div>
+      <div class="pyr-per">22 &euro; / plan</div>
     </div>
-    <div class="pack-card recommended" data-pack="standard" data-credits="10" data-price="130" data-economy="119">
-      <div class="pack-credits">10 crédits</div>
-      <div class="pack-price">130<span>€</span></div>
-      <div class="pack-per-plan">13,00 € / plan</div>
-      <div class="pack-economy">💰 Économisez 119€</div>
-      <button class="pack-btn" onclick="selectPack('standard')">Choisir</button>
+    <div class="pyr-row" id="pack-essentiel" data-pack="essentiel" data-normal="100" data-promo="90" data-qte="5" onclick="selectPack('essentiel')">
+      <div class="pyr-name">Essentiel</div>
+      <div class="pyr-qty">5 plans sur-mesure</div>
+      <div class="pyr-prices">
+        <span class="pyr-old" id="old-essentiel">100 &euro;</span>
+        <span class="pyr-new" id="new-essentiel">90 &euro;</span>
+      </div>
+      <div class="pyr-per">20 &euro; / plan</div>
     </div>
-    <div class="pack-card" data-pack="expert" data-credits="50" data-price="500" data-economy="745">
-      <div class="pack-credits">50 crédits</div>
-      <div class="pack-price">500<span>€</span></div>
-      <div class="pack-per-plan">10,00 € / plan</div>
-      <div class="pack-economy">💰 Économisez 745€</div>
-      <button class="pack-btn" onclick="selectPack('expert')">Choisir</button>
+    <div class="pyr-row" id="pack-confort" data-pack="confort" data-normal="180" data-promo="162" data-qte="10" onclick="selectPack('confort')">
+      <div class="pyr-name">Confort &#11088;</div>
+      <div class="pyr-qty">10 plans sur-mesure</div>
+      <div class="pyr-prices">
+        <span class="pyr-old" id="old-confort">180 &euro;</span>
+        <span class="pyr-new" id="new-confort">162 &euro;</span>
+      </div>
+      <div class="pyr-per">18 &euro; / plan</div>
     </div>
-    <div class="pack-card" data-pack="volume" data-credits="100" data-price="900" data-economy="1590">
-      <div class="pack-credits">100 crédits</div>
-      <div class="pack-price">900<span>€</span></div>
-      <div class="pack-per-plan">9,00 € / plan</div>
-      <div class="pack-economy">💰 Économisez 1590€</div>
-      <button class="pack-btn" onclick="selectPack('volume')">Choisir</button>
+    <div class="pyr-row" id="pack-volume" data-pack="volume" data-normal="375" data-promo="337.50" data-qte="25" onclick="selectPack('volume')">
+      <div class="pyr-name">Volume</div>
+      <div class="pyr-qty">25 plans sur-mesure</div>
+      <div class="pyr-prices">
+        <span class="pyr-old" id="old-volume">375 &euro;</span>
+        <span class="pyr-new" id="new-volume">337,50 &euro;</span>
+      </div>
+      <div class="pyr-per">15 &euro; / plan</div>
     </div>
   </div>
 
-  <!-- RÉCAPITULATIF COMMANDE -->
-  <div class="recap-card" id="recapCard" style="display: none;">
-    <div class="recap-title">📋 Récapitulatif de votre commande</div>
-    <div class="recap-row">
-      <span>Pack choisi</span>
-      <span id="recapPack">—</span>
-    </div>
-    <div class="recap-row">
-      <span>Crédits</span>
-      <span id="recapCredits">—</span>
-    </div>
-    <div class="recap-row">
-      <span>Prix unitaire par plan</span>
-      <span id="recapPrixUnitaire">—</span>
-    </div>
-    <div class="recap-row total">
-      <span>Total TTC</span>
-      <span id="recapTotal">—</span>
-    </div>
-    <div class="recap-row">
-      <span>TVA (non applicable)</span>
-      <span>Art. 293 B CGI</span>
-    </div>
+  <!-- RECAP -->
+  <div class="recap-card" id="recapCard" style="display:none;">
+    <div class="recap-title">&#128203; R&eacute;capitulatif de votre commande</div>
+    <div class="recap-row"><span>Pack s&eacute;lectionn&eacute;</span><span id="recapNom">&mdash;</span></div>
+    <div class="recap-row"><span>Plans sur-mesure</span><span id="recapQte">&mdash;</span></div>
+    <div class="recap-row"><span>Prix unitaire</span><span id="recapUnitaire">&mdash;</span></div>
+    <div class="recap-row total"><span>Total</span><span id="recapTotal">&mdash;</span></div>
+    <div class="recap-row"><span>TVA</span><span>Non applicable (art. 293 B CGI)</span></div>
     <div class="recap-note">
-      💳 Paiement sécurisé par Stripe Connect — Les crédits sont valables 12 mois
+      &#128274; Paiement s&eacute;curis&eacute; par Stripe &bull; Facture automatique &bull; Plans valables 12 mois<br>
+      Chaque plan est directement revers&eacute; au di&eacute;t&eacute;ticien qui le valide.
     </div>
-    <button class="pack-btn" id="btnPayer" style="margin-top: 1rem; background: #0ea5e9;" onclick="initierPaiement()">💳 Procéder au paiement</button>
+    <button class="btn-payer" onclick="initierPaiement()">&#128179; Proc&eacute;der au paiement</button>
   </div>
 
   <!-- HISTORIQUE -->
-  <div class="historique-card">
-    <div class="historique-title">
-      <span>📜 Historique des transactions</span>
-      <button class="pack-btn" style="width: auto; padding: 0.3rem 1rem; font-size: 0.7rem; background: #f7f9f7; color:var(--text-primary,#0d2018);" onclick="exportHistoriqueCSV()">📎 Exporter CSV</button>
+  <div class="histo-card">
+    <div class="histo-title">
+      <span>&#128220; Historique des transactions</span>
+      <button class="btn-export" onclick="exportCSV()">&#11015;&#65039; Exporter CSV</button>
     </div>
-    <table class="historique-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Crédits</th>
-          <th>Montant</th>
-          <th>Statut</th>
-          <th>Facture</th>
-        </tr>
-      </thead>
-      <tbody id="historiqueBody"></tbody>
-    </table>
+    <div class="histo-list" id="histoBody"></div>
   </div>
 
 </main>
@@ -631,223 +355,318 @@
 <!-- MODAL PAIEMENT -->
 <div class="modal-overlay" id="modalPaiement">
   <div class="modal">
-    <div class="modal-title">💳 Paiement sécurisé</div>
-    <div class="modal-desc" id="modalDesc">Redirection vers Stripe Connect en cours...</div>
+    <div class="modal-title">&#128179; Paiement s&eacute;curis&eacute;</div>
+    <div class="modal-desc" id="modalDesc">Chargement&hellip;</div>
     <div class="modal-btns">
-      <button class="pack-btn" style="background: #eef4ee; color:var(--text-primary,#0d2018);" onclick="fermerModalPaiement()">Annuler</button>
-      <button class="pack-btn" id="modalConfirmBtn" onclick="confirmerPaiement()">Confirmer</button>
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmerPaiement()">Confirmer &rarr;</button>
     </div>
   </div>
 </div>
 
-<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<!-- SIMULATEUR -->
+<div class="sim-bubble">
+  <button class="sim-toggle" onclick="toggleSim()">&#128176;</button>
+  <div class="sim-window" id="simWindow">
+    <div class="sim-hd">
+      <span>&#128176; Simulateur de marge</span>
+      <button class="sim-close-btn" onclick="toggleSim()">&#10005;</button>
+    </div>
+    <div class="sim-body">
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Plans / mois</span><span class="sim-fv" id="sPlV">10</span></div>
+        <input type="range" min="1" max="100" value="10" step="1" id="sPl" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Prix factur&eacute; au client</span><span class="sim-fv" id="sPxV">40 &euro;</span></div>
+        <input type="range" min="20" max="90" value="40" step="1" id="sPx" oninput="updateSim()">
+      </div>
+      <div class="sim-field">
+        <div class="sim-fh"><span class="sim-fl">Pack de plans</span></div>
+        <div class="sim-packs">
+          <div class="sim-pack" onclick="setSimPack(22,this)"><div>D&eacute;c.</div><div class="sim-pack-p">22&euro;</div></div>
+          <div class="sim-pack" onclick="setSimPack(20,this)"><div>Ess.</div><div class="sim-pack-p">20&euro;</div></div>
+          <div class="sim-pack active" onclick="setSimPack(18,this)"><div>Conf.</div><div class="sim-pack-p">18&euro;</div></div>
+          <div class="sim-pack" onclick="setSimPack(15,this)"><div>Vol.</div><div class="sim-pack-p">15&euro;</div></div>
+        </div>
+      </div>
+      <div class="sim-results">
+        <div class="sim-row"><span>CA mensuel</span><strong id="sCa">&mdash;</strong></div>
+        <div class="sim-row"><span>Co&ucirc;t plans</span><strong id="sCout">&mdash;</strong></div>
+        <div class="sim-row hl"><span>Marge nette</span><strong id="sMarge">&mdash;</strong></div>
+      </div>
+      <div class="sim-note" id="sNote">Marge annuelle estim&eacute;e : &mdash;</div>
+    </div>
+  </div>
+</div>
 
-<!-- ==================== SERVICE WORKER ==================== -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
+
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Service Worker enregistré:', reg))
-      .catch(err => console.error('Erreur SW:', err));
-  });
+// UTILS
+function toggleConn() { document.getElementById('connMenu').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.querySelector('.nd-conn-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('connMenu').classList.remove('open');
+});
+window.addEventListener('scroll', function() {
+  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 300);
+});
+function deconnecter() { localStorage.clear(); window.location.href = 'index.html'; }
+function showToast(msg, type) {
+  var ex = document.querySelector('.toast');
+  if (ex) ex.remove();
+  var t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
 }
-</script>
 
-<script>
-// ==================== DONNÉES SIMULÉES ====================
-let creditsData = {
-  solde: 25,
-  credits_utilises_mois: 12,
-  plans_commandes_total: 47,
-  total_depense: 610,
-  packs: {
-    solo: { credits: 1, prix: 24.90, perPlan: 24.90 },
-    standard: { credits: 10, prix: 130, perPlan: 13.00 },
-    expert: { credits: 50, prix: 500, perPlan: 10.00 },
-    volume: { credits: 100, prix: 900, perPlan: 9.00 }
-  }
-};
+// DONNEES
+var PLANS_KEY  = 'nutridoc_presc_plans';
+var ACHATS_KEY = 'nutridoc_presc_achats';
+function loadPlans()  { return parseInt(localStorage.getItem(PLANS_KEY)) || 0; }
+function savePlans(n) { localStorage.setItem(PLANS_KEY, String(n)); }
+function loadAchats() { try { return JSON.parse(localStorage.getItem(ACHATS_KEY)) || []; } catch(e) { return []; } }
+function saveAchats(d){ localStorage.setItem(ACHATS_KEY, JSON.stringify(d)); }
 
-let historique = [
-  { date: '2026-04-01', type: 'achat', description: 'Pack Standard - 10 crédits', credits: 10, montant: 130, statut: 'payé', facture: 'FAC-2026-001' },
-  { date: '2026-03-15', type: 'achat', description: 'Pack Solo - 1 crédit', credits: 1, montant: 24.90, statut: 'payé', facture: 'FAC-2026-002' },
-  { date: '2026-03-10', type: 'consommation', description: 'Plan pour Marie D.', credits: -1, montant: 0, statut: 'consommé', facture: null },
-  { date: '2026-03-05', type: 'consommation', description: 'Plan pour Thomas K.', credits: -1, montant: 0, statut: 'consommé', facture: null },
-  { date: '2026-02-20', type: 'achat', description: 'Pack Standard - 10 crédits', credits: 10, montant: 130, statut: 'payé', facture: 'FAC-2026-003' },
-  { date: '2026-02-15', type: 'consommation', description: 'Plan pour Sophie M.', credits: -1, montant: 0, statut: 'consommé', facture: null },
-  { date: '2026-02-10', type: 'consommation', description: 'Plan pour Lucas B.', credits: -1, montant: 0, statut: 'consommé', facture: null },
-  { date: '2026-01-20', type: 'achat', description: 'Pack Expert - 50 crédits', credits: 50, montant: 500, statut: 'payé', facture: 'FAC-2026-004' }
+// Historique demo si vide
+var DEMO = [
+  {date:'2026-04-01', type:'achat',       desc:'Pack Confort - 10 plans sur-mesure',    qte:10,  montant:162,  statut:'pay&eacute;',    facture:'FAC-2026-001'},
+  {date:'2026-03-15', type:'achat',       desc:'Pack D&eacute;couverte - 1 plan sur-mesure', qte:1,   montant:19.80,statut:'pay&eacute;',    facture:'FAC-2026-002'},
+  {date:'2026-03-10', type:'consommation',desc:'Plan pour Marie D.',                    qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null},
+  {date:'2026-03-05', type:'consommation',desc:'Plan pour Thomas K.',                   qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null},
+  {date:'2026-02-20', type:'achat',       desc:'Pack Essentiel - 5 plans sur-mesure',   qte:5,   montant:90,   statut:'pay&eacute;',    facture:'FAC-2026-003'},
+  {date:'2026-02-10', type:'consommation',desc:'Plan pour Sophie M.',                   qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null}
 ];
 
-let packSelectionne = null;
-let prixSelectionne = 0;
-let creditsSelectionnes = 0;
-
-// Charger les données
-function chargerDonnees() {
-  document.getElementById('soldeCredits').textContent = creditsData.solde;
-  document.getElementById('creditsUtilises').textContent = creditsData.credits_utilises_mois;
-  document.getElementById('plansCommandes').textContent = creditsData.plans_commandes_total;
-  document.getElementById('totalDepense').textContent = creditsData.total_depense.toFixed(2);
-  
-  // Calcul de l'économie réalisée
-  const soloPrice = 24.90;
-  const economie = (creditsData.plans_commandes_total * soloPrice) - creditsData.total_depense;
-  document.getElementById('economieRealisee').textContent = economie.toFixed(2);
-  
-  // Barre de progression (basée sur le pack standard)
-  const maxCredits = 100;
-  const pourcentage = (creditsData.solde / maxCredits) * 100;
-  document.getElementById('soldeFill').style.width = Math.min(100, pourcentage) + '%';
-  
-  renderHistorique();
+// PROMO
+function isPromoActive() {
+  var d = localStorage.getItem('nutridoc_inscription_date');
+  if (!d) { localStorage.setItem('nutridoc_inscription_date', new Date().toISOString()); return true; }
+  return (Date.now() - new Date(d).getTime()) / (1000 * 3600 * 24) <= 30;
 }
 
-function renderHistorique() {
-  const tbody = document.getElementById('historiqueBody');
-  tbody.innerHTML = historique.map(h => `
-    <tr>
-      <td style="font-size:0.75rem;">${new Date(h.date).toLocaleDateString('fr-FR')}</td>
-      <td><span class="${h.type === 'achat' ? 'badge-credit' : 'badge-debit'}">${h.type === 'achat' ? '➕ Achat' : '➖ Consommation'}</span></td>
-      <td>${h.description}</td>
-      <td style="font-weight:600;color:${h.credits > 0 ? '#1D9E75' : '#dc2626'};">${h.credits > 0 ? '+' : ''}${h.credits}</td>
-      <td>${h.montant > 0 ? h.montant.toFixed(2) + ' €' : '—'}</td>
-      <td><span class="badge-credit">${h.statut}</span></td>
-      <td>${h.facture ? `<button class="pack-btn" style="padding:0.2rem 0.6rem; font-size:0.65rem;" onclick="telechargerFacture('${h.facture}')">PDF</button>` : '—'}</td>
-    </tr>
-  `).join('');
+function applyPromo() {
+  var promo = isPromoActive();
+  window._promo = promo;
+  var band = document.getElementById('promoBand');
+  var PACKS = {decouverte:{normal:22,promo:19.80},essentiel:{normal:100,promo:90},confort:{normal:180,promo:162},volume:{normal:375,promo:337.50}};
+  var names = ['decouverte','essentiel','confort','volume'];
+  for (var i = 0; i < names.length; i++) {
+    var n    = names[i];
+    var p    = PACKS[n];
+    var elN  = document.getElementById('new-' + n);
+    var elO  = document.getElementById('old-' + n);
+    if (!elN || !p) continue;
+    if (promo) {
+      elN.textContent = fmtP(p.promo) + ' €';
+      elN.style.color = 'var(--green-dark)';
+    } else {
+      elN.textContent = fmtP(p.normal) + ' €';
+      elN.style.color = 'var(--text)';
+      if (elO) elO.style.display = 'none';
+    }
+  }
+  if (band) {
+    if (promo) {
+      var fin    = new Date(new Date(localStorage.getItem('nutridoc_inscription_date')).getTime() + 30*24*3600*1000);
+      var jours  = Math.max(0, Math.ceil((fin - Date.now()) / (1000*3600*24)));
+      var note   = document.getElementById('promoNote');
+      if (note) note.textContent = jours + ' jour' + (jours > 1 ? 's' : '') + ' restant' + (jours > 1 ? 's' : '') + ' sur votre offre de bienvenue';
+      band.style.display = 'flex';
+    } else {
+      band.style.display = 'none';
+    }
+  }
 }
 
-function selectPack(packKey) {
-  const pack = creditsData.packs[packKey];
-  if (!pack) return;
-  
-  packSelectionne = packKey;
-  prixSelectionne = pack.prix;
-  creditsSelectionnes = pack.credits;
-  
-  // Mettre à jour l'affichage des packs
-  document.querySelectorAll('.pack-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-  document.querySelector(`.pack-card[data-pack="${packKey}"]`).classList.add('selected');
-  
-  // Afficher le récapitulatif
-  const packNames = { solo: 'Solo', standard: 'Standard', expert: 'Expert', volume: 'Volume' };
-  document.getElementById('recapPack').textContent = packNames[packKey];
-  document.getElementById('recapCredits').textContent = pack.credits + ' crédits';
-  document.getElementById('recapPrixUnitaire').textContent = pack.perPlan.toFixed(2) + ' € / plan';
-  document.getElementById('recapTotal').textContent = pack.prix.toFixed(2) + ' €';
-  
+function fmtP(n) { return n % 1 === 0 ? String(n) : n.toFixed(2).replace('.', ','); }
+
+// DASHBOARD
+function refreshDashboard() {
+  var achats   = loadAchats().length ? loadAchats() : DEMO;
+  var plans    = loadPlans();
+  var totalQte = achats.filter(function(a){ return a.type === 'achat'; }).reduce(function(s,a){ return s + a.qte; }, 0);
+  var totalEur = achats.filter(function(a){ return a.type === 'achat'; }).reduce(function(s,a){ return s + parseFloat(a.montant); }, 0);
+  var utilises = achats.filter(function(a){ return a.type === 'consommation'; }).length;
+  var economie = totalQte * 22 - totalEur;
+
+  document.getElementById('soldePlans').textContent = plans || totalQte - utilises;
+  document.getElementById('soldeFill').style.width  = Math.min(100, ((plans || totalQte - utilises) / 25) * 100) + '%';
+  document.getElementById('kpiUtilises').textContent = utilises;
+  document.getElementById('kpiTotal').textContent    = totalQte;
+  document.getElementById('kpiDepense').innerHTML    = totalEur.toFixed(2) + ' &euro;';
+  document.getElementById('kpiEconomie').innerHTML   = economie.toFixed(2) + ' &euro;';
+
+  renderHistorique(achats);
+}
+
+function renderHistorique(achats) {
+  var el = document.getElementById('histoBody');
+  if (!el) return;
+  if (!achats || achats.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text2);padding:2rem;font-size:.82rem;">Aucune transaction pour l&apos;instant.</div>';
+    return;
+  }
+  el.innerHTML = achats.map(function(h) {
+    var isAchat  = h.type === 'achat';
+    var icon     = isAchat ? '&#128230;' : '&#129367;';
+    var iconCls  = isAchat ? 'achat' : 'conso';
+    var desc     = h.desc || h.description || '';
+    var dateStr  = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', year:'numeric'});
+    var statut   = h.statut || '';
+    var badgeCls = statut.indexOf('pay') !== -1 ? 'paye' : statut.indexOf('livr') !== -1 ? 'livre' : 'encours';
+    var montantHtml = isAchat
+      ? '<div class="histo-montant pos">' + parseFloat(h.montant).toFixed(2) + ' &euro;</div>'
+      : '<div class="histo-montant neg">&mdash;</div>';
+    var qteStr   = isAchat
+      ? '<div class="histo-qte">+' + h.qte + ' plan' + (h.qte > 1 ? 's' : '') + '</div>'
+      : '<div class="histo-qte">' + h.qte + ' plan utilis&eacute;</div>';
+    var pdfBtn   = h.facture ? '<button class="histo-pdf" data-facture="' + h.facture + '">PDF</button>' : '';
+    return '<div class="histo-item ' + iconCls + '">'
+      + '<div class="histo-icon ' + iconCls + '">' + icon + '</div>'
+      + '<div class="histo-body">'
+      + '<div class="histo-body-title">' + desc + '</div>'
+      + '<div class="histo-body-sub">' + dateStr + ' &nbsp;&bull;&nbsp; <span class="histo-badge ' + badgeCls + '">' + statut + '</span></div>'
+      + '</div>'
+      + '<div class="histo-right">'
+      + montantHtml
+      + qteStr
+      + pdfBtn
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// Event delegation pour les boutons PDF dans le tableau
+document.addEventListener('click', function(e) {
+  if (e.target.dataset.facture) {
+    showToast('&#128206; T&eacute;l&eacute;chargement ' + e.target.dataset.facture + '.pdf');
+  }
+});
+
+// SELECTION PACK
+var packEnCours = null;
+function selectPack(name) {
+  document.querySelectorAll('.pyr-row').forEach(function(r){ r.classList.remove('selected'); });
+  var row = document.getElementById('pack-' + name);
+  if (row) row.classList.add('selected');
+
+  var promo   = window._promo;
+  var normal  = parseFloat(row.dataset.normal);
+  var promoP  = parseFloat(row.dataset.promo);
+  var qte     = parseInt(row.dataset.qte);
+  var prix    = promo ? promoP : normal;
+  var unite   = (prix / qte).toFixed(2);
+
+  packEnCours = {name:name, prix:prix, normal:normal, qte:qte};
+
+  var noms = {decouverte:'D&eacute;couverte', essentiel:'Essentiel', confort:'Confort &#11088;', volume:'Volume'};
+  document.getElementById('recapNom').innerHTML     = noms[name] || name;
+  document.getElementById('recapQte').textContent   = qte + ' plan' + (qte > 1 ? 's' : '') + ' sur-mesure';
+  document.getElementById('recapUnitaire').textContent = unite.replace('.', ',') + ' € / plan';
+  document.getElementById('recapTotal').textContent = fmtP(prix) + ' €';
   document.getElementById('recapCard').style.display = 'block';
-  window.scrollTo({ top: document.getElementById('recapCard').offsetTop - 100, behavior: 'smooth' });
+  setTimeout(function() {
+    document.getElementById('recapCard').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
 }
 
 function initierPaiement() {
-  if (!packSelectionne) {
-    showToast('Veuillez d\'abord sélectionner un pack', 'error');
-    return;
-  }
-  
-  document.getElementById('modalDesc').innerHTML = `
-    Vous allez procéder à l'achat de <strong>${creditsSelectionnes} crédits</strong> pour <strong>${prixSelectionne.toFixed(2)} €</strong>.<br><br>
-    Le paiement est sécurisé par Stripe Connect. Le diététicien référent encaisse directement.
-  `;
+  if (!packEnCours) { showToast('S&eacute;lectionnez d&apos;abord un pack', 'error'); return; }
+  var noms = {decouverte:'D&eacute;couverte', essentiel:'Essentiel', confort:'Confort', volume:'Volume'};
+  var promoTxt = window._promo ? ' (offre &minus;10&nbsp;% bienvenue appliqu&eacute;e)' : '';
+  document.getElementById('modalDesc').innerHTML =
+    'Vous allez acheter <strong>' + packEnCours.qte + ' plan' + (packEnCours.qte > 1 ? 's' : '') + ' alimentaire' + (packEnCours.qte > 1 ? 's' : '') + ' sur-mesure</strong>'
+    + ' &mdash; Pack ' + (noms[packEnCours.name] || packEnCours.name) + '<br><br>'
+    + 'Montant : <strong>' + fmtP(packEnCours.prix) + '&nbsp;&euro; HT</strong>' + promoTxt + '<br><br>'
+    + 'Paiement s&eacute;curis&eacute; Stripe &bull; Facture automatique &bull; Plans valables 12 mois';
   document.getElementById('modalPaiement').classList.add('open');
 }
 
-function fermerModalPaiement() {
-  document.getElementById('modalPaiement').classList.remove('open');
-}
+function fermerModal() { document.getElementById('modalPaiement').classList.remove('open'); }
 
 function confirmerPaiement() {
-  fermerModalPaiement();
-  
-  // Simulation de paiement (à remplacer par Stripe Checkout)
-  showToast('Redirection vers Stripe Connect...', 'success');
-  
-  setTimeout(() => {
-    // Mettre à jour le solde
-    creditsData.solde += creditsSelectionnes;
-    creditsData.plans_commandes_total += creditsSelectionnes;
-    creditsData.total_depense += prixSelectionne;
-    
-    // Ajouter à l'historique
-    const now = new Date();
-    historique.unshift({
-      date: now.toISOString().split('T')[0],
-      type: 'achat',
-      description: `Pack ${packSelectionne.charAt(0).toUpperCase() + packSelectionne.slice(1)} - ${creditsSelectionnes} crédits`,
-      credits: creditsSelectionnes,
-      montant: prixSelectionne,
-      statut: 'payé',
-      facture: `FAC-${now.getFullYear()}-${Math.floor(Math.random() * 1000)}`
+  fermerModal();
+  showToast('Redirection vers Stripe…');
+  setTimeout(function() {
+    var plans = loadPlans() + packEnCours.qte;
+    savePlans(plans);
+    var achats = loadAchats();
+    var noms   = {decouverte:'D&eacute;couverte', essentiel:'Essentiel', confort:'Confort', volume:'Volume'};
+    achats.unshift({
+      date:    new Date().toISOString().split('T')[0],
+      type:    'achat',
+      desc:    'Pack ' + (noms[packEnCours.name] || packEnCours.name) + ' - ' + packEnCours.qte + ' plan' + (packEnCours.qte > 1 ? 's' : '') + ' sur-mesure',
+      qte:     packEnCours.qte,
+      montant: packEnCours.prix,
+      statut:  'pay&eacute;',
+      facture: 'FAC-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 9000 + 1000)
     });
-    
-    chargerDonnees();
-    showToast(`✅ Achat confirmé ! ${creditsSelectionnes} crédits ajoutés.`, 'success');
-    
-    // Réinitialiser la sélection
-    packSelectionne = null;
+    saveAchats(achats);
+    refreshDashboard();
+    showToast('&#10003; ' + packEnCours.qte + ' plan' + (packEnCours.qte > 1 ? 's' : '') + ' ajout&eacute;' + (packEnCours.qte > 1 ? 's' : '') + ' &agrave; votre compte');
     document.getElementById('recapCard').style.display = 'none';
-    document.querySelectorAll('.pack-card').forEach(card => {
-      card.classList.remove('selected');
-    });
+    document.querySelectorAll('.pyr-row').forEach(function(r){ r.classList.remove('selected'); });
+    packEnCours = null;
   }, 1500);
 }
 
-function telechargerFacture(num) {
-  showToast(`📎 Téléchargement de la facture ${num}.pdf`, 'success');
-}
-
-function exportHistoriqueCSV() {
-  let csv = 'Date,Type,Description,Crédits,Montant,Statut,Facture\n';
-  historique.forEach(h => {
-    csv += `${h.date},${h.type},${h.description},${h.credits},${h.montant},${h.statut},${h.facture || ''}\n`;
+// EXPORT CSV
+function exportCSV() {
+  var achats = loadAchats().length ? loadAchats() : DEMO;
+  var lignes = ["Date,Type,Description,Plans,Montant,Statut,Facture"];
+  achats.forEach(function(h) {
+    lignes.push([h.date, h.type, (h.desc||h.description||"").replace(/"/g,""), h.qte, h.montant, h.statut||"", h.facture||""].join(","));
   });
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  var csv = lignes.join("\n");
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
   a.href = url;
-  a.download = `historique_credits_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = 'historique_plans_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Export CSV effectué', 'success');
+  showToast('Export CSV effectu&eacute;');
 }
 
-function showToast(msg, type = 'success') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + type;
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+// SIMULATEUR
+var simCout = 18;
+function toggleSim() { document.getElementById('simWindow').classList.toggle('open'); }
+function setSimPack(c, btn) {
+  simCout = c;
+  document.querySelectorAll('.sim-pack').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  updateSim();
+}
+function updateSim() {
+  var plans = parseInt(document.getElementById('sPl').value);
+  var px    = parseInt(document.getElementById('sPx').value);
+  document.getElementById('sPlV').textContent = plans;
+  document.getElementById('sPxV').textContent = px + ' €';
+  var ca    = plans * px;
+  var cout  = plans * simCout;
+  var marge = ca - cout;
+  document.getElementById('sCa').textContent    = ca + ' €';
+  document.getElementById('sCout').textContent  = cout + ' €';
+  document.getElementById('sMarge').textContent = (marge >= 0 ? '+' : '') + marge + ' €';
+  document.getElementById('sNote').textContent  = 'Marge annuelle : ' + Math.round(marge * 12).toLocaleString('fr-FR') + ' €';
 }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-  chargerDonnees();
-  
-  // Initialiser la sauvegarde auto
-  if (typeof initAutoSave === 'function') {
-    initAutoSave();
-  }
+// INIT
+document.addEventListener('DOMContentLoaded', function() {
+  updateSim();
+  applyPromo();
+  refreshDashboard();
+  var un = localStorage.getItem('nutridoc_presc_nom');
+  if (un) document.getElementById('userName').textContent = un;
 });
 
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn')?.classList.toggle('visible', window.scrollY > 300);
-});
-
-window.selectPack = selectPack;
-window.initierPaiement = initierPaiement;
-window.fermerModalPaiement = fermerModalPaiement;
-window.confirmerPaiement = confirmerPaiement;
-window.telechargerFacture = telechargerFacture;
-window.exportHistoriqueCSV = exportHistoriqueCSV;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+}
 </script>
-
-  <script src="js/error-handler.js"></script>
-  <script src="js/theme-selector.js"></script>
 </body>
 </html>

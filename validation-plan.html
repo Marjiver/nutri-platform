@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriDoc — Validation plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --green:#1D9E75;--gd:#0f6e56;--gl:#5DCAA5;--gb:rgba(29,158,117,.16);
+  --dark:#0d2018;--dark2:#0a1912;
+  --cream:#f7f9f7;
+  --t:#0d2018;--t2:#4b5563;--br:#e5ece5;
+  --warn:#f59e0b;--err:#ef4444;
+  --hh:54px;
+}
+html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:var(--cream);color:var(--t);}
+
+/* ── HEADER ── */
+.hd{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--hh);background:var(--dark);
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;gap:1rem;}
+.hd-logo{font-family:'Playfair Display',serif;font-size:1.05rem;color:#fff;text-decoration:none;flex-shrink:0;}
+.hd-logo em{font-style:italic;color:var(--gl);}
+.hd-c{flex:1;display:flex;flex-direction:column;align-items:center;}
+.hd-p{font-size:.8rem;font-weight:700;color:#fff;}
+.hd-s{font-size:.6rem;color:rgba(255,255,255,.4);}
+.hd-r{display:flex;gap:.45rem;align-items:center;}
+.bhd{border-radius:999px;padding:.3rem .78rem;font-size:.67rem;font-weight:600;cursor:pointer;
+  font-family:'Outfit',sans-serif;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);text-decoration:none;white-space:nowrap;}
+.bhd.grn{background:var(--green);border-color:var(--green);color:#fff;}
+.bhd:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── STEPPER SHELL ── */
+.stepper-shell{
+  position:fixed;top:var(--hh);left:0;right:0;bottom:0;
+  display:grid;grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{
+  background:#fff;border-bottom:1px solid var(--br);
+  padding:.65rem 2rem;display:flex;align-items:center;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+}
+.progress-bar::-webkit-scrollbar{display:none;}
+.step-dot{
+  display:flex;flex-direction:column;align-items:center;gap:.22rem;
+  flex-shrink:0;cursor:pointer;transition:opacity .2s;
+}
+.step-dot.locked{opacity:.35;cursor:not-allowed;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;border:2px solid var(--br);
+  background:#fff;color:var(--t2);font-size:.72rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;transition:all .25s;
+}
+.step-dot.active .step-num{background:var(--dark);border-color:var(--dark);color:#fff;}
+.step-dot.done .step-num{background:var(--green);border-color:var(--green);color:#fff;}
+.step-lbl{font-size:.58rem;font-weight:600;color:var(--t2);white-space:nowrap;}
+.step-dot.active .step-lbl{color:var(--dark);font-weight:800;}
+.step-dot.done .step-lbl{color:var(--green);}
+.step-conn{flex:1;height:2px;background:var(--br);min-width:20px;max-width:60px;margin:0 .35rem;margin-bottom:18px;transition:background .25s;}
+.step-conn.done{background:var(--green);}
+
+/* ── STEP CONTENT ── */
+.steps-wrap{overflow-y:auto;position:relative;}
+.step-pane{display:none;padding:1.5rem 2rem 1rem;max-width:900px;margin:0 auto;animation:fadeUp .25s ease;}
+.step-pane.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ── NAVIGATION ── */
+.step-nav{
+  background:#fff;border-top:1px solid var(--br);
+  padding:.82rem 2rem;display:flex;align-items:center;justify-content:space-between;
+}
+.btn-prev{display:flex;align-items:center;gap:.4rem;padding:.52rem 1.2rem;border-radius:10px;
+  border:1.5px solid var(--br);background:#fff;font-size:.78rem;font-weight:600;
+  cursor:pointer;font-family:'Outfit',sans-serif;color:var(--t2);transition:all .2s;}
+.btn-prev:hover{border-color:var(--green);color:var(--green);}
+.btn-prev:disabled{opacity:.3;cursor:not-allowed;}
+.step-info{font-size:.68rem;color:var(--t2);}
+.btn-next{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.5rem;border-radius:10px;
+  background:var(--green);border:none;color:#fff;font-size:.8rem;font-weight:800;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;
+  box-shadow:0 3px 12px rgba(29,158,117,.3);}
+.btn-next:hover{background:var(--gd);transform:translateY(-1px);}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ─────────────── STEP 1 : PROFIL ─────────────── */
+.step-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
+.step-desc{font-size:.8rem;color:var(--t2);margin-bottom:1.2rem;line-height:1.6;}
+
+/* Alertes santé */
+.sante-top{background:linear-gradient(135deg,#7f1d1d,#991b1b);border-radius:13px;padding:.82rem 1.05rem;margin-bottom:1.1rem;}
+.sante-top.hide{display:none;}
+.sante-top-ttl{font-size:.7rem;font-weight:800;color:#fca5a5;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.45rem;}
+.sante-item{display:flex;gap:.45rem;align-items:flex-start;background:rgba(255,255,255,.1);
+  border:1px solid rgba(252,165,165,.25);border-radius:8px;padding:.4rem .65rem;margin-bottom:.28rem;}
+.sante-item:last-child{margin-bottom:0;}
+.sante-ico{font-size:.82rem;flex-shrink:0;}
+.sante-lbl{font-size:.7rem;font-weight:700;color:#fef2f2;line-height:1;}
+.sante-sub{font-size:.6rem;color:rgba(254,242,242,.65);margin-top:.07rem;line-height:1.45;}
+
+.profil-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+@media(max-width:640px){.profil-grid{grid-template-columns:1fr;}}
+.info-card{background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.9rem 1.1rem;}
+.info-card-ttl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:.55rem;}
+.ir{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.3rem;}
+.ir:last-child{margin-bottom:0;}
+.il{font-size:.68rem;color:var(--t2);}
+.iv{font-size:.72rem;font-weight:600;color:var(--t);}
+
+/* Calculette */
+.calc-card{background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.9rem 1.1rem;margin-top:1.1rem;}
+.calc-g{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.6rem;}
+@media(max-width:640px){.calc-g{grid-template-columns:1fr 1fr;}}
+.cf label{display:block;font-size:.58rem;font-weight:600;color:var(--t2);margin-bottom:.18rem;}
+.ci{width:100%;padding:.38rem .55rem;border-radius:8px;border:1.5px solid var(--br);
+  font-size:.78rem;font-family:'Outfit',sans-serif;color:var(--t);background:#fff;}
+.ci:focus{outline:none;border-color:var(--green);}
+.cs{width:100%;padding:.38rem .55rem;border-radius:8px;border:1.5px solid var(--br);
+  font-size:.72rem;font-family:'Outfit',sans-serif;color:var(--t);background:#fff;}
+.pct-row{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.6rem;}
+.pct-b{padding:.24rem .55rem;border-radius:999px;border:1px solid var(--br);background:#fff;
+  font-size:.62rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;
+  color:var(--t2);transition:all .18s;white-space:nowrap;}
+.pct-b.on{background:var(--dark);border-color:var(--dark);color:#fff;}
+.btn-calc{padding:.42rem 1.1rem;border-radius:9px;background:var(--green);border:none;
+  color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+.calc-res{background:#f0faf6;border:1px solid var(--gb);border-radius:10px;padding:.65rem .85rem;margin-top:.5rem;}
+.crr{display:flex;justify-content:space-between;margin-bottom:.22rem;font-size:.7rem;}
+.crr:last-child{margin-bottom:0;}
+.crl{color:var(--t2);}.crv{font-weight:700;color:var(--green);}
+.crv.hi{color:var(--dark);font-size:.8rem;}
+.btn-apply{margin-top:.42rem;padding:.35rem .85rem;border-radius:8px;border:1.5px solid var(--green);
+  background:transparent;color:var(--green);font-size:.68rem;font-weight:700;
+  cursor:pointer;font-family:'Outfit',sans-serif;}
+
+/* Habitudes */
+.hab{display:flex;gap:.5rem;align-items:flex-start;background:#f7f9f7;border-radius:9px;
+  padding:.38rem .55rem;margin-bottom:.28rem;}
+.hab-ico{font-size:.8rem;flex-shrink:0;}
+.hab-t{font-size:.68rem;color:var(--t2);line-height:1.5;}
+.hab-t strong{color:var(--t);display:block;font-size:.7rem;}
+
+/* ─────────────── STEP 2 : PLAN ALIMENTAIRE ─────────────── */
+.jb{background:#fff;border-radius:13px;border:1.5px solid var(--br);margin-bottom:.75rem;overflow:hidden;transition:all .2s;}
+.jb-hd{display:flex;align-items:center;gap:.65rem;padding:.72rem 1rem;cursor:pointer;
+  background:linear-gradient(90deg,#f9fafb,#f4fbf7);border-bottom:1px solid var(--br);}
+.jb-hd:hover{background:#f0faf6;}
+.ji{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.ji.petit_dejeuner{background:#fef9c3;}.ji.collation_matin{background:#fce7f3;}
+.ji.dejeuner{background:#dcfce7;}.ji.gouter{background:#ede9fe;}.ji.diner{background:#e0f2fe;}
+.jb-n{font-size:.82rem;font-weight:700;color:var(--t);flex:1;}
+.jb-chev{font-size:.6rem;color:var(--t2);transition:transform .2s;}
+.jb.op .jb-chev{transform:rotate(180deg);}
+.jb-body{display:none;padding:.78rem 1rem .9rem;}
+.jb.op .jb-body{display:block;}
+.gr-row{display:grid;grid-template-columns:180px 130px 1fr 24px;gap:.55rem;align-items:start;
+  padding:.38rem .4rem;border-radius:8px;margin-bottom:.22rem;}
+.gr-row:hover{background:#f9fafb;}
+.gr-tag{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:700;
+  padding:.2rem .62rem;border-radius:999px;white-space:nowrap;}
+.gr-q{font-size:.7rem;font-weight:600;color:var(--gd);background:#f0faf6;border-radius:7px;padding:.18rem .5rem;}
+.gr-c{font-size:.63rem;color:var(--t2);line-height:1.45;}
+.btn-dg{background:none;border:none;cursor:pointer;color:#d1d5db;font-size:.7rem;padding:.14rem;border-radius:50%;}
+.btn-dg:hover{background:#fee2e2;color:var(--err);}
+.add-gr{display:flex;gap:.38rem;flex-wrap:wrap;margin-top:.55rem;padding-top:.5rem;border-top:1px dashed var(--br);}
+.sg{padding:.34rem .62rem;border-radius:8px;border:1.5px solid var(--br);font-size:.7rem;
+  font-family:'Outfit',sans-serif;color:var(--t);background:#fff;flex:1;min-width:130px;}
+.ig{padding:.34rem .52rem;border-radius:8px;border:1.5px solid var(--br);font-size:.7rem;
+  font-family:'Outfit',sans-serif;width:105px;}
+.btn-ag{padding:.34rem .78rem;border-radius:8px;background:var(--green);border:none;
+  color:#fff;font-size:.7rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;}
+.btn-regen{display:flex;align-items:center;gap:.5rem;padding:.48rem 1rem;border-radius:999px;
+  border:1.5px solid var(--green);background:#fff;color:var(--gd);font-size:.75rem;
+  font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+.btn-regen:hover{background:var(--green);color:#fff;}
+.btn-regen.used{border-color:#d1d5db;color:#9ca3af;pointer-events:none;}
+.regen-badge{font-size:.58rem;font-weight:700;padding:.1rem .42rem;border-radius:999px;background:#fef9c3;color:#92400e;}
+.regen-badge.used{background:#f3f4f6;color:#9ca3af;}
+
+/* ─────────────── STEP 3 : 7 JOURS ─────────────── */
+.js{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.85rem;}
+.jbtn{padding:.45rem .9rem;border-radius:12px;border:2px solid var(--br);background:#fff;
+  font-size:.7rem;font-weight:600;color:var(--t2);cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:all .2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:.1rem;}
+.jbtn .jn{font-size:.78rem;font-weight:800;color:var(--t);}
+.jbtn .jk{font-size:.68rem;font-weight:600;color:var(--t2);}
+.jbtn.act{background:var(--dark);border-color:var(--dark);}
+.jbtn.act .jn{color:#fff;}
+.jbtn.act .jk{color:rgba(255,255,255,.7);}
+
+/* Warning légumes identiques */
+.legume-warn{background:#fef9c3;border:1.5px solid rgba(245,158,11,.4);border-radius:10px;
+  padding:.55rem .85rem;margin-bottom:.75rem;font-size:.72rem;color:#92400e;display:none;}
+.legume-warn.show{display:block;}
+
+.mhd{background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.82rem 1.05rem;
+  margin-bottom:.72rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;}
+.mhd-t{font-size:.9rem;font-weight:700;}
+.kw{display:flex;align-items:baseline;gap:.3rem;}
+.kbig{font-size:1.12rem;font-weight:800;font-family:'Playfair Display',serif;}
+.kcib{font-size:.62rem;color:var(--t2);}
+.mr{background:#fff;border-radius:13px;border:1.5px solid var(--br);margin-bottom:.65rem;overflow:hidden;}
+.mr-hd{display:flex;align-items:center;gap:.58rem;padding:.64rem .92rem;cursor:pointer;
+  background:linear-gradient(90deg,#f9fafb,#f4fbf7);border-bottom:1px solid var(--br);}
+.mr-hd:hover{background:#f0faf6;}
+.mr-n{font-size:.78rem;font-weight:700;flex:1;}
+.mr-k{font-size:.64rem;font-weight:700;color:var(--gd);background:var(--gb);padding:.13rem .46rem;border-radius:999px;}
+.mr-c{font-size:.57rem;color:var(--t2);transition:transform .2s;}
+.mr.op .mr-c{transform:rotate(180deg);}
+.mr-body{display:none;padding:.64rem .92rem .78rem;}
+.mr.op .mr-body{display:block;}
+.ah{display:grid;grid-template-columns:1fr 78px 60px 24px;gap:.43rem;padding:.16rem .38rem .26rem;
+  font-size:.55rem;font-weight:800;text-transform:uppercase;color:var(--t2);}
+.ar{display:grid;grid-template-columns:1fr 78px 60px 24px;gap:.43rem;align-items:center;
+  padding:.28rem .38rem;border-radius:7px;margin-bottom:.2rem;}
+.ar:hover{background:#f9fafb;}
+.ar.legume-dup{background:#fef9c3;}
+.an{font-size:.74rem;color:var(--t);font-weight:500;}
+.aq{width:100%;padding:.25rem .48rem;border-radius:7px;border:1.5px solid var(--br);
+  font-size:.74rem;font-family:'Outfit',sans-serif;text-align:center;}
+.aq:focus{outline:none;border-color:var(--green);}
+.aq.ch{border-color:var(--green);background:#f0faf6;font-weight:700;}
+.ak{font-size:.64rem;color:var(--t2);text-align:right;}
+.bda{width:22px;height:22px;border-radius:50%;border:none;background:transparent;
+  color:#d1d5db;cursor:pointer;font-size:.66rem;display:flex;align-items:center;justify-content:center;}
+.bda:hover{background:#fee2e2;color:var(--err);}
+.rt{display:flex;gap:.42rem;flex-wrap:wrap;margin:.5rem 0 .64rem;padding:.44rem .6rem;background:#f7f9f7;border-radius:8px;}
+.rtc{font-size:.62rem;color:var(--t2);}
+.rtc strong{color:var(--t);font-weight:700;}
+
+/* CIQUAL search */
+.cqs{border:2px dashed var(--br);border-radius:11px;padding:.72rem .9rem;margin-top:.48rem;background:#fafcfa;}
+.cqs-ttl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t2);margin-bottom:.5rem;}
+.cqf{display:grid;grid-template-columns:1fr 135px;gap:.35rem;margin-bottom:.35rem;}
+.cqi{padding:.36rem .62rem;border-radius:7px;border:1.5px solid var(--br);font-size:.73rem;font-family:'Outfit',sans-serif;color:var(--t);background:#fff;width:100%;}
+.cqi:focus{outline:none;border-color:var(--green);}
+.cqs-sel{padding:.36rem .58rem;border-radius:7px;border:1.5px solid var(--br);font-size:.7rem;font-family:'Outfit',sans-serif;color:var(--t);background:#fff;width:100%;}
+.cqs-kr{display:flex;align-items:center;gap:.32rem;font-size:.68rem;color:var(--t2);margin-bottom:.35rem;}
+.cqki{width:62px;padding:.26rem .42rem;border-radius:7px;border:1.5px solid var(--br);font-size:.68rem;font-family:'Outfit',sans-serif;text-align:center;}
+.cq-cnt{font-size:.6rem;color:var(--t2);margin-bottom:.28rem;}
+.cq-tbl{max-height:200px;overflow-y:auto;border-radius:8px;border:1px solid var(--br);}
+table.cqt{width:100%;border-collapse:collapse;font-size:.68rem;}
+table.cqt thead th{background:#f0faf6;color:var(--gd);font-weight:700;padding:.38rem .52rem;text-align:left;position:sticky;top:0;font-size:.58rem;text-transform:uppercase;border-bottom:1px solid var(--br);}
+table.cqt tbody tr{cursor:pointer;transition:background .15s;border-bottom:1px solid #f3f7f3;}
+table.cqt tbody tr:hover{background:#e8f5ee;}
+table.cqt td{padding:.34rem .52rem;color:var(--t);}
+table.cqt td.num{text-align:right;color:var(--t2);}
+table.cqt td.grp{font-size:.58rem;color:var(--t2);}
+.btn-cqa{background:var(--green);color:#fff;border:none;border-radius:6px;padding:.18rem .52rem;font-size:.63rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+.cq-empty{text-align:center;padding:1.1rem;font-size:.73rem;color:var(--t2);}
+.qpick{display:flex;gap:.32rem;align-items:center;margin-top:.42rem;padding:.42rem .62rem;background:#fff;border-radius:8px;border:1.5px solid var(--green);}
+.qpick label{font-size:.68rem;color:var(--t2);}
+.qpick input{width:75px;padding:.28rem .48rem;border-radius:7px;border:1.5px solid var(--br);font-size:.78rem;font-family:'Outfit',sans-serif;text-align:center;}
+.qpick .bconf{padding:.3rem .72rem;border-radius:7px;background:var(--green);border:none;color:#fff;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+.qpick .bann{background:none;border:none;color:var(--t2);cursor:pointer;font-size:.72rem;}
+
+/* ─────────────── STEP 4 : CONSEILS ─────────────── */
+.sep{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t2);
+  display:flex;align-items:center;gap:.52rem;margin:.72rem 0 .5rem;}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--br);}
+.cr{display:flex;gap:.42rem;align-items:flex-start;margin-bottom:.42rem;}
+.cdot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:.48rem;}
+.tac{flex:1;padding:.38rem .62rem;border-radius:8px;border:1.5px solid var(--br);font-size:.73rem;
+  font-family:'Outfit',sans-serif;color:var(--t);resize:none;min-height:36px;line-height:1.52;}
+.tac:focus{outline:none;border-color:var(--green);}
+.btn-ac{margin-top:.35rem;padding:.33rem .78rem;border-radius:999px;border:1.5px dashed var(--br);
+  background:transparent;font-size:.7rem;cursor:pointer;color:var(--green);font-family:'Outfit',sans-serif;}
+.tf{font-size:.65rem;font-weight:600;padding:.16rem .55rem;border-radius:999px;}
+.tf.g{background:#e1f5ee;color:var(--gd);}.tf.r{background:#fee2e2;color:#991b1b;}
+
+/* ─────────────── STEP 5 : MISE EN PAGE ─────────────── */
+.template-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem;}
+@media(max-width:640px){.template-grid{grid-template-columns:1fr;}}
+.tpl-card{border-radius:13px;border:2px solid var(--br);background:#fff;padding:.9rem 1.1rem;
+  cursor:pointer;transition:all .22s;}
+.tpl-card:hover{border-color:var(--green);box-shadow:0 4px 16px rgba(29,158,117,.12);}
+.tpl-card.selected{border-color:var(--green);background:#f0faf6;box-shadow:0 4px 16px rgba(29,158,117,.18);}
+.tpl-preview{background:#f7f9f7;border-radius:9px;padding:.65rem .85rem;margin-bottom:.65rem;min-height:100px;}
+.tpl-name{font-size:.8rem;font-weight:800;color:var(--t);margin-bottom:.2rem;}
+.tpl-desc{font-size:.65rem;color:var(--t2);line-height:1.5;}
+.tpl-selected-badge{display:none;background:var(--green);color:#fff;font-size:.58rem;font-weight:700;
+  padding:.1rem .48rem;border-radius:999px;margin-top:.35rem;}
+.tpl-card.selected .tpl-selected-badge{display:inline-block;}
+
+/* Preview PDF miniature */
+.pdf-mini{font-size:.5rem;color:#374151;line-height:1.4;}
+.pdf-mini .hdr{display:flex;justify-content:space-between;border-bottom:1.5px solid #1D9E75;padding-bottom:.35rem;margin-bottom:.35rem;}
+.pdf-mini .logo{font-weight:800;font-size:.7rem;color:#0d2018;}
+.pdf-mini .logo em{color:#1D9E75;font-style:italic;}
+.pdf-mini .sec{font-size:.48rem;font-weight:700;text-transform:uppercase;color:#1D9E75;margin:.3rem 0 .15rem;letter-spacing:.06em;}
+.pdf-mini .row{display:flex;justify-content:space-between;font-size:.46rem;color:#6b7280;}
+
+/* Éditeur macro-commandes */
+.macro-editor{border-radius:12px;border:1.5px solid var(--br);background:#fff;overflow:hidden;margin-top:.8rem;}
+.macro-editor-hd{background:#f9fafb;padding:.6rem .9rem;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;justify-content:space-between;}
+.macro-editor-hd .ttl{font-size:.72rem;font-weight:700;color:var(--t);}
+.macro-tags{display:flex;gap:.28rem;flex-wrap:wrap;padding:.55rem .9rem;border-bottom:1px solid var(--br);}
+.mtag{font-size:.6rem;font-weight:700;padding:.18rem .5rem;border-radius:6px;background:#e0f2fe;
+  color:#0369a1;cursor:pointer;font-family:monospace;transition:background .15s;}
+.mtag:hover{background:#bae6fd;}
+.mtag.green{background:#dcfce7;color:#15803d;}
+.mtag.orange{background:#fef9c3;color:#92400e;}
+.tpl-textarea{width:100%;min-height:160px;padding:.75rem .9rem;border:none;font-size:.72rem;
+  font-family:'Outfit',sans-serif;color:var(--t);line-height:1.7;resize:vertical;}
+.tpl-textarea:focus{outline:none;}
+.notes-field{width:100%;padding:.65rem .85rem;border-radius:10px;border:1.5px solid var(--br);
+  font-size:.78rem;font-family:'Outfit',sans-serif;color:var(--t);resize:vertical;min-height:80px;line-height:1.65;}
+.notes-field:focus{outline:none;border-color:var(--green);}
+
+/* ─────────────── STEP 6 : VALIDATION ─────────────── */
+.validation-wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:1.2rem;}
+@media(max-width:640px){.validation-wrap{grid-template-columns:1fr;}}
+.attest{background:linear-gradient(135deg,#f0faf6,#e8f5ee);border:2px solid var(--gb);border-radius:13px;padding:.9rem 1.1rem;}
+.attest-ttl{font-size:.7rem;font-weight:800;color:var(--gd);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem;}
+.attest-txt{font-size:.68rem;color:var(--t2);line-height:1.65;margin-bottom:.6rem;}
+.attest-ck{display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin-bottom:.45rem;}
+.attest-ck input{accent-color:var(--green);width:16px;height:16px;flex-shrink:0;margin-top:.1rem;}
+.attest-ck span{font-size:.7rem;font-weight:600;color:var(--t);line-height:1.55;}
+.attest-ck.done span{color:var(--green);}
+.sig-card{background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.85rem 1.05rem;}
+.sig-n{font-size:.88rem;font-weight:700;color:var(--gd);margin-bottom:.1rem;}
+.sig-r{font-size:.65rem;color:var(--t2);}
+.sig-d{font-size:.6rem;color:var(--t2);margin-top:.18rem;}
+.recaps{display:flex;flex-direction:column;gap:.5rem;margin-top:.8rem;}
+.recap-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem .65rem;
+  background:#f7f9f7;border-radius:8px;font-size:.72rem;}
+.recap-lbl{color:var(--t2);}
+.recap-val{font-weight:700;color:var(--t);}
+.recap-val.ok{color:var(--green);}
+.recap-val.warn{color:var(--warn);}
+.btn-pdf{width:100%;padding:.58rem;border-radius:10px;background:#f7f9f7;border:1.5px solid var(--br);
+  color:var(--t);font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;
+  margin-bottom:.5rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.btn-pdf:hover{border-color:var(--green);color:var(--green);}
+.btn-send{width:100%;padding:.68rem;border-radius:10px;background:var(--green);border:none;
+  color:#fff;font-size:.85rem;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;
+  box-shadow:0 4px 14px rgba(29,158,117,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.btn-send:hover{background:var(--gd);transform:translateY(-1px);}
+.btn-send:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;z-index:400;background:rgba(10,25,18,.9);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;}
+.overlay.hide{display:none;}
+.spin{width:60px;height:60px;border:5px solid rgba(93,202,165,.2);border-top-color:var(--gl);
+  border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ov-ttl{font-size:1.05rem;font-weight:700;color:#fff;}
+.ov-sub{font-size:.78rem;color:rgba(255,255,255,.5);text-align:center;max-width:300px;}
+.ov-bar{width:280px;height:4px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;}
+.ov-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gl));border-radius:999px;}
+.ov-steps{display:flex;flex-direction:column;gap:.35rem;align-items:flex-start;}
+.ov-step{font-size:.7rem;color:rgba(255,255,255,.38);transition:color .3s;}
+.ov-step.on{color:var(--gl);font-weight:700;}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;padding:.55rem .95rem;
+  border-radius:9px;font-size:.76rem;font-weight:600;color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.2);animation:si .22s ease;max-width:290px;}
+@keyframes si{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+.sk{background:linear-gradient(90deg,#e5ece5 25%,#f3f7f3 50%,#e5ece5 75%);
+  background-size:200%;animation:sh 1.4s infinite;border-radius:8px;}
+@keyframes sh{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hd">
+  <a href="dashboard-dieteticien.html" class="hd-logo">Nutri<em>Doc</em></a>
+  <div class="hd-c"><div class="hd-p" id="hdP">Chargement…</div><div class="hd-s" id="hdS">Processus de validation</div></div>
+  <div class="hd-r">
+    <a href="dashboard-dieteticien.html" class="bhd">← Retour</a>
+    <button class="bhd" onclick="sauvegarder()">💾 Sauvegarder</button>
+  </div>
+</header>
+
+<!-- STEPPER -->
+<div class="stepper-shell">
+
+  <!-- PROGRESS -->
+  <div class="progress-bar" id="progressBar">
+    <div class="step-dot active" id="pd1" onclick="tryGoStep(1)"><div class="step-num" id="pn1">1</div><div class="step-lbl">Profil patient</div></div>
+    <div class="step-conn" id="pc1"></div>
+    <div class="step-dot locked" id="pd2" onclick="tryGoStep(2)"><div class="step-num" id="pn2">2</div><div class="step-lbl">Plan alimentaire</div></div>
+    <div class="step-conn" id="pc2"></div>
+    <div class="step-dot locked" id="pd3" onclick="tryGoStep(3)"><div class="step-num" id="pn3">3</div><div class="step-lbl">7 jours de menus</div></div>
+    <div class="step-conn" id="pc4"></div>
+    <div class="step-dot locked" id="pd4" onclick="tryGoStep(4)"><div class="step-num" id="pn4">4</div><div class="step-lbl">Conseils</div></div>
+    <div class="step-conn" id="pc5"></div>
+    <div class="step-dot locked" id="pd5" onclick="tryGoStep(5)"><div class="step-num" id="pn5">5</div><div class="step-lbl">Mise en page</div></div>
+    <div class="step-conn" id="pc6"></div>
+    <div class="step-dot locked" id="pd6" onclick="tryGoStep(6)"><div class="step-num" id="pn6">6</div><div class="step-lbl">Validation</div></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="steps-wrap" id="stepsWrap">
+
+    <!-- ── STEP 1 : PROFIL PATIENT ── -->
+    <div class="step-pane active" id="sp1">
+      <h1 class="step-title">👤 Profil du patient</h1>
+      <p class="step-desc">Vérifiez soigneusement toutes les informations avant de générer le plan. Les alertes santé sont prioritaires et influencent les calculs nutritionnels.</p>
+
+      <div id="santeBanner" class="sante-top hide"><div class="sante-top-ttl">🚨 Alertes santé — le plan doit être adapté</div><div id="santeBadges"></div></div>
+
+      <div class="profil-grid">
+        <div class="info-card">
+          <div class="info-card-ttl">Identité & Morphologie</div>
+          <div class="ir"><span class="il">Prénom / Nom</span><span class="iv" id="i_identite">—</span></div>
+          <div class="ir"><span class="il">Âge / Sexe</span><span class="iv" id="i_age">—</span></div>
+          <div class="ir"><span class="il">Poids / Taille</span><span class="iv" id="i_morpho">—</span></div>
+          <div class="ir"><span class="il">IMC</span><span class="iv" id="i_imc">—</span></div>
+          <div class="ir"><span class="il">Ville</span><span class="iv" id="i_ville">—</span></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-ttl">Objectif & Activité</div>
+          <div class="ir"><span class="il">Objectif</span><span class="iv" id="i_obj">—</span></div>
+          <div class="ir"><span class="il">Activité</span><span class="iv" id="i_act">—</span></div>
+          <div class="ir"><span class="il">Sport</span><span class="iv" id="i_sport">—</span></div>
+          <div class="ir"><span class="il">Régime</span><span class="iv" id="i_regime">—</span></div>
+          <div class="ir"><span class="il">Allergies</span><span class="iv" id="i_allergies" style="color:var(--err);">Aucune</span></div>
+          <div class="ir"><span class="il">Aversions</span><span class="iv" id="i_aversions">Aucune</span></div>
+          <div class="ir"><span class="il">Budget</span><span class="iv" id="i_budget">—</span></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-ttl">Habitudes alimentaires actuelles</div>
+          <div id="habCont"><div class="sk" style="height:12px;margin-bottom:.3rem;"></div></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-ttl">Cibles nutritionnelles (Black 1996 + ANSES)</div>
+          <div class="ir"><span class="il">Métabolisme de base</span><span class="iv" id="ci_mb">—</span></div>
+          <div class="ir"><span class="il">Dépense totale</span><span class="iv" id="ci_tdee">—</span></div>
+          <div class="ir"><span class="il">Cible kcal/j</span><span class="iv" id="ci_kcal" style="color:var(--green);font-size:.82rem;font-weight:800;">—</span></div>
+          <div class="ir"><span class="il">Protéines</span><span class="iv" id="ci_prot">—</span></div>
+          <div class="ir"><span class="il">Glucides</span><span class="iv" id="ci_glu">—</span></div>
+          <div class="ir"><span class="il">Lipides</span><span class="iv" id="ci_lip">—</span></div>
+          <div class="ir"><span class="il">Fibres min.</span><span class="iv" id="ci_fib">—</span></div>
+          <div class="ir"><span class="il">Sucres max</span><span class="iv" id="ci_suc">— <span style="font-size:.58rem;cursor:help;" title="Source ANSES 2017 — exclut lactose et galactose. anses.fr/fr/content/sucres-dans-l%27alimentation">ⓘ</span></span></div>
+        </div>
+      </div>
+
+      <!-- Calculette -->
+      <div class="calc-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+          <div style="font-size:.72rem;font-weight:800;color:var(--t);">🧮 Recalculer le métabolisme de base</div>
+          <span style="font-size:.6rem;color:var(--t2);">Formule Black et al. 1996 · MJ/j × 238,85</span>
+        </div>
+        <div class="calc-g">
+          <div class="cf"><label>Poids (kg)</label><input type="number" class="ci" id="cP" min="30" max="250" oninput="lancerCalc()"/></div>
+          <div class="cf"><label>Taille (cm)</label><input type="number" class="ci" id="cT" min="100" max="230" oninput="lancerCalc()"/></div>
+          <div class="cf"><label>Âge (ans)</label><input type="number" class="ci" id="cA" min="18" max="100" oninput="lancerCalc()"/></div>
+          <div class="cf"><label>Sexe</label><select class="cs" id="cS" onchange="lancerCalc()"><option value="femme">Femme</option><option value="homme">Homme</option></select></div>
+        </div>
+        <div class="cf" style="margin-bottom:.5rem;"><label>Niveau d'activité physique (NAP)</label>
+          <select class="cs" id="cAc" onchange="lancerCalc()" style="max-width:320px;">
+            <option value="sedentaire">Sédentaire — bureau, peu de déplacements (NAP 1,40)</option>
+            <option value="leger">Légère — marche quotidienne, 1-2x/sem (NAP 1,55)</option>
+            <option value="modere">Modérée — sport régulier 3-4x/sem (NAP 1,63) ← réf. ANSES</option>
+            <option value="actif">Active — sport quasi-quotidien (NAP 1,80)</option>
+            <option value="tres_actif">Très active — athlète / travail physique (NAP 1,95)</option>
+          </select>
+        </div>
+        <div class="cf" style="margin-bottom:.45rem;"><label>Ajustement objectif (% du TDEE)</label></div>
+        <div class="pct-row">
+          <button class="pct-b" data-v="-0.10" onclick="setPct(this)">−10%</button>
+          <button class="pct-b on" data-v="-0.15" onclick="setPct(this)">−15% (défaut)</button>
+          <button class="pct-b" data-v="-0.20" onclick="setPct(this)">−20%</button>
+          <button class="pct-b" data-v="-0.25" onclick="setPct(this)" title="Sportifs encadrés">−25% ⚠️</button>
+          <button class="pct-b" data-v="0" onclick="setPct(this)">Maintien</button>
+          <button class="pct-b" data-v="+0.10" onclick="setPct(this)">+10%</button>
+          <button class="pct-b" data-v="+0.15" onclick="setPct(this)">+15%</button>
+          <button class="pct-b" data-v="+0.20" onclick="setPct(this)">+20%</button>
+        </div>
+        <!-- Saisie libre déficit/surplus -->
+        <div style="display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem;padding:.5rem .75rem;background:#f7f9f7;border-radius:9px;border:1px dashed var(--br);">
+          <span style="font-size:.68rem;color:var(--t2);font-weight:600;">Ou saisir directement :</span>
+          <div style="display:flex;align-items:center;gap:.3rem;">
+            <input type="number" id="customPct" placeholder="ex: -15 ou +10" step="0.5"
+              style="width:120px;padding:.3rem .55rem;border-radius:7px;border:1.5px solid var(--br);font-size:.75rem;font-family:Outfit,sans-serif;"
+              oninput="setCustomPct(this,'pct')" title="Entrez un % de déficit (ex: -15) ou de surplus (ex: +10)"/>
+            <span style="font-size:.72rem;color:var(--t2);">%</span>
+            <span style="font-size:.65rem;color:var(--t2);">ou</span>
+            <input type="number" id="customKcal" placeholder="ex: -350 ou +200" step="10"
+              style="width:135px;padding:.3rem .55rem;border-radius:7px;border:1.5px solid var(--br);font-size:.75rem;font-family:Outfit,sans-serif;"
+              oninput="setCustomPct(this,'kcal')" title="Entrez un déficit ou surplus en kcal directement"/>
+            <span style="font-size:.72rem;color:var(--t2);">kcal</span>
+          </div>
+          <span style="font-size:.6rem;color:var(--t2);font-style:italic;">Les boutons % ci-dessus se mettent à jour automatiquement.</span>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:center;">
+          <button class="btn-calc" onclick="lancerCalc()">Calculer</button>
+          <button class="btn-apply" id="btnApply" onclick="appliquerCalc()" style="display:none;">↗ Appliquer au plan</button>
+        </div>
+        <div class="calc-res" id="calcRes" style="margin-top:.6rem;display:none;">
+          <div class="crr"><span class="crl">Métabolisme de base (Black 1996)</span><span class="crv" id="cMB">—</span></div>
+          <div class="crr"><span class="crl">Dépense totale journalière (TDEE)</span><span class="crv" id="cTD">—</span></div>
+          <div class="crr"><span class="crl">Ajustement</span><span class="crv" id="cAj">—</span></div>
+          <div class="crr" style="border-top:1px solid var(--br);padding-top:.2rem;margin-top:.1rem;">
+            <span class="crl">Cible finale</span><span class="crv hi" id="cCib">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 : PLAN ALIMENTAIRE ── -->
+    <div class="step-pane" id="sp2">
+      <h1 class="step-title">🗂 Plan alimentaire — cadre nutritionnel</h1>
+      <p class="step-desc">Vérifiez les groupes alimentaires par repas. Modifiez les portions et les conseils associés. Ce cadre servira de référence pour les 7 jours de menus.</p>
+
+      <div style="background:#f0faf6;border:1px solid var(--gb);border-radius:10px;padding:.6rem .9rem;margin-bottom:1rem;font-size:.72rem;color:var(--gd);">
+        <strong>Résumé :</strong> <span id="resumeTxt">—</span>
+      </div>
+      <div id="jtCont"><div class="sk" style="height:70px;border-radius:13px;margin-bottom:.75rem;"></div></div>
+    </div>
+
+    <!-- ── STEP 3 : 7 JOURS DE MENUS ── -->
+    <div class="step-pane" id="sp3">
+      <h1 class="step-title">🍽 7 jours de menus complets</h1>
+      <p class="step-desc">Ajustez les aliments et les grammages pour chaque repas. Les kcal sont recalculées en temps réel. <strong>Évitez les mêmes légumes au déjeuner et au dîner</strong> — les doublons sont signalés.</p>
+
+      <div class="legume-warn" id="legumeWarn">⚠️ <span id="legumeWarnTxt"></span></div>
+
+      <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:.65rem;">
+        <button class="btn-regen" id="btnRegen" onclick="regenererPlan()">
+          🔄 Regénérer le plan complet
+          <span class="regen-badge" id="regenBadge">1 gratuit</span>
+        </button>
+      </div>
+
+      <div class="js" id="jourSel"></div>
+      <div id="mJourCont"><div class="sk" style="height:55px;border-radius:13px;margin-bottom:.7rem;"></div></div>
+    </div>
+
+    <!-- ── STEP 4 : CONSEILS ── -->
+    <div class="step-pane" id="sp4">
+      <h1 class="step-title">💡 Conseils personnalisés</h1>
+      <p class="step-desc">Rédigez ou adaptez les conseils au profil spécifique du patient. Incluez les règles desserts, la gestion des fringales, les habitudes à corriger progressivement.</p>
+      <div id="conseilsCont"><div class="sk" style="height:90px;border-radius:13px;"></div></div>
+    </div>
+
+    <!-- ── STEP 5 : MISE EN PAGE PDF ── -->
+    <div class="step-pane" id="sp5">
+      <h1 class="step-title">📄 Mise en page du document</h1>
+      <p class="step-desc">Choisissez le template du plan alimentaire envoyé au patient. Le template par défaut est prêt à l'emploi. Le template personnalisable utilise des macro-commandes.</p>
+
+      <div class="template-grid">
+        <!-- Template A : Défaut -->
+        <div class="tpl-card selected" id="tplA" onclick="selectTpl('A')">
+          <div class="tpl-preview">
+            <div class="pdf-mini">
+              <div class="hdr"><div class="logo">Nutri<em>Doc</em></div><div style="color:#6b7280;font-size:.45rem;">RPPS · {{DATE}}</div></div>
+              <div style="background:#f0faf6;border-radius:4px;padding:.3rem .4rem;margin-bottom:.25rem;">
+                <div style="font-size:.52rem;font-weight:700;color:#0f6e56;">Sophie Martin · 32 ans · 2 008 kcal/j</div>
+                <div class="row"><span>Perte de poids · Activité modérée</span><span style="color:#1D9E75;font-weight:700;">−15% TDEE</span></div>
+              </div>
+              <div class="sec">7 jours de menus</div>
+              <div class="row"><span style="font-weight:600;">Lundi</span><span style="color:#1D9E75;">1 985 kcal</span></div>
+              <div style="font-size:.44rem;color:#9ca3af;">🌅 Flocons avoine + lait + pomme · ☀️ Poulet + quinoa + brocolis…</div>
+              <div class="sec" style="margin-top:.25rem;">Conseils</div>
+              <div style="font-size:.44rem;color:#6b7280;">· Remplacer le jus d'orange par un fruit entier…</div>
+              <div style="margin-top:.3rem;padding-top:.25rem;border-top:1px solid #1D9E75;display:flex;justify-content:space-between;">
+                <div style="font-size:.44rem;color:#0f6e56;font-weight:700;">Dr. Dupont · RPPS 123456</div>
+                <div style="font-size:.42rem;color:#9ca3af;">NutriDoc · CaliDoc Santé</div>
+              </div>
+            </div>
+          </div>
+          <div class="tpl-name">✨ Template NutriDoc (défaut)</div>
+          <div class="tpl-desc">Mise en page professionnelle, branding NutriDoc, vert et blanc. Prêt en un clic — aucune modification requise.</div>
+          <span class="tpl-selected-badge">✓ Sélectionné</span>
+        </div>
+
+        <!-- Template B : Personnalisable -->
+        <div class="tpl-card" id="tplB" onclick="selectTpl('B')">
+          <div class="tpl-preview">
+            <div class="pdf-mini">
+              <div class="hdr" style="border-color:#6366f1;"><div class="logo" style="color:#6366f1;">Mon Cabinet</div><div style="color:#6b7280;font-size:.45rem;">{{DIET_NOM}} · {{DATE}}</div></div>
+              <div style="font-size:.5rem;color:#374151;font-style:italic;margin-bottom:.2rem;">{{RESUME}}</div>
+              <div class="sec" style="color:#6366f1;">Cibles journalières</div>
+              <div class="row"><span>Calories</span><span style="color:#6366f1;">{{KCAL}} kcal</span></div>
+              <div class="row"><span>Protéines · Glucides · Lipides</span><span>{{PROT}}g · {{GLU}}g · {{LIP}}g</span></div>
+              <div class="sec" style="color:#6366f1;">{{MENUS}}</div>
+              <div class="sec" style="color:#6366f1;">{{CONSEILS}}</div>
+              <div style="font-size:.44rem;color:#6366f1;margin-top:.25rem;">{{SIGNATURE}}</div>
+            </div>
+          </div>
+          <div class="tpl-name">🎨 Template personnalisable</div>
+          <div class="tpl-desc">Editez librement avec des macro-commandes. Adaptez les couleurs, l'en-tête et la structure. Idéal pour personnaliser à votre cabinet.</div>
+          <span class="tpl-selected-badge">✓ Sélectionné</span>
+        </div>
+      </div>
+
+      <!-- Éditeur (visible si template B) -->
+      <div id="macroEditor" class="macro-editor" style="display:none;">
+        <div class="macro-editor-hd">
+          <div class="ttl">✏️ Editeur de template — cliquez sur une macro pour l'insérer</div>
+        </div>
+        <div class="macro-tags">
+          <span class="mtag green" onclick="insererMacro('{{PRENOM}}')">{{PRENOM}}</span>
+          <span class="mtag green" onclick="insererMacro('{{NOM}}')">{{NOM}}</span>
+          <span class="mtag green" onclick="insererMacro('{{DATE}}')">{{DATE}}</span>
+          <span class="mtag green" onclick="insererMacro('{{KCAL}}')">{{KCAL}} kcal</span>
+          <span class="mtag green" onclick="insererMacro('{{PROT}}')">{{PROT}}g prot.</span>
+          <span class="mtag green" onclick="insererMacro('{{GLU}}')">{{GLU}}g glu.</span>
+          <span class="mtag green" onclick="insererMacro('{{LIP}}')">{{LIP}}g lip.</span>
+          <span class="mtag" onclick="insererMacro('{{OBJECTIF}}')">{{OBJECTIF}}</span>
+          <span class="mtag" onclick="insererMacro('{{RESUME}}')">{{RESUME}}</span>
+          <span class="mtag" onclick="insererMacro('{{MENUS}}')">{{MENUS}}</span>
+          <span class="mtag" onclick="insererMacro('{{CONSEILS}}')">{{CONSEILS}}</span>
+          <span class="mtag orange" onclick="insererMacro('{{DIET_NOM}}')">{{DIET_NOM}}</span>
+          <span class="mtag orange" onclick="insererMacro('{{RPPS}}')">{{RPPS}}</span>
+          <span class="mtag orange" onclick="insererMacro('{{SIGNATURE}}')">{{SIGNATURE}}</span>
+        </div>
+        <textarea class="tpl-textarea" id="tplEditor" placeholder="Saisissez votre template personnalisé…">Plan alimentaire de {{PRENOM}} {{NOM}} — {{DATE}}
+
+Cibles : {{KCAL}} kcal/j · {{PROT}}g protéines · {{GLU}}g glucides · {{LIP}}g lipides
+
+Résumé : {{RESUME}}
+
+{{MENUS}}
+
+{{CONSEILS}}
+
+Validé par {{DIET_NOM}} · RPPS {{RPPS}}
+{{SIGNATURE}}</textarea>
+      </div>
+
+      <!-- Notes supplémentaires -->
+      <div style="margin-top:1rem;">
+        <div style="font-size:.68rem;font-weight:700;color:var(--t);margin-bottom:.35rem;">📝 Notes professionnelles (apparaîtront dans le document)</div>
+        <textarea class="notes-field" id="notesDiet" placeholder="Observations cliniques, recommandations de suivi, précautions particulières…"></textarea>
+      </div>
+
+      <!-- Informations praticien et prescripteur -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.1rem;">
+
+        <div style="background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.9rem 1.1rem;">
+          <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:.6rem;">🩺 Informations du praticien (diététicien)</div>
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Nom complet</label><input type="text" id="prat_nom" class="ci" style="font-size:.74rem;" placeholder="Dr. Prénom Nom" value=""/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">N° RPPS</label><input type="text" id="prat_rpps" class="ci" style="font-size:.74rem;" placeholder="12345678901"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Cabinet / Structure</label><input type="text" id="prat_cabinet" class="ci" style="font-size:.74rem;" placeholder="Cabinet Nutrition Santé"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Adresse</label><input type="text" id="prat_adresse" class="ci" style="font-size:.74rem;" placeholder="12 rue de la Santé, 75001 Paris"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Téléphone / Email</label><input type="text" id="prat_contact" class="ci" style="font-size:.74rem;" placeholder="06 00 00 00 00 · contact@cabinet.fr"/></div>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:13px;border:1.5px solid var(--br);padding:.9rem 1.1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;">
+            <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);">📋 Informations prescripteur</div>
+            <span style="font-size:.55rem;color:var(--t2);background:#f7f9f7;padding:.1rem .45rem;border-radius:999px;">Commande prescripteur</span>
+          </div>
+          <div style="background:#fef9c3;border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.42rem .65rem;margin-bottom:.5rem;font-size:.62rem;color:#92400e;line-height:1.5;">
+            À remplir uniquement si ce plan est commandé par un prescripteur (coach sportif, infirmière, kinésithérapeute, etc.) au nom de son client.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Nom du prescripteur</label><input type="text" id="presc_nom" class="ci" style="font-size:.74rem;" placeholder="Prénom Nom (coach sportif)"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Profession</label><input type="text" id="presc_pro" class="ci" style="font-size:.74rem;" placeholder="Coach sportif / Infirmière / Kiné…"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Structure / Cabinet</label><input type="text" id="presc_struct" class="ci" style="font-size:.74rem;" placeholder="Salle de sport / Cabinet libéral"/></div>
+            <div style="display:flex;flex-direction:column;gap:.08rem;"><label style="font-size:.58rem;color:var(--t2);">Contact prescripteur</label><input type="text" id="presc_contact" class="ci" style="font-size:.74rem;" placeholder="Email ou téléphone"/></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOUTON PRÉVISUALISER — en bas du step 5 -->
+      <div style="margin-top:1.5rem;padding:1.1rem 1.25rem;background:linear-gradient(135deg,#f0faf6,#e8f5ee);border-radius:14px;border:2px solid var(--gb);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:var(--gd);margin-bottom:.18rem;">👁 Prévisualiser le document final</div>
+          <div style="font-size:.65rem;color:var(--t2);">Ouvre une nouvelle fenêtre avec le rendu complet du plan, filigrane NutriDoc inclus. Le document est en lecture seule — pas de téléchargement possible.</div>
+        </div>
+        <button onclick="previewPDF()" style="padding:.62rem 1.5rem;border-radius:11px;background:var(--dark);border:none;color:#fff;font-size:.82rem;font-weight:800;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap;transition:all .2s;box-shadow:0 3px 14px rgba(13,32,24,.22);">
+          👁 Prévisualiser
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 6 : VALIDATION ── -->
+    <div class="step-pane" id="sp6">
+      <h1 class="step-title">✅ Validation & Envoi au patient</h1>
+      <p class="step-desc">Téléchargez d'abord le PDF pour vérification, puis signez et envoyez au patient. L'attestation professionnelle est obligatoire.</p>
+
+      <div class="validation-wrap">
+        <div>
+          <!-- Attestation -->
+          <div class="attest">
+            <div class="attest-ttl">📜 Attestation professionnelle obligatoire</div>
+            <div class="attest-txt">
+              Ce plan a été pré-généré par intelligence artificielle (GPT-4o-mini, CIQUAL 2020, ANSES 2016). En tant que diététicien RPPS, votre signature engage votre responsabilité professionnelle.
+            </div>
+            <label class="attest-ck" id="attestCkEl">
+              <input type="checkbox" id="chkAttest" onchange="ckAttest(this)"/>
+              <span>J'atteste sur l'honneur avoir consulté, vérifié et si nécessaire corrigé ce plan alimentaire généré par IA, avant de le soumettre à ma signature RPPS et à la remise au patient.</span>
+            </label>
+          </div>
+
+          <!-- Récap -->
+          <div class="recaps" id="recaps">
+            <div class="recap-row"><span class="recap-lbl">Patient</span><span class="recap-val" id="rc_patient">—</span></div>
+            <div class="recap-row"><span class="recap-lbl">Cible kcal</span><span class="recap-val ok" id="rc_kcal">—</span></div>
+            <div class="recap-row"><span class="recap-lbl">Jours validés (kcal OK)</span><span class="recap-val" id="rc_jours">—</span></div>
+            <div class="recap-row"><span class="recap-lbl">Poissons / semaine</span><span class="recap-val" id="rc_poisson">—</span></div>
+            <div class="recap-row"><span class="recap-lbl">Conseils rédigés</span><span class="recap-val" id="rc_conseils">—</span></div>
+            <div class="recap-row"><span class="recap-lbl">Template</span><span class="recap-val" id="rc_tpl">—</span></div>
+          </div>
+        </div>
+
+        <div>
+          <!-- Signature -->
+          <div class="sig-card" style="margin-bottom:.8rem;">
+            <div class="sig-n" id="sigN">—</div>
+            <div class="sig-r" id="sigR">RPPS : —</div>
+            <div class="sig-d" id="sigD">—</div>
+          </div>
+
+          <!-- Actions -->
+          <div style="background:#f0faf6;border:1px solid var(--gb);border-radius:10px;padding:.6rem .85rem;margin-bottom:.65rem;font-size:.68rem;color:var(--gd);">
+            💡 Prévisualisez le document depuis l'étape "Mise en page" avant d'envoyer.
+          </div>
+          <button class="btn-send" id="btnSend" onclick="confirmerEnvoi()" disabled>
+            📨 Valider et envoyer au patient
+          </button>
+          <div style="font-size:.6rem;color:var(--t2);text-align:center;margin-top:.35rem;line-height:1.5;">
+            Le plan sera signé RPPS et envoyé par email automatique au patient.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /steps-wrap -->
+
+  <!-- NAVIGATION -->
+  <div class="step-nav">
+    <button class="btn-prev" id="btnPrev" onclick="prevStep()" disabled>← Précédent</button>
+    <div class="step-info" id="stepInfo">Étape 1 / 6</div>
+    <button class="btn-next" id="btnNext" onclick="nextStep()">Suivant →</button>
+  </div>
+
+</div><!-- /stepper-shell -->
+
+<!-- OVERLAY RÉGÉNÉRATION -->
+<div class="overlay hide" id="regenOv">
+  <div class="spin"></div>
+  <div class="ov-ttl">Génération d'un nouveau plan…</div>
+  <div class="ov-sub" id="regenSub">Analyse du profil patient</div>
+  <div class="ov-bar"><div class="ov-fill" id="ovFill" style="width:0%;transition:width .5s;"></div></div>
+  <div class="ov-steps">
+    <div class="ov-step on" id="os1">⚙️  Calcul métabolisme de base (Black 1996)</div>
+    <div class="ov-step" id="os2">🥗  Cadre nutritionnel ANSES + groupes PNNS</div>
+    <div class="ov-step" id="os3">🍽  Génération des 7 menus (GPT-4o-mini)</div>
+    <div class="ov-step" id="os4">🔬  Enrichissement CIQUAL 2020 + USDA FDC</div>
+    <div class="ov-step" id="os5">✅  Validation et sauvegarde</div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════ CONFIG ═══════════════ */
+const SUPA_URL  = 'https://phgjpwaptrrjonoimmne.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY';
+const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+const ICONS  = {petit_dejeuner:'🌅',collation_matin:'🍎',dejeuner:'☀️',gouter:'🍏',diner:'🌙'};
+const LABELS = {petit_dejeuner:'Petit-déjeuner',collation_matin:'Collation matin',dejeuner:'Déjeuner',gouter:'Goûter',diner:'Dîner'};
+const OBJ_L  = {perte_poids:'Perte de poids',prise_masse:'Prise de masse',equilibre:'Équilibre',energie:'Énergie',sante:'Santé',sport_perf:'Performance'};
+const ACT_L  = {sedentaire:'Sédentaire',leger:'Légère',modere:'Modérée (réf. ANSES)',actif:'Active',tres_actif:'Très active'};
+const NAP    = {sedentaire:1.40,leger:1.55,modere:1.63,actif:1.80,tres_actif:1.95};
+const JOURS  = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+const SANTE_MAP = {
+  diabete:{ico:'🩸',lbl:'Diabète',sub:'IG bas — sucres simples ≤ 50g/j — pas de jus de fruits'},
+  hypertension:{ico:'🫀',lbl:'Hypertension',sub:'Sodium ≤ 2g/j — exclure charcuteries'},
+  cholesterol:{ico:'💛',lbl:'Hypercholestérolémie',sub:'AGS ≤ 8% AET — oméga-3 prioritaires'},
+  fatigue:{ico:'⚡',lbl:'Fatigue chronique',sub:'Vérifier fer, B12, vitamine D, magnésium'},
+  obesite:{ico:'⚖️',lbl:'Obésité',sub:'Déficit modéré 10-15% — protéines++ pour masse maigre'},
+  anemie:{ico:'🩸',lbl:'Anémie',sub:'Fer héminique + vit. C — café/thé évités au repas'},
+  grossesse:{ico:'🤰',lbl:'Grossesse',sub:'B9 essentiel — fer+calcium++ — éviter crus'},
+};
+
+const GPNNS = {
+  'Laitage':{ico:'🥛',color:'#dbeafe'},'Fruits frais':{ico:'🍎',color:'#fce7f3'},
+  'Légumes cuits':{ico:'🥦',color:'#d1fae5'},'Légumes crus':{ico:'🥗',color:'#ecfdf5'},
+  'Céréales complètes':{ico:'🌾',color:'#fef3c7'},'Féculents':{ico:'🍚',color:'#fef9c3'},
+  'Pain complet':{ico:'🍞',color:'#fde68a'},'Protéines animales':{ico:'🥩',color:'#fca5a5'},
+  'Protéines végétales':{ico:'🌿',color:'#a7f3d0'},'Matières grasses':{ico:'🫒',color:'#d1fae5'},
+  'Oléagineux':{ico:'🥜',color:'#fde68a'},// 'Dessert' supprimé — utiliser 'Laitage' et 'Fruits frais' séparément
+  'Plaisir alimentaire':{ico:'🍫',color:'#f3e8ff'},
+};
+
+// Légumes à surveiller pour doublons midi/soir
+const LEGUMES_SURVEILLES = ['brocolis','épinards','haricots verts','courgettes','carottes','chou-fleur','champignons','poireaux','fenouil','betterave','céleri','aubergine','poivron','tomates'];
+
+// BASE CIQUAL (valeurs pour 100g)
+const CIQUAL=[
+  {nom:'Blanc de poulet cuit',groupe:'Protéines animales',kcal:165,prot:31.0,glu:0,lip:3.6,fib:0},
+  {nom:'Cuisse de poulet cuite',groupe:'Protéines animales',kcal:209,prot:25.8,glu:0,lip:11.4,fib:0},
+  {nom:'Dinde rôtie',groupe:'Protéines animales',kcal:168,prot:28.6,glu:0,lip:5.6,fib:0},
+  {nom:'Bœuf haché 5% MG',groupe:'Protéines animales',kcal:153,prot:22.0,glu:0,lip:7.2,fib:0},
+  {nom:'Bœuf haché 15% MG',groupe:'Protéines animales',kcal:213,prot:19.4,glu:0,lip:14.8,fib:0},
+  {nom:'Steak bœuf grillé',groupe:'Protéines animales',kcal:195,prot:28.0,glu:0,lip:9.5,fib:0},
+  {nom:'Veau cuit',groupe:'Protéines animales',kcal:181,prot:27.2,glu:0,lip:7.8,fib:0},
+  {nom:'Jambon cuit dégraissé',groupe:'Protéines animales',kcal:105,prot:17.5,glu:1.2,lip:3.5,fib:0},
+  {nom:'Saumon cuit',groupe:'Protéines animales',kcal:206,prot:22.0,glu:0,lip:13.0,fib:0},
+  {nom:'Cabillaud cuit',groupe:'Protéines animales',kcal:82,prot:18.0,glu:0,lip:0.9,fib:0},
+  {nom:'Thon au naturel',groupe:'Protéines animales',kcal:103,prot:23.6,glu:0,lip:0.8,fib:0},
+  {nom:'Maquereau cuit',groupe:'Protéines animales',kcal:239,prot:19.7,glu:0,lip:17.7,fib:0},
+  {nom:'Truite cuite',groupe:'Protéines animales',kcal:165,prot:24.1,glu:0,lip:7.7,fib:0},
+  {nom:'Crevettes cuites',groupe:'Protéines animales',kcal:99,prot:20.9,glu:0.9,lip:1.5,fib:0},
+  {nom:'Œuf dur',groupe:'Protéines animales',kcal:147,prot:12.6,glu:0.7,lip:10.4,fib:0},
+  {nom:'Lentilles cuites',groupe:'Protéines végétales',kcal:116,prot:9.0,glu:16.0,lip:0.5,fib:5.4},
+  {nom:'Pois chiches cuits',groupe:'Protéines végétales',kcal:164,prot:8.9,glu:22.5,lip:2.6,fib:7.6},
+  {nom:'Haricots rouges cuits',groupe:'Protéines végétales',kcal:127,prot:8.7,glu:19.0,lip:0.5,fib:6.4},
+  {nom:'Tofu ferme',groupe:'Protéines végétales',kcal:94,prot:10.0,glu:1.2,lip:5.4,fib:0.3},
+  {nom:'Riz blanc cuit',groupe:'Féculents',kcal:130,prot:2.7,glu:28.6,lip:0.3,fib:0.4},
+  {nom:'Riz complet cuit',groupe:'Céréales complètes',kcal:123,prot:2.9,glu:25.6,lip:1.0,fib:1.8},
+  {nom:'Riz basmati cuit',groupe:'Féculents',kcal:129,prot:2.8,glu:28.2,lip:0.3,fib:0.4},
+  {nom:'Pâtes blanches cuites',groupe:'Féculents',kcal:158,prot:5.8,glu:31.0,lip:0.9,fib:1.8},
+  {nom:'Pâtes complètes cuites',groupe:'Céréales complètes',kcal:155,prot:6.5,glu:28.5,lip:1.2,fib:4.0},
+  {nom:'Quinoa cuit',groupe:'Céréales complètes',kcal:120,prot:4.4,glu:21.3,lip:1.9,fib:2.8},
+  {nom:'Boulgour cuit',groupe:'Céréales complètes',kcal:83,prot:3.1,glu:16.4,lip:0.2,fib:4.5},
+  {nom:'Flocons d\'avoine',groupe:'Céréales complètes',kcal:372,prot:12.5,glu:59.5,lip:7.1,fib:10.1},
+  {nom:'Pomme de terre vapeur',groupe:'Féculents',kcal:82,prot:2.0,glu:17.6,lip:0.1,fib:2.1},
+  {nom:'Patate douce cuite',groupe:'Féculents',kcal:86,prot:1.6,glu:19.5,lip:0.1,fib:2.8},
+  {nom:'Pain complet',groupe:'Pain complet',kcal:242,prot:9.0,glu:42.4,lip:3.0,fib:7.5},
+  {nom:'Pain de seigle',groupe:'Pain complet',kcal:259,prot:8.8,glu:47.8,lip:1.7,fib:6.2},
+  {nom:'Pain blanc baguette',groupe:'Féculents',kcal:274,prot:8.8,glu:54.2,lip:1.6,fib:2.5},
+  {nom:'Brocolis cuits',groupe:'Légumes cuits',kcal:35,prot:2.8,glu:4.0,lip:0.4,fib:3.3},
+  {nom:'Épinards cuits',groupe:'Légumes cuits',kcal:23,prot:2.9,glu:1.6,lip:0.4,fib:3.6},
+  {nom:'Haricots verts cuits',groupe:'Légumes cuits',kcal:31,prot:1.8,glu:4.5,lip:0.2,fib:3.4},
+  {nom:'Courgettes cuites',groupe:'Légumes cuits',kcal:18,prot:1.2,glu:2.4,lip:0.3,fib:1.4},
+  {nom:'Carottes cuites',groupe:'Légumes cuits',kcal:35,prot:0.6,glu:7.0,lip:0.3,fib:2.3},
+  {nom:'Chou-fleur cuit',groupe:'Légumes cuits',kcal:27,prot:1.8,glu:3.0,lip:0.3,fib:2.5},
+  {nom:'Champignons cuits',groupe:'Légumes cuits',kcal:28,prot:3.5,glu:1.8,lip:0.4,fib:2.0},
+  {nom:'Poireaux cuits',groupe:'Légumes cuits',kcal:28,prot:1.5,glu:4.0,lip:0.3,fib:2.6},
+  {nom:'Aubergine cuite',groupe:'Légumes cuits',kcal:30,prot:1.0,glu:5.0,lip:0.2,fib:3.2},
+  {nom:'Poivron cuit',groupe:'Légumes cuits',kcal:28,prot:1.0,glu:4.5,lip:0.3,fib:2.0},
+  {nom:'Salade verte laitue',groupe:'Légumes crus',kcal:14,prot:1.4,glu:1.5,lip:0.2,fib:1.5},
+  {nom:'Tomates fraîches',groupe:'Légumes crus',kcal:18,prot:0.9,glu:2.6,lip:0.2,fib:1.5},
+  {nom:'Concombre',groupe:'Légumes crus',kcal:12,prot:0.6,glu:1.6,lip:0.1,fib:0.8},
+  {nom:'Carotte crue',groupe:'Légumes crus',kcal:41,prot:0.9,glu:7.6,lip:0.2,fib:3.1},
+  {nom:'Yaourt nature',groupe:'Laitage',kcal:60,prot:5.0,glu:7.0,lip:2.0,fib:0},
+  {nom:'Yaourt grec nature',groupe:'Laitage',kcal:97,prot:9.0,glu:3.6,lip:5.0,fib:0},
+  {nom:'Fromage blanc 0%',groupe:'Laitage',kcal:49,prot:8.2,glu:4.4,lip:0.2,fib:0},
+  {nom:'Skyr nature',groupe:'Laitage',kcal:57,prot:11.0,glu:4.0,lip:0.2,fib:0},
+  {nom:'Lait demi-écrémé',groupe:'Laitage',kcal:46,prot:3.3,glu:4.8,lip:1.6,fib:0},
+  {nom:'Emmental',groupe:'Laitage',kcal:383,prot:28.5,glu:0.5,lip:30.0,fib:0},
+  {nom:'Camembert',groupe:'Laitage',kcal:270,prot:17.5,glu:0.5,lip:22.5,fib:0},
+  {nom:'Pomme',groupe:'Fruits frais',kcal:52,prot:0.3,glu:11.4,lip:0.2,fib:2.4},
+  {nom:'Poire',groupe:'Fruits frais',kcal:57,prot:0.4,glu:12.4,lip:0.1,fib:3.1},
+  {nom:'Banane',groupe:'Fruits frais',kcal:89,prot:1.1,glu:20.2,lip:0.3,fib:2.6},
+  {nom:'Orange',groupe:'Fruits frais',kcal:47,prot:0.9,glu:8.8,lip:0.1,fib:2.4},
+  {nom:'Kiwi',groupe:'Fruits frais',kcal:61,prot:1.1,glu:11.7,lip:0.5,fib:3.0},
+  {nom:'Fraises',groupe:'Fruits frais',kcal:32,prot:0.7,glu:5.5,lip:0.3,fib:2.0},
+  {nom:'Myrtilles',groupe:'Fruits frais',kcal:57,prot:0.7,glu:11.5,lip:0.3,fib:2.4},
+  {nom:'Compote de pommes sans sucre',groupe:'Fruits frais',kcal:45,prot:0.2,glu:10.5,lip:0.1,fib:1.8},
+  {nom:'Huile d\'olive',groupe:'Matières grasses',kcal:884,prot:0,glu:0,lip:100,fib:0},
+  {nom:'Huile de colza',groupe:'Matières grasses',kcal:884,prot:0,glu:0,lip:100,fib:0},
+  {nom:'Beurre',groupe:'Matières grasses',kcal:750,prot:0.7,glu:0.6,lip:83.0,fib:0},
+  {nom:'Amandes',groupe:'Oléagineux',kcal:579,prot:21.2,glu:4.7,lip:49.4,fib:12.5},
+  {nom:'Noix',groupe:'Oléagineux',kcal:654,prot:15.2,glu:7.0,lip:65.2,fib:6.7},
+  {nom:'Noisettes',groupe:'Oléagineux',kcal:628,prot:15.0,glu:5.9,lip:61.0,fib:9.7},
+  {nom:'Noix de cajou',groupe:'Oléagineux',kcal:553,prot:18.2,glu:22.3,lip:43.8,fib:3.3},
+  {nom:'Avocat',groupe:'Oléagineux',kcal:160,prot:2.0,glu:1.8,lip:14.7,fib:6.7},
+  {nom:'Chocolat noir 70%',groupe:'Plaisir alimentaire',kcal:560,prot:7.0,glu:35.0,lip:42.0,fib:10.9},
+  {nom:'Sorbet fruits rouges',groupe:'Plaisir alimentaire',kcal:100,prot:0.5,glu:24.0,lip:0.1,fib:1.0},
+  {nom:'Glace vanille',groupe:'Plaisir alimentaire',kcal:207,prot:3.5,glu:24.0,lip:11.0,fib:0},
+  {nom:'Croissant beurre',groupe:'Plaisir alimentaire',kcal:406,prot:8.2,glu:46.0,lip:21.0,fib:2.2},
+  {nom:'Vin rouge',groupe:'Plaisir alimentaire',kcal:85,prot:0.1,glu:2.5,lip:0,fib:0},
+];
+
+/* ═══════════════ ÉTAT ═══════════════ */
+let planData=null,bilanData=null,dietProfile=null;
+let planId=null,modifié=false,jourActif=0,kcalCible=1800;
+let pctActif=-0.15,calcMB=0,calcTDEE=0,calcCible=0;
+let regenUsed=false,regenTimer=null;
+let tplActif='A',attestOk=false;
+let cqCache={},pendingAliment=null;
+let stepCurrent=1,stepsDone=new Set();
+
+/* ═══════════════ INIT ═══════════════ */
+async function init() {
+  try {
+    const {data:{session}}=await sb.auth.getSession();
+
+    // Mode démo : pas de session ou pas de plan_id → démonstration directe
+    const params=new URLSearchParams(window.location.search);
+    planId=params.get('plan_id')||params.get('id');
+
+    if(!session) {
+      // Pas de connexion Supabase → mode démo local
+      console.info('[NutriDoc] Pas de session — mode démo activé');
+      chargerMock();
+      return;
+    }
+
+    // Connecté : charger le profil diét.
+    const {data:prof}=await sb.from('profiles')
+      .select('prenom,nom,rpps').eq('id',session.user.id).single();
+    dietProfile=prof||{prenom:'Diététicien',nom:'Test',rpps:'00000000000'};
+
+    const dateStr=new Date().toLocaleDateString('fr-FR');
+    const el=id=>document.getElementById(id);
+    const setTxt=(id,v)=>{ const e=el(id); if(e) e.textContent=v; };
+    setTxt('sigN', `${dietProfile.prenom||''} ${dietProfile.nom||''}`.trim());
+    setTxt('sigR', `RPPS : ${dietProfile.rpps||'—'}`);
+    setTxt('sigD', `Validé le ${dateStr}`);
+
+    // Pré-remplir champs praticien après rendu DOM
+    setTimeout(()=>{
+      const pNom=el('prat_nom'),pRpps=el('prat_rpps');
+      if(pNom&&!pNom.value) pNom.value=`${dietProfile.prenom||''} ${dietProfile.nom||''}`.trim();
+      if(pRpps&&!pRpps.value) pRpps.value=dietProfile.rpps||'';
+    },400);
+
+    // Charger le plan depuis Supabase si plan_id fourni
+    if(planId){
+      const {data:plan}=await sb.from('plans')
+        .select('*,bilans(*)').eq('id',planId).single();
+      if(plan&&plan.contenu){
+        planData=plan.contenu;
+        bilanData=plan.bilans;
+        setTimeout(chargerDonnees,100); // laisser le DOM se stabiliser
+        return;
+      }
+    }
+
+    // Aucun plan trouvé → mode démo
+    chargerMock();
+
+  } catch(err) {
+    console.error('[NutriDoc] Erreur init() :', err);
+    // Fallback démo en cas d'erreur Supabase
+    chargerMock();
+  }
+}
+
+function chargerDonnees() {
+  try {
+  const b=bilanData,c=planData;
+  if(!c||!b){ console.warn('[NutriDoc] chargerDonnees : données manquantes'); return; }
+  kcalCible=(c.apports_cibles&&c.apports_cibles.calories)||1800;
+
+  // Helper sécurisé — ne plante jamais si l'élément n'existe pas
+  const setTxt=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=(v===null||v===undefined)?'—':String(v); };
+  const setHTML=(id,v)=>{ const e=document.getElementById(id); if(e) e.innerHTML=v||''; };
+
+  setTxt('hdP',`${b.prenom||'Patient'} ${b.nom||''}`);
+  setTxt('hdS',`${OBJ_L[b.objectif]||''} · ${kcalCible} kcal/j`);
+
+  // Alertes santé
+  const ban=document.getElementById('santeBanner'),bdg=document.getElementById('santeBadges');
+  if(b.alertes_sante&&b.alertes_sante.length&&ban&&bdg){
+    ban.classList.remove('hide');
+    bdg.innerHTML=b.alertes_sante.map(function(a){
+      const i=SANTE_MAP[a]||{ico:'⚠️',lbl:a,sub:'Adapter le plan en conséquence'};
+      return '<div class="sante-item"><span class="sante-ico">'+i.ico+'</span><div><div class="sante-lbl">'+i.lbl+'</div><div class="sante-sub">'+i.sub+'</div></div></div>';
+    }).join('');
+  }
+
+  // Profil patient
+  const imc=b.poids&&b.taille?+((b.poids/Math.pow(b.taille/100,2)).toFixed(1)):null;
+  setTxt('i_identite',(b.prenom||'—')+' '+(b.nom||''));
+  setTxt('i_age',(b.age||'—')+' ans · '+(b.sexe||'—'));
+  setTxt('i_morpho',(b.poids||'—')+' kg · '+(b.taille||'—')+' cm');
+  setTxt('i_imc',imc?(imc+' ('+(imc<18.5?'maigreur':imc<25?'normal':imc<30?'surpoids':'obésité')+')'):'—');
+  setTxt('i_ville',b.ville||'—');
+  setTxt('i_obj',OBJ_L[b.objectif]||'—');
+  setTxt('i_act',ACT_L[b.activite]||'—');
+  setTxt('i_sport',b.sport?(b.sport+' · '+(b.sport_freq||'?')+'x/sem'):'—');
+  setTxt('i_regime',b.regime||'—');
+  const alEl=document.getElementById('i_allergies');
+  if(alEl){ alEl.textContent=b.allergies||'Aucune'; alEl.style.color=b.allergies&&b.allergies!=='Aucune'?'var(--err)':'var(--t)'; }
+  setTxt('i_aversions',b.aversions||'Aucune');
+  setTxt('i_budget',b.budget||'—');
+
+  // Habitudes alimentaires
+  const habEl=document.getElementById('habCont');
+  if(habEl){
+    const items=[];
+    if(b.repas_matin) items.push({ico:'🌅',lbl:'Matin',    v:b.repas_matin});
+    if(b.repas_midi)  items.push({ico:'☀️', lbl:'Midi',     v:b.repas_midi});
+    if(b.repas_soir)  items.push({ico:'🌙',lbl:'Soir',     v:b.repas_soir});
+    if(b.fringales)   items.push({ico:'😋',lbl:'Fringales', v:b.fringales});
+    if(b.hydratation) items.push({ico:'💧',lbl:'Hydratation',v:b.hydratation});
+    if(b.sommeil)     items.push({ico:'😴',lbl:'Sommeil',   v:b.sommeil+'h/nuit'});
+    if(b.temps_repas) items.push({ico:'⏱',lbl:'Cuisine',   v:b.temps_repas});
+    habEl.innerHTML=items.length
+      ? items.map(function(it){
+          return '<div class="hab"><span class="hab-ico">'+it.ico+'</span>'
+               +'<div class="hab-t"><strong>'+it.lbl+'</strong>'+it.v+'</div></div>';
+        }).join('')
+      : '<div style="font-size:.65rem;color:var(--t2);">Habitudes non renseignées dans le bilan.</div>';
+  }
+
+  // Cibles nutritionnelles
+  const ac=(c.apports_cibles)||{};
+  const meta=(c._meta)||{};
+  const kc2=meta.kcal_calcule||{};
+  setTxt('ci_mb',(kc2.mb||'—')+' kcal');
+  setTxt('ci_tdee',(kc2.tdee||'—')+' kcal');
+  setTxt('ci_kcal',(ac.calories||'—')+' kcal/j');
+  setTxt('ci_prot',(ac.proteines_g||'—')+' g/j');
+  setTxt('ci_glu',(ac.glucides_g||'—')+' g/j');
+  setTxt('ci_lip',(ac.lipides_g||'—')+' g/j');
+  setTxt('ci_fib',(ac.fibres_min_g||'—')+' g min./j');
+  setHTML('ci_suc',(ac.sucres_max_g||'100')+' g max/j <a href="https://www.cerin.org/articles/anses-les-sucres-dans-lalimentation/" target="_blank" style="font-size:.58rem;color:var(--green);text-decoration:none;" title="Source certifiée ANSES 2017 — exclut lactose et galactose">ⓘ source</a>');
+
+  // Calculette : pré-remplir avec les données du bilan
+  const sv=(id,v)=>{ const e=document.getElementById(id); if(e) e.value=v; };
+  sv('cP',b.poids||70); sv('cT',b.taille||170);
+  sv('cA',b.age||35);   sv('cS',b.sexe||'femme');
+  sv('cAc',b.activite||'modere');
+  lancerCalc();
+
+  // Résumé step 2
+  setTxt('resumeTxt',c.resume||'—');
+
+  // Rendre les autres steps en arrière-plan
+  setTimeout(function(){
+    afficherJourneeType((c.journee_type&&c.journee_type.repas)||{});
+    afficherSelecteurJours(c.menus_7_jours||[]);
+    afficherJour(0);
+    afficherConseils(c);
+    mettreAJourRecap();
+  },50);
+
+  } catch(err) {
+    console.error('[NutriDoc] Erreur chargerDonnees() :', err);
+    // Afficher quand même le bouton Suivant pour ne pas bloquer la navigation
+  }
+
+  // Notes step 5
+  setTimeout(function(){
+    const nd=document.getElementById('notesDiet');
+    if(nd&&c.notes_dieteticien) nd.value=c.notes_dieteticien;
+  },100);
+}
+
+/* ═══════════════ STEPPER ═══════════════ */
+function tryGoStep(n) {
+  if(n>1 && !stepsDone.has(n-1)) { toast(`Complétez l'étape ${n-1} d'abord`,'#f59e0b'); return; }
+  goStep(n);
+}
+
+function goStep(n) {
+  // Mettre à jour les panes
+  document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`sp${n}`)?.classList.add('active');
+
+  // Mettre à jour les dots
+  for(let i=1;i<=6;i++){
+    const d=document.getElementById(`pd${i}`),nm=document.getElementById(`pn${i}`);
+    const conn=document.getElementById(`pc${i}`);
+    if(!d) continue;
+    d.classList.remove('active','done','locked');
+    if(i<n||stepsDone.has(i)){d.classList.add('done');if(nm)nm.textContent='✓';}
+    else if(i===n){d.classList.add('active');if(nm)nm.textContent=i;}
+    else{d.classList.add('locked');if(nm)nm.textContent=i;}
+    if(conn) conn.classList.toggle('done', i<n||stepsDone.has(i));
+  }
+
+  // Boutons nav
+  document.getElementById('btnPrev').disabled=(n===1);
+  const next=document.getElementById('btnNext');
+  if(n===6){next.style.display='none';}
+  else{next.style.display='';next.textContent=n===5?'Suivant → Validation ✅':'Suivant →';}
+  document.getElementById('stepInfo').textContent=`Étape ${n} / 6`;
+
+  // Scroll haut
+  document.getElementById('stepsWrap')?.scrollTo(0,0);
+
+  // Vérification légumes step 3
+  if(n===3) checkLegumes();
+
+  // Récap step 6
+  if(n===6) mettreAJourRecap();
+
+  stepCurrent=n;
+}
+
+function nextStep() {
+  if(stepCurrent>=6) return;
+  stepsDone.add(stepCurrent);
+  goStep(stepCurrent+1);
+}
+function prevStep() {
+  if(stepCurrent<=1) return;
+  goStep(stepCurrent-1);
+}
+
+/* ═══════════════ CALCULETTE MB ═══════════════ */
+let calcTimer=null;
+function setPct(btn){
+  document.querySelectorAll('.pct-b').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  pctActif=parseFloat(btn.dataset.v)||0;
+  lancerCalc();
+}
+function lancerCalc(){
+  clearTimeout(calcTimer);
+  calcTimer=setTimeout(_lancerCalc,100);
+}
+function _lancerCalc(){
+  const po=parseFloat(document.getElementById('cP')?.value)||70;
+  const ta=parseFloat(document.getElementById('cT')?.value)||170;
+  const ag=parseFloat(document.getElementById('cA')?.value)||35;
+  const sx=document.getElementById('cS')?.value??'femme';
+  const ac=document.getElementById('cAc')?.value??'modere';
+  const nap=NAP[ac]??1.40;
+  const tm=ta/100;
+  const mb_mj=sx==='homme'
+    ?1.083*Math.pow(po,0.48)*Math.pow(tm,0.50)*Math.pow(ag,-0.13)
+    :0.963*Math.pow(po,0.48)*Math.pow(tm,0.50)*Math.pow(ag,-0.13);
+  calcMB=Math.round(mb_mj*238.85);
+  calcTDEE=Math.round(calcMB*nap);
+  const aj=Math.round(calcTDEE*pctActif);
+  calcCible=Math.max(calcMB,calcTDEE+aj);
+  const cr=document.getElementById('calcRes'),ba=document.getElementById('btnApply');
+  if(cr){cr.style.display='block';}
+  if(ba){ba.style.display='';}
+  document.getElementById('cMB').textContent=`${calcMB} kcal`;
+  document.getElementById('cTD').textContent=`${calcTDEE} kcal`;
+  document.getElementById('cAj').textContent=`${aj>0?'+':''}${aj} kcal (${(pctActif*100).toFixed(0)}% TDEE)`;
+  document.getElementById('cCib').textContent=`${calcCible} kcal${calcCible>calcTDEE+aj?' ⚠️ plancher MB appliqué':''}`;
+}
+function appliquerCalc(){
+  if(!calcCible) return;
+  kcalCible=calcCible;
+  if(planData?.apports_cibles) planData.apports_cibles.calories=calcCible;
+  document.getElementById('ci_kcal').textContent=`${calcCible} kcal/j`;
+  modifié=true;
+  afficherSelecteurJours(planData.menus_7_jours??[]);
+  afficherJour(jourActif);
+  toast(`✅ Cible mise à jour : ${calcCible} kcal/j`,'#1D9E75');
+}
+
+/* ═══════════════ STEP 2 : JOURNÉE TYPE ═══════════════ */
+function afficherJourneeType(repas){
+  const c=document.getElementById('jtCont');
+  if(!Object.keys(repas).length){c.innerHTML='<div style="text-align:center;padding:2rem;color:var(--t2);">Aucun repas défini.</div>';return;}
+  c.innerHTML=Object.entries(repas).map(([k,r])=>`
+    <div class="jb op" id="jb_${k}">
+      <div class="jb-hd" onclick="togJB('${k}')">
+        <div class="ji ${k}">${ICONS[k]??'🍽'}</div>
+        <span class="jb-n">${LABELS[k]??k}</span>
+        <span class="jb-chev">▲</span>
+      </div>
+      <div class="jb-body">
+        <div style="display:grid;grid-template-columns:180px 130px 1fr 24px;gap:.55rem;padding:.14rem .4rem .28rem;font-size:.55rem;font-weight:800;text-transform:uppercase;color:var(--t2);">
+          <span>Groupe alimentaire</span><span>Quantité</span><span>Conseil</span><span></span>
+        </div>
+        <div id="grp_${k}">${(r.groupes??[]).map((g,i)=>rGr(k,i,g)).join('')}</div>
+        <div class="add-gr">
+          <select class="sg" id="sg_${k}">${Object.keys(GPNNS).map(g=>`<option value="${g}">${GPNNS[g].ico} ${g}</option>`).join('')}</select>
+          <input type="text" class="ig" id="ig_${k}" placeholder="ex: 150g ou 1 portion"/>
+          <button class="btn-ag" onclick="addGr('${k}')">+ Ajouter</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function rGr(k,i,g){
+  const inf=GPNNS[g.groupe]??{ico:'🍽',color:'#f3f4f6'};
+  return `<div class="gr-row"><span class="gr-tag" style="background:${inf.color};">${inf.ico} ${g.groupe}</span><span class="gr-q">${g.quantite_indicative??g.nb_portions+' portion(s)'}</span><span class="gr-c">${g.conseils_groupe??''}</span><button class="btn-dg" onclick="delGr('${k}',${i})">✕</button></div>`;
+}
+function togJB(k){document.getElementById(`jb_${k}`)?.classList.toggle('op');}
+function addGr(k){
+  const g=document.getElementById(`sg_${k}`).value;
+  const q=document.getElementById(`ig_${k}`).value.trim()||'1 portion';
+  planData.journee_type.repas[k].groupes.push({groupe:g,nb_portions:1,quantite_indicative:q,conseils_groupe:''});
+  modifié=true; document.getElementById(`ig_${k}`).value='';
+  afficherJourneeType(planData.journee_type.repas); toast(`${g} ajouté`,'#1D9E75',1000);
+}
+function delGr(k,i){planData.journee_type.repas[k].groupes.splice(i,1);modifié=true;afficherJourneeType(planData.journee_type.repas);}
+
+/* ═══════════════ RÉGÉNÉRER ═══════════════ */
+async function regenererPlan(){
+  if(regenUsed){toast('La régénération gratuite a été utilisée','#f59e0b');return;}
+  if(!bilanData?.id){toast('Mode démo — pas de bilan Supabase disponible','#9ca3af');return;}
+  if(!confirm('Regénérer un nouveau plan complet ? Le plan actuel sera remplacé. Durée estimée : 30-60 secondes.'))return;
+
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){toast('Session expirée','#ef4444');return;}
+
+  // Overlay
+  const ov=document.getElementById('regenOv');
+  ov.classList.remove('hide');
+  animerOverlay();
+
+  try {
+    const res=await fetch(`${SUPA_URL}/functions/v1/generate-plan`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({bilan_id:bilanData.id}),
+      signal:AbortSignal.timeout(120000),
+    });
+    const data=await res.json();
+    if(!data.success||!data.plan) throw new Error(data.error||'Réponse invalide');
+    clearInterval(regenTimer);
+    planData=data.plan;
+    regenUsed=true;
+    const btn=document.getElementById('btnRegen'),bdg=document.getElementById('regenBadge');
+    if(btn){btn.classList.add('used');if(bdg){bdg.textContent='Utilisé';bdg.classList.add('used');}}
+    setTimeout(()=>{
+      ov.classList.add('hide');
+      chargerDonnees();
+      toast('✅ Nouveau plan généré !','#1D9E75',4000);
+    },600);
+  } catch(err){
+    clearInterval(regenTimer);
+    ov.classList.add('hide');
+    toast('Erreur : '+err.message,'#ef4444',5000);
+  }
+}
+function animerOverlay(){
+  const steps=['os1','os2','os3','os4','os5'];
+  const subs=['Calcul du métabolisme de base…','Cadre nutritionnel ANSES…','Génération GPT-4o-mini…','Enrichissement CIQUAL + USDA FDC…','Validation et sauvegarde…'];
+  let si=0,pct=0;
+  document.querySelectorAll('.ov-step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('os1')?.classList.add('on');
+  const fill=document.getElementById('ovFill');
+  regenTimer=setInterval(()=>{
+    pct=Math.min(pct+2,92); if(fill) fill.style.width=pct+'%';
+    si=(si+1)%steps.length;
+    document.querySelectorAll('.ov-step').forEach(s=>s.classList.remove('on'));
+    document.getElementById(steps[si])?.classList.add('on');
+    const sub=document.getElementById('regenSub');
+    if(sub) sub.textContent=subs[si];
+  },10000);
+}
+
+/* ═══════════════ STEP 3 : 7 JOURS ═══════════════ */
+function afficherSelecteurJours(menus){
+  const sel=document.getElementById('jourSel');
+  sel.innerHTML=menus.map((m,i)=>{
+    const kc=calcKcalJour(m);
+    return `<button class="jbtn ${i===jourActif?'act':''}" id="jbtn${i}" onclick="switchJ(${i})">
+      <span class="jn">${m.jour}</span>
+      <span class="jk">${kc} kcal</span>
+    </button>`;
+  }).join('');
+}
+
+// Auto-ajuster les kcal d'un jour pour atteindre la cible (±2%)
+function autoAjusterJour(ji){
+  const j=planData.menus_7_jours[ji];
+  const kc=calcKcalJour(j);
+  if(!kc||!kcalCible) return;
+  const ratio=kcalCible/kc;
+  if(Math.abs(ratio-1)<0.02) { toast('Les kcal sont déjà proches de la cible','#1D9E75',1500); return; }
+  // Appliquer le ratio à tous les aliments sauf l'eau
+  for(const r of Object.values(j.repas??{})){
+    for(const a of (r.aliments??[])){
+      a.qte=+(a.qte*ratio).toFixed(0);
+      ['kcal_ciqual','kcal','prot_ciqual','prot','glu_ciqual','glu','lip_ciqual','lip','fib_ciqual','fib'].forEach(k=>{
+        if(a[k]!=null) a[k]=+(a[k]*ratio).toFixed(k.includes('kcal')?0:1);
+      });
+    }
+  }
+  modifié=true;
+  afficherJour(ji);
+  recalcJ(ji);
+  afficherSelecteurJours(planData.menus_7_jours);
+  toast(`✅ Jour ajusté → ${calcKcalJour(j)} kcal`,'#1D9E75',2000);
+}
+function switchJ(i){jourActif=i;document.querySelectorAll('.jbtn').forEach((b,j)=>b.classList.toggle('act',j===i));afficherJour(i);checkLegumes();}
+function afficherJour(i){
+  const m=planData.menus_7_jours??[],j=m[i];
+  const c=document.getElementById('mJourCont');
+  if(!j){c.innerHTML='';return;}
+  const kc=calcKcalJour(j),diff=kc-kcalCible;
+  const col=Math.abs(diff)<=kcalCible*0.05?'var(--green)':(Math.abs(diff)<=kcalCible*0.08?'var(--warn)':'var(--err)');
+  c.innerHTML=`
+    <div class="mhd">
+      <div class="mhd-t" style="font-size:1.05rem;font-weight:800;">${j.jour}</div>
+      <div class="kw" style="gap:.5rem;">
+        <span class="kbig" id="kbig" style="font-size:1.45rem;color:var(--t);">${kc}</span>
+        <div>
+          <div style="font-size:.78rem;color:var(--t);font-weight:600;">kcal</div>
+          <div style="font-size:.62rem;color:var(--t2);">cible : ${kcalCible} kcal · écart : <strong style="color:${Math.abs(diff)<=kcalCible*0.05?'var(--green)':Math.abs(diff)<=kcalCible*0.08?'var(--warn)':'var(--err)'};">${diff>=0?'+':''}${diff}</strong></div>
+        </div>
+        ${Math.abs(diff)>kcalCible*0.05?`<button onclick="autoAjusterJour(${i})" style="padding:.32rem .8rem;border-radius:999px;border:1.5px solid var(--green);background:#fff;color:var(--gd);font-size:.68rem;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;">⚖️ Auto-ajuster</button>`:'<span style="font-size:.65rem;color:var(--green);font-weight:700;">✅ Cible atteinte</span>'}
+      </div>
+    </div>
+    ${Object.entries(j.repas??{}).map(([rk,r])=>rMR(i,rk,r)).join('')}`;
+}
+function rMR(ji,rk,r){
+  const al=r.aliments??[];
+  const kc=Math.round(al.reduce((s,a)=>s+(a.kcal_ciqual??a.kcal??0),0));
+  const id=`mr${ji}${rk}`;
+  return `<div class="mr op" id="${id}">
+    <div class="mr-hd" onclick="togMR('${id}')">
+      <div class="ji ${rk}" style="width:28px;height:28px;font-size:.78rem;">${ICONS[rk]??'🍽'}</div>
+      <span class="mr-n">${LABELS[rk]??rk}</span>
+      <span class="mr-k" id="kb${ji}${rk}">${kc} kcal</span>
+      <span class="mr-c">▲</span>
+    </div>
+    <div class="mr-body">
+      <div class="ah"><span>Aliment CIQUAL</span><span style="text-align:center;">Quantité</span><span style="text-align:right;">Kcal</span><span></span></div>
+      <div id="als${ji}${rk}">${al.map((a,k)=>rAl(ji,rk,k,a)).join('')}</div>
+      <div class="rt" id="rt${ji}${rk}">${rTot(al)}</div>
+      <div class="cqs">
+        <div class="cqs-ttl">🔍 Ajouter un aliment CIQUAL</div>
+        <div class="cqf">
+          <input type="text" class="cqi" id="cs${ji}${rk}" placeholder="Nom d'aliment (2 car. min.)…" oninput="filtreCQ(${ji},'${rk}')"/>
+          <select class="cqs-sel" id="cg${ji}${rk}" onchange="filtreCQ(${ji},'${rk}')">
+            <option value="">Tous les groupes</option>
+            ${[...new Set(CIQUAL.map(c=>c.groupe))].sort().map(g=>`<option value="${g}">${g}</option>`).join('')}
+          </select>
+        </div>
+        <div class="cqs-kr">
+          <span>Kcal/100g :</span>
+          <input type="number" class="cqki" id="cmi${ji}${rk}" placeholder="min" min="0" oninput="filtreCQ(${ji},'${rk}')"/>
+          <span>–</span>
+          <input type="number" class="cqki" id="cma${ji}${rk}" placeholder="max" min="0" oninput="filtreCQ(${ji},'${rk}')"/>
+        </div>
+        <div class="cq-cnt" id="cnt${ji}${rk}">Tapez ≥2 caractères ou sélectionnez un filtre</div>
+        <div class="cq-tbl" id="tbl${ji}${rk}"></div>
+        <div class="qpick" id="qp${ji}${rk}" style="display:none;">
+          <label>Quantité (g / ml) :</label>
+          <input type="number" id="qpv${ji}${rk}" value="100" min="1"/>
+          <button class="bconf" onclick="confAjout(${ji},'${rk}')">Ajouter</button>
+          <button class="bann" onclick="annAjout(${ji},'${rk}')">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function rAl(ji,rk,i,a){
+  const kc=Math.round(a.kcal_ciqual??a.kcal??0);
+  const isDup=checkAlimDup(ji,rk,a.nom);
+  return `<div class="ar${isDup?' legume-dup':''}"><span class="an">${a.nom}${isDup?' ⚠️':''}</span><input type="number" class="aq" value="${a.qte}" min="0" step="5" onchange="upQ(${ji},'${rk}',${i},this)"/><span class="ak" id="ak${ji}${rk}${i}">${kc} kcal</span><button class="bda" onclick="delA(${ji},'${rk}',${i})">✕</button></div>`;
+}
+function rTot(al){
+  const kc=Math.round(al.reduce((s,a)=>s+(a.kcal_ciqual??a.kcal??0),0));
+  const pr=al.reduce((s,a)=>s+(a.prot_ciqual??a.prot??0),0).toFixed(1);
+  const gl=al.reduce((s,a)=>s+(a.glu_ciqual??a.glu??0),0).toFixed(1);
+  const li=al.reduce((s,a)=>s+(a.lip_ciqual??a.lip??0),0).toFixed(1);
+  return `<span class="rtc">🔥 <strong>${kc}</strong> kcal</span><span class="rtc">🥩 <strong>${pr}</strong>g prot.</span><span class="rtc">🌾 <strong>${gl}</strong>g glu.</span><span class="rtc">🫒 <strong>${li}</strong>g lip.</span>`;
+}
+function calcKcalJour(j){
+  let t=0;
+  for(const r of Object.values(j.repas??{})) t+=(r.aliments??[]).reduce((s,a)=>s+(a.kcal_ciqual??a.kcal??0),0);
+  return Math.round(t)||j.kcal_total||0;
+}
+function togMR(id){document.getElementById(id)?.classList.toggle('op');}
+
+// Vérification doublons légumes midi/soir
+function checkAlimDup(ji,rk,nom){
+  const j=planData.menus_7_jours?.[ji];
+  if(!j||!nom) return false;
+  const nomL=nom.toLowerCase();
+  const isLegume=LEGUMES_SURVEILLES.some(l=>nomL.includes(l));
+  if(!isLegume) return false;
+  const autresRepas=Object.entries(j.repas).filter(([k])=>k!==rk);
+  return autresRepas.some(([,r])=>(r.aliments??[]).some(a=>a.nom?.toLowerCase().includes(nomL.split(' ')[0])));
+}
+function checkLegumes(){
+  const j=planData.menus_7_jours?.[jourActif];
+  const warn=document.getElementById('legumeWarn'),txt=document.getElementById('legumeWarnTxt');
+  if(!j||!warn) return;
+  const dups=[];
+  const allAlims={};
+  for(const [rk,r] of Object.entries(j.repas??{})){
+    for(const a of (r.aliments??[])){
+      const nl=a.nom?.toLowerCase();
+      const leg=LEGUMES_SURVEILLES.find(l=>nl?.includes(l));
+      if(!leg) continue;
+      if(!allAlims[leg]) allAlims[leg]=[];
+      allAlims[leg].push(LABELS[rk]??rk);
+    }
+  }
+  for(const [leg,repas] of Object.entries(allAlims)){
+    if(repas.length>1) dups.push(`${leg} servi au ${repas.join(' et au ')}`);
+  }
+  if(dups.length){warn.classList.add('show');txt.textContent=`Même légume midi et soir : ${dups.join(' · ')} — pensez à varier.`;}
+  else{warn.classList.remove('show');}
+}
+
+function upQ(ji,rk,i,inp){
+  const nq=parseFloat(inp.value)||0;
+  const a=planData.menus_7_jours[ji].repas[rk].aliments[i];
+  const r=a.qte?nq/a.qte:1;
+  a.qte=nq;
+  ['kcal_ciqual','kcal','prot_ciqual','prot','glu_ciqual','glu','lip_ciqual','lip'].forEach(k=>{
+    if(a[k]!=null) a[k]=+(a[k]*r).toFixed(k.includes('kcal')?0:1);
+  });
+  inp.classList.add('ch'); modifié=true;
+  recalcR(ji,rk); recalcJ(ji); checkLegumes();
+}
+function delA(ji,rk,i){planData.menus_7_jours[ji].repas[rk].aliments.splice(i,1);modifié=true;afficherJour(ji);afficherSelecteurJours(planData.menus_7_jours);checkLegumes();}
+function recalcR(ji,rk){
+  const al=planData.menus_7_jours[ji].repas[rk].aliments;
+  const kc=Math.round(al.reduce((s,a)=>s+(a.kcal_ciqual??a.kcal??0),0));
+  const b=document.getElementById(`kb${ji}${rk}`),t=document.getElementById(`rt${ji}${rk}`);
+  if(b) b.textContent=`${kc} kcal`; if(t) t.innerHTML=rTot(al);
+}
+function recalcJ(ji){
+  const j=planData.menus_7_jours[ji],kc=calcKcalJour(j);
+  j.kcal_total=kc;
+  const big=document.getElementById('kbig');
+  if(big){const d=kc-kcalCible,col=Math.abs(d)<=kcalCible*0.05?'var(--green)':(Math.abs(d)<=kcalCible*0.08?'var(--warn)':'var(--err)');big.textContent=kc;big.style.color=col;}
+  const btn=document.getElementById(`jbtn${ji}`);
+  if(btn){const diff=Math.abs(kc-kcalCible)/kcalCible;const cl=diff<=0.05?'ok':diff<=0.08?'warn':'err';btn.className=`jbtn act ${cl}`;btn.innerHTML=`<span class="jn">${j.jour}</span><span class="jk">${kc} kcal</span>`;}
+}
+
+/* ═══════════════ CIQUAL SEARCH ═══════════════ */
+function filtreCQ(ji,rk){
+  const srch=(document.getElementById(`cs${ji}${rk}`)?.value??'').toLowerCase().trim();
+  const grp=document.getElementById(`cg${ji}${rk}`)?.value??'';
+  const kmin=parseFloat(document.getElementById(`cmi${ji}${rk}`)?.value)||0;
+  const kmax=parseFloat(document.getElementById(`cma${ji}${rk}`)?.value)||Infinity;
+  const tbl=document.getElementById(`tbl${ji}${rk}`),cnt=document.getElementById(`cnt${ji}${rk}`);
+  const hasF=srch.length>=2||grp||kmin>0||kmax<Infinity;
+  if(!hasF){cnt.textContent='Tapez ≥2 car. ou sélectionnez un filtre';tbl.innerHTML='';return;}
+  const res=CIQUAL.filter(a=>(!srch||a.nom.toLowerCase().includes(srch))&&(!grp||a.groupe===grp)&&a.kcal>=kmin&&a.kcal<=kmax).slice(0,60);
+  cqCache[`${ji}_${rk}`]=res;
+  cnt.textContent=`${res.length} aliment${res.length>1?'s':''} trouvé${res.length>1?'s':''}`;
+  if(!res.length){tbl.innerHTML='<div class="cq-empty">Aucun résultat.</div>';return;}
+  tbl.innerHTML=`<table class="cqt"><thead><tr><th>Aliment</th><th>Groupe</th><th style="text-align:right;">kcal</th><th style="text-align:right;">Prot.</th><th style="text-align:right;">Glu.</th><th style="text-align:right;">Lip.</th><th></th></tr></thead><tbody>${res.map((a,idx)=>`<tr onclick="selA(${ji},'${rk}',${idx})"><td>${a.nom}</td><td class="grp">${a.groupe}</td><td class="num">${a.kcal}</td><td class="num">${a.prot}g</td><td class="num">${a.glu}g</td><td class="num">${a.lip}g</td><td><button class="btn-cqa" onclick="event.stopPropagation();selA(${ji},'${rk}',${idx})">+ Ajouter</button></td></tr>`).join('')}</tbody></table>`;
+}
+function selA(ji,rk,idx){
+  const res=cqCache[`${ji}_${rk}`];
+  if(!res?.[idx]) return;
+  pendingAliment={ji,rk,a:res[idx]};
+  const pk=document.getElementById(`qp${ji}${rk}`),pv=document.getElementById(`qpv${ji}${rk}`);
+  if(pk){pk.style.display='flex';pv.value=100;pv.focus();}
+  document.querySelectorAll(`#tbl${ji}${rk} tbody tr`).forEach((tr,i)=>{tr.style.background=i===idx?'#e8f5ee':'';});
+}
+function confAjout(ji,rk){
+  if(!pendingAliment) return;
+  const qte=parseFloat(document.getElementById(`qpv${ji}${rk}`)?.value)||100;
+  const a=pendingAliment.a,r=qte/100;
+  planData.menus_7_jours[ji].repas[rk].aliments.push({
+    nom:a.nom,qte,unite:'g',
+    kcal:Math.round(a.kcal*r),prot:+(a.prot*r).toFixed(1),glu:+(a.glu*r).toFixed(1),lip:+(a.lip*r).toFixed(1),fib:+(a.fib*r).toFixed(1),
+    kcal_ciqual:Math.round(a.kcal*r),prot_ciqual:+(a.prot*r).toFixed(1),glu_ciqual:+(a.glu*r).toFixed(1),lip_ciqual:+(a.lip*r).toFixed(1),
+  });
+  modifié=true;pendingAliment=null;
+  afficherJour(ji);recalcJ(ji);afficherSelecteurJours(planData.menus_7_jours);checkLegumes();
+  toast(`${a.nom} (${qte}g) ajouté`,'#1D9E75',1200);
+  const pk=document.getElementById(`qp${ji}${rk}`);if(pk) pk.style.display='none';
+}
+function annAjout(ji,rk){pendingAliment=null;const p=document.getElementById(`qp${ji}${rk}`);if(p)p.style.display='none';}
+
+/* ═══════════════ STEP 4 : CONSEILS ═══════════════ */
+function afficherConseils(c){
+  const el=document.getElementById('conseilsCont');
+  el.innerHTML=`
+    <div class="sep">Conseils personnalisés</div>
+    ${(c.conseils??[]).map((cs,i)=>`<div class="cr"><div class="cdot"></div><textarea class="tac" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="planData.conseils[${i}]=this.value;modifié=true;">${cs}</textarea></div>`).join('')}
+    <button class="btn-ac" onclick="planData.conseils.push('');afficherConseils(planData);modifié=true;">+ Ajouter un conseil</button>
+    ${c.aliments_privilegier?.length?`<div class="sep" style="margin-top:.85rem;">À privilégier</div><div style="display:flex;gap:.3rem;flex-wrap:wrap;">${c.aliments_privilegier.map(a=>`<span class="tf g">${a}</span>`).join('')}</div>`:''}
+    ${c.aliments_limiter?.length?`<div class="sep" style="margin-top:.75rem;">À limiter</div><div style="display:flex;gap:.3rem;flex-wrap:wrap;">${c.aliments_limiter.map(a=>`<span class="tf r">${a}</span>`).join('')}</div>`:''}`;
+}
+
+/* ═══════════════ SAISIE LIBRE TDEE ═══════════════ */
+function setCustomPct(inp, mode){
+  const val=parseFloat(inp.value);
+  if(isNaN(val)) return;
+  if(mode==='pct'){
+    pctActif=val/100;
+  } else {
+    // kcal → convertir en % du TDEE calculé
+    const tdeeRef=calcTDEE||2000;
+    pctActif=val/tdeeRef;
+    // Mettre à jour le champ % pour cohérence
+    const pctInput=document.getElementById('customPct');
+    if(pctInput) pctInput.value=(pctActif*100).toFixed(1);
+  }
+  // Désélectionner les boutons prédéfinis
+  document.querySelectorAll('.pct-b').forEach(b=>b.classList.remove('on'));
+  lancerCalc();
+}
+
+/* ═══════════════ PRÉVISUALISATION PDF ═══════════════ */
+function previewPDF(){
+  var b=bilanData||{},c=planData||{};
+  var ac=(c.apports_cibles)||{};
+  var LABELS2={petit_dejeuner:'Petit-déjeuner',collation_matin:'Collation',dejeuner:'Déjeuner',gouter:'Goûter',diner:'Dîner'};
+
+  // ── Infos praticien ──
+  var pratNom  =(document.getElementById('prat_nom')||{}).value||(((dietProfile||{}).prenom||'')+' '+((dietProfile||{}).nom||'')).trim()||'—';
+  var pratRpps =(document.getElementById('prat_rpps')||{}).value||((dietProfile||{}).rpps)||'—';
+  var pratCab  =(document.getElementById('prat_cabinet')||{}).value||'NutriDoc · CaliDoc Santé';
+  var pratAdr  =(document.getElementById('prat_adresse')||{}).value||'';
+  var pratCont =(document.getElementById('prat_contact')||{}).value||'';
+  var prescNom =(document.getElementById('presc_nom')||{}).value||'';
+  var prescPro =(document.getElementById('presc_pro')||{}).value||'';
+  var notesDiet=(document.getElementById('notesDiet')||{}).value||'';
+  var dateStr  =new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  var menus    =c.menus_7_jours||[];
+
+  // ── Conseils enrichis (+ conseils systématiques ANSES) ──
+  var conseilsBase=c.conseils||[];
+  var conseilsSys=[
+    '⚠️ <strong>Attention aux calories cachées :</strong> moutarde, vinaigrette, sucre dans le café, huile de cuisson, crème fraîche, sauces industrielles, fromages en excès. Ces petites quantités s\'accumulent et peuvent représenter 200 à 400 kcal/jour supplémentaires.',
+    '😴 <strong>Sommeil :</strong> un bon sommeil est indispensable à la régulation des hormones de la faim (leptine, ghréline). Visez minimum <strong>7 heures par nuit</strong>. Un manque chronique de sommeil favorise la prise de poids même avec une alimentation contrôlée.',
+    '🚶 <strong>Activité physique quotidienne :</strong> en complément de votre activité sportive, il est recommandé de réaliser au moins <strong>10 000 pas par jour</strong>. Privilégiez les escaliers, marchez lors de vos déplacements, faites des pauses actives.',
+  ];
+  var tousConseils=conseilsBase.concat(conseilsSys);
+
+  // ── Cadre nutritionnel (groupes PNNS) ──
+  var cadreHTML='';
+  var repasJT=(c.journee_type&&c.journee_type.repas)||{};
+  var ordreRepas=['petit_dejeuner','collation_matin','dejeuner','gouter','diner'];
+  ordreRepas.forEach(function(rk){
+    var r=repasJT[rk];
+    if(!r||!(r.groupes&&r.groupes.length)) return;
+    cadreHTML+='<div style="margin-bottom:.65rem;break-inside:avoid;">'
+      +'<div style="font-size:.68rem;font-weight:800;color:#0d2018;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem;">'
+      +'<span style="background:#f0faf6;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;">'
+      +({petit_dejeuner:'🌅',collation_matin:'🍎',dejeuner:'☀️',gouter:'🍏',diner:'🌙'}[rk]||'🍽')
+      +'</span>'+( LABELS2[rk]||rk)+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:.6rem;">'
+      +'<thead><tr style="background:#f7f9f7;">'
+      +'<th style="padding:.32rem .55rem;text-align:left;font-weight:700;color:#6b7280;font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e5ece5;width:38%;">Groupe alimentaire</th>'
+      +'<th style="padding:.32rem .55rem;text-align:left;font-weight:700;color:#6b7280;font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e5ece5;width:22%;">Quantité</th>'
+      +'<th style="padding:.32rem .55rem;text-align:left;font-weight:700;color:#6b7280;font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e5ece5;">Conseil</th>'
+      +'</tr></thead><tbody>';
+    r.groupes.forEach(function(g,gi){
+      var bg=gi%2===0?'#fff':'#fafcfa';
+      var GPNNS={'Laitage':'🥛','Fruits frais':'🍎','Légumes cuits':'🥦','Légumes crus':'🥗',
+        'Céréales complètes':'🌾','Féculents':'🍚','Pain complet':'🍞',
+        'Protéines animales':'🥩','Protéines végétales':'🌿','Matières grasses':'🫒','Oléagineux':'🥜'};
+      var ico=GPNNS[g.groupe]||'·';
+      cadreHTML+='<tr style="background:'+bg+';border-bottom:1px solid #f0f0f0;">'
+        +'<td style="padding:.32rem .55rem;font-weight:600;color:#0d2018;">'+ico+' '+g.groupe+'</td>'
+        +'<td style="padding:.32rem .55rem;color:#1D9E75;font-weight:700;">'+(g.quantite_indicative||((g.nb_portions||1)+' portion(s)'))+'</td>'
+        +'<td style="padding:.32rem .55rem;color:#4b5563;font-size:.58rem;line-height:1.45;">'+(g.conseils_groupe||'')+'</td>'
+        +'</tr>';
+    });
+    cadreHTML+='</tbody></table></div>';
+  });
+
+  // ── Tableau 7 jours (double entrée) ──
+  var repasKeys=[];
+  if(menus[0]&&menus[0].repas){
+    ordreRepas.forEach(function(k){ if(menus[0].repas[k]) repasKeys.push(k); });
+  }
+  var thRepas='';
+  repasKeys.forEach(function(rk){
+    thRepas+='<th style="padding:.5rem .55rem;text-align:left;font-weight:700;font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;min-width:110px;">'+( LABELS2[rk]||rk)+'</th>';
+  });
+  var tbRows='';
+  menus.forEach(function(j,ji){
+    var kc=0;
+    var repasObj=j.repas||{};
+    Object.keys(repasObj).forEach(function(rk){ (repasObj[rk].aliments||[]).forEach(function(a){ kc+=(a.kcal_ciqual||a.kcal||0); }); });
+    kc=Math.round(kc)||j.kcal_total||0;
+    var bg=ji%2===0?'#fff':'#f7f9f7';
+    var cells='';
+    repasKeys.forEach(function(rk){
+      var r=repasObj[rk];
+      var alims=(r&&r.aliments)||[];
+      var cellContent='';
+      alims.forEach(function(a){
+        cellContent+='<div style="margin-bottom:.15rem;font-size:.58rem;line-height:1.35;color:#374151;">'+a.nom+' <strong style="color:#0d2018;">'+a.qte+(a.unite||'g')+'</strong></div>';
+      });
+      var kcalR=0; alims.forEach(function(a){ kcalR+=(a.kcal_ciqual||a.kcal||0); });
+      if(alims.length) cellContent+='<div style="font-size:.5rem;color:#9ca3af;border-top:1px dashed #e5ece5;padding-top:.12rem;margin-top:.12rem;">'+Math.round(kcalR)+' kcal</div>';
+      cells+='<td style="padding:.45rem .55rem;vertical-align:top;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5ece5;">'+(cellContent||'<span style="color:#d1d5db;font-size:.55rem;">—</span>')+'</td>';
+    });
+    tbRows+='<tr style="background:'+bg+';">'
+      +'<td style="padding:.5rem .55rem;font-weight:800;font-size:.7rem;color:#0d2018;vertical-align:top;border-right:2.5px solid #1D9E75;border-bottom:1px solid #e5ece5;white-space:nowrap;">'+j.jour+'</td>'
+      +'<td style="padding:.5rem .55rem;font-weight:700;font-size:.68rem;color:#1D9E75;vertical-align:top;border-right:2px solid #e5ece5;border-bottom:1px solid #e5ece5;text-align:center;white-space:nowrap;">'+kc+'<br><span style="font-size:.5rem;color:#9ca3af;font-weight:400;">kcal</span></td>'
+      +cells+'</tr>';
+  });
+
+  // ── CONSTRUCTION HTML ──
+  var H='';  // accumulateur HTML
+
+  // ════════════ PAGE 1 ════════════
+  // En-tête design
+  H+='<div style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1.1rem;border-bottom:3px solid #1D9E75;">'
+    // Logo gauche — grand
+    +'<div>'
+    +'<div style="font-family:Georgia,serif;font-size:2.4rem;font-weight:700;color:#0d2018;line-height:1;letter-spacing:-.02em;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em></div>'
+    +'<div style="font-size:.65rem;color:#9ca3af;margin-top:.2rem;letter-spacing:.06em;text-transform:uppercase;">Plan alimentaire personnalisé</div>'
+    +'</div>'
+    // Encart diét. droite
+    +'<div style="background:#f0faf6;border:1px solid rgba(29,158,117,.25);border-radius:10px;padding:.7rem 1rem;text-align:right;min-width:200px;">'
+    +'<div style="font-size:.82rem;font-weight:800;color:#0f6e56;">'+pratNom+'</div>'
+    +'<div style="font-size:.62rem;color:#6b7280;margin-top:.1rem;">Diététicien · RPPS '+pratRpps+'</div>'
+    +(pratCab?'<div style="font-size:.6rem;color:#9ca3af;margin-top:.08rem;">'+pratCab+'</div>':'')
+    +(pratAdr?'<div style="font-size:.58rem;color:#9ca3af;">'+pratAdr+'</div>':'')
+    +(pratCont?'<div style="font-size:.58rem;color:#9ca3af;">'+pratCont+'</div>':'')
+    +'<div style="font-size:.58rem;color:#9ca3af;margin-top:.18rem;border-top:1px solid rgba(29,158,117,.2);padding-top:.18rem;">'+dateStr+'</div>'
+    +'</div>'
+  +'</div>';
+
+  // Identité patient
+  H+='<div style="background:linear-gradient(135deg,#f0faf6,#e8f5ee);border-radius:12px;padding:.75rem 1.1rem;margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;border:1px solid rgba(29,158,117,.2);">'
+    +'<div>'
+    +'<div style="font-size:.54rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:.12rem;">Patient</div>'
+    +'<div style="font-size:1rem;font-weight:800;color:#0d2018;">'+(b.prenom||'—')+' '+(b.nom||'')+'</div>'
+    +'<div style="font-size:.62rem;color:#6b7280;margin-top:.1rem;">'+(b.age||'—')+' ans · '+(b.sexe||'—')+' · '+(b.poids||'—')+' kg · '+(b.taille||'—')+' cm</div>'
+    +(prescNom?'<div style="font-size:.58rem;color:#92400e;margin-top:.12rem;">Via prescripteur : '+prescNom+(prescPro?' ('+prescPro+')':'')+'</div>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:1rem;flex-wrap:wrap;">'
+    +'<div style="text-align:center;"><div style="font-size:.54rem;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;">Objectif</div><div style="font-size:.8rem;font-weight:700;color:#0d2018;">'+(OBJ_L[b.objectif]||'—')+'</div><div style="font-size:.58rem;color:#6b7280;">'+(ACT_L[b.activite]||'—')+'</div></div>'
+    +'<div style="text-align:center;border-left:1px solid rgba(29,158,117,.25);padding-left:1rem;"><div style="font-size:.54rem;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;">Cibles / jour</div><div style="font-size:1.05rem;font-weight:800;color:#1D9E75;">'+(ac.calories||'—')+' kcal</div><div style="font-size:.58rem;color:#6b7280;">P '+(ac.proteines_g||'—')+'g · G '+(ac.glucides_g||'—')+'g · L '+(ac.lipides_g||'—')+'g</div></div>'
+    +'</div>'
+  +'</div>';
+
+  // Résumé stratégie
+  H+='<div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#1D9E75;margin-bottom:.38rem;">Stratégie nutritionnelle</div>'
+    +'<div style="font-size:.68rem;color:#374151;line-height:1.75;padding:.55rem .85rem;background:#f7f9f7;border-radius:9px;border-left:3.5px solid #1D9E75;margin-bottom:1.1rem;">'+(c.resume||'—')+'</div>';
+
+  // Cadre nutritionnel
+  H+='<div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#1D9E75;margin-bottom:.5rem;">Cadre nutritionnel journalier</div>'
+    +(cadreHTML||'<div style="font-size:.65rem;color:#9ca3af;">Non renseigné.</div>');
+
+  // Conseils
+  H+='<div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#1D9E75;margin:.85rem 0 .42rem;">Conseils personnalisés</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem .9rem;">';
+  tousConseils.forEach(function(cs){
+    if(cs&&cs.trim()) H+='<div style="display:flex;gap:.4rem;font-size:.62rem;color:#374151;line-height:1.6;break-inside:avoid;"><span style="color:#1D9E75;font-weight:800;flex-shrink:0;margin-top:.08rem;">·</span><span>'+cs+'</span></div>';
+  });
+  H+='</div>';
+
+  // Notes diét.
+  if(notesDiet) H+='<div style="margin-top:.85rem;padding:.55rem .8rem;background:#fef9c3;border-radius:8px;border-left:3px solid #f59e0b;font-size:.62rem;color:#374151;line-height:1.65;"><strong style="color:#92400e;">Notes du diététicien : </strong>'+notesDiet+'</div>';
+
+  // ════════════ PAGE 2 — SAUT DE PAGE ════════════
+  H+='<div style="page-break-before:always;padding-top:1.2rem;"></div>';
+
+  // Répéter en-tête léger page 2
+  H+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:.65rem;border-bottom:2px solid #1D9E75;">'
+    +'<div style="font-family:Georgia,serif;font-size:1.25rem;font-weight:700;color:#0d2018;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em> <span style="font-size:.75rem;color:#9ca3af;font-style:normal;font-family:Outfit,sans-serif;font-weight:400;">— 7 jours de menus</span></div>'
+    +'<div style="font-size:.6rem;color:#9ca3af;">'+(b.prenom||'')+' '+(b.nom||'')+' · '+(ac.calories||'—')+' kcal/j · '+dateStr+'</div>'
+  +'</div>';
+
+  // Tableau 7 jours
+  H+='<div style="overflow-x:auto;border-radius:10px;border:1.5px solid #e5ece5;box-shadow:0 2px 8px rgba(0,0,0,.05);">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:.6rem;">'
+    +'<thead><tr style="background:#0d2018;color:#fff;">'
+    +'<th style="padding:.55rem .55rem;text-align:left;font-weight:800;font-size:.57rem;text-transform:uppercase;letter-spacing:.06em;min-width:62px;">Jour</th>'
+    +'<th style="padding:.55rem .55rem;text-align:center;font-weight:700;font-size:.57rem;text-transform:uppercase;background:#1D9E75;min-width:52px;">Total</th>'
+    +thRepas
+    +'</tr></thead>'
+    +'<tbody>'+tbRows+'</tbody>'
+    +'</table></div>';
+
+  // ════════════ ATTESTATION + SIGNATURE ════════════
+  H+='<div style="margin-top:1.5rem;padding:1.1rem 1.25rem;background:#f0faf6;border:2px solid rgba(29,158,117,.3);border-radius:13px;break-inside:avoid;">'
+    +'<div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#0f6e56;margin-bottom:.55rem;">Attestation du diététicien</div>'
+    +'<div style="font-size:.65rem;color:#374151;line-height:1.75;margin-bottom:.65rem;">'
+    +'Je soussigné(e) <strong>'+pratNom+'</strong>, diététicien(ne) enregistré(e) sous le numéro RPPS <strong>'+pratRpps+'</strong>'
+    +(pratCab?' ('+pratCab+')':'')
+    +', atteste avoir consulté, vérifié et validé ce plan alimentaire généré par intelligence artificielle (NutriDoc · GPT-4o-mini · CIQUAL 2020 · référentiels ANSES 2016). '
+    +'Ce document constitue un plan alimentaire sur-mesure élaboré à partir des informations déclarées par le patient. '
+    +'Il appartient à '+( b.prenom||'le patient')+' '+(b.nom||'')+' de le suivre avec régularité et engagement.'
+    +'</div>'
+    // Disclaimer
+    +'<div style="font-size:.6rem;color:#6b7280;line-height:1.7;padding:.52rem .75rem;background:#fff;border-radius:8px;border-left:2.5px solid #d1fae5;margin-bottom:.85rem;font-style:italic;">'
+    +'<strong style="color:#0f6e56;font-style:normal;">Clause de responsabilité :</strong> Ce plan alimentaire personnalisé repose sur les informations fournies par le patient. '
+    +'NutriDoc et le diététicien signataire ne peuvent garantir un résultat spécifique (perte de poids, prise de masse, etc.). '
+    +'Les résultats dépendent de la bonne observance du plan, de la volonté du patient, de son niveau d\'activité physique réel, de son comportement alimentaire au quotidien et de facteurs physiologiques individuels. '
+    +'En cas de symptôme inhabituel, il est recommandé de consulter un médecin.'
+    +'</div>'
+    // Signature
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">'
+    +'<div>'
+    +'<div style="font-size:.57rem;color:#6b7280;margin-bottom:.2rem;">Fait le '+dateStr+'</div>'
+    +'<div style="font-size:.88rem;font-weight:800;color:#0f6e56;">'+pratNom+'</div>'
+    +'<div style="font-size:.62rem;color:#6b7280;">Diététicien · RPPS '+pratRpps+'</div>'
+    +(pratCab?'<div style="font-size:.6rem;color:#9ca3af;">'+pratCab+'</div>':'')
+    +'</div>'
+    +'<div style="text-align:center;border:1.5px dashed #a7f3d0;border-radius:10px;padding:.65rem 1.4rem;min-width:150px;">'
+    +'<div style="font-size:.55rem;color:#9ca3af;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em;">Signature</div>'
+    +'<div style="height:44px;"></div>'
+    +'<div style="font-size:.5rem;color:#d1d5db;border-top:1px solid #e5e7e5;padding-top:.22rem;">'+dateStr+'</div>'
+    +'</div>'
+    +'</div>'
+  +'</div>';
+
+  // Pied de page
+  H+='<div style="margin-top:1.1rem;text-align:center;font-size:.52rem;color:#d1d5db;letter-spacing:.05em;">NutriDoc · CaliDoc Santé · Plan personnalisé · Confidentiel · '+(b.prenom||'')+' '+(b.nom||'')+' · '+dateStr+'</div>';
+
+  // ── Filigrane — grille répétée qui recouvre tout ──
+  var filigraneItem='<div style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:1.05rem;font-weight:800;color:rgba(29,158,117,.18);transform:rotate(-32deg);white-space:nowrap;user-select:none;letter-spacing:.12em;padding:.6rem;">NUTRIDOC &nbsp;·&nbsp; DOCUMENT CONFIDENTIEL &nbsp;·&nbsp; NUTRIDOC</div>';
+  var grid='';
+  for(var fi=0;fi<96;fi++){ grid+=filigraneItem; }
+  var filigrane='<div style="position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden;">'
+    +'<div style="display:flex;flex-wrap:wrap;width:100%;height:100%;align-content:flex-start;gap:0;">'
+    +grid+'</div></div>';
+
+  // ── Ouvrir la fenêtre ──
+  var win=window.open('','_blank','width=960,height=1000,scrollbars=yes,resizable=yes');
+  if(!win){ alert('Autorisez les popups pour ce site.'); return; }
+  win.document.write('<!DOCTYPE html><html lang="fr"><head>'
+    +'<meta charset="UTF-8">'
+    +'<meta name="robots" content="noindex,nofollow">'
+    +'<title>Plan alimentaire — '+(b.prenom||'Patient')+' '+(b.nom||'')+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>'
+    +'<style>'
+    +'*{margin:0;padding:0;box-sizing:border-box;}'
+    +'body{font-family:Outfit,sans-serif;color:#0d2018;background:#fff;padding:36px 40px;max-width:860px;margin:0 auto;position:relative;}'
+    +'table{border-collapse:collapse;}'
+    +'@media print{'
+    +'  body{padding:20px;}'
+    +'  .page-break{page-break-before:always;}'
+    +'}'
+    +'</style>'
+    +'</head><body>'
+    +filigrane
+    +'<div style="position:relative;z-index:1;">'+H+'</div>'
+    +'</body></html>');
+  win.document.close();
+}
+
+/* ═══════════════ STEP 5 : TEMPLATE ═══════════════ */
+function selectTpl(tpl){
+  tplActif=tpl;
+  document.getElementById('tplA').classList.toggle('selected',tpl==='A');
+  document.getElementById('tplB').classList.toggle('selected',tpl==='B');
+  document.getElementById('macroEditor').style.display=tpl==='B'?'block':'none';
+}
+function insererMacro(macro){
+  const ta=document.getElementById('tplEditor');
+  if(!ta) return;
+  const pos=ta.selectionStart,txt=ta.value;
+  ta.value=txt.slice(0,pos)+macro+txt.slice(pos);
+  ta.selectionStart=ta.selectionEnd=pos+macro.length;
+  ta.focus();
+}
+
+/* ═══════════════ STEP 6 : RÉCAP + ATTESTATION ═══════════════ */
+function mettreAJourRecap(){
+  const b=bilanData,c=planData;
+  if(!b||!c) return;
+  document.getElementById('rc_patient').textContent=`${b.prenom??'—'} ${b.nom??''}`;
+  document.getElementById('rc_kcal').textContent=`${c.apports_cibles?.calories??'—'} kcal/j`;
+  // Jours OK
+  const menus=c.menus_7_jours??[];
+  const ok=menus.filter(j=>Math.abs(calcKcalJour(j)-kcalCible)<=kcalCible*0.08).length;
+  const jEl=document.getElementById('rc_jours');
+  if(jEl){jEl.textContent=`${ok}/7`;jEl.className='recap-val'+(ok>=6?' ok':ok>=4?' warn':' err');}
+  // Poissons
+  const poissons=['saumon','cabillaud','thon','maquereau','truite','crevettes','colin','merlu','sole'];
+  let nbP=0;
+  menus.forEach(j=>Object.values(j.repas??{}).forEach(r=>(r.aliments??[]).forEach(a=>{if(poissons.some(p=>a.nom?.toLowerCase().includes(p)))nbP++;})));
+  const pEl=document.getElementById('rc_poisson');
+  if(pEl){pEl.textContent=`${nbP}/7 repas`;pEl.className='recap-val'+(nbP<=3?nbP>=2?' ok':' warn':' err');}
+  // Conseils
+  const nbC=(c.conseils??[]).filter(cs=>cs.trim().length>10).length;
+  const cEl=document.getElementById('rc_conseils');
+  if(cEl){cEl.textContent=`${nbC} conseil${nbC>1?'s':''}`;cEl.className='recap-val'+(nbC>=3?' ok':' warn');}
+  // Template
+  document.getElementById('rc_tpl').textContent=tplActif==='A'?'NutriDoc défaut':'Personnalisé';
+}
+function ckAttest(inp){
+  attestOk=inp.checked;
+  inp.closest('.attest-ck').classList.toggle('done',inp.checked);
+  document.getElementById('btnSend').disabled=!inp.checked;
+}
+
+/* ═══════════════ PDF + ENVOI ═══════════════ */
+async function telechargerPDF(){
+  const b=bilanData??{},c=planData??{};
+  const ac=c.apports_cibles??{};
+  const ICONS2={petit_dejeuner:'🌅',dejeuner:'☀️',diner:'🌙',collation_matin:'🍎',gouter:'🍏'};
+
+  let menusHTML='';
+  (c.menus_7_jours??[]).forEach(j=>{
+    const kc=calcKcalJour(j);
+    menusHTML+=`<div style="margin-bottom:.6rem;padding:.5rem .7rem;background:#f7f9f7;border-radius:8px;page-break-inside:avoid;">
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:.75rem;margin-bottom:.25rem;"><span>${j.jour}</span><span style="color:#1D9E75;">${kc} kcal</span></div>
+      ${Object.entries(j.repas??{}).map(([rk,r])=>`<div style="font-size:.62rem;color:#374151;margin-bottom:.12rem;"><span style="color:#6b7280;">${ICONS2[rk]??'·'} </span>${(r.aliments??[]).map(a=>`${a.nom} (${a.qte}${a.unite??'g'})`).join(', ')}</div>`).join('')}
+    </div>`;
+  });
+
+  const div=document.createElement('div');
+  div.style.cssText='font-family:Outfit,sans-serif;color:#0d2018;padding:0;max-width:800px;';
+  div.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:2.5px solid #1D9E75;">
+      <div><div style="font-size:1.4rem;font-weight:700;font-family:Georgia,serif;">Nutri<em style="color:#1D9E75;font-style:italic;">Doc</em></div><div style="font-size:.65rem;color:#6b7280;">Plan alimentaire personnalisé · CaliDoc Santé</div></div>
+      <div style="text-align:right;font-size:.65rem;color:#6b7280;"><div>Validé le ${new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}</div><div style="font-weight:700;color:#1D9E75;">RPPS : ${dietProfile?.rpps??'—'}</div></div>
+    </div>
+    <div style="background:#f0faf6;border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <div><div style="font-size:.55rem;text-transform:uppercase;color:#6b7280;letter-spacing:.07em;">Patient</div><div style="font-size:.85rem;font-weight:700;">${b.prenom??'—'} ${b.nom??''}</div><div style="font-size:.62rem;color:#6b7280;">${b.age??'—'} ans · ${b.sexe??'—'} · ${b.poids??'—'} kg · ${b.taille??'—'} cm</div></div>
+      <div><div style="font-size:.55rem;text-transform:uppercase;color:#6b7280;letter-spacing:.07em;">Objectif</div><div style="font-size:.78rem;font-weight:600;">${OBJ_L[b.objectif]??'—'}</div><div style="font-size:.62rem;color:#6b7280;">${ACT_L[b.activite]??'—'}</div></div>
+      <div><div style="font-size:.55rem;text-transform:uppercase;color:#6b7280;letter-spacing:.07em;">Cibles journalières</div><div style="font-size:.88rem;font-weight:800;color:#1D9E75;">${ac.calories??'—'} kcal/jour</div><div style="font-size:.62rem;color:#6b7280;">P ${ac.proteines_g??'—'}g · G ${ac.glucides_g??'—'}g · L ${ac.lipides_g??'—'}g</div></div>
+    </div>
+    <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#1D9E75;margin-bottom:.5rem;">Résumé nutritionnel</div>
+    <div style="font-size:.7rem;color:#374151;line-height:1.7;padding:.55rem .8rem;background:#f7f9f7;border-radius:8px;border-left:3px solid #1D9E75;margin-bottom:1rem;">${c.resume??'—'}</div>
+    <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#1D9E75;margin-bottom:.5rem;">7 jours de menus</div>
+    ${menusHTML}
+    ${c.conseils?.length?`<div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#1D9E75;margin:.8rem 0 .4rem;">Conseils personnalisés</div>${c.conseils.map(cs=>`<div style="display:flex;gap:.4rem;margin-bottom:.28rem;font-size:.68rem;color:#374151;"><span style="color:#1D9E75;font-weight:700;flex-shrink:0;">·</span><span>${cs}</span></div>`).join('')}`:''}
+    ${document.getElementById('notesDiet')?.value?`<div style="margin:.8rem 0;padding:.55rem .8rem;background:#fef9c3;border-radius:8px;border-left:3px solid #f59e0b;font-size:.67rem;color:#374151;line-height:1.6;"><strong style="color:#92400e;">Notes du diététicien : </strong>${document.getElementById('notesDiet').value}</div>`:''}
+    <div style="margin-top:1.2rem;padding-top:.9rem;border-top:2px solid #1D9E75;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div><div style="font-size:.58rem;color:#6b7280;">Validé et signé par</div><div style="font-size:.85rem;font-weight:800;color:#0f6e56;">${dietProfile?.prenom??''} ${dietProfile?.nom??''}</div><div style="font-size:.63rem;color:#6b7280;">Diététicien RPPS · RPPS ${dietProfile?.rpps??'—'}</div></div>
+      <div style="text-align:center;border:1.5px dashed #d1fae5;border-radius:8px;padding:.6rem 1.2rem;"><div style="font-size:.58rem;color:#6b7280;margin-bottom:.3rem;">Signature</div><div style="height:36px;width:100px;"></div><div style="font-size:.52rem;color:#9ca3af;border-top:1px solid #e5e7e5;padding-top:.2rem;">${new Date().toLocaleDateString('fr-FR')}</div></div>
+    </div>
+    <div style="margin-top:.8rem;padding:.55rem .8rem;background:#f0faf6;border:1px solid rgba(29,158,117,.3);border-radius:8px;font-size:.6rem;color:#374151;font-style:italic;line-height:1.6;">
+      ⚠️ Ce plan a été pré-généré par intelligence artificielle (GPT-4o-mini, CIQUAL 2020, ANSES 2016) et a été consulté, vérifié et validé par ${dietProfile?.prenom??''} ${dietProfile?.nom??''}, diététicien RPPS n°${dietProfile?.rpps??'—'}.
+    </div>`;
+
+  const prenom=(b.prenom??'patient').toLowerCase().replace(/\s+/g,'-');
+  const d=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  const opt={margin:[12,12,15,12],filename:`plan-nutridoc-${prenom}-${d}.pdf`,image:{type:'jpeg',quality:0.97},html2canvas:{scale:2,useCORS:true,logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  try{
+    toast('⏳ Génération du PDF…','#6b7280',2000);
+    await html2pdf().set(opt).from(div).save();
+    toast('📥 PDF téléchargé !','#1D9E75');
+  } catch(e){toast('Erreur PDF : '+e.message,'#ef4444');}
+}
+
+async function confirmerEnvoi(){
+  if(!attestOk){toast('Cochez l\'attestation professionnelle d\'abord','#f59e0b');return;}
+  const btn=document.getElementById('btnSend');
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ Envoi en cours…';}
+  planData.notes_dieteticien=document.getElementById('notesDiet')?.value??'';
+  planData.valide_par={prenom:dietProfile?.prenom,nom:dietProfile?.nom,rpps:dietProfile?.rpps,date:new Date().toISOString()};
+  planData.attestation_dieteticien=true;
+  if(planId){
+    const {error}=await sb.from('plans').update({contenu:planData,statut:'valide',validated_at:new Date().toISOString()}).eq('id',planId);
+    if(error){toast('Erreur Supabase : '+error.message,'#ef4444');if(btn){btn.disabled=false;btn.innerHTML='📨 Valider et envoyer au patient';}return;}
+  }
+  document.getElementById('hdS').textContent='Plan validé ✅';
+  toast('🎉 Plan validé et envoyé au patient !','#1D9E75',5000);
+  setTimeout(()=>{window.location.href='dashboard-dieteticien.html';},3500);
+}
+
+/* ═══════════════ SAUVEGARDE ═══════════════ */
+async function sauvegarder(){
+  if(!planId||!planData){toast('Mode démo — pas de sauvegarde','#9ca3af');return;}
+  planData.notes_dieteticien=document.getElementById('notesDiet')?.value??'';
+  const {error}=await sb.from('plans').update({contenu:planData,updated_at:new Date().toISOString()}).eq('id',planId);
+  if(error){toast('Erreur : '+error.message,'#ef4444');return;}
+  modifié=false;toast('💾 Plan sauvegardé','#1D9E75');
+}
+
+/* ═══════════════ TOAST ═══════════════ */
+function toast(msg,color='#0d2018',d=2500){const el=document.createElement('div');el.className='toast';el.style.background=color;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),d);}
+window.addEventListener('beforeunload',e=>{if(modifié){e.preventDefault();e.returnValue='';}});
+
+/* ═══════════════ MOCK ═══════════════ */
+function chargerMock(){
+  bilanData={prenom:'Sophie',nom:'Martin',age:32,sexe:'femme',poids:72,taille:165,objectif:'perte_poids',activite:'modere',regime:'omnivore',allergies:'Aucune',aversions:'Aucune',budget:'standard',sport:'Course à pied',sport_freq:3,sport_duree:30,alertes_sante:['diabete','fatigue'],ville:'Lyon',repas_matin:'Café + 2 tartines pain blanc + beurre + jus orange',repas_midi:'Cantine : sandwich ou plat du jour',repas_soir:'Cuisine maison — soupes, plats mijotés, pâtes',fringales:'Sucré après repas et vers 17h',hydratation:'1L eau + 2 cafés/j',sommeil:'6h30-7h',};
+  const kcal=2008;
+  planData={
+    resume:'Sophie, 32 ans, perte de poids. MB Black 1996 : 1 449 kcal. Dépense totale NAP 1,63 : 2 362 kcal. Déficit −15% = −354 → cible 2 008 kcal/j. Diabète : IG bas obligatoire, sucres simples ≤ 50g/j.',
+    apports_cibles:{calories:kcal,proteines_g:76,glucides_g:250,lipides_g:79,fibres_min_g:30,eau_ml:2000,sucres_max_g:50},
+    _meta:{kcal_calcule:{mb:1449,tdee:2362,cible:kcal,plancher:1449,pct_deficit:-0.15}},
+    repas_actifs:['petit_dejeuner','dejeuner','diner'],
+    journee_type:{note:'Adapter aux habitudes de Sophie : matin sucré à corriger, favoriser les soupes du soir, collation 30g oléagineux contre les fringales.',repas:{
+      petit_dejeuner:{groupes:[{groupe:'Céréales complètes',nb_portions:1,quantite_indicative:'60g',conseils_groupe:'Flocons d\'avoine ou pain complet (IG bas) — remplacer pain blanc + beurre actuels.'},{groupe:'Laitage',nb_portions:1,quantite_indicative:'150g',conseils_groupe:'Yaourt grec nature — IG bas, protéines.'},{groupe:'Fruits frais',nb_portions:1,quantite_indicative:'1 fruit (150g)',conseils_groupe:'Fruit ENTIER — pas de jus (IG élevé, diabète).'}]},
+      dejeuner:{groupes:[{groupe:'Protéines animales',nb_portions:1,quantite_indicative:'130-150g',conseils_groupe:'Éviter sandwichs de cantine.'},{groupe:'Céréales complètes',nb_portions:1,quantite_indicative:'150g cuits',conseils_groupe:'Quinoa, riz complet ou légumineuses — IG bas prioritaire.'},{groupe:'Légumes cuits',nb_portions:2,quantite_indicative:'200g',conseils_groupe:'Tous légumes — fibres pour réguler la glycémie.'},{groupe:'Légumes crus',nb_portions:1,quantite_indicative:'80g',conseils_groupe:'En entrée pour augmenter la satiété.'},{groupe:'Matières grasses',nb_portions:1,quantite_indicative:'10ml',conseils_groupe:'Huile d\'olive ou colza.'},{groupe:'Laitage',nb_portions:1,quantite_indicative:'150g fromage blanc 0%',conseils_groupe:'Fromage blanc 0% en dessert. Si fromage affiné souhaité : 30g MAX au déjeuner uniquement — jamais avec un fromage blanc dans le même repas.'},{groupe:'Fruits frais',nb_portions:1,quantite_indicative:'1 fruit (100-150g)',conseils_groupe:'Légume cuit au repas → fruit cru en dessert (règle systématique).'}]},
+      diner:{groupes:[{groupe:'Protéines animales',nb_portions:1,quantite_indicative:'100-120g',conseils_groupe:'Valoriser les habitudes soupe : poisson + légumes en velouté.'},{groupe:'Légumes cuits',nb_portions:2,quantite_indicative:'200g',conseils_groupe:'Soupe de légumes maison — habitude à valoriser.'},{groupe:'Féculents',nb_portions:1,quantite_indicative:'80-100g cuits',conseils_groupe:'Remplacer les pâtes blanches par complètes.'},{groupe:'Laitage',nb_portions:1,quantite_indicative:'125-150g fromage blanc 0%',conseils_groupe:'Fromage blanc 0% au dîner — le fromage affiné (30g max) est réservé au déjeuner pour ne pas les mélanger dans le même repas.'}]},
+    }},
+    menus_7_jours:JOURS.map((jour,i)=>{
+      const pD=[{n:'Blanc de poulet cuit',q:140,k:231,p:43.4},{n:'Saumon cuit',q:130,k:268,p:28.6},{n:'Bœuf haché 5% MG',q:130,k:199,p:28.6},{n:'Dinde rôtie',q:140,k:235,p:40.0},{n:'Cabillaud cuit',q:150,k:123,p:27.0},{n:'Lentilles cuites',q:200,k:232,p:18.0},{n:'Œuf dur',q:110,k:162,p:13.9}][i];
+      const fD=[{n:'Quinoa cuit',q:160,k:192},{n:'Riz complet cuit',q:160,k:197},{n:'Lentilles cuites',q:160,k:186},{n:'Pâtes complètes cuites',q:160,k:248},{n:'Boulgour cuit',q:160,k:133},{n:'Riz basmati cuit',q:160,k:206},{n:'Pois chiches cuits',q:160,k:262}][i];
+      const lD=[{n:'Brocolis cuits',q:150,k:53},{n:'Haricots verts cuits',q:150,k:47},{n:'Courgettes cuites',q:150,k:27},{n:'Épinards cuits',q:150,k:35},{n:'Carottes cuites',q:150,k:53},{n:'Chou-fleur cuit',q:150,k:41},{n:'Champignons cuits',q:150,k:42}][i];
+      // Dîner légumes DIFFÉRENTS du déjeuner (règle : pas les mêmes midi et soir)
+      const lSoir=[{n:'Poireaux cuits',q:200,k:56},{n:'Aubergine cuite',q:200,k:60},{n:'Poivron cuit',q:200,k:56},{n:'Champignons cuits',q:200,k:56},{n:'Brocolis cuits',q:200,k:70},{n:'Haricots verts cuits',q:200,k:62},{n:'Carottes cuites',q:200,k:70}][i];
+      const pSoir=[{n:'Dinde rôtie',q:120,k:202},{n:'Blanc de poulet cuit',q:120,k:198},{n:'Tofu ferme',q:150,k:141},{n:'Maquereau cuit',q:120,k:287},{n:'Blanc de poulet cuit',q:120,k:198},{n:'Dinde rôtie',q:120,k:202},{n:'Bœuf haché 5% MG',q:120,k:184}][i];
+      const fSoir=[{n:'Patate douce cuite',q:100,k:86},{n:'Riz complet cuit',q:100,k:123},{n:'Pâtes complètes cuites',q:120,k:186},{n:'Quinoa cuit',q:100,k:120},{n:'Pomme de terre vapeur',q:120,k:98},{n:'Semoule cuite',q:100,k:112},{n:'Patate douce cuite',q:100,k:86}][i];
+      const fruits=[{n:'Pomme',q:150,k:78},{n:'Kiwi',q:150,k:92},{n:'Orange',q:150,k:71},{n:'Fraises',q:150,k:48},{n:'Myrtilles',q:100,k:57},{n:'Poire',q:150,k:86},{n:'Pomme',q:150,k:78}][i];
+      return {jour,kcal_total:kcal,repas:{
+        petit_dejeuner:{aliments:[
+          {nom:'Flocons d\'avoine',qte:60,unite:'g',kcal:223,prot:7.5,glu:35.7,lip:4.3,fib:6.1,kcal_ciqual:223},
+          {nom:'Lait demi-écrémé',qte:200,unite:'ml',kcal:92,prot:6.6,glu:9.6,lip:3.2,fib:0,kcal_ciqual:92},
+          {nom:fruits.n,qte:fruits.q,unite:'g',kcal:fruits.k,prot:0.6,glu:16,lip:0.2,fib:2.5,kcal_ciqual:fruits.k},
+          {nom:'Yaourt grec nature',qte:125,unite:'g',kcal:121,prot:11.3,glu:4.5,lip:6.3,kcal_ciqual:121},
+        ]},
+        dejeuner:{aliments:[
+          {nom:pD.n,qte:pD.q,unite:'g',kcal:pD.k,prot:pD.p,glu:0,lip:3.5,kcal_ciqual:pD.k},
+          {nom:fD.n,qte:fD.q,unite:'g',kcal:fD.k,prot:4.5,glu:32,lip:1.5,fib:3.0,kcal_ciqual:fD.k},
+          {nom:lD.n,qte:lD.q,unite:'g',kcal:lD.k,prot:3.2,glu:6.5,lip:0.4,fib:3.5,kcal_ciqual:lD.k},
+          // Crudités variées selon le jour (jamais la même que le légume cuit du midi)
+          {nom:['Tomates fraîches','Concombre','Carotte crue','Betterave cuite','Radis','Concombre','Tomates fraîches'][i],qte:[100,80,80,80,80,80,100][i],unite:'g',kcal:[18,10,33,35,13,10,18][i],prot:0.7,glu:[2.6,1.3,6.1,7.0,1.6,1.3,2.6][i],lip:0.1,fib:[1.5,0.8,3.1,2.9,1.8,0.8,1.5][i],kcal_ciqual:[18,10,33,35,13,10,18][i]},
+          {nom:'Huile d\'olive',qte:10,unite:'ml',kcal:88,prot:0,glu:0,lip:9.8,kcal_ciqual:88},
+          // Règle fromage : fromage affiné 30g OU fromage blanc — jamais les deux ensemble
+          // Jours pairs → fromage blanc. Jours impairs → fromage affiné 30g (midi seulement)
+          ...(i%2===0
+            ? [{nom:'Fromage blanc 0%',qte:150,unite:'g',kcal:74,prot:12.3,glu:6.6,lip:0.3,kcal_ciqual:74}]
+            : [{nom:i===1?'Camembert':i===3?'Emmental':i===5?'Camembert':'Emmental',
+                qte:30,unite:'g',
+                kcal:i===1?81:i===3?115:i===5?81:115,
+                prot:i===1?5.3:i===3?8.6:i===5?5.3:8.6,
+                glu:0.2,
+                lip:i===1?6.8:i===3?9.0:i===5?6.8:9.0,
+                kcal_ciqual:i===1?81:i===3?115:i===5?81:115}]
+          ),
+          {nom:fruits.n,qte:100,unite:'g',kcal:Math.round(fruits.k*0.67),prot:0.4,glu:10,lip:0.1,fib:1.5,kcal_ciqual:Math.round(fruits.k*0.67)},
+        ]},
+        diner:{aliments:[
+          {nom:pSoir.n,qte:pSoir.q,unite:'g',kcal:pSoir.k,prot:32,glu:0,lip:6,kcal_ciqual:pSoir.k},
+          {nom:fSoir.n,qte:fSoir.q,unite:'g',kcal:fSoir.k,prot:2,glu:20,lip:0.2,fib:2.5,kcal_ciqual:fSoir.k},
+          {nom:lSoir.n,qte:lSoir.q,unite:'g',kcal:lSoir.k,prot:3,glu:7,lip:0.3,fib:4,kcal_ciqual:lSoir.k},
+          {nom:'Fromage blanc 0%',qte:150,unite:'g',kcal:74,prot:12.3,glu:6.6,lip:0.3,kcal_ciqual:74},
+          {nom:'Amandes',qte:30,unite:'g',kcal:174,prot:6.4,glu:1.4,lip:14.8,fib:3.8,kcal_ciqual:174},
+        ]},
+      }};
+    }),
+    conseils:['Remplacer le jus d\'orange matinal par un fruit entier (IG bas — important pour le diabète).','Valoriser les habitudes soupe du soir : velouté de légumes maison sans crème.','Fringales 17h : 30g d\'amandes (≈174 kcal) intégrés dans le plan — comptabilisés.','Légumes variés : ne jamais servir le même légume au déjeuner et au dîner.','Fromages : 1 fromage affiné (30g max) au déjeuner uniquement — jamais combiné avec un fromage blanc dans le même repas. Fromage blanc 0% le soir en dessert. Ne pas dépasser 30g de fromage affiné par jour.','Plaisir alimentaire : 1 carré chocolat noir 70% (≈35 kcal) toléré le soir si envie — comptabilisé.'],
+    aliments_privilegier:['Légumes verts','Poissons gras (2x/sem)','Légumineuses (2x/sem)','Huile de colza','Céréales complètes'],
+    aliments_limiter:['Pain blanc','Jus de fruits','Pâtes blanches','Ultra-transformés','Sucres ajoutés'],
+    notes_dieteticien:'',_validation_warnings:[],
+  };
+  chargerDonnees();
+}
+
+init();
+</script>
+</body>
+</html>

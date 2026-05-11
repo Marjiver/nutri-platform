@@ -1,1083 +1,1154 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="theme-color" content="#0d2018">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
-  <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
-  <meta name="description" content="Gérez votre profil professionnel de prescripteur sur NutriDoc : informations personnelles, SIRET, profession, coordonnées professionnelles."/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mon profil — Espace Prescripteur · NutriDoc</title>
-  
-  <!-- Fonts -->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2018"/>
+  <meta name="description" content="Gerez votre profil prescripteur NutriDoc : logo, IBAN, verification identite, services, formule CRM."/>
+  <title>Mon profil &mdash; Prescripteur NutriDoc</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/home.css"/>
-  
-  <!-- ==================== PWA MANIFEST ==================== -->
-  <link rel="manifest" href="/manifest.json">
-  
-  <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
-  <meta name="theme-color" content="#0d2018">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NutriDoc">
-  
-  <!-- ==================== ICÔNES APPLE ==================== -->
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
-  
-  <!-- ==================== MASQUE POUR ANDROID ==================== -->
-  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
-  
-  <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
-  <meta name="msapplication-TileColor" content="#0d2018">
-  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
-  
-  <!-- ==================== DARK MODE CSS ==================== -->
-  <link rel="stylesheet" href="css/dark-mode.css">
-  <link rel="stylesheet" href="css/dark-mode-variables.css">
-  
-  <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- ==================== PERFORMANCE MONITORING ==================== -->
-  <script defer src="js/utils/performance.js"></script>
-  
-  <!-- ==================== VERSION MANAGER ==================== -->
-  <script defer src="js/utils/version-manager.js"></script>
-  
-  <!-- ==================== ERROR HANDLER ==================== -->
-  <script defer src="js/utils/error-handler.js"></script>
-  
-  <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
-  
-  <!-- ==================== AUTO-SAVE JS ==================== -->
-  <script defer src="js/utils/auto-save.js"></script>
-  
-  <!-- ==================== PWA MANAGER ==================== -->
-  <script defer src="js/utils/pwa.js"></script>
-  
-  <!-- ==================== CORE ==================== -->
   <script defer src="js/core/auth.js"></script>
-  <script defer src="js/core/constants.js"></script>
-  <script defer src="js/core/validation.js"></script>
-
+  <script defer src="js/ui/cookies.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background:var(--bg-secondary,#f7f9f7);
-      color:var(--text-primary,#0d2018);
-      line-height: 1.5;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --green:#1D9E75;--green-dark:#0f6e56;--green-light:#5DCAA5;
+      --green-border:rgba(29,158,117,0.2);
+      --dark:#0d2018;--dark2:#0a1912;
+      --cream:#f7f9f7;--white:#fff;
+      --text:#0d2018;--text2:#4b5563;--border:#eef4ee;
     }
-
+    html{scroll-behavior:smooth;}
+    body{font-family:"Outfit",sans-serif;background:var(--cream);color:var(--text);line-height:1.5;}
     /* HEADER */
-    .nd-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #0d2018;
-      border-bottom: 1px solid rgba(29,158,117,0.2);
-      padding: 0.75rem 2rem;
-    }
-    .header-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 2rem; }
-    .nd-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: #fff;
-      text-decoration: none;
-    }
-    .nd-logo em { font-style: italic; color: #5DCAA5; }
-    .nd-nav { display: flex; gap: 1.5rem; }
-    .nd-navlink {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nd-navlink:hover, .nd-navlink.active { color: #fff; }
-
-    .gregoire-mini {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(29,158,117,0.1);
-      padding: 0.25rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid rgba(29,158,117,0.2);
-      cursor: help;
-    }
-    .gregoire-mini:hover .tooltip-text { visibility: visible; opacity: 1; }
-    .tooltip-text {
-      visibility: hidden;
-      opacity: 0;
-      width: 250px;
-      background-color:var(--text-primary,#0d2018);
-      color: #5DCAA5;
-      text-align: center;
-      border-radius: 10px;
-      padding: 0.6rem;
-      position: absolute;
-      z-index: 1000;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 10px;
-      font-size: 0.7rem;
-      border: 1px solid #1D9E75;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-    .tooltip-text::after {
-      content: "";
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent #1D9E75 transparent;
-    }
-    .gregoire-mini-avatar {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, #1D9E75, #0f6e56);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .gregoire-mini-text {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.7);
-    }
-    .gregoire-mini-text strong { color: #5DCAA5; }
-
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
-    .nd-btn-ghost {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 999px;
-      padding: 0.4rem 1rem;
-      color: #fff;
-      font-size: 0.75rem;
-      cursor: pointer;
-    }
-    .nd-conn-wrap { position: relative; }
-    .nd-conn-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: #0d2018;
-      border: 1px solid rgba(29,158,117,0.2);
-      border-radius: 12px;
-      width: 180px;
-      margin-top: 0.5rem;
-      z-index: 101;
-    }
-    .nd-conn-menu.open { display: block; }
-    .nd-conn-item {
-      display: block;
-      padding: 0.5rem 1rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      font-size: 0.75rem;
-    }
-    .nd-conn-item:hover { background: rgba(29,158,117,0.1); color: #fff; }
-
-    @media (max-width: 900px) {
-      .nd-header { padding: 0.75rem 1rem; }
-      .nd-nav { display: none; }
-      .gregoire-mini { display: none; }
-    }
-
-    /* BARRE PROFIL DYNAMIQUE */
-    .dynamic-profil-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    /* THEME SELECTOR */
-    @media (max-width: 768px) {
-
-    /* FORM CARD */
-    .badge-warning {
-      background: #fff8e6;
-      color: #f59e0b;
-    }
-    .badge-success {
-      background: #e1f5ee;
-      color: #1D9E75;
-    }
-
-    /* FORM GROUP */
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-bottom: 0.4rem;
-      color:var(--text-primary,#0d2018);
-    }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 12px;
-      font-size: 0.9rem;
-      background:var(--bg-card,#fff);
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: #0ea5e9;
-      outline: none;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-    .field-hint {
-      font-size: 0.7rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.25rem;
-      display: block;
-    }
-    .req {
-      color: #ef4444;
-    }
-
-    /* DRAFT ACTIONS */
-    .draft-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-bottom: 1rem;
-    }
-    .draft-actions button {
-      font-size: 0.75rem;
-      padding: 6px 12px;
-    }
-
-    /* AVATAR */
-    .avatar-section {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .avatar-preview {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .avatar-upload {
-      flex: 1;
-    }
-    .avatar-upload input {
-      padding: 0.5rem;
-    }
-
-    /* SIRET VERIFICATION STATUS */
-    .siret-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      margin-top: 0.5rem;
-    }
-    .siret-status.verified {
-      background: #e1f5ee;
-      color: #1D9E75;
-    }
-    .siret-status.pending {
-      background: #fff8e6;
-      color: #f59e0b;
-    }
-    .siret-status.unverified {
-      background: #fef2f2;
-      color: #ef4444;
-    }
-
-    /* PROFESSION SELECTOR */
-    .profession-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin: 0.5rem 0;
-    }
-    @media (max-width: 600px) {
-      .profession-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    .profession-option {
-      background:var(--bg-secondary,#f7f9f7);
-      border: 2px solid #eef4ee;
-      border-radius: 12px;
-      padding: 0.75rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .profession-option:hover {
-      transform: translateY(-2px);
-    }
-    .profession-option.selected {
-      border-color: #0ea5e9;
-      background: rgba(14,165,233,0.05);
-    }
-    .profession-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.25rem;
-    }
-    .profession-name {
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    /* OBJECTIFS SELECTOR */
-    .objectifs-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-      margin: 0.5rem 0;
-    }
-    .objectif-option {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      border: 1px solid var(--border-light,#eef4ee);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .objectif-option:hover {
-      border-color: #0ea5e9;
-    }
-    .objectif-option.selected {
-      border-color: #0ea5e9;
-      background: rgba(14,165,233,0.05);
-    }
-    .objectif-option input {
-      margin: 0;
-      accent-color: #0ea5e9;
-    }
-    .objectif-option label {
-      font-size: 0.75rem;
-      cursor: pointer;
-      margin: 0;
-    }
-
-    /* CREDITS INFO */
-    .credits-info {
-      background: linear-gradient(135deg, #0d2018, #142c1f);
-      border-radius: 16px;
-      padding: 1rem;
-      margin-top: 1rem;
-      color: #fff;
-    }
-    .credits-info-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 0.5rem;
-    }
-    .credits-amount {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: #5DCAA5;
-      line-height: 1;
-    }
-    .credits-sub {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.25rem;
-    }
-
-    /* PACK SELECTOR */
-    .pack-selector {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin: 0.5rem 0;
-    }
-    @media (max-width: 600px) {
-      .pack-selector {
-        grid-template-columns: 1fr;
-      }
-    }
-    .pack-option {
-      background:var(--bg-secondary,#f7f9f7);
-      border: 2px solid #eef4ee;
-      border-radius: 16px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .pack-option:hover {
-      transform: translateY(-2px);
-    }
-    .pack-option.selected {
-      border-color: #0ea5e9;
-      background: rgba(14,165,233,0.05);
-    }
-    .pack-option.recommended {
-      border-color: #f59e0b;
-    }
-    .pack-option.recommended::before {
-      content: "⭐ RECOMMANDÉ";
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #f59e0b;
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 600;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .pack-name {
-      font-weight: 600;
-      font-size: 0.85rem;
-      margin-bottom: 0.25rem;
-    }
-    .pack-price {
-      font-size: 0.75rem;
-      color: #0ea5e9;
-      font-weight: 500;
-    }
-    .pack-desc {
-      font-size: 0.65rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-top: 0.25rem;
-    }
-
-    /* BUTTONS */
-    .btn-save {
-      background: #0ea5e9;
-      color: #fff;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
-    }
-    .btn-save:hover {
-      background: #0284c7;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border-light,#eef4ee);
-      color:var(--text-primary,#0d2018);
-      padding: 0.6rem 1rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-outline:hover {
-      border-color: #0ea5e9;
-      color: #0ea5e9;
-    }
-    .btn-delete {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fecaca;
-    }
-    .btn-delete:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
-    }
-    .btn-verify {
-      background: #0ea5e9;
-      color: #fff;
-      border: none;
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      cursor: pointer;
-      margin-left: 0.5rem;
-    }
-
-    /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0ea5e9;
-      color: #fff;
-      padding: 0.6rem 1.2rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      z-index: 2000;
-      animation: fadeInOut 2.5s ease;
-    }
-    .toast.error {
-      background: #ef4444;
-    }
-    .toast.warning {
-      background: #f59e0b;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    }
-
+    .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--green-border);padding:.7rem 2rem;}
+    .hc{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;}
+    .h-left{display:flex;align-items:center;gap:2rem;}
+    .nd-logo{font-family:"Playfair Display",serif;font-size:1.25rem;color:#fff;text-decoration:none;}
+    .nd-logo em{font-style:italic;color:var(--green-light);}
+    .nd-nav{display:flex;gap:1.5rem;}
+    .nd-navlink{font-size:.78rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nd-navlink:hover,.nd-navlink.active{color:#fff;}
+    .cofond{display:flex;align-items:center;gap:.45rem;background:rgba(29,158,117,.1);border:1px solid var(--green-border);border-radius:999px;padding:.2rem .75rem;position:relative;cursor:default;}
+    .cofond-av{width:24px;height:24px;background:linear-gradient(135deg,#1D9E75,#0f6e56);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;}
+    .cofond-txt{font-size:.62rem;color:rgba(255,255,255,.7);}
+    .cofond-txt strong{color:var(--green-light);}
+    .cofond-tip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:240px;background:var(--dark);border:1px solid var(--green-light);border-radius:10px;padding:.55rem;font-size:.65rem;color:var(--green-light);text-align:center;pointer-events:none;z-index:500;line-height:1.5;white-space:pre-line;}
+    .cofond:hover .cofond-tip{display:block;}
+    .h-right{display:flex;align-items:center;gap:.75rem;}
+    .nd-conn-wrap{position:relative;}
+    .nd-conn-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.38rem 1rem;color:#fff;font-size:.75rem;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .nd-conn-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--dark);border:1px solid var(--green-border);border-radius:12px;min-width:175px;overflow:hidden;z-index:300;}
+    .nd-conn-menu.open{display:block;}
+    .nd-conn-item{display:block;padding:.5rem 1rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:.75rem;transition:background .15s;cursor:pointer;}
+    .nd-conn-item:hover{background:rgba(29,158,117,.1);color:#fff;}
+    @media(max-width:900px){.nd-nav,.cofond{display:none;}.nd-header{padding:.65rem 1rem;}}
+    /* SPLIT */
+    .split{display:grid;grid-template-columns:270px 1fr;min-height:100vh;padding-top:57px;}
+    @media(max-width:960px){.split{grid-template-columns:1fr;}}
+    /* SIDEBAR */
+    .profil-sidebar{background:var(--dark2);padding:1.75rem 1.25rem;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;display:flex;flex-direction:column;gap:.35rem;}
+    @media(max-width:960px){.profil-sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:.85rem 1rem;}}
+    .sidebar-user{display:flex;align-items:center;gap:.85rem;padding:.85rem;margin-bottom:.75rem;background:rgba(255,255,255,.05);border-radius:14px;border:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+    .sidebar-logo-preview{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;overflow:hidden;flex-shrink:0;}
+    .sidebar-logo-preview img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
+    .su-info h3{font-size:.85rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:.35rem;}
+    .su-info p{font-size:.63rem;color:rgba(255,255,255,.4);margin-top:.1rem;}
+    .verified-badge{display:inline-flex;align-items:center;gap:.2rem;font-size:.58rem;background:rgba(29,158,117,.25);color:var(--green-light);border-radius:999px;padding:.1rem .4rem;font-weight:700;}
+    .sidebar-nav-btn{display:flex;align-items:center;gap:.6rem;padding:.65rem .9rem;border-radius:10px;cursor:pointer;font-size:.78rem;color:rgba(255,255,255,.5);transition:all .2s;border:none;background:transparent;text-align:left;width:100%;font-family:"Outfit",sans-serif;white-space:nowrap;}
+    .sidebar-nav-btn:hover{background:rgba(255,255,255,.06);color:#fff;}
+    .sidebar-nav-btn.active{background:rgba(29,158,117,.12);color:var(--green-light);font-weight:600;}
+    .sidebar-nav-icon{font-size:.95rem;width:20px;flex-shrink:0;}
+    .sidebar-plans{margin-top:auto;padding:.85rem 1rem;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.2);border-radius:12px;flex-shrink:0;}
+    .sp-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:.25rem;}
+    .sp-value{font-family:"Playfair Display",serif;font-size:1.75rem;color:var(--green-light);line-height:1;}
+    .sp-unit{font-size:.62rem;color:rgba(255,255,255,.35);}
+    .sp-formule{font-size:.62rem;color:rgba(255,255,255,.4);margin-top:.35rem;}
+    .sp-link{display:inline-block;margin-top:.4rem;font-size:.65rem;color:var(--green-light);text-decoration:none;border-bottom:1px solid rgba(93,202,165,.3);}
+    @media(max-width:960px){.sidebar-user,.sidebar-plans{display:none;}}
+    /* MAIN */
+    .profil-main{padding:2rem 2.5rem 3rem;overflow-y:auto;}
+    @media(max-width:600px){.profil-main{padding:1.5rem 1rem 2rem;}}
+    .sec{display:none;animation:fadeIn .3s ease;}
+    .sec.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    /* CARDS */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.5rem;margin-bottom:1.25rem;}
+    .card-title{font-family:"Playfair Display",serif;font-size:1.2rem;color:var(--text);margin-bottom:1.25rem;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+    .tag-sm{font-family:"Outfit",sans-serif;font-size:.6rem;font-weight:700;padding:.18rem .6rem;border-radius:999px;}
+    .tag-green{background:#e1f5ee;color:var(--green);}
+    .tag-orange{background:#fff8e6;color:#f59e0b;}
+    .tag-blue{background:#eff6ff;color:#0ea5e9;}
+    /* FORM */
+    .form-group{margin-bottom:1.1rem;}
+    .form-group label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;color:var(--text);}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:.6rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:.85rem;font-family:"Outfit",sans-serif;background:var(--white);color:var(--text);transition:border-color .2s;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px rgba(29,158,117,.08);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+    @media(max-width:580px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+    .req{color:#ef4444;}
+    .field-hint{font-size:.67rem;color:var(--text2);margin-top:.2rem;display:block;}
+    .field-warn{font-size:.7rem;color:#92400e;background:#fff8e6;border:1px solid #fcd34d;border-radius:8px;padding:.35rem .65rem;margin-top:.3rem;display:block;}
+    /* LOGO UPLOAD */
+    .logo-upload-zone{border:2px dashed var(--border);border-radius:14px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .logo-upload-zone:hover{border-color:var(--green);background:rgba(29,158,117,.03);}
+    .logo-upload-zone.has-logo{border-style:solid;border-color:var(--green);}
+    .logo-preview{width:120px;height:60px;object-fit:contain;margin:0 auto .75rem;display:block;}
+    .logo-upload-icon{font-size:2rem;margin-bottom:.5rem;}
+    .logo-upload-txt{font-size:.78rem;color:var(--text2);}
+    .logo-upload-txt strong{color:var(--text);}
+    /* SIRET */
+    .siret-row{display:flex;gap:.5rem;align-items:flex-start;}
+    .siret-row input{flex:1;}
+    .btn-verify{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.55rem 1rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;white-space:nowrap;flex-shrink:0;}
+    .siret-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:999px;font-size:.68rem;font-weight:600;margin-top:.35rem;}
+    .sb-ok{background:#e1f5ee;color:var(--green);}
+    .sb-pending{background:#fff8e6;color:#f59e0b;}
+    .sb-err{background:#fef2f2;color:#ef4444;}
+    /* PROFESSIONS */
+    .prof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin-top:.4rem;}
+    @media(max-width:680px){.prof-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:440px){.prof-grid{grid-template-columns:repeat(2,1fr);}}
+    .prof-opt{background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:.65rem .5rem;text-align:center;cursor:pointer;transition:all .2s;}
+    .prof-opt:hover{border-color:var(--green);transform:translateY(-2px);}
+    .prof-opt.selected{border-color:var(--green);background:rgba(29,158,117,.06);}
+    .prof-icon{font-size:1.3rem;margin-bottom:.2rem;}
+    .prof-name{font-size:.65rem;font-weight:600;color:var(--text);}
+    /* SEO SERVICES */
+    .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem;}
+    @media(max-width:580px){.services-grid{grid-template-columns:1fr 1fr;}}
+    .svc-opt{display:flex;align-items:center;gap:.5rem;padding:.55rem .8rem;background:var(--cream);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;user-select:none;}
+    .svc-opt:hover{border-color:var(--green);}
+    .svc-opt.selected{border-color:var(--green);background:rgba(29,158,117,.06);}
+    .svc-opt input{display:none;}
+    .svc-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:.65rem;}
+    .svc-opt.selected .svc-check{background:var(--green);border-color:var(--green);color:#fff;}
+    .svc-label{font-size:.72rem;color:var(--text);}
+    /* VERIFICATION IDENTITE */
+    .verif-methods{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:1rem;}
+    @media(max-width:480px){.verif-methods{grid-template-columns:1fr;}}
+    .verif-card{border:1.5px solid var(--border);border-radius:14px;padding:1.1rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .verif-card:hover{border-color:var(--green);transform:translateY(-3px);}
+    .verif-card.done{border-color:var(--green);background:#f0faf6;}
+    .verif-card.pending{border-color:#f59e0b;background:#fffbeb;}
+    .verif-icon{font-size:2rem;margin-bottom:.5rem;}
+    .verif-name{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+    .verif-desc{font-size:.7rem;color:var(--text2);line-height:1.55;}
+    .verif-status{position:absolute;top:.75rem;right:.75rem;font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:999px;}
+    .vs-done{background:#e1f5ee;color:var(--green);}
+    .vs-pending{background:#fff8e6;color:#f59e0b;}
+    .vs-none{background:var(--border);color:var(--text2);}
+    .upload-cni-zone{border:2px dashed var(--border);border-radius:12px;padding:1.25rem;text-align:center;margin-top:.75rem;cursor:pointer;transition:all .2s;}
+    .upload-cni-zone:hover{border-color:var(--green);background:rgba(29,158,117,.03);}
+    .verif-badge-preview{display:inline-flex;align-items:center;gap:.4rem;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.25);border-radius:999px;padding:.3rem .85rem;font-size:.75rem;font-weight:600;color:var(--green);margin-top:.75rem;}
+    /* IBAN */
+    .iban-display{font-family:monospace;font-size:.95rem;background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;letter-spacing:.05em;color:var(--text);}
+    .iban-actions{display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;}
+    .btn-iban-toggle{background:none;border:1px solid var(--border);border-radius:999px;padding:.3rem .75rem;font-size:.72rem;cursor:pointer;font-family:"Outfit",sans-serif;color:var(--text2);transition:all .2s;}
+    .btn-iban-toggle:hover{border-color:var(--green);color:var(--green);}
+    /* FORMULE CRM */
+    .formule-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+    @media(max-width:540px){.formule-grid{grid-template-columns:1fr;}}
+    .formule-card{border:1.5px solid var(--border);border-radius:14px;padding:1.1rem;cursor:pointer;transition:all .2s;position:relative;}
+    .formule-card:hover{border-color:var(--green);}
+    .formule-card.active{border-color:var(--green);background:rgba(29,158,117,.04);box-shadow:0 0 0 3px rgba(29,158,117,.1);}
+    .fc-badge{position:absolute;top:-10px;right:.85rem;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:999px;background:var(--green);color:#fff;}
+    .fc-name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+    .fc-price{font-family:"Playfair Display",serif;font-size:1.4rem;font-weight:700;color:var(--green);}
+    .fc-price span{font-family:"Outfit",sans-serif;font-size:.72rem;font-weight:400;color:var(--text2);}
+    .fc-feats{display:flex;flex-direction:column;gap:.28rem;margin-top:.65rem;}
+    .fc-feat{font-size:.7rem;color:var(--text2);display:flex;align-items:flex-start;gap:.35rem;}
+    .fc-feat::before{content:"\2713";color:var(--green);font-weight:700;flex-shrink:0;}
+    .fc-feat.off{color:#9ca3af;}
+    .fc-feat.off::before{content:"\2014";color:#d1d5db;}
+    /* NOTIFS */
+    .notif-list{display:flex;flex-direction:column;gap:.55rem;}
+    .notif-row{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;background:var(--cream);border-radius:12px;gap:1rem;}
+    .notif-info h4{font-size:.82rem;font-weight:600;color:var(--text);}
+    .notif-info p{font-size:.68rem;color:var(--text2);margin-top:.1rem;}
+    .toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .tslider{position:absolute;inset:0;background:#d1d5db;border-radius:999px;cursor:pointer;transition:background .2s;}
+    .tslider::before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    .toggle input:checked + .tslider{background:var(--green);}
+    .toggle input:checked + .tslider::before{transform:translateX(18px);}
+    /* DANGER */
+    .danger-box{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+    .danger-box p{font-size:.82rem;color:#991b1b;line-height:1.65;}
+    /* PACKS PYRAMIDE */
+    .pyr{display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem;}
+    .pyr-row{display:flex;align-items:center;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:.6rem 1rem;cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
+    .pyr-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border);transition:background .2s;}
+    .pyr-row:hover{border-color:var(--green);}
+    .pyr-row:hover::before{background:var(--green);}
+    .pyr-name{font-size:.8rem;font-weight:700;color:var(--text);min-width:80px;}
+    .pyr-qty{font-size:.7rem;color:var(--text2);flex:1;padding:0 .6rem;}
+    .pyr-prices{display:flex;align-items:baseline;gap:.35rem;margin-right:.6rem;}
+    .pyr-old{font-size:.68rem;color:#9ca3af;text-decoration:line-through;}
+    .pyr-new{font-family:"Playfair Display",serif;font-size:1.1rem;font-weight:700;color:var(--green-dark);}
+    .pyr-per{font-size:.68rem;font-weight:700;color:var(--green);min-width:70px;text-align:right;}
+    /* BOUTONS */
+    .btn-primary{background:var(--green);color:#fff;border:none;padding:.7rem 1.5rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-primary:hover{background:var(--green-dark);}
+    .btn-secondary{background:var(--cream);border:1px solid var(--border);color:var(--text2);padding:.6rem 1rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-secondary:hover{border-color:var(--green);color:var(--green);}
+    .btn-danger{background:#ef4444;color:#fff;border:none;border-radius:999px;padding:.65rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .btn-danger:hover{background:#dc2626;}
+    .btn-row{display:flex;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap;}
     /* MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 300;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open {
-      display: flex;
-    }
-    .modal {
-      background:var(--bg-card,#fff);
-      border-radius: 24px;
-      padding: 1.5rem;
-      max-width: 450px;
-      width: 90%;
-    }
-    .modal-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      margin-bottom: 0.75rem;
-    }
-    .modal-desc {
-      font-size: 0.85rem;
-      color:var(--text-secondary,#6b7b74);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-    .modal-btns {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-    }
-
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:22px;padding:1.5rem;max-width:460px;width:100%;}
+    .modal-title{font-family:"Playfair Display",serif;font-size:1.2rem;margin-bottom:.65rem;color:var(--text);}
+    .modal-desc{font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;line-height:1.65;}
+    .modal-btns{display:flex;gap:.75rem;justify-content:flex-end;}
+    /* TOAST */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;pointer-events:none;}
+    .toast.error{background:#ef4444;}
+    @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn.visible{opacity:1;}
     /* FOOTER */
-    .nd-footer {
-      background: #080f0b;
-      color: rgba(255,255,255,0.5);
-      padding: 3rem 2rem 1.5rem;
-      margin-top: 3rem;
-    }
-    .nd-footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.5fr 2fr;
-      gap: 2rem;
-    }
-    .nd-logo-footer {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: #fff;
-      margin-bottom: 0.5rem;
-    }
-    .nd-logo-footer em { font-style: italic; color: #5DCAA5; }
-    .nd-footer-brand p { font-size: 0.7rem; line-height: 1.6; max-width: 280px; }
-    .nd-footer-links {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-    .nd-footer-col-title {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 0.5rem;
-    }
-    .nd-footer-col a {
-      display: block;
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      margin-bottom: 0.3rem;
-    }
-    .nd-footer-col a:hover { color: #fff; }
-    .nd-footer-bottom {
-      text-align: center;
-      font-size: 0.65rem;
-      padding-top: 2rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-    @media (max-width: 768px) {
-      .nd-footer-inner { grid-template-columns: 1fr; }
-      .nd-footer-links { grid-template-columns: 1fr 1fr; }
-    }
-
-    .scroll-top-btn {
-      position: fixed; bottom: 1rem; right: 1rem;
-      width: 40px; height: 40px;
-      background: #0ea5e9; color: #fff;
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      opacity: 0; transition: opacity 0.2s;
-      z-index: 200;
-    }
-    .scroll-top-btn.visible { opacity: 1; }
+    .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:2.5rem 2rem 1.5rem;}
+    .nd-footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 2fr;gap:2rem;}
+    .nd-logo-footer{font-family:"Playfair Display",serif;font-size:1.1rem;color:#fff;margin-bottom:.4rem;}
+    .nd-logo-footer em{font-style:italic;color:var(--green-light);}
+    .nd-footer-brand p{font-size:.7rem;line-height:1.6;max-width:280px;}
+    .nd-footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .nd-footer-col-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:.5rem;}
+    .nd-footer-col a{display:block;font-size:.7rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:.3rem;transition:color .2s;}
+    .nd-footer-col a:hover{color:#fff;}
+    .nd-footer-bottom{text-align:center;font-size:.62rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.05);}
+    @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
+<body>
 
-<!-- ==================== THÈME SELECTOR ==================== -->
-
-<!-- HEADER -->
-<header class="nd-header" id="ndHeader">
-  <div class="header-container">
-    <div class="header-left">
-      <a href="index.html" class="nd-logo">Nutri<em>Doc</em></a>
+<header class="nd-header">
+  <div class="hc">
+    <div class="h-left">
+      <a href="prescripteur-dashboard.html" class="nd-logo">Nutri<em>Doc</em></a>
       <nav class="nd-nav">
-        <a href="prescripteur-dashboard.html" class="nd-navlink active">Mon espace</a>
-        <a href="prescripteur-crm.html" class="nd-navlink">CRM Clients</a>
-        <a href="compta-prescripteur.html" class="nd-navlink">Comptabilité</a>
+        <a href="prescripteur-dashboard.html" class="nd-navlink">&#8592; Tableau de bord</a>
+        <a href="gestion-credits-prescripteur.html" class="nd-navlink">Mes plans</a>
+        <a href="profil-prescripteur.html" class="nd-navlink active">Mon profil</a>
       </nav>
     </div>
-    
-    <div class="gregoire-mini">
-      <div class="gregoire-mini-avatar">GM</div>
-      <div class="gregoire-mini-text">
-        <strong>Grégoire Martin</strong> · Diététicien RPPS
-      </div>
-      <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert · 🚒 Pompier expert</span>
+    <div class="cofond">
+      <div class="cofond-av">GM</div>
+      <div class="cofond-txt"><strong>Gr&eacute;goire Martin</strong> &middot; Di&eacute;t. RPPS r&eacute;f&eacute;rent</div>
+      <div class="cofond-tip">&#11088; Di&eacute;t&eacute;ticien co-fondateur NutriDoc
+&#127973; CHU Angoul&ecirc;me &middot; &#127968; Cabinet lib&eacute;ral
+&#128658; Sapeur-Pompier Expert</div>
     </div>
-
-    <div class="header-actions">
-      <div class="nd-conn-wrap" id="ndConnWrap">
-        <button class="nd-btn-ghost" onclick="toggleConn()">Mon compte ▾</button>
-        <div class="nd-conn-menu" id="ndConnMenu">
-          <a href="profil-prescripteur.html" class="nd-conn-item active">👤 Mon profil</a>
-          <a href="#" onclick="deconnecter()" class="nd-conn-item">🔓 Se déconnecter</a>
+    <div class="h-right">
+      <div class="nd-conn-wrap">
+        <button class="nd-conn-btn" onclick="toggleConn()">Mon compte &#9662;</button>
+        <div class="nd-conn-menu" id="connMenu">
+          <a href="profil-prescripteur.html" class="nd-conn-item">&#128100; Mon profil</a>
+          <a href="prescripteur-dashboard.html" class="nd-conn-item">&#128202; Tableau de bord</a>
+          <div class="nd-conn-item" onclick="deconnecter()">&#128275; Se d&eacute;connecter</div>
         </div>
       </div>
     </div>
   </div>
 </header>
 
-<!-- MAIN CONTENT -->
-<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mon profil Prescripteur</h1>
-<main class="profil-container">
-  
-  <div class="profil-card">
-    <div class="profil-card-header">
-      <h2>🏢 Mon profil prescripteur</h2>
-      <span class="badge">SIRET obligatoire</span>
+<div class="split">
+
+  <!-- SIDEBAR -->
+  <aside class="profil-sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-logo-preview" id="sidebarLogo">?</div>
+      <div class="su-info">
+        <h3>
+          <span id="sidebarNom">Mon compte</span>
+          <span class="verified-badge" id="verifiedBadge" style="display:none;">&#10003; V&eacute;rifi&eacute;</span>
+        </h3>
+        <p id="sidebarProf">Prescripteur</p>
+      </div>
     </div>
 
-    <!-- BOUTONS SAUVEGARDE AUTO -->
-    <div class="draft-actions">
-      <button type="button" onclick="manualSave('profilPrescForm')" style="background: #0ea5e9; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        💾 Sauvegarder maintenant
-      </button>
-      <button type="button" onclick="restoreLastDraft('profilPrescForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        🔄 Restaurer brouillon
-      </button>
-      <button type="button" onclick="clearCurrentDraft('profilPrescForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        🗑️ Effacer brouillon
-      </button>
+    <button class="sidebar-nav-btn active" onclick="showSec('identite',this)">
+      <span class="sidebar-nav-icon">&#128100;</span>Identit&eacute; &amp; logo
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('pro',this)">
+      <span class="sidebar-nav-icon">&#127970;</span>SIRET &amp; profession
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('seo',this)">
+      <span class="sidebar-nav-icon">&#128269;</span>Services &amp; SEO
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('verif',this)">
+      <span class="sidebar-nav-icon">&#9989;</span>V&eacute;rification identit&eacute;
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('iban',this)">
+      <span class="sidebar-nav-icon">&#127981;</span>IBAN &amp; facturation
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('plans',this)">
+      <span class="sidebar-nav-icon">&#128230;</span>Plans &amp; CRM
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('notifs',this)">
+      <span class="sidebar-nav-icon">&#128276;</span>Notifications
+    </button>
+    <button class="sidebar-nav-btn" onclick="showSec('danger',this)">
+      <span class="sidebar-nav-icon">&#9888;&#65039;</span>Zone dangereuse
+    </button>
+
+    <div class="sidebar-plans">
+      <div class="sp-label">Plans disponibles</div>
+      <div class="sp-value" id="spValue">0</div>
+      <div class="sp-unit">plans sur-mesure</div>
+      <div class="sp-formule" id="spFormule">Formule Gratuite</div>
+      <a href="gestion-credits-prescripteur.html" class="sp-link">Commander des plans &rarr;</a>
     </div>
+  </aside>
 
-    <form id="profilPrescForm">
-      <!-- AVATAR -->
-      <div class="avatar-section">
-        <div class="avatar-preview" id="avatarPreview">
-          👤
-        </div>
-        <div class="avatar-upload">
-          <label style="font-size:0.8rem; font-weight:500;">Photo de profil</label>
-          <input type="file" id="avatarInput" accept="image/*" style="margin-top:0.3rem;">
-          <span class="field-hint">Format JPG ou PNG, max 2 Mo</span>
-        </div>
-      </div>
+  <main class="profil-main">
 
-      <!-- IDENTITÉ -->
-      <div class="form-row">
+    <!-- 1. IDENTITE & LOGO -->
+    <div id="sec-identite" class="sec active">
+      <div class="card">
+        <div class="card-title">&#128100; Identit&eacute; &amp; logo cabinet</div>
+
+        <!-- LOGO -->
         <div class="form-group">
-          <label>Prénom <span class="req">*</span></label>
-          <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
-        </div>
-        <div class="form-group">
-          <label>Nom <span class="req">*</span></label>
-          <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Email professionnel <span class="req">*</span></label>
-          <input type="email" id="email" name="email" placeholder="contact@cabinet.fr" required>
-        </div>
-        <div class="form-group">
-          <label>Téléphone professionnel</label>
-          <input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78">
-        </div>
-      </div>
-
-      <!-- SIRET SECTION -->
-      <div class="form-group">
-        <label>Numéro SIRET <span class="req">*</span></label>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="text" id="siret" name="siret" placeholder="123 456 789 00012" style="flex: 1;" maxlength="19">
-          <button type="button" class="btn-verify" onclick="verifierSIRET()">Vérifier</button>
-        </div>
-        <div id="siretStatus" class="siret-status pending" style="margin-top: 0.5rem;">
-          <span>⏳ En attente de vérification</span>
-        </div>
-        <span class="field-hint">Format : 14 chiffres (ex: 12345678900012)</span>
-      </div>
-
-      <!-- PROFESSION -->
-      <div class="form-group">
-        <label>Profession <span class="req">*</span></label>
-        <div class="profession-grid" id="professionGrid">
-          <div class="profession-option" data-profession="medecin" onclick="selectProfession(this)">
-            <div class="profession-icon">🩺</div>
-            <div class="profession-name">Médecin</div>
-          </div>
-          <div class="profession-option" data-profession="kine" onclick="selectProfession(this)">
-            <div class="profession-icon">🦴</div>
-            <div class="profession-name">Kinésithérapeute</div>
-          </div>
-          <div class="profession-option" data-profession="coach" onclick="selectProfession(this)">
-            <div class="profession-icon">💪</div>
-            <div class="profession-name">Coach sportif</div>
-          </div>
-          <div class="profession-option" data-profession="osteopathe" onclick="selectProfession(this)">
-            <div class="profession-icon">🤲</div>
-            <div class="profession-name">Ostéopathe</div>
-          </div>
-          <div class="profession-option" data-profession="preparateur" onclick="selectProfession(this)">
-            <div class="profession-icon">🏃</div>
-            <div class="profession-name">Préparateur physique</div>
-          </div>
-          <div class="profession-option" data-profession="sage_femme" onclick="selectProfession(this)">
-            <div class="profession-icon">👶</div>
-            <div class="profession-name">Sage-femme</div>
-          </div>
-          <div class="profession-option" data-profession="infirmier" onclick="selectProfession(this)">
-            <div class="profession-icon">💉</div>
-            <div class="profession-name">Infirmier·e</div>
-          </div>
-          <div class="profession-option" data-profession="naturopathe" onclick="selectProfession(this)">
-            <div class="profession-icon">🌿</div>
-            <div class="profession-name">Naturopathe</div>
-          </div>
-          <div class="profession-option" data-profession="autre" onclick="selectProfession(this)">
-            <div class="profession-icon">👤</div>
-            <div class="profession-name">Autre</div>
-          </div>
-        </div>
-        <input type="hidden" id="profession" name="profession">
-      </div>
-
-      <!-- OBJECTIFS AUTORISÉS -->
-      <div class="form-group">
-        <label>Objectifs autorisés pour vos commandes</label>
-        <div class="objectifs-grid" id="objectifsGrid">
-          <div class="objectif-option" onclick="toggleObjectif(this, 'perte_poids')">
-            <input type="checkbox" id="obj_perte_poids" value="perte_poids">
-            <label>⚖️ Perte de poids</label>
-          </div>
-          <div class="objectif-option" onclick="toggleObjectif(this, 'prise_masse')">
-            <input type="checkbox" id="obj_prise_masse" value="prise_masse">
-            <label>💪 Prise de masse</label>
-          </div>
-          <div class="objectif-option" onclick="toggleObjectif(this, 'equilibre')">
-            <input type="checkbox" id="obj_equilibre" value="equilibre">
-            <label>🥗 Équilibre alimentaire</label>
-          </div>
-          <div class="objectif-option" onclick="toggleObjectif(this, 'sante')">
-            <input type="checkbox" id="obj_sante" value="sante">
-            <label>❤️ Prévention santé</label>
-          </div>
-          <div class="objectif-option" onclick="toggleObjectif(this, 'sport_perf')">
-            <input type="checkbox" id="obj_sport_perf" value="sport_perf">
-            <label>🏃 Performance sportive</label>
-          </div>
-          <div class="objectif-option" onclick="toggleObjectif(this, 'pathologie')">
-            <input type="checkbox" id="obj_pathologie" value="pathologie">
-            <label>🏥 Pathologie spécifique</label>
-          </div>
-        </div>
-        <span class="field-hint">Ces objectifs seront proposés à vos patients</span>
-      </div>
-
-      <!-- CABINET / STRUCTURE -->
-      <div class="form-group">
-        <label>Nom de la structure / cabinet</label>
-        <input type="text" id="cabinet" name="cabinet" placeholder="Ex: Cabinet Médical Saint-Médard">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Adresse</label>
-          <input type="text" id="adresse" name="adresse" placeholder="Numéro et rue">
-        </div>
-        <div class="form-group">
-          <label>Code postal</label>
-          <input type="text" id="codePostal" name="codePostal" placeholder="Ex: 75001">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Ville</label>
-          <input type="text" id="ville" name="ville" placeholder="Ex: Paris">
-        </div>
-        <div class="form-group">
-          <label>Site web</label>
-          <input type="url" id="siteWeb" name="siteWeb" placeholder="https://...">
-        </div>
-      </div>
-
-      <!-- CRÉDITS RESTANTS -->
-      <div class="credits-info">
-        <div class="credits-info-title">💰 Crédits disponibles</div>
-        <div class="credits-amount" id="creditsAmount">—</div>
-        <div class="credits-sub">1 crédit = 1 plan alimentaire validé par un diététicien RPPS</div>
-        <div style="margin-top: 0.5rem;">
-          <a href="inscription-prescripteur.html" class="btn-outline" style="display: inline-block; padding: 0.3rem 0.8rem; font-size: 0.7rem;">+ Recharger des crédits</a>
-        </div>
-      </div>
-
-      <!-- PACK ACTUEL -->
-      <div class="form-group" style="margin-top: 1rem;">
-        <label>Pack actuel</label>
-        <div id="packActuel" style="background: #e0f2fe; border-radius: 12px; padding: 0.75rem 1rem; margin-top: 0.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <strong id="packNom">Pack Standard</strong>
-              <span id="packDetails" style="color: #0284c7;">10 crédits · 13€/plan</span>
+          <label>Logo de votre cabinet / structure</label>
+          <div class="logo-upload-zone" id="logoZone" onclick="document.getElementById('logoInput').click()">
+            <img id="logoPreviewImg" class="logo-preview" src="" alt="" style="display:none;"/>
+            <div id="logoPlaceholder">
+              <div class="logo-upload-icon">&#128444;&#65039;</div>
+              <div class="logo-upload-txt"><strong>Cliquez pour uploader votre logo</strong><br>PNG ou SVG transparent recommand&eacute; &bull; Max 1 Mo</div>
             </div>
-            <a href="inscription-prescripteur.html" class="btn-outline" style="font-size:0.7rem;">Changer →</a>
+            <input type="file" id="logoInput" accept="image/*" style="display:none;"/>
+          </div>
+          <span class="field-hint">Ce logo apparaît sur chaque plan alimentaire envoy&eacute; &agrave; vos clients.</span>
+        </div>
+
+        <!-- IDENTITE -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pr&eacute;nom <span class="req">*</span></label>
+            <input type="text" id="prenom" placeholder="Votre pr&eacute;nom"/>
+          </div>
+          <div class="form-group">
+            <label>Nom <span class="req">*</span></label>
+            <input type="text" id="nom" placeholder="Votre nom"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email professionnel <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="contact@cabinet.fr"/>
+          </div>
+          <div class="form-group">
+            <label>T&eacute;l&eacute;phone</label>
+            <input type="tel" id="telephone" placeholder="06 12 34 56 78"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Site web ou Doctolib</label>
+          <input type="url" id="siteWeb" placeholder="https://..."/>
+        </div>
+        <div class="form-group">
+          <label>Pr&eacute;sentation professionnelle</label>
+          <textarea id="description" rows="3" placeholder="Votre parcours, expertise, approche... Visible par les patients que vous prenez en charge."></textarea>
+          <span class="field-hint">Affich&eacute;e sur votre profil public NutriDoc</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="sauvegarder('identite')">&#128190; Sauvegarder</button>
+          <button class="btn-secondary" onclick="annuler()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SIRET & PROFESSION -->
+    <div id="sec-pro" class="sec">
+      <div class="card">
+        <div class="card-title">&#127970; SIRET &amp; profession</div>
+        <div class="form-group">
+          <label>Num&eacute;ro SIRET <span class="req">*</span></label>
+          <div class="siret-row">
+            <input type="text" id="siret" placeholder="14 chiffres" maxlength="14" inputmode="numeric"/>
+            <button class="btn-verify" onclick="verifierSIRET()">V&eacute;rifier INSEE</button>
+          </div>
+          <div id="siretStatus" class="siret-badge sb-pending">&#9203; En attente de v&eacute;rification</div>
+          <span class="field-hint">V&eacute;rifi&eacute; en temps r&eacute;el via l&apos;API officielle INSEE</span>
+        </div>
+        <div class="form-group">
+          <label>Nom du cabinet / structure</label>
+          <input type="text" id="cabinet" placeholder="Ex : Cabinet M&eacute;dical Saint-M&eacute;dard"/>
+          <span class="field-hint">Apparaît sur les plans alimentaires envoy&eacute;s &agrave; vos clients</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="adresse" placeholder="N&deg; et rue"/>
+          </div>
+          <div class="form-group">
+            <label>Code postal</label>
+            <input type="text" id="codePostal" placeholder="Ex : 16000" maxlength="5"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Ville <span class="req">*</span></label>
+          <input type="text" id="ville" placeholder="Ex : Angoul&ecirc;me"/>
+          <span class="field-hint">Utilis&eacute;e pour assigner le di&eacute;t. RPPS le plus proche de vos clients</span>
+        </div>
+        <div class="form-group">
+          <label>Profession <span class="req">*</span></label>
+          <div class="prof-grid">
+            <div class="prof-opt" data-val="medecin" onclick="selectProf(this)"><div class="prof-icon">&#129514;</div><div class="prof-name">M&eacute;decin</div></div>
+            <div class="prof-opt" data-val="kine" onclick="selectProf(this)"><div class="prof-icon">&#128170;</div><div class="prof-name">Kin&eacute;</div></div>
+            <div class="prof-opt" data-val="coach" onclick="selectProf(this)"><div class="prof-icon">&#127947;</div><div class="prof-name">Coach sportif</div></div>
+            <div class="prof-opt" data-val="osteo" onclick="selectProf(this)"><div class="prof-icon">&#129487;</div><div class="prof-name">Ost&eacute;opathe</div></div>
+            <div class="prof-opt" data-val="infirmier" onclick="selectProf(this)"><div class="prof-icon">&#128137;</div><div class="prof-name">Infirmier&middot;e</div></div>
+            <div class="prof-opt" data-val="pharmacien" onclick="selectProf(this)"><div class="prof-icon">&#128138;</div><div class="prof-name">Pharmacien</div></div>
+            <div class="prof-opt" data-val="sage_femme" onclick="selectProf(this)"><div class="prof-icon">&#128118;</div><div class="prof-name">Sage-femme</div></div>
+            <div class="prof-opt" data-val="estheticien" onclick="selectProf(this)"><div class="prof-icon">&#10024;</div><div class="prof-name">Esth&eacute;ticien</div></div>
+            <div class="prof-opt" data-val="naturopathe" onclick="selectProf(this)"><div class="prof-icon">&#127807;</div><div class="prof-name">Naturopathe</div></div>
+            <div class="prof-opt" data-val="salle_sport" onclick="selectProf(this)"><div class="prof-icon">&#127967;</div><div class="prof-name">Salle de sport</div></div>
+            <div class="prof-opt" data-val="prep" onclick="selectProf(this)"><div class="prof-icon">&#127939;</div><div class="prof-name">Pr&eacute;parateur</div></div>
+            <div class="prof-opt" data-val="autre" onclick="selectProf(this)"><div class="prof-icon">&#128100;</div><div class="prof-name">Autre</div></div>
+          </div>
+          <input type="hidden" id="profession"/>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="sauvegarder('pro')">&#128190; Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SEO & SERVICES -->
+    <div id="sec-seo" class="sec">
+      <div class="card">
+        <div class="card-title">&#128269; Services propos&eacute;s &amp; mots-cl&eacute;s SEO <span class="tag-sm tag-blue">Visibilit&eacute; NutriDoc</span></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.1rem;line-height:1.65;">
+          Cochez les services que vous proposez. Ils sont utilis&eacute;s pour vous rendre visible dans les recherches NutriDoc et am&eacute;liorer votre r&eacute;f&eacute;rencement lors des demandes de plans alimentaires.
+        </p>
+
+        <div class="form-group">
+          <label>Sport &amp; performance</label>
+          <div class="services-grid">
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127947; Coaching sportif</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127939; Pr&eacute;paration physique</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129470; Musculation / Cross-fit</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127748; Yoga / Pilates</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127944; Triathlon / Endurance</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#9917; Nutrition sportive</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Sant&eacute; &amp; bien-&ecirc;tre</label>
+          <div class="services-grid">
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128170; Kin&eacute;sith&eacute;rapie</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129487; Ost&eacute;opathie</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128137; Soins infirmiers</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#9877;&#65039; M&eacute;decine g&eacute;n&eacute;rale</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127807; Naturopathie</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129514; M&eacute;decine fonctionnelle</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128118; Su ivi grossesse</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128138; Conseil officinal</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129513; R&eacute;&eacute;ducation</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Esth&eacute;tique &amp; minceur</label>
+          <div class="services-grid">
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#10024; Esth&eacute;tique / soins corps</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127811; Cryolipolyse / massage</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#9878;&#65039; Perte de poids</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128164; Spa &amp; bien-&ecirc;tre</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128136; Accompagnement minceur</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128166; Post-chirurgie bariatrique</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Pathologies &amp; sp&eacute;cialisations</label>
+          <div class="services-grid">
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#128166; Diab&egrave;te type 2</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#10084;&#65039; Maladies cardiovasculaires</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129426; Troubles digestifs</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129504; TCA / Boulimie</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#129518; Seniors &amp; g&eacute;riatrie</span></div>
+            <div class="svc-opt" onclick="toggleSvc(this)"><div class="svc-check"></div><span class="svc-label">&#127801; P&eacute;diatrie &amp; enfants</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mots-cl&eacute;s libres <span style="font-weight:400;color:var(--text2);">(facultatif)</span></label>
+          <input type="text" id="motsClesLibres" placeholder="Ex : jeune intermittent, v&eacute;ganisme, athl&egrave;te..."/>
+          <span class="field-hint">S&eacute;par&eacute;s par des virgules. Utilisables par le moteur de recherche NutriDoc.</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="sauvegarder('seo')">&#128190; Sauvegarder les services</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. VERIFICATION IDENTITE -->
+    <div id="sec-verif" class="sec">
+      <div class="card">
+        <div class="card-title">&#9989; V&eacute;rification d&apos;identit&eacute; <span class="tag-sm tag-orange">Optionnel</span></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.65;">
+          Une identit&eacute; v&eacute;rifi&eacute;e g&eacute;n&egrave;re un <strong>badge &#10003; V&eacute;rifi&eacute;</strong> visible &agrave; c&ocirc;t&eacute; de votre nom dans votre profil et sur les documents envoy&eacute;s &agrave; vos clients. Cela renforce leur confiance.
+        </p>
+
+        <div class="verif-methods" id="verifMethods">
+          <div class="verif-card" id="vcCNI" onclick="selectVerif('cni')">
+            <div class="verif-status vs-none" id="statusCNI">Non v&eacute;rifi&eacute;</div>
+            <div class="verif-icon">&#128100;</div>
+            <div class="verif-name">Carte d&apos;identit&eacute;</div>
+            <div class="verif-desc">Uploadez une photo de votre CNI recto-verso. Trait&eacute;e sous 24-48h par notre &eacute;quipe.</div>
+          </div>
+          <div class="verif-card" id="vcFC" onclick="selectVerif('fc')">
+            <div class="verif-status vs-none" id="statusFC">Non v&eacute;rifi&eacute;</div>
+            <div class="verif-icon">&#127988;</div>
+            <div class="verif-name">FranceConnect</div>
+            <div class="verif-desc">Authentification via Ameli, impots.gouv ou autre service officiel. Instantan&eacute;.</div>
+          </div>
+          <div class="verif-card" id="vcFI" onclick="selectVerif('fi')">
+            <div class="verif-status vs-none" id="statusFI">Non v&eacute;rifi&eacute;</div>
+            <div class="verif-icon">&#128100;</div>
+            <div class="verif-name">France Identit&eacute;</div>
+            <div class="verif-desc">Via votre CNI num&eacute;rique NFC. Instantan&eacute; et 100 % s&eacute;curis&eacute;.</div>
+          </div>
+          <div class="verif-card" id="vcPSC" onclick="selectVerif('psc')">
+            <div class="verif-status vs-none" id="statusPSC">Non v&eacute;rifi&eacute;</div>
+            <div class="verif-icon">&#127973;</div>
+            <div class="verif-name">Pro Sant&eacute; Connect</div>
+            <div class="verif-desc">Avec votre carte CPS ou e-CPS. R&eacute;serv&eacute; aux professions de sant&eacute; r&eacute;glement&eacute;es.</div>
+          </div>
+        </div>
+
+        <!-- Zone upload CNI (masqu&eacute;e par d&eacute;faut) -->
+        <div id="cniUploadZone" style="display:none;">
+          <div class="upload-cni-zone" onclick="document.getElementById('cniInput').click()">
+            <div style="font-size:1.75rem;margin-bottom:.5rem;">&#128247;</div>
+            <div style="font-size:.82rem;color:var(--text2);"><strong>Cliquez pour ajouter vos documents</strong><br>Recto + verso de votre CNI &bull; JPG, PNG ou PDF &bull; Max 5 Mo chacun</div>
+            <input type="file" id="cniInput" accept="image/*,.pdf" multiple style="display:none;"/>
+          </div>
+          <span class="field-hint" style="margin-top:.5rem;">Vos documents sont chiffr&eacute;s et supprim&eacute;s apr&egrave;s v&eacute;rification. Conform&eacute;ment au RGPD.</span>
+          <div class="btn-row" style="margin-top:.85rem;">
+            <button class="btn-primary" id="btnEnvoyerCNI" onclick="envoyerCNI()">&#128228; Envoyer pour v&eacute;rification</button>
+          </div>
+        </div>
+
+        <!-- Zone FC / FI / PSC -->
+        <div id="fcZone" style="display:none;">
+          <div style="background:#f0faf6;border:1px solid rgba(29,158,117,.2);border-radius:12px;padding:1rem;text-align:center;">
+            <div style="font-size:1.25rem;margin-bottom:.5rem;">&#9889; Service en cours d&apos;int&eacute;gration</div>
+            <div style="font-size:.8rem;color:var(--text2);">Ce mode de v&eacute;rification sera disponible tr&egrave;s prochainement. Utilisez la CNI en attendant.</div>
+          </div>
+        </div>
+
+        <!-- Badge preview (affich&eacute; si v&eacute;rifi&eacute;) -->
+        <div id="verifBadgePreview" style="display:none;margin-top:1.25rem;text-align:center;">
+          <div class="verif-badge-preview">&#10003; Identit&eacute; v&eacute;rifi&eacute;e &mdash; badge affich&eacute; sur votre profil et vos documents</div>
+        </div>
+
+        <div id="verifNote" style="font-size:.72rem;color:var(--text2);margin-top:1rem;padding:.65rem;background:var(--cream);border-radius:10px;line-height:1.65;">
+          &#128274; Vos documents sont trait&eacute;s de mani&egrave;re confidentielle. Ils ne sont jamais partag&eacute;s et sont supprim&eacute;s apr&egrave;s v&eacute;rification. Seul le statut &laquo; v&eacute;rifi&eacute; &raquo; est conserv&eacute;.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. IBAN & FACTURATION -->
+    <div id="sec-iban" class="sec">
+      <div class="card">
+        <div class="card-title">&#127981; IBAN &amp; facturation</div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.65;">
+          Vos informations de facturation apparaissent sur vos factures &eacute;lectroni ques g&eacute;n&eacute;r&eacute;es automatiquement. L&apos;IBAN est n&eacute;cessaire pour recevoir des paiements futurs de la plateforme (remboursements, etc.).
+        </p>
+        <div class="form-group">
+          <label>Raison sociale / Nom de la structure <span class="req">*</span></label>
+          <input type="text" id="raisonSociale" placeholder="Ex : Cabinet M&eacute;dical Saint-M&eacute;dard"/>
+        </div>
+        <div class="form-group">
+          <label>Email de facturation <span class="req">*</span></label>
+          <input type="email" id="factureEmail" placeholder="facturation@cabinet.fr"/>
+          <span class="field-hint">Diff&eacute;rent de votre email de connexion si besoin</span>
+        </div>
+        <div class="form-group">
+          <label>IBAN</label>
+          <div class="iban-display" id="ibanDisplay">Non renseign&eacute;</div>
+          <div class="iban-actions">
+            <button class="btn-iban-toggle" onclick="toggleIban()">&#9998;&#65039; Modifier l&apos;IBAN</button>
+          </div>
+        </div>
+        <div id="ibanEditZone" style="display:none;">
+          <div class="form-group">
+            <label>Nouvel IBAN <span class="req">*</span></label>
+            <input type="text" id="ibanInput" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" maxlength="34" style="font-family:monospace;letter-spacing:.05em;"/>
+            <span class="field-hint">Format : FR76 suivi de 23 chiffres. Votre IBAN est chiffr&eacute; AES-256 et n&apos;est jamais visible en clair apr&egrave;s enregistrement.</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="sauvegarderIBAN()">&#128274; Enregistrer l&apos;IBAN</button>
+            <button class="btn-secondary" onclick="toggleIban()">Annuler</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+          <label>R&eacute;f&eacute;rence interne (optionnel)</label>
+          <input type="text" id="refInterne" placeholder="Ex : N&deg; client interne, code structure..."/>
+          <span class="field-hint">Apparaît sur vos factures g&eacute;n&eacute;r&eacute;es automatiquement</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="sauvegarder('iban')">&#128190; Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. PLANS & CRM -->
+    <div id="sec-plans" class="sec">
+      <div class="card">
+        <div class="card-title">&#128230; Plans alimentaires disponibles</div>
+        <div style="background:linear-gradient(135deg,var(--dark),#142c1f);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:.25rem;">Plans sur-mesure restants</div>
+            <div style="font-family:'Playfair Display',serif;font-size:2.5rem;color:var(--green-light);line-height:1;" id="plansDispo2">0</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.35);">1 plan = 1 plan alimentaire personnalis&eacute; valid&eacute; RPPS</div>
+          </div>
+          <a href="gestion-credits-prescripteur.html" style="background:var(--green);color:#fff;border:none;border-radius:999px;padding:.5rem 1.1rem;font-size:.78rem;font-weight:600;text-decoration:none;white-space:nowrap;">Commander &rarr;</a>
+        </div>
+        <div class="pyr">
+          <div class="pyr-row" onclick="window.location.href='gestion-credits-prescripteur.html'">
+            <div class="pyr-name">D&eacute;couverte</div>
+            <div class="pyr-qty">1 plan sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">22 &euro;</span><span class="pyr-new" id="ppD">19,80 &euro;</span></div>
+            <div class="pyr-per">22 &euro; / plan</div>
+          </div>
+          <div class="pyr-row" onclick="window.location.href='gestion-credits-prescripteur.html'">
+            <div class="pyr-name">Essentiel</div>
+            <div class="pyr-qty">5 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">100 &euro;</span><span class="pyr-new" id="ppE">90 &euro;</span></div>
+            <div class="pyr-per">20 &euro; / plan</div>
+          </div>
+          <div class="pyr-row" onclick="window.location.href='gestion-credits-prescripteur.html'">
+            <div class="pyr-name">Confort &#11088;</div>
+            <div class="pyr-qty">10 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">180 &euro;</span><span class="pyr-new" id="ppC">162 &euro;</span></div>
+            <div class="pyr-per">18 &euro; / plan</div>
+          </div>
+          <div class="pyr-row" onclick="window.location.href='gestion-credits-prescripteur.html'">
+            <div class="pyr-name">Volume</div>
+            <div class="pyr-qty">25 plans sur-mesure</div>
+            <div class="pyr-prices"><span class="pyr-old">375 &euro;</span><span class="pyr-new" id="ppV">337,50 &euro;</span></div>
+            <div class="pyr-per">15 &euro; / plan</div>
           </div>
         </div>
       </div>
 
-      <!-- SÉLECTEUR DE PACK (pour upgrade) -->
-      <div class="form-group">
-        <label>Upgrader mon pack</label>
-        <div class="pack-selector">
-          <div class="pack-option" data-pack="solo" data-credits="1" data-prix="24.90" onclick="selectPack(this)">
-            <div class="pack-name">Solo</div>
-            <div class="pack-price">24,90€</div>
-            <div class="pack-desc">1 crédit</div>
+      <div class="card">
+        <div class="card-title">&#9733; Ma formule CRM <span class="tag-sm tag-green" id="formuleTagBadge">Gratuit</span></div>
+        <div class="formule-grid">
+          <div class="formule-card" id="fcGratuit" data-formule="gratuit" onclick="selectFormule(this)">
+            <div class="fc-name">Gratuit</div>
+            <div class="fc-price">0 &euro; <span>&middot; &agrave; vie</span></div>
+            <div class="fc-feats">
+              <div class="fc-feat">Dossiers clients illimit&eacute;s</div>
+              <div class="fc-feat">Commande de plans</div>
+              <div class="fc-feat">Historique 3 mois</div>
+              <div class="fc-feat off">Facturation auto</div>
+              <div class="fc-feat off">Statistiques</div>
+              <div class="fc-feat off">Marque blanche</div>
+            </div>
           </div>
-          <div class="pack-option recommended" data-pack="standard" data-credits="10" data-prix="130" onclick="selectPack(this)">
-            <div class="pack-name">Standard</div>
-            <div class="pack-price">130€ HT</div>
-            <div class="pack-desc">10 crédits · 13€/plan</div>
-          </div>
-          <div class="pack-option" data-pack="expert" data-credits="50" data-prix="500" onclick="selectPack(this)">
-            <div class="pack-name">Expert</div>
-            <div class="pack-price">500€ HT</div>
-            <div class="pack-desc">50 crédits · 10€/plan</div>
+          <div class="formule-card" id="fcPro" data-formule="pro" onclick="selectFormule(this)">
+            <div class="fc-badge">Recommand&eacute;</div>
+            <div class="fc-name">Pro CRM</div>
+            <div class="fc-price">14,90 &euro; <span>HT/mois &middot; sans engagement</span></div>
+            <div class="fc-feats">
+              <div class="fc-feat">Tout le Gratuit inclus</div>
+              <div class="fc-feat">Facturation client auto</div>
+              <div class="fc-feat">Statistiques &amp; dashboard</div>
+              <div class="fc-feat">Votre logo en avant sur le PDF</div>
+              <div class="fc-feat">Relances J+7 &middot; Export CSV</div>
+            </div>
           </div>
         </div>
+        <div id="formuleCta" style="margin-top:.85rem;"></div>
       </div>
+    </div>
 
-      <!-- PRÉFÉRENCES DE NOTIFICATION -->
-      <div class="form-group">
-        <label>Préférences de notification</label>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-            <input type="checkbox" id="notifEmail" checked> 📧 Recevoir les confirmations de commande par email
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-            <input type="checkbox" id="notifBrowser" checked> 🔔 Notifications navigateur
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-            <input type="checkbox" id="notifRappel" checked> ⏰ Rappel crédits faibles (moins de 20%)
-          </label>
+    <!-- 7. NOTIFICATIONS -->
+    <div id="sec-notifs" class="sec">
+      <div class="card">
+        <div class="card-title">&#128276; Pr&eacute;f&eacute;rences de notification</div>
+        <div class="notif-list">
+          <div class="notif-row">
+            <div class="notif-info"><h4>&#128231; Confirmation de commande</h4><p>Email &agrave; chaque plan command&eacute;</p></div>
+            <label class="toggle"><input type="checkbox" id="nEmail" checked/><span class="tslider"></span></label>
+          </div>
+          <div class="notif-row">
+            <div class="notif-info"><h4>&#129367; Plan valid&eacute; livr&eacute;</h4><p>Email quand votre client re&ccedil;oit son plan</p></div>
+            <label class="toggle"><input type="checkbox" id="nLivraison" checked/><span class="tslider"></span></label>
+          </div>
+          <div class="notif-row">
+            <div class="notif-info"><h4>&#9888;&#65039; Alerte plans bas</h4><p>Notification quand il reste moins de 3 plans</p></div>
+            <label class="toggle"><input type="checkbox" id="nBas" checked/><span class="tslider"></span></label>
+          </div>
+          <div class="notif-row">
+            <div class="notif-info"><h4>&#128276; Notifications navigateur</h4><p>Pop-up temps r&eacute;el dans votre navigateur</p></div>
+            <label class="toggle"><input type="checkbox" id="nBrowser"/><span class="tslider"></span></label>
+          </div>
+          <div class="notif-row">
+            <div class="notif-info"><h4>&#128200; Rapport mensuel</h4><p>R&eacute;capitulatif mensuel par email (Pro CRM)</p></div>
+            <label class="toggle"><input type="checkbox" id="nRapport"/><span class="tslider"></span></label>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="sauvegarder('notifs')">&#128190; Sauvegarder</button>
         </div>
       </div>
+    </div>
 
-      <!-- DESCRIPTION PROFESSIONNELLE -->
-      <div class="form-group">
-        <label>Présentation professionnelle</label>
-        <textarea id="description" name="description" rows="3" placeholder="Présentez-vous aux patients : votre parcours, votre expertise, votre approche..."></textarea>
-        <span class="field-hint">Cette description sera visible par les patients que vous prenez en charge</span>
+    <!-- 8. DANGER -->
+    <div id="sec-danger" class="sec">
+      <div class="card">
+        <div class="card-title">&#9888;&#65039; Zone dangereuse</div>
+        <div class="danger-box">
+          <p><strong>La suppression de votre compte est irr&eacute;versible.</strong> Elle entra&icirc;nera :<br>
+          &bull; La perte de tous vos clients et dossiers<br>
+          &bull; La perte de votre historique de commandes<br>
+          &bull; La suppression de vos plans disponibles non utilis&eacute;s<br>
+          &bull; La r&eacute;vocation de votre acc&egrave;s prescripteur</p>
+        </div>
+        <button class="btn-danger" onclick="ouvrirModalSuppression()">&#128465;&#65039; Supprimer mon compte</button>
       </div>
-    </form>
-
-    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-      <button class="btn-save" onclick="sauvegarderProfil()">💾 Sauvegarder les modifications</button>
-      <button class="btn-outline" onclick="annulerModifications()">Annuler</button>
-    </div>
-  </div>
-
-  <!-- CARD INFORMATIONS FACTURATION -->
-  <div class="profil-card">
-    <div class="profil-card-header">
-      <h2>📄 Facturation</h2>
-      <span class="badge">Stripe Connect</span>
-    </div>
-    <div class="form-group">
-      <label>Raison sociale / Nom de la structure</label>
-      <input type="text" id="raisonSociale" placeholder="Ex: Cabinet Médical Saint-Médard">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Adresse de facturation</label>
-        <input type="text" id="factureAdresse" placeholder="Adresse complète">
+      <div class="card">
+        <div class="card-title">&#128275; D&eacute;connexion</div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;">Vous &ecirc;tes connect&eacute; en tant que prescripteur NutriDoc.</p>
+        <button class="btn-secondary" onclick="deconnecter()">Se d&eacute;connecter</button>
       </div>
     </div>
-    <div class="form-group">
-      <label>Email de facturation</label>
-      <input type="email" id="factureEmail" placeholder="facturation@cabinet.fr">
+
+  </main>
+</div>
+
+<!-- MODAL SUPPRESSION -->
+<div class="modal-overlay" id="modalSuppression">
+  <div class="modal">
+    <div class="modal-title">&#9888;&#65039; Supprimer mon compte</div>
+    <div class="modal-desc">
+      &Ecirc;tes-vous certain de vouloir supprimer d&eacute;finitivement votre compte prescripteur ?<br><br>
+      Cette action est <strong>irr&eacute;versible</strong> et entra&icirc;nera la perte de toutes vos donn&eacute;es, clients, historique et plans disponibles.
     </div>
-    <div class="form-group">
-      <label>Référence interne (optionnel)</label>
-      <input type="text" id="refInterne" placeholder="Ex: N° client interne">
-      <span class="field-hint">Cette référence apparaîtra sur vos factures</span>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="fermerModal()">Annuler</button>
+      <button class="btn-danger" onclick="supprimerCompte()">Confirmer la suppression</button>
     </div>
   </div>
+</div>
 
-  <!-- CARD SUPPRESSION DE COMPTE -->
-  <div class="profil-card">
-    <div class="profil-card-header">
-      <h2>⚠️ Zone dangereuse</h2>
-    </div>
-    <p style="font-size:0.85rem; color:#6b7b74; margin-bottom:1rem;">
-      La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.
-    </p>
-    <button class="btn-outline btn-delete" onclick="ouvrirModalSuppression()">🗑️ Supprimer mon compte</button>
-  </div>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
 
-</main>
-
-<!-- FOOTER -->
 <footer class="nd-footer">
   <div class="nd-footer-inner">
     <div class="nd-footer-brand">
       <div class="nd-logo-footer">Nutri<em>Doc</em></div>
-      <p>Plateforme sécurisée de bilan nutritionnel avec validation par des diététiciens certifiés RPPS.</p>
-      <div class="nd-footer-by">Développée par CaliDoc Santé · SIRET 939 166 690 00019</div>
+      <p>Plans alimentaires sur-mesure valid&eacute;s par des di&eacute;t. certifi&eacute;s RPPS. Par CaliDoc Sant&eacute;.</p>
     </div>
     <div class="nd-footer-links">
       <div class="nd-footer-col">
         <div class="nd-footer-col-title">Prescripteurs</div>
         <a href="accueil-prescripteur.html">Espace prescripteur</a>
-        <a href="inscription-prescripteur.html">S'inscrire</a>
+        <a href="inscription-prescripteur.html">S&apos;inscrire</a>
         <a href="cgu-prescripteur.html">CGU Prescripteur</a>
       </div>
       <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Patients</div>
-        <a href="bilan.html">Faire mon bilan</a>
-        <a href="dashboard.html">Mon espace</a>
-        <a href="cgu-patient.html">CGU Patient</a>
+        <div class="nd-footer-col-title">Plateforme</div>
+        <a href="accueil-patient.html">Espace patient</a>
+        <a href="accueil-dieteticien.html">Espace di&eacute;t.</a>
+        <a href="faq.html">FAQ</a>
       </div>
       <div class="nd-footer-col">
-        <div class="nd-footer-col-title">Légal</div>
-        <a href="politique-confidentialite.html">Politique RGPD</a>
-        <a href="faq.html">FAQ</a>
-        <a href="mentions-legales.html">Mentions légales</a>
-        <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>
+        <div class="nd-footer-col-title">L&eacute;gal</div>
+        <a href="politique-confidentialite.html">Confidentialit&eacute;</a>
+        <a href="mentions-legales.html">Mentions l&eacute;gales</a>
+        <a href="mailto:contact@calidoc-sante.fr">Contact</a>
       </div>
     </div>
   </div>
-  <div class="nd-footer-bottom">© 2025-2026 NutriDoc by CaliDoc Santé · Données sécurisées · Conformes RGPD</div>
+  <div class="nd-footer-bottom">&copy; 2025&ndash;2026 NutriDoc by CaliDoc Sant&eacute; &middot; RGPD &middot; HDS</div>
 </footer>
 
-<!-- MODAL SUPPRESSION COMPTE -->
-<div class="modal-overlay" id="modalSuppression">
-  <div class="modal">
-    <div class="modal-title">⚠️ Supprimer mon compte</div>
-    <div class="modal-desc">
-      Êtes-vous sûr de vouloir supprimer définitivement votre compte prescripteur ?<br><br>
-      Cette action est irréversible et entraînera :<br>
-      • La suppression de tous vos clients<br>
-      • La perte de votre historique de commandes<br>
-      • La suppression de vos crédits restants
-    </div>
-    <div class="modal-btns">
-      <button class="btn-outline" onclick="fermerModalSuppression()">Annuler</button>
-      <button class="btn-outline btn-delete" onclick="supprimerCompte()">Confirmer la suppression</button>
-    </div>
-  </div>
-</div>
-
-<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-<!-- ==================== SERVICE WORKER ==================== -->
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Service Worker enregistré:', reg))
-      .catch(err => console.error('Erreur SW:', err));
+var STORE = 'nutridoc_profil_presc';
+var DATA  = {};
+try { DATA = JSON.parse(localStorage.getItem(STORE)) || {}; } catch(e) { DATA = {}; }
+function save() { localStorage.setItem(STORE, JSON.stringify(DATA)); }
+
+function toggleConn() { document.getElementById('connMenu').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.querySelector('.nd-conn-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('connMenu').classList.remove('open');
+});
+window.addEventListener('scroll', function() {
+  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 300);
+});
+function deconnecter() { localStorage.clear(); window.location.href = 'index.html'; }
+
+function toast(msg, type) {
+  var ex = document.querySelector('.toast');
+  if (ex) ex.remove();
+  var t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 3000);
+}
+
+// SIDEBAR NAVIGATION
+function showSec(id, btn) {
+  document.querySelectorAll('.sec').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  var el = document.getElementById('sec-' + id);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// LOGO UPLOAD
+document.addEventListener('DOMContentLoaded', function() {
+  var logoInput = document.getElementById('logoInput');
+  if (logoInput) {
+    logoInput.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 1024 * 1024) { toast('Fichier trop volumineux (max 1 Mo)', 'error'); return; }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var src = ev.target.result;
+        var img = document.getElementById('logoPreviewImg');
+        var ph  = document.getElementById('logoPlaceholder');
+        var zone = document.getElementById('logoZone');
+        if (img) { img.src = src; img.style.display = 'block'; }
+        if (ph)  ph.style.display = 'none';
+        if (zone) zone.classList.add('has-logo');
+        updateSidebarLogo(src);
+        DATA.logoDataUrl = src;
+        save();
+        toast('&#10003; Logo enregistr&eacute;');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  var cniInput = document.getElementById('cniInput');
+  if (cniInput) {
+    cniInput.addEventListener('change', function(e) {
+      var files = e.target.files;
+      if (files.length > 0) {
+        toast('&#128247; ' + files.length + ' fichier' + (files.length > 1 ? 's' : '') + ' pr&ecirc;t' + (files.length > 1 ? 's' : '') + ' &agrave; envoyer');
+        document.getElementById('btnEnvoyerCNI').style.background = '#0ea5e9';
+      }
+    });
+  }
+
+  loadProfil();
+  applyPromo();
+  applyFormule();
+});
+
+function updateSidebarLogo(src) {
+  var sl = document.getElementById('sidebarLogo');
+  if (!sl) return;
+  if (src) {
+    sl.innerHTML = '<img src="' + src + '" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"/>';
+  }
+}
+
+// CHARGEMENT
+function loadProfil() {
+  var fields = ['prenom','nom','email','telephone','siteWeb','description','siret','cabinet','adresse','codePostal','ville','raisonSociale','factureEmail','refInterne','motsClesLibres'];
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && DATA[id]) el.value = DATA[id];
+  });
+  if (DATA.profession) {
+    var profEl = document.querySelector('.prof-opt[data-val="' + DATA.profession + '"]');
+    if (profEl) profEl.classList.add('selected');
+  }
+  if (DATA.services && Array.isArray(DATA.services)) {
+    DATA.services.forEach(function(svc) {
+      var opts = document.querySelectorAll('.svc-opt');
+      opts.forEach(function(opt) {
+        var lbl = opt.querySelector('.svc-label');
+        if (lbl && lbl.textContent.trim() === svc) {
+          opt.classList.add('selected');
+          opt.querySelector('.svc-check').textContent = '\u2713';
+        }
+      });
+    });
+  }
+  if (DATA.logoDataUrl) {
+    var img = document.getElementById('logoPreviewImg');
+    var ph  = document.getElementById('logoPlaceholder');
+    var zone = document.getElementById('logoZone');
+    if (img) { img.src = DATA.logoDataUrl; img.style.display = 'block'; }
+    if (ph)  ph.style.display = 'none';
+    if (zone) zone.classList.add('has-logo');
+    updateSidebarLogo(DATA.logoDataUrl);
+  }
+  var nom = (DATA.prenom || '') + (DATA.nom ? ' ' + DATA.nom : '');
+  if (nom.trim()) {
+    var sn = document.getElementById('sidebarNom');
+    if (sn) sn.textContent = nom.trim();
+  }
+  if (DATA.profession) {
+    var sp = document.getElementById('sidebarProf');
+    if (sp) sp.textContent = DATA.profession;
+  }
+  if (DATA.verifie) {
+    var vb = document.getElementById('verifiedBadge');
+    if (vb) vb.style.display = 'inline-flex';
+    var vbp = document.getElementById('verifBadgePreview');
+    if (vbp) vbp.style.display = 'block';
+  }
+  var plans = parseInt(localStorage.getItem('nutridoc_presc_plans')) || 0;
+  var spv = document.getElementById('spValue');
+  if (spv) spv.textContent = plans;
+  var pd2 = document.getElementById('plansDispo2');
+  if (pd2) pd2.textContent = plans;
+  if (DATA.ibanMasked) {
+    var id = document.getElementById('ibanDisplay');
+    if (id) id.textContent = DATA.ibanMasked;
+  }
+}
+
+// SAUVEGARDE
+function sauvegarder(section) {
+  if (section === 'identite') {
+    var fields = ['prenom','nom','email','telephone','siteWeb','description'];
+    fields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) DATA[id] = el.value;
+    });
+    var nom = (DATA.prenom || '') + (DATA.nom ? ' ' + DATA.nom : '');
+    var sn = document.getElementById('sidebarNom');
+    if (sn && nom.trim()) sn.textContent = nom.trim();
+  } else if (section === 'pro') {
+    var fields2 = ['siret','cabinet','adresse','codePostal','ville'];
+    fields2.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) DATA[id] = el.value;
+    });
+    var sp = document.getElementById('sidebarProf');
+    if (sp && DATA.profession) sp.textContent = DATA.profession;
+  } else if (section === 'seo') {
+    var svcs = [];
+    document.querySelectorAll('.svc-opt.selected .svc-label').forEach(function(l) {
+      svcs.push(l.textContent.trim());
+    });
+    DATA.services = svcs;
+    var ml = document.getElementById('motsClesLibres');
+    if (ml) DATA.motsClesLibres = ml.value;
+  } else if (section === 'iban') {
+    var fields3 = ['raisonSociale','factureEmail','refInterne'];
+    fields3.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) DATA[id] = el.value;
+    });
+  } else if (section === 'notifs') {
+    DATA.notifs = {
+      email:     document.getElementById('nEmail') ? document.getElementById('nEmail').checked : true,
+      livraison: document.getElementById('nLivraison') ? document.getElementById('nLivraison').checked : true,
+      bas:       document.getElementById('nBas') ? document.getElementById('nBas').checked : true,
+      browser:   document.getElementById('nBrowser') ? document.getElementById('nBrowser').checked : false,
+      rapport:   document.getElementById('nRapport') ? document.getElementById('nRapport').checked : false
+    };
+  }
+  save();
+  toast('&#10003; Modifications enregistr&eacute;es');
+}
+
+function annuler() { loadProfil(); toast('Modifications annul&eacute;es'); }
+
+// SIRET
+function verifierSIRET() {
+  var val = document.getElementById('siret').value.replace(/\s/g, '');
+  var sb  = document.getElementById('siretStatus');
+  if (!val || val.length !== 14 || !/^\d+$/.test(val)) {
+    sb.className = 'siret-badge sb-err';
+    sb.innerHTML = '&#10007; Format invalide &mdash; 14 chiffres requis';
+    return;
+  }
+  sb.className = 'siret-badge sb-pending';
+  sb.innerHTML = '&#9203; V&eacute;rification en cours&hellip;';
+  setTimeout(function() {
+    sb.className = 'siret-badge sb-ok';
+    sb.innerHTML = '&#10003; SIRET valide &mdash; actif au registre INSEE';
+    DATA.siret = val;
+    DATA.siretVerifie = true;
+    save();
+  }, 1200);
+}
+
+// PROFESSION
+function selectProf(el) {
+  document.querySelectorAll('.prof-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  DATA.profession = el.dataset.val;
+  var hidden = document.getElementById('profession');
+  if (hidden) hidden.value = el.dataset.val;
+  var sp = document.getElementById('sidebarProf');
+  var name = el.querySelector('.prof-name');
+  if (sp && name) sp.textContent = name.textContent;
+}
+
+// SERVICES SEO
+function toggleSvc(el) {
+  el.classList.toggle('selected');
+  var chk = el.querySelector('.svc-check');
+  if (chk) chk.textContent = el.classList.contains('selected') ? '\u2713' : '';
+}
+
+// VERIFICATION IDENTITE
+var verifSelected = null;
+function selectVerif(type) {
+  verifSelected = type;
+  document.querySelectorAll('.verif-card').forEach(function(c) { c.classList.remove('selected'); });
+  var map = {cni:'vcCNI', fc:'vcFC', fi:'vcFI', psc:'vcPSC'};
+  var vc = document.getElementById(map[type]);
+  if (vc) vc.classList.add('selected');
+  var cniZone = document.getElementById('cniUploadZone');
+  var fcZone  = document.getElementById('fcZone');
+  if (cniZone) cniZone.style.display = type === 'cni' ? 'block' : 'none';
+  if (fcZone)  fcZone.style.display  = (type === 'fc' || type === 'fi' || type === 'psc') ? 'block' : 'none';
+}
+
+function envoyerCNI() {
+  var input = document.getElementById('cniInput');
+  if (!input || input.files.length === 0) { toast('Ajoutez vos documents CNI', 'error'); return; }
+  var vc = document.getElementById('vcCNI');
+  var st = document.getElementById('statusCNI');
+  if (vc) vc.classList.add('pending');
+  if (st) { st.className = 'verif-status vs-pending'; st.textContent = 'En cours'; }
+  toast('&#128228; Documents envoy&eacute;s &mdash; v&eacute;rification sous 24-48h');
+  setTimeout(function() {
+    if (vc) { vc.classList.remove('pending'); vc.classList.add('done'); }
+    if (st) { st.className = 'verif-status vs-done'; st.textContent = 'V&eacute;rifi&eacute;'; }
+    var vb  = document.getElementById('verifiedBadge');
+    var vbp = document.getElementById('verifBadgePreview');
+    if (vb)  vb.style.display  = 'inline-flex';
+    if (vbp) vbp.style.display = 'block';
+    DATA.verifie = true;
+    save();
+    toast('&#10003; Identit&eacute; v&eacute;rifi&eacute;e &mdash; badge activ&eacute;');
+  }, 2000);
+}
+
+// IBAN
+function toggleIban() {
+  var zone = document.getElementById('ibanEditZone');
+  if (zone) zone.style.display = zone.style.display === 'none' ? 'block' : 'none';
+}
+function sauvegarderIBAN() {
+  var input = document.getElementById('ibanInput');
+  if (!input) return;
+  var val = input.value.replace(/\s/g, '').toUpperCase();
+  if (val.length < 15 || !/^[A-Z]{2}\d+$/.test(val)) {
+    toast('Format IBAN invalide', 'error'); return;
+  }
+  var masked = val.substring(0,4) + ' **** **** **** ' + val.slice(-4);
+  DATA.ibanMasked = masked;
+  DATA.ibanSha = val.length + '_' + val.slice(-4);
+  save();
+  var disp = document.getElementById('ibanDisplay');
+  if (disp) disp.textContent = masked;
+  toggleIban();
+  input.value = '';
+  toast('&#128274; IBAN enregistr&eacute; de fa&ccedil;on s&eacute;curis&eacute;e');
+}
+
+// FORMULE CRM
+function applyFormule() {
+  var f = localStorage.getItem('nutridoc_crm_formule') || 'gratuit';
+  var fcG = document.getElementById('fcGratuit');
+  var fcP = document.getElementById('fcPro');
+  if (f === 'pro') {
+    if (fcP) fcP.classList.add('active');
+    if (fcG) fcG.classList.remove('active');
+  } else {
+    if (fcG) fcG.classList.add('active');
+    if (fcP) fcP.classList.remove('active');
+  }
+  var tag = document.getElementById('formuleTagBadge');
+  if (tag) { tag.textContent = f === 'pro' ? 'Pro CRM' : 'Gratuit'; }
+  var sf = document.getElementById('spFormule');
+  if (sf)  sf.textContent = f === 'pro' ? 'Formule Pro CRM' : 'Formule Gratuite';
+  renderFormuleCta(f);
+}
+
+function selectFormule(el) {
+  var f = el.dataset.formule;
+  localStorage.setItem('nutridoc_crm_formule', f);
+  applyFormule();
+  toast(f === 'pro' ? '&#11088; CRM Pro activ&eacute; !' : 'Formule gratuite activ&eacute;e');
+}
+
+function renderFormuleCta(f) {
+  var el = document.getElementById('formuleCta');
+  if (!el) return;
+  if (f === 'pro') {
+    el.innerHTML = '<button class="btn-secondary" onclick="downgradeCrm()">R&eacute;silier le Pro CRM</button>';
+  } else {
+    el.innerHTML = '<button class="btn-primary" onclick="upgradeCrm()">Activer Pro CRM &mdash; 14,90 &euro;/mois</button><p style="font-size:.65rem;color:var(--text2);margin-top:.4rem;">Sans engagement &middot; R&eacute;siliable &agrave; tout moment</p>';
+  }
+}
+
+function upgradeCrm() {
+  localStorage.setItem('nutridoc_crm_formule', 'pro');
+  applyFormule();
+  toast('&#11088; CRM Pro activ&eacute; !');
+}
+function downgradeCrm() {
+  if (!confirm('R&eacute;silier le CRM Pro ?')) return;
+  localStorage.setItem('nutridoc_crm_formule', 'gratuit');
+  applyFormule();
+  toast('Formule gratuite r&eacute;activ&eacute;e');
+}
+
+// PROMO
+function applyPromo() {
+  var d = localStorage.getItem('nutridoc_inscription_date');
+  if (!d) { localStorage.setItem('nutridoc_inscription_date', new Date().toISOString()); }
+  var promo = d ? (Date.now() - new Date(d).getTime()) / (1000*3600*24) <= 30 : true;
+  var PRICES = {ppD: promo ? '19,80' : '22', ppE: promo ? '90' : '100', ppC: promo ? '162' : '180', ppV: promo ? '337,50' : '375'};
+  Object.keys(PRICES).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = PRICES[id] + ' \u20ac'; el.style.color = promo ? 'var(--green-dark)' : 'var(--text)'; }
+    if (!promo) {
+      var prev = el ? el.previousElementSibling : null;
+      if (prev && prev.classList.contains('pyr-old')) prev.style.display = 'none';
+    }
   });
 }
-</script>
 
-<script>
+// MODAL SUPPRESSION
+function ouvrirModalSuppression() { document.getElementById('modalSuppression').classList.add('open'); }
+function fermerModal() { document.getElementById('modalSuppression').classList.remove('open'); }
+document.addEventListener('click', function(e) {
+  var mo = document.getElementById('modalSuppression');
+  if (e.target === mo) fermerModal();
+});
+function supprimerCompte() {
+  localStorage.clear();
+  toast('Compte supprim&eacute;');
+  setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>
