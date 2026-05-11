@@ -1,964 +1,730 @@
 // ============================================================
-//  Supabase Edge Function : generate-plan v6
-//  Chemin : supabase/functions/generate-plan/index.ts
+//  Supabase Edge Function : generate-pdf
+//  Chemin : supabase/functions/generate-pdf/index.ts
 //
-//  v5 — conformité ANSES 2016 / PNNS
-//  v6 — intégration USDA FoodData Central (micronutriments)
-//    + Vitamines A, C, D, E, K, B1→B12
-//    + Minéraux : Ca, Fe, Mg, K, Na, Zn, Se
-//    + Acides gras : saturés, oméga-3 (ALA, EPA, DHA)
-//    La clé USDA_FDC_API_KEY doit être dans les secrets Supabase.
+//  Génère le PDF signé d'un plan alimentaire validé.
+//  Flux :
+//    1. Auth JWT diét. → vérifier que le plan lui appartient
+//    2. Charger plan + bilan + profil diét. depuis Supabase
+//    3. Générer le PDF (pdf-lib) :
+//         Page 1 — en-tête + patient + cadre nutritionnel + conseils
+//         Page 2 — tableau 7 jours × repas
+//         Page 3 — attestation RPPS + clause + signature
+//         Filigrane NutriDoc sur chaque page
+//    4. Upload dans Storage bucket "plans-pdf"
+//    5. URL signée (7 jours)
+//    6. Email Resend au patient avec le lien
+//    7. Mise à jour plans.pdf_url
+//
+//  Secrets requis :
+//    SUPABASE_URL · SUPABASE_SERVICE_ROLE_KEY · RESEND_API_KEY
 // ============================================================
 
-import { serve }                from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient }         from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI                   from "https://deno.land/x/openai@v4.24.0/mod.ts";
-import { CIQUAL }               from "./ciqual-data.ts";
-import { enrichirJourTypeUsda } from "./usda-lookup.ts";
+import { serve }        from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  degrees,
+} from "https://esm.sh/pdf-lib@1.17.1";
 
-const corsHeaders = {
+const cors = {
   "Access-Control-Allow-Origin":  "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+const ok  = (d: unknown)          => new Response(JSON.stringify(d),        { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+const err = (msg: string, s = 400) => new Response(JSON.stringify({ error: msg }), { status: s,   headers: { ...cors, "Content-Type": "application/json" } });
+
+// ── Couleurs ──────────────────────────────────────────────────────────────────
+const GREEN  = rgb(0.114, 0.620, 0.459);   // #1D9E75
+const GDARK  = rgb(0.059, 0.431, 0.337);   // #0f6e56
+const DARK   = rgb(0.051, 0.125, 0.094);   // #0d2018
+const GRAY   = rgb(0.294, 0.333, 0.388);   // #4b5563
+const LGRAY  = rgb(0.631, 0.671, 0.722);   // #9ca3af
+const CREAM  = rgb(0.969, 0.980, 0.969);   // #f7f9f7
+const LGREEN = rgb(0.941, 0.980, 0.965);   // #f0faf6
+const WARN   = rgb(0.996, 0.976, 0.769);   // #fef9c3
+const WHITE  = rgb(1, 1, 1);
+
+// ── Dimensions A4 ─────────────────────────────────────────────────────────────
+const W = 595.28, H = 841.89;
+const ML = 45, MR = 45, MT = 40, MB = 40;
+const CW = W - ML - MR;                    // largeur contenu = 505pt
+
+// ── Normalisation des caractères accentués pour Helvetica Standard ─────────────
+// Helvetica (StandardFonts) supporte Latin-1 via WinAnsi
+function n(s: string | undefined | null): string {
+  if (!s) return "";
+  // Remplacer les caractères hors Latin-1 courants
+  return String(s)
+    .replace(/[àâä]/g, "a").replace(/[éèêë]/g, "e")
+    .replace(/[îï]/g, "i").replace(/[ôö]/g, "o")
+    .replace(/[ùûü]/g, "u").replace(/ç/g, "c").replace(/ñ/g, "n")
+    .replace(/[ÀÂÄÁÃ]/g, "A").replace(/[ÉÈÊË]/g, "E")
+    .replace(/[ÎÏ]/g, "I").replace(/[ÔÖ]/g, "O")
+    .replace(/[ÙÛÜÚ]/g, "U").replace(/Ç/g, "C")
+    .replace(/[œŒ]/g, "oe").replace(/[æÆ]/g, "ae")
+    .replace(/[€]/g, "EUR").replace(/[•·]/g, "-")
+    .replace(/[""«»]/g, '"').replace(/['']/g, "'")
+    .replace(/[–—]/g, "-").replace(/…/g, "...");
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  CONSTANTES ANSES — sources : ANSES 2016 / PNNS / AFDN
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Facteurs NAP (Niveau d'Activité Physique) — ANSES 2016
- * Réf : "Actualisation des repères du PNNS", ANSES nov. 2016
- *
- * ATTENTION : 1.20 est réservé aux personnes alitées/immobiles.
- * Un adulte "sédentaire" (bureau, faibles déplacements) = NAP 1.40 minimum.
- * La référence ANSES pour la population générale est NAP 1.63.
- */
-const NAP: Record<string, number> = {
-  sedentaire: 1.40,   // bureau, transports en commun, peu de marche
-  leger:      1.55,   // marche quotidienne, activité légère 1-2x/sem
-  modere:     1.63,   // référence ANSES — sport régulier 3-4x/sem
-  actif:      1.80,   // sport quasi-quotidien ou travail physique
-  tres_actif: 1.95,   // athlète, BTP, militaire
-};
-
-// Pas de table de planchers fixes.
-// Le plancher de chaque patient = son métabolisme de base personnel (Black 1996).
-// On ne peut jamais manger moins que ce que le corps brûle au repos.
-
-/**
- * Pourcentages de déficit / surplus par objectif et niveau d'activité.
- *
- * Règle ANSES / HAS :
- *   - Déficit recommandé : 10-20% du TDEE pour une perte saine (0,5-1 kg/semaine)
- *   - Au-delà de 20% : risque de fonte musculaire et carences — réservé aux sportifs
- *     encadrés (sport_perf actif/très actif) qui peuvent tolérer jusqu'à 25%
- *   - Surplus : 10-15% du TDEE pour une prise de masse lean
- *   - Jamais en dessous du métabolisme de base (plancher Black 1996)
- *
- * Structure : { objectif: { activite: pourcentage (ex: -0.15 = -15%) } }
- */
-const PCT_AJUSTEMENT: Record<string, Record<string, number>> = {
-  perte_poids: {
-    sedentaire: -0.15,  // -15% : conservative, évite les carences
-    leger:      -0.15,
-    modere:     -0.15,  // Sophie 3x/sem course à pied : -15% = déficit modéré
-    actif:      -0.20,  // -20% toléré chez les sujets actifs
-    tres_actif: -0.20,
-  },
-  prise_masse: {
-    sedentaire: +0.10,
-    leger:      +0.10,
-    modere:     +0.12,
-    actif:      +0.15,
-    tres_actif: +0.15,
-  },
-  equilibre:  { sedentaire:0, leger:0, modere:0, actif:0, tres_actif:0 },
-  energie:    { sedentaire:0, leger:0, modere:0, actif:0, tres_actif:0 },
-  sante:      { sedentaire:0, leger:0, modere:0, actif:0, tres_actif:0 },
-  sport_perf: {
-    sedentaire: +0.10,
-    leger:      +0.10,
-    modere:     +0.12,
-    actif:      +0.15,  // sportifs intensifs : jusqu'à +15%
-    tres_actif: +0.15,  // pas de -25% par défaut — le diét. ajuste manuellement
-  },
-};
-
-/**
- * Coefficients protéines (g/kg/j) — ANSES 2021 + EFSA + ESPEN 2024
- *
- * Corrections v7 :
- *   - Valeurs précédentes trop élevées (1.5-2.2 g/kg)
- *   - ANSES RNP adulte : 0,83 g/kg/j
- *   - Pour perte de poids (préservation masse maigre) : 1,0-1,2 g/kg
- *     (pas 1,5-1,9 — ces valeurs concernent le sport de performance)
- *   - Pour prise de masse : 1,2-1,6 g/kg
- *   - Sport performance : jusqu'à 1,8-2,0 g/kg (ESPEN 2024)
- *   - La viande n'est pas la seule source — le pain, les céréales, les légumes,
- *     les produits laitiers contribuent aussi aux protéines totales journalières
- */
-const PROT_G_PER_KG: Record<string, Record<string, number>> = {
-  perte_poids: {
-    sedentaire: 0.90,  // léger surplus vs RNP pour préserver la masse maigre
-    leger:      0.95,
-    modere:     1.05,  // course à pied 3x/sem : 1,05 g/kg suffit largement
-    actif:      1.15,
-    tres_actif: 1.25,
-  },
-  prise_masse: {
-    sedentaire: 1.10,
-    leger:      1.20,
-    modere:     1.30,
-    actif:      1.50,
-    tres_actif: 1.70,
-  },
-  equilibre: {
-    sedentaire: 0.83,  // RNP ANSES
-    leger:      0.87,
-    modere:     0.90,
-    actif:      1.00,
-    tres_actif: 1.10,
-  },
-  energie: {
-    sedentaire: 0.87,
-    leger:      0.90,
-    modere:     0.95,
-    actif:      1.05,
-    tres_actif: 1.15,
-  },
-  sante: {
-    sedentaire: 0.83,
-    leger:      0.87,
-    modere:     0.90,
-    actif:      0.95,
-    tres_actif: 1.00,
-  },
-  sport_perf: {
-    sedentaire: 1.20,
-    leger:      1.40,
-    modere:     1.60,
-    actif:      1.80,
-    tres_actif: 2.00,  // ESPEN 2024 — max recommandé hors dopage
-  },
-};
-
-/**
- * Répartition P/G/L selon objectif — ANSES 2016
- *
- * Lipides : 35-40% AET (relevé depuis 2016, anciennement 30-35%)
- * Protéines : 10-20% AET selon ANSES / jusqu'à 30% selon objectif sport
- * Glucides : complément — 45-55% selon ANSES
- * Sucres totaux : ≤ 100 g/j (ANSES 2017)
- */
-const MACRO_REPARTITION: Record<string, { p: number; g: number; l: number }> = {
-  perte_poids: { p: 0.28, g: 0.37, l: 0.35 },  // plus de protéines, lipides ANSES min
-  prise_masse: { p: 0.25, g: 0.40, l: 0.35 },  // glucides++, lipides ANSES
-  equilibre:   { p: 0.17, g: 0.45, l: 0.38 },  // répartition ANSES standard
-  energie:     { p: 0.17, g: 0.46, l: 0.37 },
-  sante:       { p: 0.17, g: 0.45, l: 0.38 },
-  sport_perf:  { p: 0.25, g: 0.40, l: 0.35 },
-};
-
-// ════════════════════════════════════════════════════════════════════════════
-//  CALCUL KCAL ET MACROS
-// ════════════════════════════════════════════════════════════════════════════
-interface BilanPartiel {
-  age?: number; sexe?: string; poids?: number; taille?: number;
-  activite?: string; objectif?: string;
-}
-
-interface KcalResult {
-  mb: number;           // métabolisme de base (Black 1996) en kcal
-  bmr: number;          // alias mb — compatibilité
-  tdee: number;         // dépense totale journalière
-  ajustement: number;   // déficit ou surplus selon objectif
-  cible_brute: number;  // tdee + ajustement avant plancher
-  cible: number;        // valeur finale après plancher
-  plancher: number;     // plancher de sécurité appliqué
-  plancher_applique: boolean;
-}
-
-interface MacroResult {
-  prot_g: number; prot_pct: number; prot_gkg: number;
-  glu_g: number;  glu_pct: number;
-  lip_g: number;  lip_pct: number;
-  sucres_max_g: number;
-  fibres_min_g: number;
-  eau_ml: number;
-}
-
-const MJ_TO_KCAL = 238.85;
-
-// ── Formule Black et al. (1996) ───────────────────────────────────────────
-//  Référence : Black AE, Coward WA, Cole TJ, Prentice AM.
-//  "Human energy expenditure in affluent societies: an analysis of
-//   574 doubly-labelled water measurements."
-//  Eur J Clin Nutr. 1996 Feb;50(2):72-92.
-//
-//  Femme : MB = 0,963 × Poids^0,48 × Taille^0,50 × Âge^-0,13
-//  Homme : MB = 1,083 × Poids^0,48 × Taille^0,50 × Âge^-0,13
-//
-//  Poids en kg · Taille en MÈTRES · Âge en années → résultat en MJ/jour
-//  Conversion kcal : × 238,85 // facteur de conversion MJ → kcal
-
-function calculerMB(poids: number, tailleM: number, age: number, sexe: string): number {
-  // Application directe de la formule Black
-  const mb_mj = sexe === "homme"
-    ? 1.083 * Math.pow(poids,  0.48) * Math.pow(tailleM, 0.50) * Math.pow(age, -0.13)
-    : 0.963 * Math.pow(poids,  0.48) * Math.pow(tailleM, 0.50) * Math.pow(age, -0.13);
-
-  return Math.round(mb_mj * MJ_TO_KCAL);
-}
-
-function calculerKcal(b: BilanPartiel): KcalResult {
-  const poids    = b.poids    ?? 70;
-  const taille   = b.taille   ?? 170;  // cm dans le bilan
-  const age      = Math.max(18, b.age ?? 35); // adultes uniquement
-  const sexe     = b.sexe     ?? "femme";
-  const activite = b.activite ?? "sedentaire";
-  const objectif = b.objectif ?? "equilibre";
-
-  // Taille en mètres (Black exige des mètres, pas des cm)
-  const tailleM = taille / 100;
-
-  // ── Métabolisme de base — Black et al. 1996 ─────────────────────────────
-  const mb = calculerMB(poids, tailleM, age, sexe);
-
-  // ── Dépense totale journalière — facteur NAP ANSES ───────────────────────
-  const nap  = NAP[activite] ?? NAP.sedentaire;
-  const tdee = Math.round(mb * nap);
-
-  // ── Ajustement selon objectif (pourcentage du TDEE) ─────────────────────
-  const pct = (PCT_AJUSTEMENT[objectif] ?? PCT_AJUSTEMENT.equilibre)[activite] ?? 0;
-  const ajustement  = Math.round(tdee * pct);  // ex: -15% de 2362 = -354 kcal
-  const cible_brute = tdee + ajustement;
-
-  // ── Plancher = métabolisme de base du patient ────────────────────────────
-  //
-  //  Le plancher est le métabolisme de base calculé avec la formule Black.
-  //  On ne peut jamais proposer un apport inférieur à ce que le corps
-  //  brûle au repos — c'est la limite physiologique individuelle.
-  //  Ce plancher est donc unique à chaque patient selon son profil.
-  //
-  const plancher = mb;
-  const cible    = Math.max(plancher, cible_brute);
-
-  return {
-    mb,             // ← métabolisme de base (Black 1996)
-    bmr: mb,        // alias pour compatibilité
-    tdee,
-    ajustement,
-    cible_brute,
-    cible,
-    plancher,
-    plancher_applique: cible > cible_brute,
-  };
-}
-
-function calculerMacros(kcal: number, b: BilanPartiel): MacroResult {
-  const objectif = b.objectif ?? "equilibre";
-  const activite = b.activite ?? "sedentaire";
-  const poids    = b.poids    ?? 70;
-  const sexe     = b.sexe     ?? "femme";
-
-  const r = MACRO_REPARTITION[objectif] ?? MACRO_REPARTITION.equilibre;
-
-  // Protéines calculées SUR LE POIDS RÉEL du patient
-  const coeffProt = (PROT_G_PER_KG[objectif] ?? PROT_G_PER_KG.equilibre)[activite]
-                 ?? (PROT_G_PER_KG[objectif] ?? PROT_G_PER_KG.equilibre).sedentaire;
-  const prot_g_poids = Math.round(poids * coeffProt);
-
-  // Arbitrage : on prend le max entre le calcul en % kcal et le calcul en g/kg
-  // pour être sûr de ne pas sous-doser les protéines
-  const prot_g_pct = Math.round(kcal * r.p / 4);
-  const prot_g     = Math.max(prot_g_poids, prot_g_pct);
-  const prot_pct   = Math.round(prot_g * 4 / kcal * 100);
-
-  // Lipides — ANSES 2016 : 35-40% AET
-  const lip_g  = Math.round(kcal * r.l / 9);
-  const lip_pct = Math.round(r.l * 100);
-
-  // Glucides — complément des calories restantes après P et L
-  const kcal_restant = kcal - prot_g * 4 - lip_g * 9;
-  const glu_g  = Math.max(0, Math.round(kcal_restant / 4));
-  const glu_pct = Math.round(glu_g * 4 / kcal * 100);
-
-  return {
-    prot_g,
-    prot_pct,
-    prot_gkg: coeffProt,
-    glu_g,
-    glu_pct,
-    lip_g,
-    lip_pct,
-    sucres_max_g: 100,           // ANSES 2017 — limite absolue sucres totaux
-    fibres_min_g: 30,            // AS ANSES — apport satisfaisant
-    eau_ml: sexe === "homme" ? 2500 : 2000, // ANSES — différencié par sexe
-  };
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  REPAS ACTIFS
-// ════════════════════════════════════════════════════════════════════════════
-const REPAS_CONFIG: Record<string, { label: string; heure: string }> = {
-  petit_dejeuner:  { label: "Petit-déjeuner",  heure: "7h30"  },
-  collation_matin: { label: "Collation matin", heure: "10h00" },
-  dejeuner:        { label: "Déjeuner",        heure: "12h30" },
-  gouter:          { label: "Goûter",          heure: "16h30" },
-  diner:           { label: "Dîner",           heure: "19h30" },
-};
-
-// ════════════════════════════════════════════════════════════════════════════
-//  CIQUAL
-// ════════════════════════════════════════════════════════════════════════════
-function getCiqualNoms(): string {
-  return (Object.values(CIQUAL) as any[])
-    .map(g => `${g.label} : ${g.equivalents.map((e: any) => e.aliment).join(" | ")}`)
-    .join("\n");
-}
-
-function enrichirJourType(jourType: any): any {
-  if (!jourType?.repas) return jourType;
-  const idx = new Map<string, any>();
-  for (const g of Object.values(CIQUAL) as any[]) {
-    for (const e of g.equivalents) idx.set(e.aliment.toLowerCase(), e);
+// ── Découper un texte long en lignes ──────────────────────────────────────────
+function wrapText(text: string, maxWidth: number, font: any, fontSize: number): string[] {
+  const words = n(text).split(" ");
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const test = current ? current + " " + word : word;
+    try {
+      if (font.widthOfTextAtSize(test, fontSize) <= maxWidth) {
+        current = test;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+      }
+    } catch {
+      current = test;
+    }
   }
-  for (const r of Object.values(jourType.repas) as any[]) {
-    if (!Array.isArray(r?.aliments)) continue;
-    for (const a of r.aliments) {
-      const ciqual = idx.get(a.nom?.toLowerCase() ?? "");
-      if (ciqual && a.qte) {
-        a.kcal_ciqual = Math.round((ciqual.kcal * a.qte) / 100);
-        a.prot_ciqual = +(ciqual.prot * a.qte / 100).toFixed(1);
-        a.glu_ciqual  = +(ciqual.glu  * a.qte / 100).toFixed(1);
-        a.lip_ciqual  = +(ciqual.lip  * a.qte / 100).toFixed(1);
-        a.fib_ciqual  = +(ciqual.fib  * a.qte / 100).toFixed(1);
+  if (current) lines.push(current);
+  return lines;
+}
+
+// ── Classe PDFBuilder — gère le curseur et les sauts de page ──────────────────
+class PDFBuilder {
+  doc: PDFDocument;
+  pages: any[] = [];
+  currentPage: any;
+  y: number;         // curseur vertical (descend)
+  fonts: Record<string, any> = {};
+
+  constructor(doc: PDFDocument, fonts: Record<string, any>) {
+    this.doc = doc;
+    this.fonts = fonts;
+    this.currentPage = null!;
+    this.y = 0;
+  }
+
+  addPage() {
+    const page = this.doc.addPage([W, H]);
+    this.pages.push(page);
+    this.currentPage = page;
+    this.y = H - MT;
+    return page;
+  }
+
+  // Vérifier s'il reste assez de place, sinon nouvelle page
+  ensureSpace(needed: number) {
+    if (this.y - needed < MB + 20) {
+      this.addPage();
+      this.drawMiniHeader(); // répéter l'en-tête sur chaque page
+    }
+  }
+
+  // Texte simple
+  text(txt: string, x: number, y: number, opts: {
+    font?: any; size?: number; color?: any; maxWidth?: number;
+  } = {}) {
+    const font  = opts.font  ?? this.fonts.regular;
+    const size  = opts.size  ?? 8;
+    const color = opts.color ?? DARK;
+    try {
+      this.currentPage.drawText(n(txt), { x, y, size, font, color, maxWidth: opts.maxWidth });
+    } catch { /* ignorer les erreurs d'encodage */ }
+  }
+
+  // Texte multiligne avec retour à la ligne automatique
+  textWrapped(txt: string, x: number, startY: number, opts: {
+    font?: any; size?: number; color?: any; maxWidth?: number; lineHeight?: number;
+  } = {}): number {
+    const font       = opts.font       ?? this.fonts.regular;
+    const size       = opts.size       ?? 8;
+    const color      = opts.color      ?? DARK;
+    const maxWidth   = opts.maxWidth   ?? CW;
+    const lineHeight = opts.lineHeight ?? (size * 1.45);
+    const lines      = wrapText(txt, maxWidth, font, size);
+    let y = startY;
+    for (const line of lines) {
+      this.text(line, x, y, { font, size, color });
+      y -= lineHeight;
+    }
+    return startY - y; // hauteur consommée
+  }
+
+  // Rectangle plein
+  rect(x: number, y: number, w: number, h: number, color: any) {
+    this.currentPage.drawRectangle({ x, y, width: w, height: h, color });
+  }
+
+  // Rectangle avec bordure
+  rectBorder(x: number, y: number, w: number, h: number, color: any, border: any, bw = 0.8) {
+    this.currentPage.drawRectangle({ x, y, width: w, height: h, color, borderColor: border, borderWidth: bw });
+  }
+
+  // Ligne horizontale
+  line(x1: number, y: number, x2: number, color = LGRAY, width = 0.5) {
+    this.currentPage.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: width, color });
+  }
+
+  // Filigrane diagonal sur la page courante
+  drawWatermark() {
+    const wm = "NUTRIDOC";
+    const step = 90;
+    for (let xi = -50; xi < W + 50; xi += 180) {
+      for (let yi = -50; yi < H + 50; yi += step) {
+        try {
+          this.currentPage.drawText(wm, {
+            x: xi, y: yi,
+            size: 18, font: this.fonts.bold,
+            color: rgb(0.114, 0.620, 0.459),
+            opacity: 0.07,
+            rotate: degrees(38),
+          });
+        } catch { /* ignorer */ }
       }
     }
-    const sum = (k: string) => r.aliments.reduce(
-      (s: number, a: any) => s + (a[`${k}_ciqual`] ?? a[k] ?? 0), 0
-    );
-    r.total_ciqual = {
-      kcal: Math.round(sum("kcal")),
-      prot: +sum("prot").toFixed(1),
-      glu:  +sum("glu").toFixed(1),
-      lip:  +sum("lip").toFixed(1),
-      fib:  +sum("fib").toFixed(1),
-    };
-  }
-  return jourType;
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  VALIDATION
-// ════════════════════════════════════════════════════════════════════════════
-function validerPlan(
-  plan: any,
-  repasActives: string[],
-  k: KcalResult,
-  m: MacroResult,
-): { ok: boolean; errors: string[]; warnings: string[] } {
-  const errors: string[] = [], warnings: string[] = [];
-
-  if (!plan || typeof plan !== "object")
-    return { ok: false, errors: ["JSON invalide"], warnings };
-
-  if (typeof plan.resume !== "string" || plan.resume.length < 10)
-    errors.push("resume manquant");
-
-  // Calories
-  const kcalGPT = plan.apports_cibles?.calories;
-  if (typeof kcalGPT !== "number") {
-    errors.push("apports_cibles.calories manquant");
-  } else {
-    if (kcalGPT < k.plancher)
-      errors.push(`SÉCURITÉ : ${kcalGPT} kcal < métabolisme de base (${k.plancher} kcal) — plan rejeté`);
-    const ecart = Math.abs(kcalGPT - k.cible) / k.cible * 100;
-    if (ecart > 10)
-      warnings.push(`Écart kcal ${Math.round(ecart)}% (GPT:${kcalGPT} / cible:${k.cible})`);
   }
 
-  // journee_type (groupes)
-  if (!plan.journee_type?.repas) {
-    errors.push("journee_type.repas manquant");
-  } else {
-    for (const r of repasActives) {
-      const repas = plan.journee_type.repas[r];
-      if (!repas || !Array.isArray(repas.groupes) || repas.groupes.length === 0)
-        errors.push(`Repas '${r}' absent ou sans groupes dans journee_type`);
-    }
-  }
-
-  // menus_7_jours (7 jours avec aliments précis)
-  if (!Array.isArray(plan.menus_7_jours) || plan.menus_7_jours.length !== 7) {
-    errors.push(`menus_7_jours doit avoir 7 jours (reçu: ${plan.menus_7_jours?.length ?? 0})`);
-  } else {
-    for (const [i, jour] of plan.menus_7_jours.entries()) {
-      if (!jour.jour)       errors.push(`menus_7_jours[${i}].jour manquant`);
-      if (!jour.kcal_total) errors.push(`menus_7_jours[${i}].kcal_total manquant`);
-      else if (jour.kcal_total < k.plancher)
-        warnings.push(`Jour ${jour.jour} : ${jour.kcal_total} kcal < métabolisme de base ${k.plancher}`);
-      if (!jour.repas || typeof jour.repas !== "object")
-        errors.push(`menus_7_jours[${i}].repas manquant`);
-    }
-  }
-
-  if (!Array.isArray(plan.conseils) || !plan.conseils.length)
-    errors.push("conseils manquants");
-
-  return { ok: errors.length === 0, errors, warnings };
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  EMAIL
-// ════════════════════════════════════════════════════════════════════════════
-async function email(key: string, to: string, prenom: string, diet: string) {
-  if (!key || !to) return;
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from:    "NutriDoc <noreply@nutridoc.calidoc-sante.fr>",
-        to:      [to],
-        subject: "Votre plan alimentaire est en cours de validation ✅",
-        html: `<div style="font-family:sans-serif;max-width:600px;margin:auto">
-          <h2 style="color:#0d2018">Bonjour ${prenom} 👋</h2>
-          <p>Votre plan a été généré par <strong>${diet}</strong> et est en cours de validation.</p>
-          <p>Vous recevrez votre plan définitif sous <strong>48h</strong>.</p>
-          <a href="https://nutridoc.calidoc-sante.fr/dashboard.html"
-             style="display:inline-block;margin-top:16px;padding:12px 24px;
-                    background:#1D9E75;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
-            Voir mon tableau de bord →
-          </a>
-          <p style="color:#666;font-size:12px;margin-top:24px">NutriDoc by CaliDoc Santé · SIRET 939 166 690 00019</p>
-        </div>`,
-      }),
+  // En-tête de page (mini — pages 2+)
+  drawMiniHeader() {
+    this.rect(ML, H - MT - 18, CW, 18, LGREEN);
+    this.text("NutriDoc — Plan alimentaire personnalise", ML + 6, H - MT - 13, {
+      font: this.fonts.bold, size: 8, color: GDARK,
     });
-  } catch(e) { console.error("[Email]", e); }
+    this.y = H - MT - 18 - 10;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 //  HANDLER
 // ════════════════════════════════════════════════════════════════════════════
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const openaiKey   = Deno.env.get("OPENAI_API_KEY");
   const resendKey   = Deno.env.get("RESEND_API_KEY") ?? "";
 
-  if (!supabaseUrl || !supabaseKey || !openaiKey)
-    return json({ error: "Configuration incomplète" }, 500);
+  if (!supabaseUrl || !supabaseKey) return err("Configuration manquante", 500);
 
-  try {
-    // ── Auth ────────────────────────────────────────────────────────────────
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    if (!token) return json({ error: "Token manquant" }, 401);
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const token = req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+  if (!token) return err("Token manquant", 401);
 
-    const supaAdmin = createClient(supabaseUrl, supabaseKey);
-    const supaUser  = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_ANON_KEY") ?? supabaseKey,
-      { global: { headers: { Authorization: `Bearer ${token}` } } },
-    );
+  const sb = createClient(supabaseUrl, supabaseKey);
+  const anonSb = createClient(
+    supabaseUrl,
+    Deno.env.get("SUPABASE_ANON_KEY") ?? supabaseKey,
+    { global: { headers: { Authorization: `Bearer ${token}` } } },
+  );
 
-    const { data: { user } } = await supaUser.auth.getUser(token);
-    if (!user) return json({ error: "Non authentifié" }, 401);
+  const { data: { user } } = await anonSb.auth.getUser(token);
+  if (!user) return err("Non authentifie", 401);
 
-    const { data: profile } = await supaAdmin.from("profiles")
-      .select("role, prenom, nom, email").eq("id", user.id).single();
-    if (!profile || profile.role !== "dietitian")
-      return json({ error: "Accès réservé aux diététiciens" }, 403);
+  const { data: dietProfile } = await sb.from("profiles")
+    .select("role, prenom, nom, rpps, email, cabinet, ville, tel")
+    .eq("id", user.id).single();
 
-    const dietId  = user.id;
-    const dietNom = `${profile.prenom ?? ""} ${profile.nom ?? ""}`.trim();
+  if (!dietProfile || dietProfile.role !== "dietitian")
+    return err("Acces reserve aux dieteticiens", 403);
 
-    // ── Paramètres ──────────────────────────────────────────────────────────
-    const { bilan_id, queue_plan_id = null } = await req.json();
-    if (!bilan_id) return json({ error: "bilan_id requis" }, 400);
+  // ── Paramètres ──────────────────────────────────────────────────────────────
+  const { plan_id } = await req.json();
+  if (!plan_id) return err("plan_id requis", 400);
 
-    // ── Bilan ───────────────────────────────────────────────────────────────
-    const { data: bilan } = await supaAdmin.from("bilans").select("*").eq("id", bilan_id).single();
-    if (!bilan) return json({ error: "Bilan introuvable" }, 404);
+  // ── Charger le plan ─────────────────────────────────────────────────────────
+  const { data: plan } = await sb.from("plans")
+    .select("*, bilans(*)")
+    .eq("id", plan_id).single();
 
-    // ── Verrouillage queue ──────────────────────────────────────────────────
-    if (queue_plan_id) {
-      const { data: qp } = await supaAdmin.from("queue_plans")
-        .select("id, statut, dietitian_id, tentatives").eq("id", queue_plan_id).single();
-      if (!qp) return json({ error: "Demande introuvable" }, 404);
-      if (qp.dietitian_id && qp.dietitian_id !== dietId)
-        return json({ error: "Déjà assignée à un autre diét." }, 409);
-      if (!["pending","accepted"].includes(qp.statut))
-        return json({ error: `Statut incompatible : ${qp.statut}` }, 409);
-      await supaAdmin.from("queue_plans").update({
-        dietitian_id: dietId, statut: "in_progress",
-        accepted_at: new Date().toISOString(),
-        tentatives: (qp.tentatives ?? 0) + 1,
-      }).eq("id", queue_plan_id);
+  if (!plan) return err("Plan introuvable", 404);
+  if (plan.dietitian_id && plan.dietitian_id !== user.id)
+    return err("Plan appartient a un autre dieteticien", 403);
+
+  const bilan   = plan.bilans  as any;
+  const contenu = plan.contenu as any;
+  const ac      = contenu.apports_cibles ?? {};
+  const menus   = contenu.menus_7_jours  ?? [];
+  const conseils = contenu.conseils ?? [];
+  const repasJT  = contenu.journee_type?.repas ?? {};
+
+  // Infos praticien depuis le plan (si renseigné) ou le profil
+  const dv         = contenu.valide_par ?? {};
+  const pratNom    = dv.nom_complet ?? `${dietProfile.prenom ?? ""} ${dietProfile.nom ?? ""}`.trim();
+  const pratRpps   = dv.rpps  ?? dietProfile.rpps  ?? "—";
+  const pratCab    = dv.cabinet ?? dietProfile.cabinet ?? "NutriDoc · CaliDoc Sante";
+  const pratVille  = dv.ville  ?? dietProfile.ville  ?? "";
+  const pratTel    = dv.tel    ?? dietProfile.tel    ?? "";
+
+  const dateStr = new Date().toLocaleDateString("fr-FR", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  // Repas couverture
+  const ORDRE_REPAS = ["petit_dejeuner","collation_matin","dejeuner","gouter","diner"];
+  const LABELS_REPAS: Record<string, string> = {
+    petit_dejeuner:"Petit-dejeuner", collation_matin:"Collation",
+    dejeuner:"Dejeuner", gouter:"Gouter", diner:"Diner",
+  };
+  const GPNNS_ICONS: Record<string, string> = {
+    "Laitage":"[Laitage]", "Fruits frais":"[Fruits]",
+    "Legumes cuits":"[Leg.cuits]", "Legumes crus":"[Leg.crus]",
+    "Cereales completes":"[Cer.comp]", "Feculent":"[Fec.]",
+    "Pain complet":"[Pain]", "Proteines animales":"[Prot.anim]",
+    "Proteines vegetales":"[Prot.veg]", "Matieres grasses":"[Mat.gr]",
+    "Oleagineux":"[Oleag.]",
+  };
+  const repasKeys: string[] = [];
+  ORDRE_REPAS.forEach(k => { if (menus[0]?.repas?.[k]) repasKeys.push(k); });
+
+  // Conseils obligatoires ANSES
+  const conseilsSys = [
+    "Attention aux calories cachees : moutarde, vinaigrette, sucre dans le cafe, huile de cuisson, creme fraiche. Ces petites quantites peuvent representer 200-400 kcal/j supplementaires.",
+    "Sommeil : minimum 7h par nuit. Un manque chronique de sommeil favorise la prise de poids via la deregulation de la leptine et de la ghrehline.",
+    "Activite physique : en complement du sport, visez au moins 10 000 pas par jour. Privilegiez les escaliers et la marche lors de vos deplacements.",
+  ];
+  const tousConseils = [...conseils, ...conseilsSys];
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  CRÉATION DU PDF
+  // ════════════════════════════════════════════════════════════════════════════
+  const doc = await PDFDocument.create();
+  doc.setTitle(`Plan alimentaire - ${n(bilan?.prenom)} ${n(bilan?.nom)}`);
+  doc.setAuthor(pratNom);
+  doc.setCreator("NutriDoc by CaliDoc Sante");
+  doc.setProducer("NutriDoc pdf-lib");
+  doc.setCreationDate(new Date());
+
+  const [fontReg, fontBold, fontIta] = await Promise.all([
+    doc.embedFont(StandardFonts.Helvetica),
+    doc.embedFont(StandardFonts.HelveticaBold),
+    doc.embedFont(StandardFonts.HelveticaOblique),
+  ]);
+  const fonts = { regular: fontReg, bold: fontBold, italic: fontIta };
+
+  const b = new PDFBuilder(doc, fonts);
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  PAGE 1 — En-tête + Patient + Cadre nutritionnel + Conseils
+  // ════════════════════════════════════════════════════════════════════════════
+  b.addPage();
+  b.drawWatermark();
+
+  // ── BANDE VERTE EN-TÊTE ──
+  b.rect(0, H - MT - 52, W, 52 + MT, GREEN);
+
+  // Logo NutriDoc (grand, blanc)
+  b.text("NutriDoc", ML, H - MT - 32, { font: fontBold, size: 26, color: WHITE });
+  b.text("Plan alimentaire personnalise", ML, H - MT - 46, { font: fontReg, size: 8, color: rgb(0.8, 1, 0.9) });
+
+  // Encart diét. (droite)
+  const dietX = W - MR - 170;
+  b.rect(dietX, H - MT - 50, 170, 50, rgb(0.059, 0.431, 0.337));
+  b.text(pratNom, dietX + 8, H - MT - 16, { font: fontBold, size: 8.5, color: WHITE, maxWidth: 155 });
+  b.text("Dieteticien · RPPS " + pratRpps, dietX + 8, H - MT - 27, { font: fontReg, size: 7, color: rgb(0.7, 0.95, 0.85) });
+  b.text(pratCab, dietX + 8, H - MT - 37, { font: fontReg, size: 6.5, color: rgb(0.7, 0.9, 0.8) });
+  b.text((pratVille ? pratVille + " · " : "") + dateStr, dietX + 8, H - MT - 47, { font: fontReg, size: 6, color: rgb(0.6, 0.85, 0.75) });
+
+  b.y = H - MT - 52 - 12;
+
+  // ── BLOC PATIENT ──
+  const patH = 50;
+  b.rect(ML, b.y - patH, CW, patH, LGREEN);
+  b.line(ML, b.y - patH, ML + CW, b.y - patH, GREEN, 1.2);
+  b.line(ML, b.y, ML + CW, b.y, GREEN, 0.5);
+
+  b.text("PATIENT", ML + 8, b.y - 12, { font: fontBold, size: 6.5, color: GDARK });
+  b.text(n(bilan?.prenom) + " " + n(bilan?.nom), ML + 8, b.y - 23, { font: fontBold, size: 11, color: DARK });
+  b.text(
+    `${bilan?.age ?? "—"} ans · ${n(bilan?.sexe) ?? "—"} · ${bilan?.poids ?? "—"} kg · ${bilan?.taille ?? "—"} cm`,
+    ML + 8, b.y - 34, { font: fontReg, size: 7.5, color: GRAY }
+  );
+  const OBJL: Record<string,string> = {
+    perte_poids:"Perte de poids", prise_masse:"Prise de masse",
+    equilibre:"Equilibre", energie:"Energie", sante:"Sante", sport_perf:"Performance",
+  };
+  const ACTL: Record<string,string> = {
+    sedentaire:"Sedentaire", leger:"Legere", modere:"Moderee", actif:"Active", tres_actif:"Tres active",
+  };
+  b.text(
+    `Objectif : ${OBJL[bilan?.objectif] ?? "—"}  ·  Activite : ${ACTL[bilan?.activite] ?? "—"}`,
+    ML + 8, b.y - 44, { font: fontReg, size: 7, color: GRAY }
+  );
+
+  // Cibles (droite du bloc patient)
+  const cx = ML + CW - 140;
+  b.text("CIBLES JOURNALIERES", cx, b.y - 12, { font: fontBold, size: 6.5, color: GDARK });
+  b.text(`${ac.calories ?? "—"} kcal`, cx, b.y - 24, { font: fontBold, size: 13, color: GREEN });
+  b.text(
+    `P ${ac.proteines_g ?? "—"}g  G ${ac.glucides_g ?? "—"}g  L ${ac.lipides_g ?? "—"}g`,
+    cx, b.y - 36, { font: fontReg, size: 7, color: GRAY }
+  );
+  b.text(
+    `Fibres >= ${ac.fibres_min_g ?? 30}g  Sucres <= ${ac.sucres_max_g ?? 100}g`,
+    cx, b.y - 46, { font: fontReg, size: 6.5, color: LGRAY }
+  );
+
+  b.y -= patH + 12;
+
+  // ── RÉSUMÉ STRATÉGIE ──
+  b.text("STRATEGIE NUTRITIONNELLE", ML, b.y, { font: fontBold, size: 7.5, color: GREEN });
+  b.y -= 8;
+  b.rect(ML, b.y - 28, CW, 28, CREAM);
+  b.line(ML, b.y, ML + 3, b.y - 28, GREEN, 2);
+  const resumeH = b.textWrapped(contenu.resume ?? "—", ML + 8, b.y - 7, {
+    font: fontReg, size: 7, color: DARK, maxWidth: CW - 16, lineHeight: 11,
+  });
+  b.y -= Math.max(28, resumeH) + 14;
+
+  // ── CADRE NUTRITIONNEL PAR REPAS ──
+  b.text("CADRE NUTRITIONNEL JOURNALIER", ML, b.y, { font: fontBold, size: 7.5, color: GREEN });
+  b.y -= 10;
+
+  const colW1 = 115, colW2 = 75, colW3 = CW - colW1 - colW2;
+  const cellH = 13;
+  const rowHdr = 14;
+
+  for (const rKey of ORDRE_REPAS) {
+    const rData = repasJT[rKey];
+    if (!rData?.groupes?.length) continue;
+
+    // Vérifier place
+    const needed = rowHdr + rData.groupes.length * cellH + 10;
+    b.ensureSpace(needed);
+
+    // En-tête repas
+    b.rect(ML, b.y - rowHdr, CW, rowHdr, DARK);
+    b.text(LABELS_REPAS[rKey] ?? rKey, ML + 6, b.y - 9.5, { font: fontBold, size: 8, color: WHITE });
+    b.y -= rowHdr;
+
+    // En-tête colonnes
+    b.rect(ML, b.y - cellH, CW, cellH, rgb(0.239, 0.580, 0.459));
+    b.text("Groupe alimentaire", ML + 6, b.y - 9,   { font: fontBold, size: 6.5, color: WHITE });
+    b.text("Quantite",          ML + colW1 + 4, b.y - 9, { font: fontBold, size: 6.5, color: WHITE });
+    b.text("Conseil",           ML + colW1 + colW2 + 4, b.y - 9, { font: fontBold, size: 6.5, color: WHITE });
+    b.y -= cellH;
+
+    // Lignes groupes
+    for (const [gi, g] of rData.groupes.entries()) {
+      const rowBg = gi % 2 === 0 ? WHITE : CREAM;
+      b.rect(ML, b.y - cellH, CW, cellH, rowBg);
+      b.line(ML, b.y - cellH, ML + CW, b.y - cellH, rgb(0.9, 0.94, 0.9), 0.4);
+
+      b.text(n(g.groupe), ML + 6, b.y - 9, { font: fontBold, size: 6.5, color: DARK, maxWidth: colW1 - 10 });
+      b.text(n(g.quantite_indicative ?? `${g.nb_portions} portion(s)`),
+        ML + colW1 + 4, b.y - 9, { font: fontReg, size: 6.5, color: GREEN, maxWidth: colW2 - 8 });
+
+      // Conseil : peut déborder → adapter la hauteur
+      const consLines = wrapText(g.conseils_groupe ?? "", colW3 - 10, fontIta, 6.5);
+      consLines.slice(0, 1).forEach(cl => {
+        b.text(cl, ML + colW1 + colW2 + 4, b.y - 9, { font: fontIta, size: 6.5, color: GRAY });
+      });
+
+      b.y -= cellH;
     }
+    b.y -= 6;
+  }
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  CALCULS NUTRITIONNELS — RÉFÉRENCE ANSES
-    // ════════════════════════════════════════════════════════════════════════
-    const kcalResult = calculerKcal(bilan);
-    const macros     = calculerMacros(kcalResult.cible, bilan);
+  // ── CONSEILS (2 colonnes) ──
+  b.ensureSpace(30);
+  b.text("CONSEILS PERSONNALISES", ML, b.y, { font: fontBold, size: 7.5, color: GREEN });
+  b.y -= 10;
 
-    console.log(`[Calcul v6] MB (Black 1996):${kcalResult.mb} kcal | Dépense totale (NAP ${NAP[bilan.activite??'sedentaire']}):${kcalResult.tdee} kcal | Cible:${kcalResult.cible} kcal${kcalResult.plancher_applique?' ⚠️ plancher appliqué':''}`);
-    console.log(`[Macros v6] Protéines:${macros.prot_g}g(${macros.prot_pct}%,${macros.prot_gkg}g/kg) Glucides:${macros.glu_g}g(${macros.glu_pct}%) Lipides:${macros.lip_g}g(${macros.lip_pct}%)`);
+  const halfW = (CW - 8) / 2;
+  let leftY = b.y, rightY = b.y;
+  tousConseils.forEach((conseil, i) => {
+    const col = i % 2;
+    const x   = col === 0 ? ML : ML + halfW + 8;
+    const yPos = col === 0 ? leftY : rightY;
+    b.ensureSpace(22);
 
-    // Repas actifs
-    const repasActives: string[] = Array.isArray(bilan.repas_actifs) && bilan.repas_actifs.length
-      ? bilan.repas_actifs.filter((r: string) => r in REPAS_CONFIG)
-      : ["petit_dejeuner", "dejeuner", "diner"];
+    // Puce verte
+    b.rect(x, yPos - 6, 3, 6, GREEN);
 
-    const repasPrompt = repasActives
-      .map(r => `  - ${REPAS_CONFIG[r].label} (${REPAS_CONFIG[r].heure})`).join("\n");
-
-    const IMC = bilan.poids && bilan.taille
-      ? +(bilan.poids / (bilan.taille / 100) ** 2).toFixed(1) : null;
-
-    const OBJECTIF_LBL: Record<string,string> = {
-      perte_poids:"Perte de poids", prise_masse:"Prise de masse",
-      equilibre:"Équilibre", energie:"Énergie", sante:"Santé", sport_perf:"Performance sportive",
-    };
-    const ACTIVITE_LBL: Record<string,string> = {
-      sedentaire:"Sédentaire", leger:"Légère", modere:"Modérée", actif:"Active", tres_actif:"Très active",
-    };
-
-    const IMC = bilan.poids && bilan.taille
-      ? +(bilan.poids / (bilan.taille / 100) ** 2).toFixed(1) : null;
-
-    const ciqualNoms = getCiqualNoms();
-
-    // Exemple structure journée type (groupes alimentaires PNNS)
-    const groupesExemple = repasActives.reduce((acc: any, r) => {
-      acc[r] = {
-        heure_conseillee: REPAS_CONFIG[r].heure,
-        groupes: [
-          {
-            groupe: "Exemple: Laitage / Fruits frais / Céréales complètes / Protéines...",
-            nb_portions: 1,
-            quantite_indicative: "150g ou 1 portion",
-            conseils_groupe: "Conseil spécifique pour ce groupe et ce patient",
-          }
-        ]
-      };
-      return acc;
-    }, {});
-
-    // Exemple structure 1 jour complet (aliments CIQUAL précis)
-    const jourExemple = {
-      jour: "Lundi",
-      kcal_total: kcalResult.cible,
-      repas: repasActives.reduce((acc: any, r) => {
-        acc[r] = {
-          heure: REPAS_CONFIG[r].heure,
-          aliments: [
-            { nom: "Nom exact CIQUAL", qte: 100, unite: "g", kcal: 0, prot: 0, glu: 0, lip: 0, fib: 0 }
-          ],
-          total_kcal: 0,
-          total_prot: 0,
-          total_glu:  0,
-          total_lip:  0,
-        };
-        return acc;
-      }, {}),
-    };
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  PROMPT v7 — journee_type (groupes) + menus_7_jours (aliments précis)
-    // ════════════════════════════════════════════════════════════════════════
-    const prompt = `Tu es un diététicien RPPS expert francophone, formé aux recommandations ANSES 2016 / PNNS.
-Génère un plan alimentaire structuré en deux parties. Les valeurs sont calculées côté serveur.
-
-╔══════════════════════════════════════════════════════════════╗
-║         CIBLES NUTRITIONNELLES IMPOSÉES                      ║
-╚══════════════════════════════════════════════════════════════╝
-  ▶ CALORIES     : ${kcalResult.cible} kcal/jour
-     • Métabolisme de base (Black 1996) : ${kcalResult.mb} kcal
-     • Dépense totale (NAP ${NAP[bilan.activite ?? "sedentaire"]}) : ${kcalResult.tdee} kcal
-     • Ajustement ${OBJECTIF_LBL[bilan.objectif ?? "equilibre"]} : ${kcalResult.ajustement > 0 ? "+" : ""}${kcalResult.ajustement} kcal
-     • Plancher (= métabolisme de base) : ${kcalResult.plancher} kcal
-     ${kcalResult.plancher_applique ? `• ⚠️ Plancher activé → ${kcalResult.cible_brute} relevé à ${kcalResult.cible} kcal` : ""}
-
-  ▶ PROTÉINES : ${macros.prot_g}g/j (${macros.prot_pct}% · ${macros.prot_gkg}g/kg)
-  ▶ GLUCIDES  : ${macros.glu_g}g/j  (${macros.glu_pct}%)
-  ▶ LIPIDES   : ${macros.lip_g}g/j  (${macros.lip_pct}% — min 35% ANSES)
-  ▶ SUCRES MAX: ${macros.sucres_max_g}g/j · FIBRES MIN: ${macros.fibres_min_g}g/j · EAU: ${macros.eau_ml}ml/j
-
-╔══════════════════════════════════════════════════════════════╗
-║              RÈGLES CALORIES ABSOLUES                        ║
-╚══════════════════════════════════════════════════════════════╝
-  1. apports_cibles.calories = ${kcalResult.cible} (imposé)
-  2. Chaque jour dans menus_7_jours : kcal_total entre ${Math.round(kcalResult.cible * 0.95)} et ${Math.round(kcalResult.cible * 1.05)}
-  3. JAMAIS sous ${kcalResult.plancher} kcal (métabolisme de base)
-  4. Lipides ≥ 35% AET — Sucres ≤ ${macros.sucres_max_g}g/j
-  5. Les 7 menus doivent être variés (pas de répétition jour après jour)
-
-╔══════════════════════════════════════════════════════════════╗
-║                    PROFIL PATIENT                            ║
-╚══════════════════════════════════════════════════════════════╝
-  ${bilan.prenom ?? "?"} ${bilan.nom ?? ""} · ${bilan.age ?? "?"}ans · ${bilan.sexe ?? "?"} · IMC ${IMC ?? "?"}
-  ${bilan.poids ?? "?"}kg · ${bilan.taille ?? "?"}cm
-  Objectif : ${OBJECTIF_LBL[bilan.objectif ?? "equilibre"]}
-  Activité : ${ACTIVITE_LBL[bilan.activite ?? "sedentaire"]} · Sport : ${bilan.sport ?? "—"} ${bilan.sport_freq ? bilan.sport_freq + "x/sem" : ""}
-  Budget : ${bilan.budget ?? "standard"} · Temps cuisine : ${bilan.temps_repas ?? "standard"}
-
-╔══════════════════════════════════════════════════════════════╗
-║              RESTRICTIONS (respecter STRICTEMENT)            ║
-╚══════════════════════════════════════════════════════════════╝
-  Régime    : ${bilan.regime ?? "omnivore"}
-  Allergies : ${bilan.allergies ?? "aucune"} ← EXCLURE ces aliments partout
-  Aversions : ${bilan.aversions ?? "aucune"} ← EXCLURE ces aliments partout
-  Alertes   : ${bilan.alertes_sante?.length ? bilan.alertes_sante.join(", ") : "aucune"}
-  ${bilan.alertes_sante?.includes("diabète") ? "→ Index glycémique bas, sucres simples ≤ 50g/j" : ""}
-  ${bilan.alertes_sante?.includes("hypertension") ? "→ Sodium ≤ 2g/j, exclure charcuteries" : ""}
-
-╔══════════════════════════════════════════════════════════════╗
-║         RÈGLES NUTRITIONNELLES COMPLÉMENTAIRES               ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  FROMAGES ET DESSERTS — RÈGLES STRICTES :                    ║
-║  • Objectif journalier : 2 fromages blancs 0% + 1 fromage    ║
-║    affiné (30g MAX) OU 3 fromages blancs 0% sans fromage     ║
-║  • Fromage affiné : AU DÉJEUNER UNIQUEMENT — jamais au dîner ║
-║  • INTERDIT : fromage blanc + fromage affiné dans le même    ║
-║    repas — choisir L'UN OU L'AUTRE par repas                 ║
-║  • Au dîner : fromage blanc 0% en dessert uniquement         ║
-║  • Règle fruit/légume :                                       ║
-║    - Si légume cuit dans le repas → fruit CRU en dessert     ║
-║    - Si fruit cru dans le repas → fruit CUIT en dessert      ║
-║    - Appliquer systématiquement, sans exception              ║
-║                                                              ║
-║  CRUDITÉS AU DÉJEUNER :                                      ║
-║  • Proposer une crudité VARIÉE et identifiée — pas de        ║
-║    "salade verte" générique. Utiliser : tomates fraîches,    ║
-║    concombre, carotte crue, betterave, radis, céleri cru,    ║
-║    fenouil cru. La crudité doit être différente du légume    ║
-║    cuit servi au même repas.                                 ║
-║                                                              ║
-║  FRUITS SECS — À intégrer dans le plan (comptabilisés) :     ║
-║  • 30g d'oléagineux (amandes, noix, noisettes) en collation  ║
-║    ou inclus dans un repas si pas de collation active        ║
-║  • Compter leurs kcal dans le total journalier               ║
-║  • Note dans les conseils : "En cas de fringale, 30g         ║
-║    d'oléagineux (amandes, noix) — à la place du sucré"       ║
-║                                                              ║
-║  PLAISIR ALIMENTAIRE (100-300 kcal/j) :                      ║
-║  • Intégrer 1 aliment plaisir par jour si le patient n'a     ║
-║    pas de pathologie (selon le bilan)                        ║
-║  • Déduire ces kcal d'un repas existant si nécessaire        ║
-║    (ex: pizza = remplace le dîner complet)                   ║
-║  • Exemples selon le contexte : chocolat noir (30g=160kcal), ║
-║    sorbet (100g=100kcal), 1 verre vin rouge (100ml=85kcal),  ║
-║    chips (30g=160kcal), 1 croissant matin (180kcal)          ║
-║  • Mentionner dans les notes_dieteticien pour que le diét.   ║
-║    valide ou adapte selon le profil clinique                 ║
-║                                                              ║
-║  FRÉQUENCE POISSON — RÈGLE ANSES OBLIGATOIRE :               ║
-║  • Exactement 2 portions de poisson par semaine sur 7 jours  ║
-║  • 1 obligatoirement un poisson GRAS (saumon, maquereau,     ║
-║    sardine, hareng, truite) pour les oméga-3 EPA/DHA         ║
-║  • 1 autre poisson (cabillaud, colin, merlu, sole, lieu…)    ║
-║  • Maximum absolu : 3 portions/semaine (risques mercure)      ║
-║  • Jamais 2 repas avec du poisson le même jour                ║
-║  • Varier les espèces d'une semaine à l'autre                 ║
-║  • Les 5 autres jours : volailles, œufs, légumineuses,        ║
-║    viande rouge (≤500g/sem hors volailles, ANSES)             ║
-║                                                              ║
-║  FRÉQUENCE VIANDE ROUGE — ANSES :                            ║
-║  • Bœuf + porc + agneau + veau ≤ 500g/semaine total          ║
-║  • Volailles (poulet, dinde) : pas de limite stricte          ║
-║  • Charcuteries ≤ 25g/j (jambon, saucisson…) — à limiter     ║
-║                                                              ║
-║  FRÉQUENCE LÉGUMINEUSES — ANSES :                            ║
-║  • Au moins 2 fois par semaine (lentilles, pois chiches…)    ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-
-╔══════════════════════════════════════════════════════════════╗
-║            REPAS ACTIFS DU PATIENT                           ║
-╚══════════════════════════════════════════════════════════════╝
-${repasActives.map(r => `  - ${REPAS_CONFIG[r].label}`).join("\n")}
-
-╔══════════════════════════════════════════════════════════════╗
-║     ALIMENTS CIQUAL AUTORISÉS (menus_7_jours UNIQUEMENT)     ║
-╚══════════════════════════════════════════════════════════════╝
-${ciqualNoms}
-
-╔══════════════════════════════════════════════════════════════╗
-║          STRUCTURE EN 2 PARTIES — IMPORTANTE                 ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  PARTIE 1 : journee_type → GROUPES ALIMENTAIRES PNNS         ║
-║  ─────────────────────────────────────────────────────────── ║
-║  Pas d'aliments précis. Uniquement les groupes à consommer   ║
-║  par repas, avec quantités indicatives par portion.          ║
-║                                                              ║
-║  Groupes PNNS disponibles :                                  ║
-║   • Laitage          (yaourt, lait, fromage blanc…)          ║
-║   • Fruits frais     (150g ≈ 1 fruit moyen)                  ║
-║   • Légumes cuits    (tous légumes cuits)                    ║
-║   • Légumes crus     (salade, crudités, tomates…)            ║
-║   • Céréales complètes (flocons avoine, muesli, riz complet…)║
-║   • Féculents        (pâtes, riz blanc, pomme de terre…)     ║
-║   • Pain complet     (tranches, 30-40g/tranche)              ║
-║   • Protéines animales (viande, poisson, œufs)               ║
-║   • Protéines végétales (légumineuses, tofu)                 ║
-║   • Matières grasses (huile, beurre — en petites quantités)  ║
-║   • Oléagineux       (amandes, noix, noisettes…)             ║
-║                                                              ║
-║  PARTIE 2 : menus_7_jours → 7 JOURS COMPLETS                ║
-║  ─────────────────────────────────────────────────────────── ║
-║  7 journées avec aliments CIQUAL PRÉCIS + grammages exacts.  ║
-║  Chaque aliment doit exister dans la liste CIQUAL ci-dessus. ║
-║  Les grammages doivent permettre d'atteindre la cible kcal.  ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-
-FORMAT JSON IMPOSÉ — UNIQUEMENT CE JSON, AUCUN TEXTE AUTOUR :
-
-{
-  "resume": "2-3 phrases : profil + stratégie nutritionnelle ANSES",
-
-  "apports_cibles": {
-    "calories":       ${kcalResult.cible},
-    "proteines_g":    ${macros.prot_g},
-    "glucides_g":     ${macros.glu_g},
-    "lipides_g":      ${macros.lip_g},
-    "sucres_max_g":   ${macros.sucres_max_g},
-    "fibres_min_g":   ${macros.fibres_min_g},
-    "eau_ml":         ${macros.eau_ml},
-    "repartition_note": "Explication de la répartition P/G/L et pourquoi elle est adaptée à ce patient"
-  },
-
-  "repas_actifs": ${JSON.stringify(repasActives)},
-
-  "journee_type": {
-    "titre": "Cadre nutritionnel journalier",
-    "note": "Explication du cadre pour le diét. — comment l'utiliser en pratique",
-    "repas": ${JSON.stringify(groupesExemple, null, 4)},
-    "total_groupes_note": "Bilan équilibre des groupes sur la journée"
-  },
-
-  "menus_7_jours": [
-    ${JSON.stringify(jourExemple, null, 4)},
-    ... (exactement 7 objets : Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi, Dimanche)
-  ],
-
-  "conseils": ["conseil 1 personnalisé", "conseil 2", "conseil 3"],
-  "aliments_privilegier": ["groupe ou aliment 1", "groupe ou aliment 2"],
-  "aliments_limiter":     ["groupe ou aliment 1", "groupe ou aliment 2"],
-  "notes_dieteticien":    "Observations libres à compléter par le diét."
-}
-
-RAPPELS FINAUX :
-- journee_type : GROUPES ALIMENTAIRES UNIQUEMENT — aucun aliment précis
-- menus_7_jours : EXACTEMENT 7 objets (Lundi → Dimanche)
-- Chaque jour.kcal_total entre ${Math.round(kcalResult.cible * 0.95)} et ${Math.round(kcalResult.cible * 1.05)}
-- JAMAIS sous ${kcalResult.plancher} kcal (métabolisme de base)
-- POISSON : exactement 2 repas sur 7 (max 3) — 1 gras + 1 blanc — jamais 2 jours consécutifs
-- VIANDE ROUGE (bœuf/porc/veau/agneau) : ≤ 500g/semaine au total
-- LÉGUMINEUSES : au moins 2 fois dans la semaine`;
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  APPEL OpenAI — avec boucle retry (max 3 tentatives)
-    //
-    //  Pourquoi un retry ?
-    //  GPT-4o-mini peut ignorer les contraintes caloriques malgré le prompt.
-    //  À chaque échec de validation, on lui renvoie ses erreurs exactes
-    //  pour qu'il les corrige. La température baisse à chaque tentative
-    //  pour le rendre plus déterministe.
-    // ════════════════════════════════════════════════════════════════════════
-    const openai     = new OpenAI({ apiKey: openaiKey });
-    const MAX_RETRY  = 3;
-    const TEMP       = [0.3, 0.1, 0.0]; // de moins en moins "créatif"
-
-    let planIA: any   = null;
-    let validation: any = null;
-    let tentative       = 0;
-    let messagesGPT: Array<{ role: string; content: string }> = [
-      { role: "user", content: prompt }
-    ];
-
-    while (tentative < MAX_RETRY) {
-      tentative++;
-      console.log(`[OpenAI] Tentative ${tentative}/${MAX_RETRY} — température ${TEMP[tentative-1]}`);
-
-      try {
-        const completion = await openai.chat.completions.create({
-          model:           "gpt-4o-mini",
-          messages:        messagesGPT as any,
-          temperature:     TEMP[tentative - 1],
-          response_format: { type: "json_object" },
-          max_tokens:      6000,
-        });
-
-        const raw = (completion.choices[0].message.content ?? "{}")
-          .replace(/```json|```/g, "").trim();
-
-        console.log(`[OpenAI] Tokens: ${completion.usage?.total_tokens}`);
-
-        try {
-          planIA = JSON.parse(raw);
-        } catch {
-          console.warn(`[OpenAI] JSON invalide tentative ${tentative}`);
-          // Ajouter le retour GPT + correction pour la prochaine tentative
-          messagesGPT.push({ role: "assistant", content: raw });
-          messagesGPT.push({
-            role: "user",
-            content: "Erreur : ta réponse n'est pas un JSON valide. Renvoie uniquement du JSON pur, sans texte ni balise markdown.",
-          });
-          continue;
-        }
-
-        // Valider le plan
-        validation = validerPlan(planIA, repasActives, kcalResult, macros);
-
-        if (validation.ok) {
-          console.log(`[OpenAI] ✅ Plan valide à la tentative ${tentative}`);
-          break; // Succès — on sort de la boucle
-        }
-
-        // Échec de validation — préparer le message de correction
-        console.warn(`[Validation] Tentative ${tentative} échouée :`, validation.errors);
-
-        const erreurKcal = validation.errors.find((e: string) => e.includes("SÉCURITÉ") || e.includes("kcal"));
-        const msgCorrection = erreurKcal
-          ? `CORRECTION OBLIGATOIRE — tentative ${tentative} rejetée.
-
-Erreurs détectées :
-${validation.errors.map((e: string) => `  • ${e}`).join("\n")}
-
-⚠️  PROBLÈME PRINCIPAL : les calories sont trop basses.
-La cible est ${kcalResult.cible} kcal/jour.
-Le plancher de sécurité médical est ${kcalResult.plancher} kcal/jour.
-Tu ne peux JAMAIS descendre en dessous.
-
-Pour atteindre ${kcalResult.cible} kcal avec ${repasActives.length} repas, augmente les quantités :
-  • Féculents : portions de 150-200g cuits
-  • Protéines : portions de 120-150g
-  • Ajoute de l'huile d'olive (1 cs = 90 kcal) sur les légumes
-  • Ajoute des oléagineux (30g amandes = 175 kcal)
-  • Utilise du lait entier ou demi-écrémé plutôt qu'écrémé
-
-Régénère le plan JSON complet en respectant ces contraintes.`
-          : `CORRECTION OBLIGATOIRE — tentative ${tentative} rejetée.
-
-Erreurs :
-${validation.errors.map((e: string) => `  • ${e}`).join("\n")}
-
-Régénère le plan JSON complet en corrigeant ces erreurs.`;
-
-        messagesGPT.push({ role: "assistant", content: JSON.stringify(planIA) });
-        messagesGPT.push({ role: "user", content: msgCorrection });
-
-      } catch(e) {
-        console.error(`[OpenAI] Erreur API tentative ${tentative} :`, e);
-        if (tentative >= MAX_RETRY) {
-          if (queue_plan_id) await supaAdmin.from("queue_plans")
-            .update({ statut: "pending", dietitian_id: null }).eq("id", queue_plan_id);
-          return json({ error: "Erreur API OpenAI après 3 tentatives" }, 502);
-        }
-      }
-    }
-
-    // Si après 3 tentatives le plan est encore invalide → on abandonne
-    if (!planIA || !validation?.ok) {
-      console.error("[Génération] Échec après 3 tentatives. Dernières erreurs :", validation?.errors);
-      if (queue_plan_id) await supaAdmin.from("queue_plans")
-        .update({ statut: "pending", dietitian_id: null }).eq("id", queue_plan_id);
-      return json({
-        error:   "Plan invalide après 3 tentatives",
-        details: validation?.errors ?? ["Erreur inconnue"],
-        conseil: "Vérifiez le bilan du patient (poids, taille, activité) et réessayez.",
-      }, 502);
-    }
-
-    // ── Enrichissement CIQUAL (macros sur les menus_7_jours) ───────────────
-    if (Array.isArray(planIA.menus_7_jours)) {
-      for (const jour of planIA.menus_7_jours) {
-        if (!jour.repas) continue;
-        for (const repas of Object.values(jour.repas) as any[]) {
-          if (!Array.isArray(repas?.aliments)) continue;
-          const fakeRepas = { repas: { r: repas } };
-          const enrichi = enrichirJourType(fakeRepas as any);
-          Object.assign(repas, enrichi.repas.r);
-        }
-      }
-    }
-
-    // ── Enrichissement USDA FDC (micronutriments sur la journée type) ───────
-    const usdaKey = Deno.env.get("USDA_FDC_API_KEY") ?? "";
-    if (usdaKey) {
-      try {
-        // USDA enrichit le premier jour des menus (exemple représentatif)
-        if (planIA.menus_7_jours?.[0]) {
-          planIA.menus_7_jours[0]._usda_enrichi = true;
-          console.log("[USDA] Enrichissement micronutriments jour 1");
-        }
-        console.log("[USDA] Enrichissement micronutriments terminé");
-      } catch(e) {
-        console.warn("[USDA] Enrichissement échoué (non bloquant) :", e);
-      }
-    }
-
-    planIA._meta = {
-      generated_at:        new Date().toISOString(),
-      generated_by_diet:   dietId,
-      model:               "gpt-4o-mini",
-      anses_version:       "2016",
-      usda_enrichi:        !!usdaKey,
-      kcal_calcule:        kcalResult,
-      macros_calcule:      macros,
-      repas_actifs:        repasActives,
-      validation_warnings: validation.warnings,
-    };
-
-    // ── Sauvegarde ──────────────────────────────────────────────────────────
-    await supaAdmin.from("bilans").update({
-      plan_ia_propose:   planIA,
-      plan_ia_genere_at: new Date().toISOString(),
-    }).eq("id", bilan_id);
-
-    const { data: planRecord } = await supaAdmin.from("plans").insert({
-      patient_id:   bilan.patient_id,
-      dietitian_id: dietId,
-      bilan_id,
-      contenu:      planIA,
-      statut:       "in_progress",
-    }).select("id").single();
-
-    if (queue_plan_id) await supaAdmin.from("queue_plans")
-      .update({ statut: "in_progress", updated_at: new Date().toISOString() })
-      .eq("id", queue_plan_id);
-
-    // ── Email patient ───────────────────────────────────────────────────────
-    const { data: pat } = await supaAdmin.from("profiles")
-      .select("email, prenom").eq("id", bilan.patient_id).single();
-    if (pat?.email) await email(resendKey, pat.email, pat.prenom ?? "Patient", dietNom);
-
-    return json({
-      success:         true,
-      plan:            planIA,
-      plan_record_id:  planRecord?.id ?? null,
-      kcal_calcule:    kcalResult,
-      macros_calcule:  macros,
-      repas_actifs:    repasActives,
-      validation,
-      message: `Plan généré — ${kcalResult.cible} kcal/j · P:${macros.prot_g}g G:${macros.glu_g}g L:${macros.lip_g}g${kcalResult.plancher_applique ? " · plancher appliqué" : ""}`,
+    const lines = wrapText(n(conseil), halfW - 10, fontReg, 6.5);
+    const blockH = lines.length * 9.5 + 4;
+    lines.forEach((line, li) => {
+      b.text(line, x + 7, yPos - 6 - li * 9.5, { font: fontReg, size: 6.5, color: DARK });
     });
 
-  } catch(err) {
-    console.error("[generate-plan crash]", err);
-    return json({ error: String(err) }, 500);
+    if (col === 0) { leftY -= blockH + 5; }
+    else           { rightY -= blockH + 5; }
+  });
+  b.y = Math.min(leftY, rightY) - 6;
+
+  // ── Notes diét. ──
+  if (contenu.notes_dieteticien) {
+    b.ensureSpace(30);
+    b.rect(ML, b.y - 24, CW, 24, WARN);
+    b.line(ML, b.y, ML + 3, b.y - 24, rgb(0.922, 0.624, 0.043), 2.5);
+    b.text("Notes du dieteticien : " + n(contenu.notes_dieteticien),
+      ML + 8, b.y - 9, { font: fontReg, size: 7, color: DARK, maxWidth: CW - 16 });
+    b.y -= 30;
   }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  PAGE 2 — Tableau 7 jours × repas
+  // ════════════════════════════════════════════════════════════════════════════
+  b.addPage();
+  b.drawWatermark();
+
+  // Mini en-tête
+  b.rect(0, H - MT - 32, W, 32 + MT, GREEN);
+  b.text("NutriDoc", ML, H - MT - 20, { font: fontBold, size: 16, color: WHITE });
+  b.text("7 jours de menus", ML + 100, H - MT - 20, { font: fontReg, size: 10, color: rgb(0.8, 1, 0.9) });
+  b.text(
+    `${n(bilan?.prenom)} ${n(bilan?.nom)}  ·  ${ac.calories ?? "—"} kcal/j  ·  ${dateStr}`,
+    W - MR - 200, H - MT - 20, { font: fontReg, size: 6.5, color: rgb(0.7, 0.9, 0.8), maxWidth: 200 }
+  );
+  b.y = H - MT - 32 - 10;
+
+  // ── TABLEAU ──
+  const nbRepas = repasKeys.length;
+  const colJour  = 52;             // colonne "Jour"
+  const colTotal = 40;             // colonne "Total"
+  const colRepas = (CW - colJour - colTotal) / nbRepas; // colonnes repas
+  const hdrH = 18;
+  const rowH = 55;                  // hauteur ligne jour
+
+  // En-tête tableau
+  b.rect(ML, b.y - hdrH, CW, hdrH, DARK);
+  b.text("Jour", ML + 4, b.y - 12, { font: fontBold, size: 7.5, color: WHITE });
+  b.text("Total", ML + colJour + 4, b.y - 12, { font: fontBold, size: 7, color: rgb(0.5, 1, 0.8) });
+  repasKeys.forEach((rk, ri) => {
+    const x = ML + colJour + colTotal + ri * colRepas;
+    b.text(LABELS_REPAS[rk] ?? rk, x + 4, b.y - 12, { font: fontBold, size: 7, color: WHITE, maxWidth: colRepas - 6 });
+  });
+  b.y -= hdrH;
+
+  // Lignes jours
+  for (const [ji, jour] of menus.entries()) {
+    // Calculer le total kcal
+    let totalKcal = 0;
+    Object.values(jour.repas ?? {}).forEach((r: any) => {
+      (r.aliments ?? []).forEach((a: any) => { totalKcal += (a.kcal_ciqual ?? a.kcal ?? 0); });
+    });
+    totalKcal = Math.round(totalKcal) || jour.kcal_total || 0;
+
+    const bg = ji % 2 === 0 ? WHITE : CREAM;
+    b.rect(ML, b.y - rowH, CW, rowH, bg);
+    b.line(ML, b.y - rowH, ML + CW, b.y - rowH, rgb(0.87, 0.92, 0.87), 0.5);
+
+    // Bordure verte sur les colonnes
+    b.line(ML + colJour, b.y, ML + colJour, b.y - rowH, GREEN, 1.2);
+    b.line(ML + colJour + colTotal, b.y, ML + colJour + colTotal, b.y - rowH, rgb(0.8, 0.9, 0.85), 0.5);
+
+    // Nom du jour
+    b.text(n(jour.jour), ML + 4, b.y - 14, { font: fontBold, size: 9, color: DARK });
+
+    // Total kcal
+    b.text(String(totalKcal), ML + colJour + 4, b.y - 14, { font: fontBold, size: 9, color: GREEN });
+    b.text("kcal", ML + colJour + 4, b.y - 23, { font: fontReg, size: 6, color: LGRAY });
+
+    // Aliments par repas
+    repasKeys.forEach((rk, ri) => {
+      const x  = ML + colJour + colTotal + ri * colRepas;
+      const r  = jour.repas?.[rk];
+      const als = r?.aliments ?? [];
+      let ay   = b.y - 10;
+      let kcalRepas = 0;
+      for (const a of als.slice(0, 5)) { // max 5 aliments par cellule
+        kcalRepas += (a.kcal_ciqual ?? a.kcal ?? 0);
+        b.text(
+          n(a.nom) + " " + a.qte + (a.unite ?? "g"),
+          x + 3, ay, { font: fontReg, size: 6, color: DARK, maxWidth: colRepas - 6 }
+        );
+        ay -= 9.5;
+      }
+      if (als.length > 0) {
+        b.text(Math.round(kcalRepas) + " kcal", x + 3, b.y - rowH + 5, { font: fontIta, size: 5.5, color: LGRAY });
+      }
+    });
+
+    b.y -= rowH;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  PAGE 3 — Attestation + Clause + Signature
+  // ════════════════════════════════════════════════════════════════════════════
+  b.addPage();
+  b.drawWatermark();
+
+  b.rect(0, H - MT - 28, W, 28 + MT, GREEN);
+  b.text("NutriDoc", ML, H - MT - 18, { font: fontBold, size: 16, color: WHITE });
+  b.text("Attestation professionnelle", ML + 100, H - MT - 18, { font: fontReg, size: 9, color: rgb(0.8, 1, 0.9) });
+  b.y = H - MT - 28 - 20;
+
+  // ── Bloc attestation ──
+  b.text("ATTESTATION DU DIETETICIEN", ML, b.y, { font: fontBold, size: 9, color: GREEN });
+  b.y -= 12;
+
+  const attestTxt =
+    `Je soussigne(e) ${pratNom}, dieteticien(ne) enregistre(e) sous le numero RPPS ${pratRpps}` +
+    (pratCab ? ` (${pratCab})` : "") +
+    `, atteste avoir consulte, verifie et valide ce plan alimentaire genere par intelligence artificielle` +
+    ` (NutriDoc · GPT-4o-mini · CIQUAL 2020 · referentiels ANSES 2016).` +
+    ` Ce document constitue un plan alimentaire sur-mesure etabli a partir des informations declarees` +
+    ` par ${n(bilan?.prenom)} ${n(bilan?.nom)}.`;
+
+  const attestH = 60;
+  b.rect(ML, b.y - attestH, CW, attestH, LGREEN);
+  b.line(ML, b.y, ML + 3, b.y - attestH, GREEN, 2.5);
+  b.textWrapped(attestTxt, ML + 10, b.y - 10, { font: fontReg, size: 7.5, color: DARK, maxWidth: CW - 16, lineHeight: 12 });
+  b.y -= attestH + 16;
+
+  // ── Clause de responsabilité ──
+  b.text("CLAUSE DE RESPONSABILITE", ML, b.y, { font: fontBold, size: 8, color: GRAY });
+  b.y -= 10;
+
+  const clauseTxt =
+    `Ce plan alimentaire personnalise repose sur les informations fournies par le patient.` +
+    ` NutriDoc et le dieteticien signataire ne peuvent garantir un resultat specifique (perte de poids,` +
+    ` prise de masse, amelioration d'une pathologie, etc.).` +
+    ` Les resultats obtenus dependent de la bonne observance du plan, de la volonte du patient,` +
+    ` de son niveau d'activite physique reel, de son comportement alimentaire au quotidien` +
+    ` et de facteurs physiologiques individuels (metabolisme, etat de sante, stress, sommeil).` +
+    ` En cas de symptome inhabituel ou de doute medical, il est recommande de consulter un medecin.`;
+
+  const clauseH = 72;
+  b.rect(ML, b.y - clauseH, CW, clauseH, WARN);
+  b.line(ML, b.y, ML + 3, b.y - clauseH, rgb(0.922, 0.624, 0.043), 2.5);
+  b.textWrapped(clauseTxt, ML + 10, b.y - 10, { font: fontReg, size: 7.5, color: DARK, maxWidth: CW - 16, lineHeight: 12 });
+  b.y -= clauseH + 20;
+
+  // ── Bloc signature ──
+  b.text("SIGNATURE", ML, b.y, { font: fontBold, size: 8, color: GRAY });
+  b.y -= 12;
+
+  const sigH = 90;
+  b.rectBorder(ML, b.y - sigH, CW, sigH, WHITE, GREEN, 1.2);
+
+  // Infos gauche
+  b.text("Fait le " + dateStr, ML + 10, b.y - 16, { font: fontReg, size: 7.5, color: GRAY });
+  b.text(pratNom, ML + 10, b.y - 30, { font: fontBold, size: 10, color: GDARK });
+  b.text("Dieteticien(ne) · RPPS " + pratRpps, ML + 10, b.y - 42, { font: fontReg, size: 7.5, color: GRAY });
+  b.text(pratCab, ML + 10, b.y - 53, { font: fontReg, size: 7, color: LGRAY });
+  if (pratVille) b.text(pratVille, ML + 10, b.y - 62, { font: fontReg, size: 7, color: LGRAY });
+  if (pratTel)   b.text(pratTel,   ML + 10, b.y - 71, { font: fontReg, size: 7, color: LGRAY });
+
+  // Zone signature droite
+  const sigBoxX = ML + CW - 165;
+  b.rectBorder(sigBoxX, b.y - sigH + 10, 155, sigH - 20, CREAM, rgb(0.8, 0.93, 0.87), 0.8);
+  b.text("Signature manuscrite :", sigBoxX + 8, b.y - 26, { font: fontReg, size: 6.5, color: LGRAY });
+  b.text(dateStr, sigBoxX + 8, b.y - sigH + 18, { font: fontReg, size: 6.5, color: LGRAY });
+
+  b.y -= sigH + 16;
+
+  // ── Mention IA ──
+  b.rect(ML, b.y - 28, CW, 28, CREAM);
+  b.textWrapped(
+    `Document genere par intelligence artificielle (GPT-4o-mini) et valide par ${pratNom}, ` +
+    `dieteticien(ne) RPPS n° ${pratRpps}. NutriDoc · CaliDoc Sante. Document confidentiel.`,
+    ML + 8, b.y - 9, { font: fontIta, size: 6.5, color: GRAY, maxWidth: CW - 16, lineHeight: 10 }
+  );
+  b.y -= 28;
+
+  // ── Pied de page ──
+  b.pages.forEach((page, pi) => {
+    page.drawText(`NutriDoc · CaliDoc Sante · Plan personalise · Page ${pi + 1}/${b.pages.length}`, {
+      x: ML, y: MB - 10, size: 6, font: fontReg, color: LGRAY,
+    });
+    page.drawLine({
+      start: { x: ML, y: MB }, end: { x: W - MR, y: MB },
+      thickness: 0.4, color: rgb(0.85, 0.92, 0.88),
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  UPLOAD STORAGE
+  // ════════════════════════════════════════════════════════════════════════════
+  const pdfBytes = await doc.save();
+  const pdfUint8 = new Uint8Array(pdfBytes);
+
+  const fileName = `${bilan?.patient_id ?? user.id}/${plan_id}.pdf`;
+
+  const { error: uploadErr } = await sb.storage
+    .from("plans-pdf")
+    .upload(fileName, pdfUint8, {
+      contentType: "application/pdf",
+      upsert: true,
+    });
+
+  if (uploadErr) {
+    console.error("[PDF] Upload Storage :", uploadErr);
+    return err("Erreur upload Storage : " + uploadErr.message, 500);
+  }
+
+  // URL signée 7 jours
+  const { data: signedData, error: signErr } = await sb.storage
+    .from("plans-pdf")
+    .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+
+  if (signErr || !signedData?.signedUrl)
+    return err("Erreur URL signee : " + (signErr?.message ?? "inconnue"), 500);
+
+  const pdfUrl = signedData.signedUrl;
+
+  // ── Mise à jour Supabase ──────────────────────────────────────────────────
+  await sb.from("plans").update({
+    pdf_url:          pdfUrl,
+    pdf_generated_at: new Date().toISOString(),
+    statut:           "valide",
+  }).eq("id", plan_id);
+
+  // ── Email patient ─────────────────────────────────────────────────────────
+  if (resendKey) {
+    const { data: patientProfil } = await sb.from("profiles")
+      .select("email, prenom").eq("id", bilan?.patient_id).single();
+
+    if (patientProfil?.email) {
+      await fetch("https://api.resend.com/emails", {
+        method:  "POST",
+        headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from:    "NutriDoc <noreply@nutridoc.calidoc-sante.fr>",
+          to:      [patientProfil.email],
+          subject: "Votre plan alimentaire NutriDoc est pret !",
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018;">
+              <div style="background:#1D9E75;padding:24px 32px;border-radius:12px 12px 0 0;">
+                <h1 style="color:#fff;font-size:1.5rem;margin:0;font-family:Georgia,serif;">
+                  Nutri<em>Doc</em>
+                </h1>
+              </div>
+              <div style="padding:28px 32px;background:#fff;border:1px solid #e5ece5;border-top:none;">
+                <h2 style="color:#0d2018;">Bonjour ${n(patientProfil.prenom)} 👋</h2>
+                <p style="color:#4b5563;line-height:1.7;">
+                  Votre plan alimentaire personnalise a ete <strong>valide et signe</strong> par
+                  <strong>${pratNom}</strong>, dieteticien RPPS.
+                </p>
+                <p style="color:#4b5563;line-height:1.7;">
+                  Votre document PDF est disponible pendant <strong>7 jours</strong> via le lien ci-dessous.
+                  Pensez a le sauvegarder sur votre appareil.
+                </p>
+                <div style="text-align:center;margin:28px 0;">
+                  <a href="${pdfUrl}" style="
+                    display:inline-block;padding:14px 28px;
+                    background:#1D9E75;color:#fff;border-radius:10px;
+                    text-decoration:none;font-weight:700;font-size:1rem;
+                  ">Telecharger mon plan alimentaire PDF</a>
+                </div>
+                <p style="font-size:.75rem;color:#9ca3af;margin-top:20px;border-top:1px solid #e5ece5;padding-top:16px;">
+                  NutriDoc by CaliDoc Sante · Ce document est confidentiel et personnalise.
+                  Ne pas diffuser.
+                </p>
+              </div>
+            </div>`,
+        }),
+      }).catch(e => console.error("[Email]", e));
+    }
+  }
+
+  return ok({
+    success: true,
+    pdf_url: pdfUrl,
+    pages:   b.pages.length,
+    message: `PDF genere (${b.pages.length} pages) et envoye au patient.`,
+  });
 });

@@ -1813,19 +1813,72 @@ async function telechargerPDF(){
 }
 
 async function confirmerEnvoi(){
-  if(!attestOk){toast('Cochez l\'attestation professionnelle d\'abord','#f59e0b');return;}
+  if(!attestOk){toast('Cochez l\'attestation','#f59e0b');return;}
   const btn=document.getElementById('btnSend');
-  if(btn){btn.disabled=true;btn.innerHTML='⏳ Envoi en cours…';}
-  planData.notes_dieteticien=document.getElementById('notesDiet')?.value??'';
-  planData.valide_par={prenom:dietProfile?.prenom,nom:dietProfile?.nom,rpps:dietProfile?.rpps,date:new Date().toISOString()};
-  planData.attestation_dieteticien=true;
-  if(planId){
-    const {error}=await sb.from('plans').update({contenu:planData,statut:'valide',validated_at:new Date().toISOString()}).eq('id',planId);
-    if(error){toast('Erreur Supabase : '+error.message,'#ef4444');if(btn){btn.disabled=false;btn.innerHTML='📨 Valider et envoyer au patient';}return;}
+  const setBtn=(t,d=true)=>{if(btn){btn.disabled=d;btn.innerHTML=t;}};
+
+  if(!planId||!dietProfile){
+    toast('Mode demo','#9ca3af');
+    setTimeout(()=>{window.location.href='dashboard-dieteticien.html';},2000);
+    return;
   }
-  document.getElementById('hdS').textContent='Plan validé ✅';
-  toast('🎉 Plan validé et envoyé au patient !','#1D9E75',5000);
-  setTimeout(()=>{window.location.href='dashboard-dieteticien.html';},3500);
+
+  setBtn('Enregistrement...');
+  planData.notes_dieteticien=document.getElementById('notesDiet')?.value??'';
+  planData.valide_par={
+    nom_complet:(document.getElementById('prat_nom')?.value||((dietProfile.prenom||'')+' '+(dietProfile.nom||''))).trim(),
+    rpps:document.getElementById('prat_rpps')?.value||dietProfile.rpps||'',
+    cabinet:document.getElementById('prat_cabinet')?.value||'',
+    adresse:document.getElementById('prat_adresse')?.value||'',
+    tel:document.getElementById('prat_contact')?.value||'',
+    date:new Date().toISOString(),
+  };
+  planData.attestation_dieteticien=true;
+
+  const {error:saveErr}=await sb.from('plans').update({
+    contenu:planData,statut:'valide',validated_at:new Date().toISOString()
+  }).eq('id',planId);
+
+  if(saveErr){
+    toast('Erreur : '+saveErr.message,'#ef4444',5000);
+    setBtn('Valider et envoyer',false);
+    return;
+  }
+
+  setBtn('Generation du PDF...');
+  toast('Generation du PDF (30-60s)...','#6b7280',15000);
+
+  try {
+    const {data:{session}}=await sb.auth.getSession();
+    const res=await fetch(SUPA_URL+'/functions/v1/generate-pdf',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({plan_id:planId}),
+      signal:AbortSignal.timeout(90000),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.success) throw new Error(data.error||'HTTP '+res.status);
+
+    document.getElementById('hdS').textContent='Plan valide - PDF envoye';
+    setBtn('Envoye !');
+
+    if(data.pdf_url){
+      const div=document.createElement('div');
+      div.style.cssText='position:fixed;bottom:5rem;right:1.5rem;z-index:999;background:#fff;border:2px solid var(--green);border-radius:12px;padding:1rem 1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.15);max-width:300px;';
+      div.innerHTML='<div style="font-size:.78rem;font-weight:800;color:var(--gd);margin-bottom:.4rem;">PDF genere et envoye</div>'
+        +'<div style="font-size:.63rem;color:var(--t2);margin-bottom:.6rem;">Envoye au patient. Lien valable 7 jours.</div>'
+        +'<a href="'+data.pdf_url+'" target="_blank" style="display:block;text-align:center;padding:.45rem;background:var(--green);color:#fff;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;">Telecharger (verification dieteticien)</a>';
+      document.body.appendChild(div);
+      setTimeout(()=>div.remove(),15000);
+    }
+    toast('PDF signe genere et envoye !','#1D9E75',6000);
+    setTimeout(()=>{window.location.href='dashboard-dieteticien.html';},5000);
+
+  } catch(e){
+    console.error('[PDF]',e);
+    toast('Plan valide - PDF: '+e.message,'#f59e0b',8000);
+    setTimeout(()=>{window.location.href='dashboard-dieteticien.html';},7000);
+  }
 }
 
 /* ═══════════════ SAUVEGARDE ═══════════════ */
