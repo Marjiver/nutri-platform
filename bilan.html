@@ -680,8 +680,16 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Âge <span class="req">*</span></label>
-          <input type="number" name="age" placeholder="Ex : 34" min="16" max="120" required/>
+          <label>Date de naissance <span class="req">*</span></label>
+          <input type="text" name="date_naissance" id="date_naissance"
+            placeholder="jj/mm/aaaa" maxlength="10"
+            pattern="\d{2}/\d{2}/\d{4}"
+            autocomplete="bday"
+            required
+            oninput="formatDDN(this)"
+            style="letter-spacing:.05em;"
+          />
+          <span class="field-hint" id="age_calcule" style="color:var(--primary,#1D9E75);font-weight:600;"></span>
         </div>
         <div class="form-group">
           <label>Sexe <span class="req">*</span></label>
@@ -1258,11 +1266,21 @@ function validateStep(stepNum) {
     return false;
   }
 
-  // Étape 1 : validation âge min/max (l'âge est dans step 1 - Profil)
+  // Étape 1 : validation date de naissance
   if (stepNum === 1) {
-    const age = parseInt(document.querySelector('[name="age"]')?.value);
-    if (isNaN(age) || age < 16 || age > 120) {
-      showStepError(stepNum, '⚠️ Veuillez entrer un âge valide (entre 16 et 120 ans).');
+    const ddn = document.querySelector('[name="date_naissance"]')?.value || '';
+    const age = calculerAge(ddn);
+    if (age === null) {
+      showStepError(stepNum, '⚠️ Veuillez entrer une date de naissance valide (jj/mm/aaaa).');
+      document.getElementById('date_naissance')?.focus();
+      return false;
+    }
+    if (age < 16) {
+      showStepError(stepNum, '⚠️ Vous devez avoir au moins 16 ans pour utiliser NutriDoc.');
+      return false;
+    }
+    if (age > 120) {
+      showStepError(stepNum, '⚠️ Date de naissance invalide.');
       return false;
     }
   }
@@ -1454,7 +1472,8 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   const bilanData = {
     prenom:        document.querySelector('[name="prenom"]')?.value?.trim() || '',
     nom:           document.querySelector('[name="nom"]')?.value?.trim() || '',
-    age:           parseInt(document.querySelector('[name="age"]')?.value) || null,
+    age:           calculerAge(document.querySelector('[name="date_naissance"]')?.value),
+    date_naissance: document.querySelector('[name="date_naissance"]')?.value || null,
     sexe:          document.querySelector('[name="sexe"]')?.value || '',
     ville:         document.querySelector('[name="ville"]')?.value?.trim() || '',
     taille:        parseFloat(document.querySelector('[name="taille"]')?.value) || null,
@@ -1542,6 +1561,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       prenom:        bilanData.prenom,
       nom:           bilanData.nom || '',
       age:           bilanData.age,
+      date_naissance: bilanData.date_naissance || null,
       sexe:          bilanData.sexe,
       ville:         bilanData.ville,
       taille:        bilanData.taille,
@@ -1614,6 +1634,33 @@ window.toggleNiveauPratique = toggleNiveauPratique;
 window.goToStep = goToStep;
 window.prevStep = prevStep;
 window.nextStep = nextStep;
+
+// ── DATE DE NAISSANCE — formatage auto jj/mm/aaaa + calcul âge ──────────
+function formatDDN(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 8) v = v.slice(0, 8);
+  if (v.length >= 5)      v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
+  else if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+  input.value = v;
+  const age = calculerAge(v);
+  const hint = document.getElementById('age_calcule');
+  if (hint) hint.textContent = age !== null ? age + ' ans' : '';
+}
+
+function calculerAge(ddn) {
+  if (!ddn || ddn.length !== 10) return null;
+  const parts = ddn.split('/');
+  if (parts.length !== 3) return null;
+  const [j, m, a] = parts.map(Number);
+  if (!j || !m || !a || j < 1 || j > 31 || m < 1 || m > 12 || a < 1900) return null;
+  const naissance = new Date(a, m - 1, j);
+  if (isNaN(naissance.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - naissance.getFullYear();
+  const md = now.getMonth() - naissance.getMonth();
+  if (md < 0 || (md === 0 && now.getDate() < naissance.getDate())) age--;
+  return age;
+}
 
 </script>
 
