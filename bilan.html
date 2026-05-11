@@ -1258,9 +1258,9 @@ function validateStep(stepNum) {
     return false;
   }
 
-  // Étape 2 : validation âge min/max
-  if (stepNum === 2) {
-    const age = parseInt(stepEl.querySelector('[name="age"]')?.value);
+  // Étape 1 : validation âge min/max (l'âge est dans step 1 - Profil)
+  if (stepNum === 1) {
+    const age = parseInt(document.querySelector('[name="age"]')?.value);
     if (isNaN(age) || age < 16 || age > 120) {
       showStepError(stepNum, '⚠️ Veuillez entrer un âge valide (entre 16 et 120 ans).');
       return false;
