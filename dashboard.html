@@ -28,12 +28,7 @@
   <title>NutriDoc — Mon tableau de bord patient</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ── Supabase NutriDoc ──────────────────────────────────────────
-    const SUPA_URL  = 'https://phgjpwaptrrjonoimmne.supabase.co';
-    const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY';
-    const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
-  </script>
+  <script src="js/supabase-init.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
@@ -654,11 +649,7 @@
         </div>
       </div>
       <div id="planUnlocked" class="card" style="display: none;">
-        <div class="card-header">
-          <div class="card-title">📄 Votre plan alimentaire</div>
-          <div id="pdfBtnWrap"></div>
-        </div>
-        <div id="planStatusMsg" style="display:none;font-size:.78rem;padding:.55rem .75rem;border-radius:8px;margin-bottom:.75rem;"></div>
+        <div class="card-header"><div class="card-title">📄 Votre plan alimentaire</div><button class="btn-outline" onclick="alert('Téléchargement PDF simulé')">↓ PDF</button></div>
         <div id="planContent"></div>
       </div>
       <div class="card">
@@ -918,15 +909,50 @@ function calculerConversion() {
   document.getElementById('calcResult').innerHTML = result;
 }
 
-// ===== PLAN =====
-function simulerAchatPlan() {
-  if (confirm('Commander votre plan alimentaire à 24,90€ ?')) {
-    document.getElementById('planLocked').style.display = 'none';
-    document.getElementById('planUnlocked').style.display = 'block';
-    localStorage.setItem('nutridoc_plan_achete', 'true');
-    document.getElementById('statPlan').textContent = '✅ Actif';
-    // Afficher le plan généré
-    afficherPlanDebloque();
+// ===== PLAN — Stripe Checkout réel =====
+async function simulerAchatPlan() {
+  const btn = document.querySelector('[onclick="simulerAchatPlan()"]');
+  if (btn) { btn.textContent = 'Chargement...'; btn.disabled = true; }
+
+  try {
+    // Récupérer la session Supabase
+    const { data: { session } } = await window._supa.auth.getSession();
+    if (!session) {
+      alert('Vous devez être connecté pour commander un plan.');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Appeler create-checkout Edge Function
+    const res = await fetch('https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+      },
+      body: JSON.stringify({
+        price_id: 'price_plan_alimentaire',
+        success_url: window.location.origin + '/nutri-platform/dashboard.html?payment=success',
+        cancel_url:  window.location.origin + '/nutri-platform/dashboard.html?payment=cancel',
+      }),
+    });
+
+    const data = await res.json();
+    console.log('[Checkout]', data);
+
+    if (data.url) {
+      // Rediriger vers Stripe Checkout
+      window.location.href = data.url;
+    } else if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      throw new Error(data.error || 'URL de paiement manquante');
+    }
+
+  } catch (err) {
+    console.error('[Checkout] Erreur:', err.message);
+    alert('Erreur lors de la création du paiement : ' + err.message);
+    if (btn) { btn.textContent = 'Commander mon plan'; btn.disabled = false; }
   }
 }
 
@@ -1139,117 +1165,6 @@ function toggleFAQ(element) {
   element.nextElementSibling.classList.toggle('open');
 }
 
-// ===== SUPABASE — PLAN REEL =====
-async function initSupabase() {
-  try {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (!session) return; // pas connecté → mode local seulement
-
-    const userId = session.user.id;
-
-    // Charger profil patient
-    const { data: profil } = await sb.from('profiles')
-      .select('prenom, nom, email, ville').eq('id', userId).single();
-    if (profil) {
-      localStorage.setItem('user_prenom', profil.prenom || '');
-      localStorage.setItem('user_nom',    profil.nom    || '');
-      localStorage.setItem('user_email',  profil.email  || '');
-      const g = document.getElementById('greetingName');
-      if (g) g.textContent = profil.prenom || 'Patient';
-    }
-
-    // Charger le plan le plus récent
-    const { data: plans } = await sb.from('plans')
-      .select('id, statut, pdf_url, pdf_generated_at, contenu, created_at')
-      .eq('patient_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    const plan = plans?.[0];
-    if (!plan) return;
-
-    // Afficher la section plan
-    const locked   = document.getElementById('planLocked');
-    const unlocked = document.getElementById('planUnlocked');
-    const statPlan = document.getElementById('statPlan');
-    if (locked)   locked.style.display   = 'none';
-    if (unlocked) unlocked.style.display = 'block';
-
-    const wrap  = document.getElementById('pdfBtnWrap');
-    const msg   = document.getElementById('planStatusMsg');
-    const cont  = document.getElementById('planContent');
-
-    // ── Selon le statut du plan ──────────────────────────────────
-    if (plan.statut === 'valide' && plan.pdf_url) {
-      // PDF disponible : bouton de téléchargement
-      if (statPlan) statPlan.textContent = 'Actif';
-      if (wrap) wrap.innerHTML = '<a href="'+plan.pdf_url+'" target="_blank"'
-        +' style="display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .85rem;'
-        +'background:#1D9E75;color:#fff;border-radius:8px;font-size:.75rem;font-weight:700;'
-        +'text-decoration:none;">Telecharger mon PDF</a>';
-      if (msg) {
-        msg.style.display = 'block';
-        msg.style.background = '#f0faf6';
-        msg.style.border = '1px solid rgba(29,158,117,.25)';
-        msg.style.color = '#0f6e56';
-        const genDate = plan.pdf_generated_at
-          ? new Date(plan.pdf_generated_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})
-          : '';
-        msg.innerHTML = 'Votre plan alimentaire a ete valide et signe par votre dieteticien'
-          + (genDate ? ' le '+genDate : '') + '. Le lien PDF est valable 7 jours.';
-      }
-
-    } else if (plan.statut === 'valide') {
-      // Validé mais pas encore de PDF
-      if (statPlan) statPlan.textContent = 'Actif';
-      if (msg) {
-        msg.style.display = 'block';
-        msg.style.background = '#fef9c3';
-        msg.style.border = '1px solid rgba(245,158,11,.3)';
-        msg.style.color = '#92400e';
-        msg.innerHTML = 'Votre plan est valide. Le PDF est en cours de generation - vous recevrez un email dans quelques instants.';
-      }
-
-    } else if (plan.statut === 'in_progress' || plan.statut === 'pending') {
-      // En cours de validation
-      if (statPlan) statPlan.textContent = 'En cours';
-      if (msg) {
-        msg.style.display = 'block';
-        msg.style.background = '#f0f4ff';
-        msg.style.border = '1px solid rgba(99,102,241,.25)';
-        msg.style.color = '#4338ca';
-        msg.innerHTML = 'Votre plan est en cours de validation par votre dieteticien (delai : 48h). Vous serez notifie par email.';
-      }
-    }
-
-    // Résumé stratégie dans planContent
-    if (cont && plan.contenu?.resume) {
-      const ac = plan.contenu.apports_cibles || {};
-      cont.innerHTML = '<div style="background:#f0faf6;border-radius:10px;padding:.85rem 1rem;margin-bottom:.85rem;">'
-        + '<div style="font-size:.72rem;color:#0f6e56;font-weight:700;margin-bottom:.35rem;">Strategie nutritionnelle</div>'
-        + '<div style="font-size:.78rem;color:#374151;line-height:1.7;">'+plan.contenu.resume+'</div>'
-        + '</div>'
-        + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;">'
-        + '<div style="background:#f7f9f7;border-radius:9px;padding:.55rem;text-align:center;">'
-        +   '<div style="font-size:1.05rem;font-weight:800;color:#1D9E75;">'+(ac.calories||'—')+'</div>'
-        +   '<div style="font-size:.6rem;color:#6b7280;">kcal/j</div></div>'
-        + '<div style="background:#f7f9f7;border-radius:9px;padding:.55rem;text-align:center;">'
-        +   '<div style="font-size:1.05rem;font-weight:800;color:#374151;">'+(ac.proteines_g||'—')+'g</div>'
-        +   '<div style="font-size:.6rem;color:#6b7280;">proteines</div></div>'
-        + '<div style="background:#f7f9f7;border-radius:9px;padding:.55rem;text-align:center;">'
-        +   '<div style="font-size:1.05rem;font-weight:800;color:#374151;">'+(ac.glucides_g||'—')+'g</div>'
-        +   '<div style="font-size:.6rem;color:#6b7280;">glucides</div></div>'
-        + '<div style="background:#f7f9f7;border-radius:9px;padding:.55rem;text-align:center;">'
-        +   '<div style="font-size:1.05rem;font-weight:800;color:#374151;">'+(ac.lipides_g||'—')+'g</div>'
-        +   '<div style="font-size:.6rem;color:#6b7280;">lipides</div></div>'
-        + '</div>';
-    }
-
-  } catch(e) {
-    console.error('[Supabase]', e);
-  }
-}
-
 // ===== INITIALISATION =====
 function init() {
   // Données simulées
@@ -1300,8 +1215,6 @@ function init() {
   initChat();
   renderFAQ();
   calculerEquivalences();
-  // Charger les vraies données Supabase
-  initSupabase();
 }
 
 init();
