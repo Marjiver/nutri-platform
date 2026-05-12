@@ -1504,7 +1504,8 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
 
   // ── Supabase : inscription + enregistrement ─────────────────
   try {
-    if (typeof _supa === 'undefined') throw new Error('Client Supabase non initialisé');
+    if (typeof _supa === 'undefined') throw new Error('Client Supabase non initialise');
+    console.log('[Bilan] Supabase OK, debut inscription...');
 
     // 1. Créer le compte Auth
     const { data: authData, error: authError } = await _supa.auth.signUp({
@@ -1512,76 +1513,91 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       password,
       options: {
         emailRedirectTo: window.location.origin + '/dashboard.html',
-        data: {
-          prenom: bilanData.prenom,
-          nom:    bilanData.nom,
-          role:   'patient',
-        }
+        data: { prenom: bilanData.prenom, nom: bilanData.nom, role: 'patient' }
       }
     });
 
     if (authError) {
+      console.error('[Auth] Erreur:', authError.message);
       const msg = authError.message === 'User already registered'
-        ? 'Un compte existe déjà avec cet email. Connectez-vous depuis la page d\'accueil.'
-        : (authError.message || 'Erreur lors de la création du compte.');
+        ? 'Un compte existe deja avec cet email. Connectez-vous depuis la page accueil.'
+        : (authError.message || 'Erreur creation du compte.');
       if (errEl) { errEl.textContent = '⚠️ ' + msg; errEl.classList.remove('hidden'); }
       if (btn) { btn.textContent = btnOriginalText; btn.disabled = false; }
       return;
     }
 
     const userId = authData.user?.id;
-    if (!userId) throw new Error('Identifiant utilisateur manquant après inscription');
+    console.log('[Auth] User cree:', userId);
+    if (!userId) throw new Error('userId manquant');
 
-    // 2. Créer le profil dans `profiles`
+    // Laisser Supabase finaliser la session
+    await new Promise(r => setTimeout(r, 500));
+
+    // 2. Profil dans `profiles`
     const { error: profileError } = await _supa.from('profiles').upsert({
-      id:     userId,
-      role:   'patient',
-      prenom: bilanData.prenom,
-      nom:    bilanData.nom,
-      email,
-      ville:  bilanData.ville,
-      statut: 'actif',
+      id: userId, role: 'patient',
+      prenom: bilanData.prenom, nom: bilanData.nom || '',
+      email, ville: bilanData.ville || '', statut: 'actif',
     }, { onConflict: 'id' });
+    if (profileError) console.error('[Profil] Erreur:', profileError.message);
+    else console.log('[Profil] OK');
 
-    if (profileError) console.warn('Profil:', profileError.message);
+    // 3. Bilan dans `bilans`
+    const payload = {
+      patient_id:     userId,
+      prenom:         bilanData.prenom         || '',
+      nom:            bilanData.nom            || '',
+      age:            bilanData.age            || null,
+      date_naissance: (function(d){
+        if(!d||d.length!==10) return null;
+        const p=d.split('/'); if(p.length!==3) return null;
+        return p[2]+'-'+p[1]+'-'+p[0]; // jj/mm/aaaa → aaaa-mm-jj (ISO 8601)
+      })(bilanData.date_naissance),
+      sexe:           bilanData.sexe           || '',
+      ville:          bilanData.ville          || '',
+      taille:         bilanData.taille         || null,
+      poids:          bilanData.poids          || null,
+      poids_objectif: bilanData.poids_objectif || null,
+      objectif:       bilanData.objectif       || '',
+      activite:       bilanData.activite       || '',
+      regime:         bilanData.regime         || '',
+      allergies:      bilanData.allergies      || '',
+      alertes_sante:  bilanData.alertes_sante  || [],
+      aversions:      bilanData.aversions      || '',
+      sport:          bilanData.sport          || '',
+      sport_freq:     bilanData.sport_freq     || null,
+      sport_duree:    bilanData.sport_duree    || null,
+      travail:        bilanData.travail        || '',
+      sommeil:        bilanData.sommeil        || '',
+      hydratation:    bilanData.hydratation    || '',
+      tabagisme:      bilanData.tabagisme      || '',
+      fringales:      bilanData.fringales      || '',
+      repas_matin:    bilanData.repas_matin    || '',
+      repas_midi:     bilanData.repas_midi     || '',
+      repas_soir:     bilanData.repas_soir     || '',
+      budget:         bilanData.budget         || '',
+      repas_actifs:   ['petit_dejeuner','dejeuner','diner'],
+      statut:         'en_attente',
+      paiement:       'gratuit',
+    };
+    // Convertir date_naissance de DD/MM/YYYY vers YYYY-MM-DD (format PostgreSQL)
+    if (payload.date_naissance && payload.date_naissance.includes('/')) {
+      const parts = payload.date_naissance.split('/');
+      if (parts.length === 3) {
+        payload.date_naissance = parts[2] + '-' + parts[1] + '-' + parts[0];
+      }
+    }
+    console.log('[Bilan] Payload:', payload);
+    const { data: bilanSaved, error: bilanError } = await _supa.from('bilans').insert(payload).select('id').single();
+    if (bilanError) {
+      console.error('[Bilan] Erreur:', bilanError.message, '|', bilanError.code, '|', bilanError.details);
+      if (errEl) { errEl.textContent = '⚠️ Erreur bilan: ' + bilanError.message; errEl.classList.remove('hidden'); }
+    } else {
+      console.log('[Bilan] OK - id:', bilanSaved?.id);
+    }
 
-    // 3. Enregistrer le bilan dans `bilans`
-    const { error: bilanError } = await _supa.from('bilans').insert({
-      patient_id:    userId,
-      prenom:        bilanData.prenom,
-      nom:           bilanData.nom || '',
-      age:           bilanData.age,
-      date_naissance: bilanData.date_naissance || null,
-      sexe:          bilanData.sexe,
-      ville:         bilanData.ville,
-      taille:        bilanData.taille,
-      poids:         bilanData.poids,
-      poids_objectif:bilanData.poids_objectif,
-      objectif:      bilanData.objectif,
-      activite:      bilanData.activite,
-      regime:        bilanData.regime,
-      allergies:     bilanData.allergies,
-      alertes_sante: bilanData.alertes_sante,
-      aversions:     bilanData.aversions     || '',
-      sport:         bilanData.sport         || '',
-      sport_freq:    bilanData.sport_freq    || null,
-      sport_duree:   bilanData.sport_duree   || null,
-      travail:       bilanData.travail       || '',
-      sommeil:       bilanData.sommeil       || '',
-      hydratation:   bilanData.hydratation   || '',
-      tabagisme:     bilanData.tabagisme     || '',
-      fringales:     bilanData.fringales     || '',
-      repas_matin:   bilanData.repas_matin   || '',
-      repas_midi:    bilanData.repas_midi    || '',
-      repas_soir:    bilanData.repas_soir    || '',
-      budget:        bilanData.budget        || '',
-      statut:        'en_attente',
-      paiement:      'gratuit',
-    });
-
-    if (bilanError) console.warn('Bilan:', bilanError.message);
-
-    // 4. Nettoyer le brouillon
+        // 4. Nettoyer le brouillon
     if (typeof clearCurrentDraft === 'function') clearCurrentDraft('bilanForm');
 
     // 5. Afficher l'écran de résultat
