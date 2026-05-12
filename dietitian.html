@@ -287,7 +287,7 @@ function renderKanban(patients) {
         ? `<div class="kanban-empty"><div class="kanban-empty-icon">○</div>Aucun dossier</div>`
         : pts.map((p,i) => {
             const obj = OBJECTIFS.find(o => o.val === p.objectif);
-            return `<div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
+            return `<div class="kanban-card" onclick="window.location.href='validation-plan.html?plan_id='+'${p.id}'">
               <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
               <div>
                 <div class="kanban-card-name">${p.prenom} ${p.nom}</div>
@@ -336,7 +336,7 @@ function renderDossiers(pts) {
     if (['en_cours','accepted','in_progress'].includes(p.statut)){badgeClass='badge-cours';badgeLabel='En cours';}
     if (['valide','valide_rpps','delivered'].includes(p.statut)){badgeClass='badge-valide';badgeLabel='Validé';}
     const imc = calculIMC(p.poids, p.taille);
-    return `<div class="dossier-card" onclick="ouvrirDossier('${p.id}')">
+    return `<div class="dossier-card" onclick="window.location.href='validation-plan.html?plan_id='+'${p.id}'">
       <div class="dossier-header">
         <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
         <div style="flex:1;min-width:0;">
