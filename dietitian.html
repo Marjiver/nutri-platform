@@ -537,14 +537,6 @@ function renderModal(p) {
 
   document.getElementById('modalFooter').innerHTML = `
     <button class="btn-action btn-outline" onclick="fermerModal()">Fermer</button>
-    ${p.plan_ia
-      ? `<button class="btn-action" style="background:#6366f1;color:#fff;"
-           onclick="regenererIA('${p.id}')">🔄 Regénérer</button>`
-      : `<button class="btn-action" style="background:#6366f1;color:#fff;"
-           onclick="genererPlanIA('${p.id}')">🤖 Générer plan IA</button>`
-    }
-`;
-}
 
 // ── ACTIONS SUR UN DOSSIER ────────────────────────────────────
 async function mettreEnCours(id) {
