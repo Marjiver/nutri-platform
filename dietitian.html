@@ -650,7 +650,7 @@ async function validerEtSauvegarder(id) {
 
 // ── CHARGEMENT SUPABASE ───────────────────────────────────────
 async function chargerDonnees() {
-  if (typeof _supa === 'undefined' || !MODE_SUPA) {
+  if (typeof _supa === 'undefined') {
     afficherVide('Connectez-vous pour accéder à vos dossiers.');
     document.getElementById('navUser').textContent = 'Non connecté';
     return;
