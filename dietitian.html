@@ -622,7 +622,7 @@ function ouvrirWizard(planId) {
 
 function validerDirectSiConsulte(planId) {
   if (!localStorage.getItem('consulte_' + planId)) {
-    alert('Veuillez d'abord ouvrir le dossier complet avant de valider.');
+    alert('Veuillez ouvrir le dossier complet avant de valider.');
     ouvrirWizard(planId);
     return;
   }
