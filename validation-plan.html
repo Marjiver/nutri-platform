@@ -1855,6 +1855,26 @@ async function confirmerEnvoi(){
   };
   planData.attestation_dieteticien=true;
 
+  // Vérifier si planId est un plan.id ou un bilan_id
+  const {data:planCheck}=await sb.from('plans').select('id').eq('id',planId).maybeSingle();
+  if(!planCheck){
+    // planId est un bilan_id -> chercher ou créer le plan
+    const {data:existPlan}=await sb.from('plans').select('id').eq('bilan_id',planId).maybeSingle();
+    if(existPlan){ planId=existPlan.id; }
+    else {
+      const {data:sess2}=await sb.auth.getSession();
+      const {data:newPlan,error:ce}=await sb.from('plans').insert({
+        bilan_id:planId,
+        patient_id:bilanData?.patient_id||null,
+        dietitian_id:sess2?.session?.user?.id||null,
+        contenu:planData,statut:'valide',
+        validated_at:new Date().toISOString(),
+      }).select('id').single();
+      if(ce){toast('Erreur creation plan : '+ce.message,'#ef4444',5000);setBtn('Valider et envoyer',false);return;}
+      planId=newPlan.id;
+    }
+  }
+
   const {error:saveErr}=await sb.from('plans').update({
     contenu:planData,statut:'valide',validated_at:new Date().toISOString()
   }).eq('id',planId);

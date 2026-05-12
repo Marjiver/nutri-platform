@@ -784,7 +784,7 @@
     <div class="gregoire-mini">
       <div class="gregoire-mini-avatar">GM</div>
       <div class="gregoire-mini-text">
-        <strong>Grégoire Martin</strong> · Diététicien RPPS
+        <strong id="dashDietNom">Chargement...</strong> · Diététicien RPPS
       </div>
       <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert · 🚒 Pompier expert</span>
     </div>
@@ -812,10 +812,10 @@
       <p>Formule <strong>Essentiel</strong> · Dossiers illimités · Aucune commission</p>
     </div>
     <div class="dashboard-stats">
-      <div class="stat-badge"><span class="count">6</span> patients</div>
-      <div class="stat-badge"><span class="count">3</span> à traiter</div>
-      <div class="stat-badge"><span class="count">2</span> en cours</div>
-      <div class="stat-badge"><span class="count">1</span> validé</div>
+      <div class="stat-badge"><span class="count" id="statPatients">…</span> patients</div>
+      <div class="stat-badge"><span class="count" id="statATraiter">…</span> à traiter</div>
+      <div class="stat-badge"><span class="count" id="statEnCours">…</span> en cours</div>
+      <div class="stat-badge"><span class="count" id="statValide">…</span> validé</div>
     </div>
     <div class="action-buttons">
       <a href="agenda-dieteticien.html" class="btn-action btn-agenda">📅 Agenda</a>
@@ -1134,9 +1134,85 @@ document.addEventListener('click', (e) => {
 });
 
 // ===== DONNÉES PATIENTS =====
-const PATIENTS = [
-  // Aucune donnée de démonstration — les dossiers sont chargés depuis Supabase
-];
+let PATIENTS = [];
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPA_URL_DD  = 'https://phgjpwaptrrjonoimmne.supabase.co';
+const SUPA_ANON_DD = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY';
+const sbDD = (typeof _supa !== 'undefined') ? _supa : supabase.createClient(SUPA_URL_DD, SUPA_ANON_DD);
+
+const STATUT_MAP = {
+  'pending':     'a_faire',
+  'en_attente':  'a_faire',
+  'a_traiter':   'a_faire',
+  'in_progress': 'en_cours',
+  'valide':      'valide',
+  'validated':   'valide',
+};
+const COLORS = ['#1D9E75','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899'];
+
+async function chargerDossiersSupabase() {
+  try {
+    const {data:{session}} = await sbDD.auth.getSession();
+    if(!session) return;
+
+    // Charger les bilans (= dossiers patients)
+    const {data:bilans, error} = await sbDD.from('bilans')
+      .select('id, prenom, nom, age, sexe, poids, taille, objectif, ville, created_at, statut, alertes_sante, patient_id')
+      .order('created_at', {ascending: false});
+
+    if(error){ console.error('[Dashboard diét]', error.message); return; }
+
+    // Charger les plans associés pour avoir le vrai statut
+    const {data:plans} = await sbDD.from('plans')
+      .select('id, bilan_id, statut, patient_id')
+      .order('created_at', {ascending: false});
+
+    // Construire PATIENTS
+    PATIENTS = (bilans||[]).map((b, i) => {
+      const plan = (plans||[]).find(p => p.bilan_id === b.id || p.patient_id === b.patient_id);
+      const statutBrut = plan?.statut || b.statut || 'a_faire';
+      const imc = b.poids && b.taille ? +(b.poids / Math.pow(b.taille/100, 2)).toFixed(1) : null;
+      return {
+        id:       b.id,
+        plan_id:  plan?.id || null,
+        patient_id: b.patient_id,
+        prenom:   b.prenom || 'Patient',
+        nom:      b.nom || '',
+        age:      b.age || '—',
+        sexe:     b.sexe || '—',
+        imc:      imc,
+        objectif: b.objectif || 'equilibre',
+        ville:    b.ville || '',
+        statut:   STATUT_MAP[statutBrut] || 'a_faire',
+        alertes:  b.alertes_sante || [],
+        avatar:   COLORS[i % COLORS.length],
+        created_at: b.created_at,
+      };
+    });
+
+    // Mettre à jour les compteurs
+    const aFaire  = PATIENTS.filter(p => p.statut === 'a_faire').length;
+    const enCours = PATIENTS.filter(p => p.statut === 'en_cours').length;
+    const valide  = PATIENTS.filter(p => p.statut === 'valide').length;
+    const total   = PATIENTS.length;
+
+    const set = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    set('statPatients', total);
+    set('statATraiter', aFaire);
+    set('statEnCours',  enCours);
+    set('statValide',   valide);
+    set('patientsCount', total);
+
+    // Rafraîchir les vues
+    renderKanbanDashboard();
+    renderKanbanFull();
+    renderPatients();
+
+  } catch(e) {
+    console.error('[Dashboard diét] Erreur:', e.message);
+  }
+}
 
 const OBJECTIFS = [
   { val:'tous', label:'Tous', icon:'📋' },
@@ -1308,8 +1384,14 @@ function renderPatientsGrid(patients) {
 }
 
 function ouvrirDossier(id) {
-  // Redirige vers la page de validation du plan
-  window.location.href = 'validation-plan.html?plan_id=' + id;
+  // Si c'est un bilan_id et qu'on a un plan_id → utiliser le plan_id
+  const patient = PATIENTS.find(p => p.id === id || p.plan_id === id);
+  const targetId = patient?.plan_id || patient?.id || id;
+  window.location.href = 'validation-plan.html?plan_id=' + targetId;
+}
+function _ouvrirDossier_orig(id) {
+  const p = PATIENTS.find(x => x.id === id);
+  if (p) alert(`📁 Dossier de ${p.prenom} ${p.nom}\n\nObjectif : ${getObjectifLabel(p.objectif)}\nNotes : ${p.notes}\nEmail : ${p.email}\nTél : ${p.tel}`);
 }
 
 function validerPlan(id) {
@@ -1331,6 +1413,9 @@ function showToast(msg) {
 }
 
 // Onglets
+// Charger les vrais dossiers au démarrage
+setTimeout(chargerDossiersSupabase, 300);
+
 function initTabs() {
   const tabs = document.querySelectorAll('.diet-tab');
   tabs.forEach(tab => {
