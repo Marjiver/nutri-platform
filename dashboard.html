@@ -923,6 +923,22 @@ async function simulerAchatPlan() {
       return;
     }
 
+    // Récupérer le bilan_id du patient
+    const { data: bilans } = await window._supa
+      .from('bilans')
+      .select('id')
+      .eq('patient_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const bilan_id = bilans?.[0]?.id;
+    if (!bilan_id) {
+      alert('Aucun bilan trouvé. Veuillez d\'abord remplir votre bilan nutritionnel.');
+      window.location.href = 'bilan.html';
+      return;
+    }
+    console.log('[Checkout] bilan_id:', bilan_id);
+
     // Appeler create-checkout Edge Function
     const res = await fetch('https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/create-checkout', {
       method: 'POST',
@@ -931,7 +947,7 @@ async function simulerAchatPlan() {
         'Authorization': 'Bearer ' + session.access_token,
       },
       body: JSON.stringify({
-        price_id: 'price_plan_alimentaire',
+        bilan_id,
         success_url: window.location.origin + '/nutri-platform/dashboard.html?payment=success',
         cancel_url:  window.location.origin + '/nutri-platform/dashboard.html?payment=cancel',
       }),
