@@ -533,13 +533,6 @@ function renderModal(p) {
       <textarea id="dietNotesInput" style="width:100%;padding:.6rem;border-radius:10px;border:1px solid var(--border-light,#e8edeb);font-family:'Outfit',sans-serif;font-size:.82rem;resize:vertical;min-height:80px;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);" placeholder="Ajoutez vos commentaires, modifications ou précisions au patient…">${p.diet_notes||''}</textarea>
     </div>`;
 
-  html += `</div>`;
-
-  document.getElementById('modalBody').innerHTML = html;
-
-  // ── Pied de page
-  let badgeClass2='badge-attente';
-  if(['en_cours','accepted','in_progress'].includes(p.statut)) badgeClass2='badge-cours';
   if(['valide','valide_rpps','delivered'].includes(p.statut)) badgeClass2='badge-valide';
 
   document.getElementById('modalFooter').innerHTML = `
