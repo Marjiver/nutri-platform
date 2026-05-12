@@ -920,17 +920,37 @@ async function init() {
 
     // Charger le plan depuis Supabase si plan_id fourni
     if(planId){
-      const {data:plan}=await sb.from('plans')
-        .select('*,bilans(*)').eq('id',planId).single();
-      if(plan&&plan.contenu){
-        planData=plan.contenu;
-        bilanData=plan.bilans;
-        setTimeout(chargerDonnees,100); // laisser le DOM se stabiliser
+      // Chercher d'abord par plan.id
+      let plan = null;
+      const {data:p1} = await sb.from('plans')
+        .select('*,bilans(*)').eq('id',planId).maybeSingle();
+      if(p1){ plan=p1; }
+      else {
+        // Pas trouvé → chercher par bilan_id
+        const {data:p2s} = await sb.from('plans')
+          .select('*,bilans(*)').eq('bilan_id',planId)
+          .order('created_at',{ascending:false}).limit(1);
+        if(p2s&&p2s.length) plan=p2s[0];
+      }
+
+      if(plan){
+        planId = plan.id; // mettre à jour planId avec le vrai ID du plan
+        bilanData = plan.bilans;
+        if(plan.contenu && Object.keys(plan.contenu).length > 0){
+          planData = plan.contenu;
+          setTimeout(chargerDonnees, 100);
+        } else {
+          chargerMock(plan.bilans);
+        }
         return;
       }
+
+      // Plan non trouvé → chercher le bilan directement
+      const {data:bilan} = await sb.from('bilans').select('*').eq('id',planId).maybeSingle();
+      if(bilan){ chargerMock(bilan); return; }
     }
 
-    // Aucun plan trouvé → mode démo
+    // Rien trouvé → mode demo complet
     chargerMock();
 
   } catch(err) {
@@ -1895,8 +1915,8 @@ function toast(msg,color='#0d2018',d=2500){const el=document.createElement('div'
 window.addEventListener('beforeunload',e=>{if(modifié){e.preventDefault();e.returnValue='';}});
 
 /* ═══════════════ MOCK ═══════════════ */
-function chargerMock(){
-  bilanData={prenom:'Sophie',nom:'Martin',age:32,sexe:'femme',poids:72,taille:165,objectif:'perte_poids',activite:'modere',regime:'omnivore',allergies:'Aucune',aversions:'Aucune',budget:'standard',sport:'Course à pied',sport_freq:3,sport_duree:30,alertes_sante:['diabete','fatigue'],ville:'Lyon',repas_matin:'Café + 2 tartines pain blanc + beurre + jus orange',repas_midi:'Cantine : sandwich ou plat du jour',repas_soir:'Cuisine maison — soupes, plats mijotés, pâtes',fringales:'Sucré après repas et vers 17h',hydratation:'1L eau + 2 cafés/j',sommeil:'6h30-7h',};
+function chargerMock(bilanOverride){
+  if(bilanOverride) { bilanData=bilanOverride; } else { bilanData={prenom:'Sophie',nom:'Martin',age:32,sexe:'femme',poids:72,taille:165,objectif:'perte_poids',activite:'modere',regime:'omnivore',allergies:'Aucune',aversions:'Aucune',budget:'standard',sport:'Course à pied',sport_freq:3,sport_duree:30,alertes_sante:['diabete','fatigue'],ville:'Lyon',repas_matin:'Café + 2 tartines pain blanc + beurre + jus orange',repas_midi:'Cantine : sandwich ou plat du jour',repas_soir:'Cuisine maison — soupes, plats mijotés, pâtes',fringales:'Sucré après repas et vers 17h',hydratation:'1L eau + 2 cafés/j',sommeil:'6h30-7h',}; }
   const kcal=2008;
   planData={
     resume:'Sophie, 32 ans, perte de poids. MB Black 1996 : 1 449 kcal. Dépense totale NAP 1,63 : 2 362 kcal. Déficit −15% = −354 → cible 2 008 kcal/j. Diabète : IG bas obligatoire, sucres simples ≤ 50g/j.',
