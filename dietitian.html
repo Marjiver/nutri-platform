@@ -351,7 +351,7 @@ function renderDossiers(pts) {
         ${p.alertes?.length?`<span style="background:#fef2f2;color:#ef4444;font-size:.68rem;padding:1px 7px;border-radius:999px;border:1px solid rgba(239,68,68,.2);">⚠️ ${p.alertes.length} alerte${p.alertes.length>1?'s':''}</span>`:''}
       </div>
       <div class="dossier-actions">
-        <button class="btn-sm btn-sm-green" onclick="event.stopPropagation();window.location.href='validation-plan.html?plan_id='+p.id">✓ Valider</button>
+        <button class="btn-sm btn-sm-green" onclick="event.stopPropagation();window.location.href='validation-plan.html?plan_id='+p.id">📋 Ouvrir le dossier</button>
         <button class="btn-sm btn-sm-outline" onclick="event.stopPropagation();ouvrirDossier('${p.id}')">📋 Dossier complet</button>
       </div>
     </div>`;
@@ -575,7 +575,7 @@ function renderModal(p) {
     ${!['valide','valide_rpps','delivered'].includes(p.statut)
       ? `<button class="btn-action" style="background:#0ea5e9;color:#fff;"
            onclick="mettreEnCours('${p.id}')">▶ Prendre en charge</button>
-         <button class="btn-action btn-primary" onclick="window.location.href='validation-plan.html?plan_id='+p.id">✓ Valider & envoyer</button>`
+         <button class="btn-action btn-primary" onclick="window.location.href='validation-plan.html?plan_id='+p.id">📋 Ouvrir le wizard de validation</button>`
       : `<button class="btn-action" style="background:#1D9E75;color:#fff;"
            onclick="sauvegarderNotes('${p.id}')">💾 Sauvegarder notes</button>
          <span style="font-size:.78rem;color:#1D9E75;">✅ Plan validé</span>`
