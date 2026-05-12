@@ -535,9 +535,9 @@ function renderModal(p) {
 
   if(['valide','valide_rpps','delivered'].includes(p.statut)) badgeClass2='badge-valide';
 
-  document.getElementById('modalFooter').innerHTML = `
-    <button class="btn-action btn-outline" onclick="fermerModal()">Fermer</button>
-
+  const _tid = p.id;
+  document.getElementById("modalFooter").innerHTML = ["valide","valide_rpps","delivered"].includes(p.statut) ? "<button class=\"btn-action btn-outline\" onclick=\"fermerModal()\">Fermer</button><span style=\"color:#1D9E75\">&#10003; Plan valide</span><button class=\"btn-action btn-primary\" onclick=\"fermerModal();ouvrirWizard(\ + _tid + )\">Consulter</button>" : "<button class=\"btn-action btn-outline\" onclick=\"fermerModal()\">Fermer</button><button class=\"btn-action btn-primary\" style=\"background:#1D9E75;color:#fff\" onclick=\"fermerModal();ouvrirWizard(\ + _tid + )\">Ouvrir et valider</button>";
+}
 // ── ACTIONS SUR UN DOSSIER ────────────────────────────────────
 async function mettreEnCours(id) {
   const p = patientsData.find(x => String(x.id) === String(id));
