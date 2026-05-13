@@ -923,7 +923,7 @@
   }
 
   // ========== CONNEXION ==========
-  let MODE_SUPA = false;
+  if(typeof MODE_SUPA === 'undefined') var MODE_SUPA = false;
   if(typeof window.supabaseClient !== 'undefined') MODE_SUPA = true;
   else if(typeof supabaseClient !== 'undefined') MODE_SUPA = true;
 
