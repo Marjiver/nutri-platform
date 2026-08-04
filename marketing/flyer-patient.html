@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flyer NutriDoc - Patient</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+            flex-wrap: wrap;
+        }
+
+        .flyer {
+            width: 210px;
+            height: 297px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            background: white;
+        }
+
+        /* RECTO */
+        .recto {
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            color: white;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .recto-header {
+            margin-bottom: 15px;
+        }
+
+        .recto-logo {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .recto-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .recto-subtitle {
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .recto-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.4;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .feature-item strong {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .recto-cta {
+            background: white;
+            color: #1D9E75;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .recto-footer {
+            font-size: 11px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        /* VERSO */
+        .verso {
+            background: white;
+            color: #0d2018;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid #1D9E75;
+        }
+
+        .verso-section {
+            margin-bottom: 12px;
+        }
+
+        .verso-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1D9E75;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #1D9E75;
+            padding-bottom: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 8px;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        .faq-q {
+            font-weight: 600;
+            color: #1D9E75;
+            margin-bottom: 2px;
+        }
+
+        .faq-a {
+            color: #0d2018;
+            margin-left: 4px;
+        }
+
+        .verso-footer {
+            text-align: center;
+            border-top: 1px solid #1D9E75;
+            padding-top: 8px;
+        }
+
+        .contact-info {
+            font-size: 10px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .copyright {
+            font-size: 8px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .qr-placeholder {
+            width: 60px;
+            height: 60px;
+            background: #1D9E75;
+            margin: 0 auto 8px;
+            border: 2px solid #0f6e56;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            padding: 4px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                gap: 0;
+            }
+            .flyer {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- RECTO -->
+    <div class="flyer">
+        <div class="recto">
+            <div class="recto-header">
+                <div class="recto-logo">🥗</div>
+                <div class="recto-title">NutriDoc</div>
+                <div class="recto-subtitle">Plans alimentaires pour TOUS</div>
+            </div>
+
+            <div class="recto-content">
+                <div class="feature-item">
+                    <strong>✅ Bilan GRATUIT</strong>
+                    6 étapes simples
+                </div>
+                <div class="feature-item">
+                    <strong>⚡ Plan en 48h</strong>
+                    100% personnalisé
+                </div>
+                <div class="feature-item">
+                    <strong>🩺 Validé RPPS</strong>
+                    Diététicien certifié
+                </div>
+                <div class="feature-item">
+                    <strong>💰 24,90€ seulement</strong>
+                    Paiement unique
+                </div>
+            </div>
+
+            <div class="recto-cta">www.nutridoc.fr</div>
+            <div class="recto-footer">"Votre santé, notre priorité"</div>
+        </div>
+    </div>
+
+    <!-- VERSO -->
+    <div class="flyer">
+        <div class="verso">
+            <div class="qr-placeholder">QR CODE<br>ici</div>
+
+            <div class="verso-section">
+                <div class="verso-title">❓ FAQ</div>
+                <div class="faq-item">
+                    <div class="faq-q">Délai ?</div>
+                    <div class="faq-a">48h max</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">Légal ?</div>
+                    <div class="faq-a">100% RPPS ✓</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">Offline ?</div>
+                    <div class="faq-a">Oui, PWA ✓</div>
+                </div>
+            </div>
+
+            <div class="verso-footer">
+                <div class="contact-info">
+                    📧 contact@calidoc-sante.fr
+                </div>
+                <div class="contact-info">
+                    🌐 www.nutridoc.fr
+                </div>
+                <div class="copyright">© CaliDoc Santé 2026</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

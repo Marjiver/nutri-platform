@@ -1,48 +1,40 @@
-// sw.js - Service Worker pour NutriDoc
-const CACHE_NAME = 'nutridoc-v1';
+// sw.js - Service Worker NutriDoc v2
+// Chemins RELATIFS : compatibles GitHub Pages (/nutri-platform/) ET domaine OVH (racine)
+const CACHE_NAME = 'nutridoc-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/css/dark-mode.css',
-  '/js/auth.js',
-  '/js/ciqual-data.js',
-  '/js/constants.js',
-  '/js/validation.js',
-  '/js/error-handler.js',
-  '/js/email.js',
-  '/js/stripe.js',
-  '/js/cookies.js',
-  '/js/performance.js',
-  '/js/auto-save.js',
-  '/js/chatbot-widget.js',
-  '/js/theme-selector.js'
+  './',
+  './index.html',
+  './offline.html',
+  './css/style.css',
+  './css/home.css',
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache =>
+      // allSettled : un fichier manquant ne bloque plus toute l'installation
+      Promise.allSettled(urlsToCache.map(u => cache.add(u)))
+    )
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    caches.match(event.request).then(response =>
+      response || fetch(event.request).catch(() => {
+        if (event.request.mode === 'navigate') return caches.match('./offline.html');
+      })
+    )
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then(names =>
+      Promise.all(names.map(n => { if (n !== CACHE_NAME) return caches.delete(n); }))
+    ).then(() => self.clients.claim())
   );
 });

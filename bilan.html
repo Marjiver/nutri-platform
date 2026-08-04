@@ -3,7 +3,7 @@
 <head>
   <meta name="theme-color" content="#0d2018">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta property="twitter:card" content="summary_large_image">
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="css/home.css"/>
   
   <!-- ==================== PWA MANIFEST ==================== -->
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   
   <!-- ==================== THEME COLOR POUR MOBILE ==================== -->
   <meta name="theme-color" content="#0d2018">
@@ -37,25 +37,22 @@
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
   
   <!-- ==================== ICÔNES APPLE ==================== -->
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/assets/icons/icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
   
   <!-- ==================== MASQUE POUR ANDROID ==================== -->
-  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#1D9E75">
+  <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#1D9E75">
   
   <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
   <meta name="msapplication-TileColor" content="#0d2018">
   <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
   
   <!-- ==================== DARK MODE CSS ==================== -->
-  <link rel="stylesheet" href="css/dark-mode.css">
-  <link rel="stylesheet" href="css/dark-mode-variables.css">
-  
+      
   <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-init.js"></script>
   <script defer src="js/core/auth.js"></script>
   <script defer src="js/ui/cookies.js"></script>
   
@@ -650,7 +647,18 @@
 
   <form id="bilanForm" novalidate>
     
-
+    <!-- ==================== BOUTONS DE SAUVEGARDE AUTO ==================== -->
+    <div class="draft-actions">
+      <button type="button" onclick="manualSave('bilanForm')" style="background: #1D9E75; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        💾 Sauvegarder maintenant
+      </button>
+      <button type="button" onclick="restoreLastDraft('bilanForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🔄 Restaurer brouillon
+      </button>
+      <button type="button" onclick="clearCurrentDraft('bilanForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
+        🗑️ Effacer brouillon
+      </button>
+    </div>
 
     <!-- ÉTAPE 1 : Profil -->
     <div class="step active" data-step="1">
@@ -670,16 +678,8 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Date de naissance <span class="req">*</span></label>
-          <input type="text" name="date_naissance" id="date_naissance"
-            placeholder="jj/mm/aaaa" maxlength="10"
-            pattern="\d{2}/\d{2}/\d{4}"
-            autocomplete="bday"
-            required
-            oninput="formatDDN(this)"
-            style="letter-spacing:.05em;"
-          />
-          <span class="field-hint" id="age_calcule" style="color:var(--primary,#1D9E75);font-weight:600;"></span>
+          <label>Âge <span class="req">*</span></label>
+          <input type="number" name="age" placeholder="Ex : 34" min="16" max="120" required/>
         </div>
         <div class="form-group">
           <label>Sexe <span class="req">*</span></label>
@@ -935,6 +935,11 @@
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="allergies_severes"/><span>Allergies multiples sévères</span></label>
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="medicaments"/><span>Médicaments impactant le poids ou l'appétit</span></label>
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="antecedents"/><span>Antécédents médicaux lourds</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="hypothyroidie"/><span>Hypothyroïdie (thyroïde lente — impact sur le métabolisme)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="asthme"/><span>Asthme ou pathologie respiratoire chronique</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="tdah"/><span>TDAH / impulsivité alimentaire (trouble du déficit de l'attention)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="tsa"/><span>TSA / sélectivité alimentaire (spectre autistique)</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="bipolarite"/><span>Bipolarité ou trouble de l'humeur impactant l'alimentation</span></label>
           <label class="checkbox-option checkbox-none"><input type="checkbox" id="redFlagAucun"/><span>Aucune de ces situations ne me concerne</span></label>
         </div>
       </div>
@@ -1256,21 +1261,11 @@ function validateStep(stepNum) {
     return false;
   }
 
-  // Étape 1 : validation date de naissance
-  if (stepNum === 1) {
-    const ddn = document.querySelector('[name="date_naissance"]')?.value || '';
-    const age = calculerAge(ddn);
-    if (age === null) {
-      showStepError(stepNum, '⚠️ Veuillez entrer une date de naissance valide (jj/mm/aaaa).');
-      document.getElementById('date_naissance')?.focus();
-      return false;
-    }
-    if (age < 16) {
-      showStepError(stepNum, '⚠️ Vous devez avoir au moins 16 ans pour utiliser NutriDoc.');
-      return false;
-    }
-    if (age > 120) {
-      showStepError(stepNum, '⚠️ Date de naissance invalide.');
+  // Étape 2 : validation âge min/max
+  if (stepNum === 2) {
+    const age = parseInt(stepEl.querySelector('[name="age"]')?.value);
+    if (isNaN(age) || age < 16 || age > 120) {
+      showStepError(stepNum, '⚠️ Veuillez entrer un âge valide (entre 16 et 120 ans).');
       return false;
     }
   }
@@ -1462,8 +1457,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   const bilanData = {
     prenom:        document.querySelector('[name="prenom"]')?.value?.trim() || '',
     nom:           document.querySelector('[name="nom"]')?.value?.trim() || '',
-    age:           calculerAge(document.querySelector('[name="date_naissance"]')?.value),
-    date_naissance: document.querySelector('[name="date_naissance"]')?.value || null,
+    age:           parseInt(document.querySelector('[name="age"]')?.value) || null,
     sexe:          document.querySelector('[name="sexe"]')?.value || '',
     ville:         document.querySelector('[name="ville"]')?.value?.trim() || '',
     taille:        parseFloat(document.querySelector('[name="taille"]')?.value) || null,
@@ -1504,8 +1498,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
 
   // ── Supabase : inscription + enregistrement ─────────────────
   try {
-    if (typeof _supa === 'undefined') throw new Error('Client Supabase non initialise');
-    console.log('[Bilan] Supabase OK, debut inscription...');
+    if (typeof _supa === 'undefined') throw new Error('Client Supabase non initialisé');
 
     // 1. Créer le compte Auth
     const { data: authData, error: authError } = await _supa.auth.signUp({
@@ -1513,91 +1506,75 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       password,
       options: {
         emailRedirectTo: window.location.origin + '/dashboard.html',
-        data: { prenom: bilanData.prenom, nom: bilanData.nom, role: 'patient' }
+        data: {
+          prenom: bilanData.prenom,
+          nom:    bilanData.nom,
+          role:   'patient',
+        }
       }
     });
 
     if (authError) {
-      console.error('[Auth] Erreur:', authError.message);
       const msg = authError.message === 'User already registered'
-        ? 'Un compte existe deja avec cet email. Connectez-vous depuis la page accueil.'
-        : (authError.message || 'Erreur creation du compte.');
+        ? 'Un compte existe déjà avec cet email. Connectez-vous depuis la page d\'accueil.'
+        : (authError.message || 'Erreur lors de la création du compte.');
       if (errEl) { errEl.textContent = '⚠️ ' + msg; errEl.classList.remove('hidden'); }
       if (btn) { btn.textContent = btnOriginalText; btn.disabled = false; }
       return;
     }
 
     const userId = authData.user?.id;
-    console.log('[Auth] User cree:', userId);
-    if (!userId) throw new Error('userId manquant');
+    if (!userId) throw new Error('Identifiant utilisateur manquant après inscription');
 
-    // Laisser Supabase finaliser la session
-    await new Promise(r => setTimeout(r, 500));
-
-    // 2. Profil dans `profiles`
+    // 2. Créer le profil dans `profiles`
     const { error: profileError } = await _supa.from('profiles').upsert({
-      id: userId, role: 'patient',
-      prenom: bilanData.prenom, nom: bilanData.nom || '',
-      email, ville: bilanData.ville || '', statut: 'actif',
+      id:     userId,
+      role:   'patient',
+      prenom: bilanData.prenom,
+      nom:    bilanData.nom,
+      email,
+      ville:  bilanData.ville,
+      statut: 'actif',
     }, { onConflict: 'id' });
-    if (profileError) console.error('[Profil] Erreur:', profileError.message);
-    else console.log('[Profil] OK');
 
-    // 3. Bilan dans `bilans`
-    const payload = {
-      patient_id:     userId,
-      prenom:         bilanData.prenom         || '',
-      nom:            bilanData.nom            || '',
-      age:            bilanData.age            || null,
-      date_naissance: (function(d){
-        if(!d||d.length!==10) return null;
-        const p=d.split('/'); if(p.length!==3) return null;
-        return p[2]+'-'+p[1]+'-'+p[0]; // jj/mm/aaaa → aaaa-mm-jj (ISO 8601)
-      })(bilanData.date_naissance),
-      sexe:           bilanData.sexe           || '',
-      ville:          bilanData.ville          || '',
-      taille:         bilanData.taille         || null,
-      poids:          bilanData.poids          || null,
-      poids_objectif: bilanData.poids_objectif || null,
-      objectif:       bilanData.objectif       || '',
-      activite:       bilanData.activite       || '',
-      regime:         bilanData.regime         || '',
-      allergies:      bilanData.allergies      || '',
-      alertes_sante:  bilanData.alertes_sante  || [],
-      aversions:      bilanData.aversions      || '',
-      sport:          bilanData.sport          || '',
-      sport_freq:     bilanData.sport_freq     || null,
-      sport_duree:    bilanData.sport_duree    || null,
-      travail:        bilanData.travail        || '',
-      sommeil:        bilanData.sommeil        || '',
-      hydratation:    bilanData.hydratation    || '',
-      tabagisme:      bilanData.tabagisme      || '',
-      fringales:      bilanData.fringales      || '',
-      repas_matin:    bilanData.repas_matin    || '',
-      repas_midi:     bilanData.repas_midi     || '',
-      repas_soir:     bilanData.repas_soir     || '',
-      budget:         bilanData.budget         || '',
-      repas_actifs:   ['petit_dejeuner','dejeuner','diner'],
-      statut:         'en_attente',
-      paiement:       'gratuit',
-    };
-    // Convertir date_naissance de DD/MM/YYYY vers YYYY-MM-DD (format PostgreSQL)
-    if (payload.date_naissance && payload.date_naissance.includes('/')) {
-      const parts = payload.date_naissance.split('/');
-      if (parts.length === 3) {
-        payload.date_naissance = parts[2] + '-' + parts[1] + '-' + parts[0];
-      }
-    }
-    console.log('[Bilan] Payload:', payload);
-    const { data: bilanSaved, error: bilanError } = await _supa.from('bilans').insert(payload).select('id').single();
-    if (bilanError) {
-      console.error('[Bilan] Erreur:', bilanError.message, '|', bilanError.code, '|', bilanError.details);
-      if (errEl) { errEl.textContent = '⚠️ Erreur bilan: ' + bilanError.message; errEl.classList.remove('hidden'); }
-    } else {
-      console.log('[Bilan] OK - id:', bilanSaved?.id);
-    }
+    if (profileError) console.warn('Profil:', profileError.message);
 
-        // 4. Nettoyer le brouillon
+    // 3. Enregistrer le bilan dans `bilans`
+    const { error: bilanError } = await _supa.from('bilans').insert({
+      patient_id:    userId,
+      prenom:        bilanData.prenom,
+      nom:           bilanData.nom || '',
+      age:           bilanData.age,
+      sexe:          bilanData.sexe,
+      ville:         bilanData.ville,
+      taille:        bilanData.taille,
+      poids:         bilanData.poids,
+      poids_objectif:bilanData.poids_objectif,
+      objectif:      bilanData.objectif,
+      activite:      bilanData.activite,
+      regime:        bilanData.regime,
+      allergies:     bilanData.allergies,
+      alertes_sante: bilanData.alertes_sante,
+      aversions:     bilanData.aversions     || '',
+      sport:         bilanData.sport         || '',
+      sport_freq:    bilanData.sport_freq    || null,
+      sport_duree:   bilanData.sport_duree   || null,
+      travail:       bilanData.travail       || '',
+      sommeil:       bilanData.sommeil       || '',
+      hydratation:   bilanData.hydratation   || '',
+      tabagisme:     bilanData.tabagisme     || '',
+      fringales:     bilanData.fringales     || '',
+      repas_matin:   bilanData.repas_matin   || '',
+      repas_midi:    bilanData.repas_midi    || '',
+      repas_soir:    bilanData.repas_soir    || '',
+      budget:        bilanData.budget        || '',
+      statut:        'en_attente',
+      paiement:      'gratuit',
+    });
+
+    if (bilanError) console.warn('Bilan:', bilanError.message);
+
+    // 4. Nettoyer le brouillon
     if (typeof clearCurrentDraft === 'function') clearCurrentDraft('bilanForm');
 
     // 5. Afficher l'écran de résultat
@@ -1641,37 +1618,8 @@ window.goToStep = goToStep;
 window.prevStep = prevStep;
 window.nextStep = nextStep;
 
-// ── DATE DE NAISSANCE — formatage auto jj/mm/aaaa + calcul âge ──────────
-function formatDDN(input) {
-  let v = input.value.replace(/\D/g, '');
-  if (v.length > 8) v = v.slice(0, 8);
-  if (v.length >= 5)      v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
-  else if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
-  input.value = v;
-  const age = calculerAge(v);
-  const hint = document.getElementById('age_calcule');
-  if (hint) hint.textContent = age !== null ? age + ' ans' : '';
-}
-
-function calculerAge(ddn) {
-  if (!ddn || ddn.length !== 10) return null;
-  const parts = ddn.split('/');
-  if (parts.length !== 3) return null;
-  const [j, m, a] = parts.map(Number);
-  if (!j || !m || !a || j < 1 || j > 31 || m < 1 || m > 12 || a < 1900) return null;
-  const naissance = new Date(a, m - 1, j);
-  if (isNaN(naissance.getTime())) return null;
-  const now = new Date();
-  let age = now.getFullYear() - naissance.getFullYear();
-  const md = now.getMonth() - naissance.getMonth();
-  if (md < 0 || (md === 0 && now.getDate() < naissance.getDate())) age--;
-  return age;
-}
-
 </script>
 
-  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
-  <script src="js/theme-selector.js"></script>
   <script src="js/error-handler.js"></script>
 </body>
 </html>

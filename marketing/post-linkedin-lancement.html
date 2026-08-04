@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts LinkedIn - NutriDoc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .post {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            padding: 16px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .author-title {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .post-content {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .post-content p {
+            margin-bottom: 12px;
+        }
+
+        .emoji-line {
+            font-size: 18px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            background: #f7f9f7;
+            padding: 12px;
+            border-left: 3px solid #1D9E75;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .hashtags {
+            color: #0a66c2;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .post-image {
+            width: 100%;
+            min-height: 300px;
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 60px;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .image-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .image-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        .cta-box {
+            background: #e8f5f0;
+            border-left: 3px solid #1D9E75;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            color: #0f6e56;
+        }
+
+        .post-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .post-footer div {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .post-footer span {
+            color: #0a66c2;
+            font-weight: 500;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- POST 1: TEASER -->
+        <div class="post">
+            <div class="post-header">
+                <div class="avatar">N</div>
+                <div class="header-info">
+                    <div class="author-name">NutriDoc</div>
+                    <div class="author-title">Nutrition • Health Tech • Innovation</div>
+                    <div class="timestamp">2 heures</div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p>🥗 <strong>Révolution dans l'accès aux plans alimentaires !</strong></p>
+
+                <p>NutriDoc arrive bientôt. Une plateforme 100% légale et certifiée RPPS qui rend accessible à TOUS ce qui était réservé aux diététiciens.</p>
+
+                <div class="emoji-line">
+                    ✅ Plans alimentaires personnalisés en 48h<br>
+                    ✅ Validés par des diététiciens certifiés RPPS<br>
+                    ✅ Accessible aux patients, diététiciens ET prescripteurs<br>
+                    ✅ Technologie PWA (fonctionne offline)
+                </div>
+
+                <p>Qui sont les chanceux qui testent la bêta ? 😉</p>
+
+                <div class="cta-box">
+                    👉 Inscrivez-vous à l'early access (lien en commentaire)
+                </div>
+
+                <div class="hashtags">
+                    #NutriDoc #Santé #Nutrition #Innovation #Diététicien #RPPS #PlanAlimentaire #HealthTech #France
+                </div>
+            </div>
+
+            <div class="post-footer">
+                <div>👍 <span>1.2K</span></div>
+                <div>💬 <span>234</span></div>
+                <div>🔄 <span>567</span></div>
+                <div>📤 <span>89</span></div>
+            </div>
+        </div>
+
+        <!-- POST 2: LANCEMENT -->
+        <div class="post">
+            <div class="post-header">
+                <div class="avatar">N</div>
+                <div class="header-info">
+                    <div class="author-name">NutriDoc</div>
+                    <div class="author-title">Nutrition • Health Tech • Innovation</div>
+                    <div class="timestamp">maintenant</div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p style="font-size: 18px; font-weight: 600;">🚀 C'EST PARTI ! NutriDoc est officiellement en ligne !</p>
+
+                <p>Après des mois de travail, de tests avec 3 personas, d'audits qualité à 9.3/10... NutriDoc est LIVE ! 🎉</p>
+            </div>
+
+            <div class="post-image">
+                <div style="width: 100%; text-align: center;">
+                    <div class="image-title">NUTRIDOC</div>
+                    <div class="image-subtitle">Plans alimentaires pour TOUS 🥗</div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="highlight">
+                    <strong>🔓 ACCÈS IMMÉDIAT</strong><br><br>
+                    👤 <strong>Patients</strong> → Bilan gratuit + plan en 48h pour 24,90€<br>
+                    🩺 <strong>Diététiciens</strong> → Générez des revenus en validant les plans<br>
+                    🏋️ <strong>Prescripteurs</strong> → Revendre légalement à vos clients
+                </div>
+
+                <p style="text-align: center; font-weight: 600; color: #1D9E75; font-size: 16px; margin: 15px 0;">
+                    Rejoins la révolution nutritionnelle !
+                </p>
+
+                <div class="cta-box">
+                    👉 www.nutridoc.fr (lien en commentaire)
+                </div>
+
+                <div class="hashtags">
+                    #NutriDoc #Launch #HealthTech #PWA #Nutrition #RPPS #Innovation #Santé
+                </div>
+            </div>
+
+            <div class="post-footer">
+                <div>👍 <span>2.8K</span></div>
+                <div>💬 <span>512</span></div>
+                <div>🔄 <span>1.2K</span></div>
+                <div>📤 <span>234</span></div>
+            </div>
+        </div>
+
+        <!-- POST 3: SUCCESS STORIES -->
+        <div class="post">
+            <div class="post-header">
+                <div class="avatar">N</div>
+                <div class="header-info">
+                    <div class="author-name">NutriDoc</div>
+                    <div class="author-title">Nutrition • Health Tech • Innovation</div>
+                    <div class="timestamp">3 jours</div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p style="font-size: 16px; font-weight: 600;">✨ NutriDoc en chiffres après 3 jours de lancement :</p>
+            </div>
+
+            <div style="padding: 0 20px;">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">150+</span>
+                        <span class="stat-label">utilisateurs inscrits</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">89%</span>
+                        <span class="stat-label">satisfaction</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">45</span>
+                        <span class="stat-label">objectifs différents</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">diététiciens</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p style="text-align: center; margin-top: 20px; font-weight: 600; color: #1D9E75;">
+                    Et ce n'est que le début ! 🚀
+                </p>
+
+                <p style="font-size: 13px; text-align: center; margin-top: 15px;">
+                    Vous aussi, rejoignez NutriDoc :<br>
+                    Si vous êtes <strong>patient</strong> → www.nutridoc.fr<br>
+                    Si vous êtes <strong>diététicien</strong> → www.nutridoc.fr/espace-dieteticien<br>
+                    Si vous êtes <strong>prescripteur</strong> → www.nutridoc.fr/espace-prescripteur
+                </p>
+
+                <div class="hashtags" style="text-align: center;">
+                    #NutriDoc #Succès #Nutrition #HealthTech #Santé
+                </div>
+            </div>
+
+            <div class="post-footer">
+                <div>👍 <span>3.1K</span></div>
+                <div>💬 <span>678</span></div>
+                <div>🔄 <span>1.5K</span></div>
+                <div>📤 <span>345</span></div>
+            </div>
+        </div>
+
+        <div class="hint">
+            💡 Tip: Copie-colle le texte directement dans LinkedIn<br>
+            Les images peuvent être créées avec Canva ou exportées de ces mockups
+        </div>
+    </div>
+</body>
+</html>

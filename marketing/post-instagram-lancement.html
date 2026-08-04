@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Instagram - Lancement NutriDoc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .post {
+            width: 400px;
+            height: 400px;
+            background: white;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        /* POST 1 : TEASER */
+        .post-1 {
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-1::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: float 20s linear infinite;
+        }
+
+        .post-1-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .emoji-large {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .post-1 h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .post-1 p {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .post-1 .countdown {
+            background: rgba(255,255,255,0.2);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-top: 20px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); }
+            50% { transform: translateY(-20px) translateX(-20px); }
+            100% { transform: translateY(0px) translateX(0px); }
+        }
+
+        /* POST 2 : LANCEMENT */
+        .post-2 {
+            background: linear-gradient(to bottom, #1D9E75 0%, white 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+        }
+
+        .post-2-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .post-2-header .emoji-large {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .post-2-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .post-2-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .post-2-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .post-2-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-2-item .emoji {
+            font-size: 24px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .post-2-item strong {
+            color: #1D9E75;
+            display: block;
+            font-weight: 600;
+        }
+
+        .post-2-footer {
+            text-align: center;
+            color: #1D9E75;
+            font-weight: 600;
+            padding-top: 15px;
+            border-top: 2px solid #1D9E75;
+        }
+
+        .post-2-footer small {
+            display: block;
+            font-size: 11px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        /* POST 3 : SUCCESS STORIES */
+        .post-3 {
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .post-3-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffd700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .post-3-footer {
+            background: white;
+            color: #1D9E75;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+
+        /* TESTIMONIAL POST */
+        .post-testimonial {
+            background: linear-gradient(135deg, #f7f9f7 0%, white 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+            position: relative;
+        }
+
+        .quote-mark {
+            font-size: 80px;
+            color: #1D9E75;
+            opacity: 0.2;
+            line-height: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #0d2018;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            margin-top: -10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 15px;
+            border-top: 2px solid #1D9E75;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1D9E75;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #0d2018;
+            font-size: 13px;
+        }
+
+        .author-title {
+            font-size: 11px;
+            color: #1D9E75;
+        }
+
+        .rating {
+            display: flex;
+            gap: 3px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .download-hint {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container">
+            <!-- POST 1: TEASER -->
+            <div class="post post-1">
+                <div class="post-1-content">
+                    <span class="emoji-large">🥗</span>
+                    <h1>Un bilan nutritionnel en 6 étapes</h1>
+                    <p>Un plan alimentaire en 48h</p>
+                    <p style="font-size: 12px; opacity: 0.8;">Entièrement légal avec un diététicien RPPS</p>
+                    <div class="countdown">NutriDoc arrive très bientôt 🚀</div>
+                </div>
+            </div>
+
+            <!-- POST 2: LANCEMENT -->
+            <div class="post post-2">
+                <div class="post-2-header">
+                    <span class="emoji-large">🎉</span>
+                    <h1>C'EST LIVE !</h1>
+                </div>
+
+                <div class="post-2-content">
+                    <div class="post-2-item">
+                        <span class="emoji">👤</span>
+                        <div>
+                            <strong>Patients</strong>
+                            Obtenir un plan alimentaire
+                        </div>
+                    </div>
+
+                    <div class="post-2-item">
+                        <span class="emoji">🩺</span>
+                        <div>
+                            <strong>Diététiciens</strong>
+                            Valider & générer des revenus
+                        </div>
+                    </div>
+
+                    <div class="post-2-item">
+                        <span class="emoji">🏋️</span>
+                        <div>
+                            <strong>Coaches</strong>
+                            Revendre à vos clients
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-2-footer">
+                    Lien en bio 🔗
+                    <small>NutriDoc : Plans alimentaires pour TOUS</small>
+                </div>
+            </div>
+
+            <!-- POST 3: SUCCESS STORIES -->
+            <div class="post post-3">
+                <div class="post-3-title">
+                    ✨ NutriDoc<br>En Chiffres
+                </div>
+
+                <div>
+                    <div class="stat">
+                        <span class="stat-number">150+</span>
+                        <span class="stat-label">utilisateurs inscrits</span>
+                    </div>
+
+                    <div class="stat">
+                        <span class="stat-number">89%</span>
+                        <span class="stat-label">satisfaction</span>
+                    </div>
+
+                    <div class="stat">
+                        <span class="stat-number">45+</span>
+                        <span class="stat-label">catégories d'objectifs</span>
+                    </div>
+
+                    <div class="stat">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">diététiciens validant</span>
+                    </div>
+                </div>
+
+                <div class="post-3-footer">
+                    Et ce n'est que le début ! 🚀
+                </div>
+            </div>
+
+            <!-- TESTIMONIAL POST -->
+            <div class="post post-testimonial">
+                <div>
+                    <div class="quote-mark">"</div>
+                    <p class="testimonial-text">
+                        J'ai mon plan alimentaire en 2 jours, validé par un diététicien, pour seulement 24,90€. C'est incroyable !
+                    </p>
+                </div>
+
+                <div class="testimonial-author">
+                    <div class="author-avatar">M</div>
+                    <div class="author-info">
+                        <div class="author-name">Marie</div>
+                        <div class="author-title">28 ans • Patient NutriDoc</div>
+                        <div class="rating">
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="download-hint">
+            💡 Ouvre chaque post en plein écran → Fais une capture d'écran pour publier sur Instagram
+        </p>
+    </div>
+</body>
+</html>

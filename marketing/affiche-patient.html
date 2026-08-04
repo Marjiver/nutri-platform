@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiche NutriDoc - Patient</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .affiche {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 210 / 297;
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            border-radius: 8px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .feature-text {
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .cta-box {
+            background: white;
+            color: #1D9E75;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .cta-box p {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .website {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .affiche {
+                box-shadow: none;
+                max-width: 100%;
+                aspect-ratio: auto;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="affiche">
+        <div class="header">
+            <div class="logo">🥗</div>
+            <h1>NutriDoc</h1>
+            <div class="subtitle">Plans alimentaires pour TOUS</div>
+        </div>
+
+        <div class="content">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">✅</div>
+                    <div class="feature-text">Bilan GRATUIT</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">Plan en 48h</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🩺</div>
+                    <div class="feature-text">Diététicien RPPS</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-text">Seulement 24,90€</div>
+                </div>
+            </div>
+
+            <div class="cta-box">
+                <p>Découvrez votre plan alimentaire personnalisé</p>
+                <div class="website">www.nutridoc.fr</div>
+            </div>
+
+            <div class="tagline">"Votre santé, notre priorité"</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta name="theme-color" content="#0d2018">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta property="twitter:card" content="summary_large_image">
@@ -17,11 +17,10 @@
   <meta name="keywords" content="">
   <meta name="theme-color" content="#0d2018">
   <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
     <meta name="description" content="Politique de confidentialité NutriDoc — traitement des données personnelles et de santé, droits RGPD, durées de conservation."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -30,7 +29,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="js/ui/nav.js" defer></script>
   <script defer src="js/ui/cookies.js"></script>
-  <link rel="stylesheet" href="css/dark-mode.css">
 <style>
 @media(max-width:768px){
   .nd-header{padding:.75rem 1rem;}
@@ -49,6 +47,7 @@
 }
 </style>
 </head>
+<body>
 <header class="header">
   <a href="index.html" class="logo">Nutri<span>Doc</span></a>
   <nav class="nav"><a href="index.html" class="btn-back-link">← Accueil</a></nav>
@@ -90,7 +89,7 @@
 
     <h2 id="c1">Article 1 — Responsable de traitement</h2>
     <p><strong>CaliDoc Santé</strong> (ci-après « nous »), éditeur de la Plateforme NutriDoc, est responsable du traitement de vos données personnelles.</p>
-    <p>Contact : <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a></p>
+    <p>Contact : <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a></p>
 
     <h2 id="c2">Article 2 — Données collectées par profil</h2>
 
@@ -183,7 +182,7 @@
       <li><strong>Droit de limitation</strong> (art. 18) : restreindre le traitement de vos données ;</li>
       <li><strong>Droit de retrait du consentement</strong> : retirer votre consentement à tout moment pour les traitements fondés sur celui-ci.</li>
     </ul>
-    <p>Pour exercer ces droits, contactez notre DPO à <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a>. Nous répondons dans un délai d'un mois (art. 12 RGPD). En cas de réponse insatisfaisante, vous pouvez saisir la CNIL : <a href="https://www.cnil.fr" target="_blank">www.cnil.fr</a>.</p>
+    <p>Pour exercer ces droits, contactez notre DPO à <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a>. Nous répondons dans un délai d'un mois (art. 12 RGPD). En cas de réponse insatisfaisante, vous pouvez saisir la CNIL : <a href="https://www.cnil.fr" target="_blank">www.cnil.fr</a>.</p>
 
     <h2 id="c9">Article 9 — Cookies</h2>
     <p>NutriDoc utilise uniquement des cookies strictement nécessaires au fonctionnement du service (session utilisateur, authentification). Aucun cookie publicitaire ou de traçage tiers n'est utilisé.</p>
@@ -212,7 +211,7 @@
     <div class="legal-contact">
       <strong>Délégué à la Protection des Données (DPO)</strong><br>
       CaliDoc Santé — NutriDoc<br>
-      Email : <a href="mailto:contact@calidocsante.fr">contact@calidocsante.fr</a><br><br>
+      Email : <a href="mailto:contact@calidoc-sante.fr">contact@calidoc-sante.fr</a><br><br>
       <strong>Autorité de contrôle</strong><br>
       Commission Nationale de l'Informatique et des Libertés (CNIL)<br>
       3 Place de Fontenoy — 75007 Paris<br>
@@ -226,16 +225,14 @@
     <p>© 2025 NutriDoc by CaliDoc Santé · <a href="cgu-patient.html" style="color:rgba(255,255,255,.5);">CGU Patient</a> · <a href="cgu-dieteticien.html" style="color:rgba(255,255,255,.5);">CGU Diét.</a> · <a href="cgu-prescripteur.html" style="color:rgba(255,255,255,.5);">CGU Prescripteur</a> · <a href="politique-confidentialite.html" style="color:rgba(255,255,255,.5);">Confidentialité</a></p>
   </div>
 </footer>
-  
-  <div id="theme-selector-container" class="theme-selector-wrapper"></div>
-  <script src="js/theme-selector.js"></script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/auto-save.js"></script>
+
+  <script src="js/utils/error-handler.js"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/auto-save.js"></script>
   <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js")
+      navigator.serviceWorker.register("sw.js")
         .then(reg => console.log("Service Worker enregistré:", reg))
         .catch(err => console.error("Erreur SW:", err));
     });

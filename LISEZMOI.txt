@@ -1,0 +1,76 @@
+════════════════════════════════════════════════════════
+ NUTRIDOC — CORRECTIONS ÉTAPE A (version de lancement)
+ 7 fichiers corrigés · 4 août 2026
+════════════════════════════════════════════════════════
+
+COMMENT METTRE CES FICHIERS EN LIGNE (5 minutes) :
+
+1. Va sur github.com/Marjiver/nutri-platform
+2. Clique sur « Add file » puis « Upload files »
+3. Glisse-dépose les 7 fichiers de ce dossier
+   (PAS ce fichier LISEZMOI.txt)
+4. En bas, clique le bouton vert « Commit changes »
+5. Attends 2-3 minutes, puis recharge le site
+   (Ctrl+Maj+R pour vider le cache)
+
+GitHub remplacera automatiquement les anciennes versions.
+
+════════════════════════════════════════════════════════
+CE QUI A ÉTÉ CORRIGÉ, FICHIER PAR FICHIER :
+
+■ login.html
+  - FAILLE MAJEURE corrigée : la page laissait entrer
+    n'importe qui sans vérifier le mot de passe.
+    Désormais : soit Supabase vérifie réellement le mot
+    de passe, soit la connexion est refusée. Plus aucun
+    « mode démo ».
+  - Supabase est chargé avant le script de la page
+    (c'était la cause racine du bug).
+  - Plus de reconnexion automatique non vérifiée.
+
+■ sw.js (application installable / PWA)
+  - Réécrit avec des chemins relatifs : fonctionne sur
+    GitHub Pages ET sur le futur domaine OVH.
+  - Liste des fichiers en cache corrigée (les anciens
+    chemins n'existaient pas → l'installation échouait).
+  - Ajout d'une page hors-ligne de secours.
+
+■ manifest.json
+  - Chemins relatifs (start_url, scope, icônes).
+
+■ index.html (page d'accueil)
+  - Témoignages fictifs (Sophie L., Thomas C., Amélie M.)
+    remplacés par « Ils nous rejoignent » : bio réelle de
+    Grégoire + appels aux diététiciens et prescripteurs
+    fondateurs. Plus aucune donnée inventée.
+  - Boutons payants (plan 24,90 €, menus 4,90 €) remplacés
+    par « Ouverture prochaine — me prévenir » vers la page
+    contact. Le bilan gratuit reste ouvert.
+  - Note « version de lancement » sous les tarifs.
+  - Scripts réparés (les chemins js/xxx.js n'existaient pas).
+
+■ accueil-patient.html
+  - Mêmes corrections : boutons payants neutralisés
+    (plan, menus, visio), textes ajustés, scripts réparés.
+  - Le bilan gratuit reste le parcours principal.
+
+■ faq.html
+  - Réponse « Combien je gagne par plan » réécrite :
+    tarif diététicien unifié à 39 €/mois (elle mélangeait
+    59 €/mois et des packs incohérents).
+  - Chemins scripts + service worker réparés.
+
+■ politique-confidentialite.html
+  - Domaine unifié : les 3 « calidocsante.fr » (sans
+    tiret) sont devenus « calidoc-sante.fr », comme
+    partout ailleurs sur le site.
+  - Chemins scripts + service worker réparés.
+
+════════════════════════════════════════════════════════
+À FAIRE PLUS TARD (pas bloquant pour la mise en ligne) :
+  - admin.html contient encore des tarifs 29/59 € et des
+    données fictives (page interne, non visible du public).
+  - Les autres pages enregistrent le service worker à
+    l'ancienne adresse « /sw.js » : sans effet nuisible,
+    et cela fonctionnera correctement une fois le domaine
+    OVH branché. On harmonisera à la V2.

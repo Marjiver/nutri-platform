@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiche NutriDoc - Prescripteur</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .affiche {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 420 / 297;
+            background: linear-gradient(135deg, #1D9E75 0%, #0f6e56 100%);
+            border-radius: 8px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+
+        .content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .profession {
+            background: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            border-left: 3px solid white;
+        }
+
+        .benefits {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .benefit {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .benefit-icon {
+            font-size: 24px;
+            min-width: 30px;
+        }
+
+        .right {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .price-box {
+            background: white;
+            color: #1D9E75;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .price-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .price {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .price-desc {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .cta {
+            background: white;
+            color: #1D9E75;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .affiche {
+                box-shadow: none;
+                max-width: 100%;
+                aspect-ratio: auto;
+                width: 420mm;
+                height: 297mm;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .affiche {
+                aspect-ratio: auto;
+                padding: 30px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="affiche">
+        <div class="header">
+            <h1>💪 PRESCRIVEZ LÉGALEMENT 💪</h1>
+            <div class="subtitle">Plans alimentaires certifiés RPPS pour VOS clients</div>
+        </div>
+
+        <div class="content">
+            <div class="left">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="profession">🏋️ Coach sportif</div>
+                    <div class="profession">🤸 Personal trainer</div>
+                    <div class="profession">🧘 Instructor</div>
+                    <div class="profession">🏥 Professionnel santé</div>
+                </div>
+
+                <div class="benefits">
+                    <div class="benefit">
+                        <span class="benefit-icon">✅</span>
+                        <span>Revente légale et certifiée</span>
+                    </div>
+                    <div class="benefit">
+                        <span class="benefit-icon">✅</span>
+                        <span>CRM client inclus</span>
+                    </div>
+                    <div class="benefit">
+                        <span class="benefit-icon">✅</span>
+                        <span>Plans en 48h</span>
+                    </div>
+                    <div class="benefit">
+                        <span class="benefit-icon">✅</span>
+                        <span>Pas d'engagement</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="price-box">
+                    <div class="price-label">À partir de</div>
+                    <div class="price">6,99€</div>
+                    <div class="price-desc">par plan</div>
+                </div>
+
+                <button class="cta">Devenir prescripteur</button>
+                <div style="color: #1D9E75; font-family: 'Courier New', monospace; font-weight: bold;">
+                    www.nutridoc.fr/prescripteur
+                </div>
+            </div>
+        </div>
+
+        <div class="tagline">"Votre santé, notre priorité"</div>
+    </div>
+</body>
+</html>

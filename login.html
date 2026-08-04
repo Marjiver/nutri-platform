@@ -6,8 +6,8 @@
   <title>NutriDoc — Connexion · Espace sécurisé</title>
   <meta name="description" content="Accédez à votre espace patient, diététicien ou prescripteur. Connexion rapide et sécurisée sur NutriDoc."/>
   <meta name="theme-color" content="#0d2018"/>
-  <link rel="manifest" href="/manifest.json"/>
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -32,19 +32,6 @@
       --border-color:var(--border-light,#e5e7eb);
     }
 
-    [data-theme="dark"] {
-      --bg-primary: #0a0f0d;
-      --bg-secondary: #111816;
-      --bg-card: #141c19;
-      --bg-input: #1a221f;
-      --text-primary: #e5e7eb;
-      --text-secondary: #9ca3af;
-      --border-color: #2a3430;
-      --cream: #111816;
-      --gray-light: #1a221f;
-      --border: #2a3430;
-      --dark: #e5e7eb;
-    }
 
     body {
       font-family: 'Outfit', sans-serif;
@@ -68,7 +55,6 @@
       padding: 0.75rem 2rem;
       transition: all 0.3s ease;
     }
-    [data-theme="dark"] .nd-header { background: #0a0f0d; }
     .header-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -616,10 +602,6 @@
     </div>
 
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Sombre</span>
-      </button>
       <a href="index.html" class="nd-back">← Retour accueil</a>
     </div>
   </div>
@@ -763,20 +745,10 @@
 
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- CORRECTION : Supabase chargé AVANT le script de la page -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/core/auth.js"></script>
 <script>
-  // ========== THEME ==========
-  (function(){
-    const btn=document.getElementById('themeHeaderBtn'), icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel');
-    const saved=localStorage.getItem('nutridoc_theme');
-    if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
-    else{ document.documentElement.setAttribute('data-theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
-    window.toggleDarkMode=function(){
-      const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-      if(isDark){ document.documentElement.setAttribute('data-theme','light'); localStorage.setItem('nutridoc_theme','light'); if(icon)icon.textContent='🌙'; if(label)label.textContent='Sombre'; }
-      else{ document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('nutridoc_theme','dark'); if(icon)icon.textContent='☀️'; if(label)label.textContent='Clair'; }
-    };
-    if(btn)btn.onclick=window.toggleDarkMode;
-  })();
 
   // ========== GESTION PROFIL PERSISTANT ==========
   const PROFILS = {
@@ -914,8 +886,9 @@
     if (token) {
       const session = verifySessionToken(token);
       if (session) {
+        // CORRECTION SÉCURITÉ : on préremplit l'email, mais on ne connecte
+        // plus automatiquement sans vérification du mot de passe.
         document.getElementById('loginEmail').value = session.email;
-        if (PROFILS[session.role]) window.location.href = PROFILS[session.role].redirectUrl;
         return true;
       } else clearSession();
     }
@@ -923,9 +896,12 @@
   }
 
   // ========== CONNEXION ==========
-  if(typeof MODE_SUPA === 'undefined') var MODE_SUPA = false;
-  if(typeof window.supabaseClient !== 'undefined') MODE_SUPA = true;
-  else if(typeof supabaseClient !== 'undefined') MODE_SUPA = true;
+  // CORRECTION SÉCURITÉ : Supabase est testé au moment du clic (et non plus
+  // au chargement de la page), et il n'existe plus aucun "mode démo" qui
+  // laissait entrer n'importe qui sans vérifier le mot de passe.
+  function supaPret(){
+    return !!(window.MODE_SUPA && window._supa && typeof window.connecter === 'function');
+  }
 
   async function soumettreConnexion(){
     const email = document.getElementById('loginEmail').value.trim();
@@ -938,7 +914,7 @@
     successDiv.classList.add('hidden');
     if(!email || !pwd){ errorDiv.textContent = 'Veuillez remplir tous les champs.'; errorDiv.classList.remove('hidden'); return; }
     btn.disabled = true; btn.textContent = 'Connexion...';
-    if(MODE_SUPA && typeof connecter === 'function'){
+    if(supaPret()){
       const { error } = await connecter(email, pwd);
       if(error){
         errorDiv.textContent = error.message === 'Invalid login credentials' ? 'Email ou mot de passe incorrect.' : error.message;
@@ -951,8 +927,9 @@
         setTimeout(()=>{ window.location.href = PROFILS[currentRole].redirectUrl; }, 1000);
       }
     } else {
-      if (remember) saveSession(email, currentRole);
-      setTimeout(()=>{ window.location.href = PROFILS[currentRole].redirectUrl; }, 600);
+      errorDiv.textContent = "Connexion momentanément indisponible. Merci de recharger la page et de réessayer.";
+      errorDiv.classList.remove('hidden');
+      btn.disabled = false; btn.textContent = 'Se connecter →';
     }
   }
 
@@ -977,7 +954,7 @@
     const btn = document.getElementById('btnSendReset');
     if(!email){ msgDiv.textContent = 'Email requis.'; msgDiv.style.color = '#dc2626'; msgDiv.classList.remove('hidden'); return; }
     btn.disabled = true; btn.textContent = 'Envoi...';
-    if(MODE_SUPA && typeof reinitialiserMotDePasse === 'function'){
+    if(supaPret() && typeof reinitialiserMotDePasse === 'function'){
       const { error } = await reinitialiserMotDePasse(email);
       if(error){
         msgDiv.textContent = 'Erreur : ' + (error.message || 'Réessayez.');
@@ -987,7 +964,7 @@
         msgDiv.style.color = '#166534';
       }
     } else {
-      msgDiv.textContent = 'Mode démo : fonctionnalité disponible avec Supabase.';
+      msgDiv.textContent = 'Service momentanément indisponible. Réessayez dans quelques instants.';
       msgDiv.style.color = '#92400e';
     }
     msgDiv.classList.remove('hidden');
@@ -1034,7 +1011,5 @@
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/core/auth.js"></script>
 </body>
 </html>

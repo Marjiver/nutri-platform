@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
   <meta name="theme-color" content="#0d2018">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
@@ -873,6 +873,7 @@
   <div id="tab-patients" class="tab-content">
     <div class="search-bar">
       <div class="search-input-wrapper">
+        <label for="searchInput" style="display: none;">Rechercher patients</label>
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="Rechercher par nom, ville, objectif..." oninput="filterPatients()">
       </div>
@@ -928,26 +929,26 @@
 
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">👤 Plans patients directs / mois</span>
+          <label for="simPatients" class="sim-field-label">👤 Plans patients directs / mois</label>
           <span class="sim-field-val" id="simPatientsVal">6</span>
         </div>
-        <input type="range" min="0" max="60" value="6" step="1" id="simPatients" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="60" value="6" step="1" id="simPatients" oninput="updateSimulatorBubble()" aria-label="Plans patients directs par mois">
       </div>
 
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">🏋️ Plans prescripteurs / mois</span>
+          <label for="simPresc" class="sim-field-label">🏋️ Plans prescripteurs / mois</label>
           <span class="sim-field-val" id="simPrescVal">10</span>
         </div>
-        <input type="range" min="0" max="80" value="10" step="1" id="simPresc" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="80" value="10" step="1" id="simPresc" oninput="updateSimulatorBubble()" aria-label="Plans prescripteurs par mois">
       </div>
 
       <div class="sim-field">
         <div class="sim-field-header">
-          <span class="sim-field-label">🎥 Téléconsultations / mois</span>
+          <label for="simVisios" class="sim-field-label">🎥 Téléconsultations / mois</label>
           <span class="sim-field-val" id="simVisiosVal">2</span>
         </div>
-        <input type="range" min="0" max="20" value="2" step="1" id="simVisios" oninput="updateSimulatorBubble()">
+        <input type="range" min="0" max="20" value="2" step="1" id="simVisios" oninput="updateSimulatorBubble()" aria-label="Téléconsultations par mois">
       </div>
 
       <div class="sim-results">

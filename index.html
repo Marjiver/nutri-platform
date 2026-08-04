@@ -31,18 +31,11 @@
       --shadow-md:0 4px 6px -1px rgba(0,0,0,.1);
       --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
     }
-    [data-theme="dark"]{
-      --bg-primary:#0a0f0d;--bg-secondary:#111816;--bg-card:#141c19;
-      --text-primary:#e5e7eb;--text-secondary:#9ca3af;--text-muted:#6b7280;
-      --border-color:#2a3430;--border:#2a3430;--dark:#e5e7eb;--gray:#9ca3af;
-      --green-light:rgba(29,158,117,.12);
-    }
     body{font-family:'Outfit',sans-serif;background:var(--bg-secondary);color:var(--text-primary);line-height:1.5;}
     *{transition:background-color .2s ease,border-color .2s ease,color .2s ease;}
 
     /* HEADER */
     .nd-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#0d2018;border-bottom:1px solid rgba(29,158,117,.2);padding:.75rem 2rem;transition:all .3s;}
-    [data-theme="dark"] .nd-header{background:#0a0f0d;}
     .nd-header.scrolled{padding:.5rem 2rem;background:rgba(13,32,24,.98);backdrop-filter:blur(10px);}
     .header-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
     .header-left{display:flex;align-items:center;gap:2rem;}
@@ -70,7 +63,6 @@
 
     /* HERO */
     .nd-hero{position:relative;display:flex;align-items:center;justify-content:center;gap:4rem;padding:7rem 2rem 4rem;width:100%;overflow:hidden;background:#0d2018;}
-    [data-theme="dark"] .nd-hero{background:#0a0f0d;}
     #heroCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;}
     .nd-hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(13,32,24,.7) 0%,rgba(13,32,24,.2) 55%,transparent 100%);z-index:0;}
     .nd-hero-content{position:relative;z-index:2;flex:1;min-width:0;max-width:560px;text-align:center;}
@@ -119,7 +111,6 @@
     .nd-section{padding:3rem 0;}
     .nd-section-light{background:var(--bg-secondary);}
     .nd-section-dark{background:#0d2018;}
-    [data-theme="dark"] .nd-section-dark{background:#0a0f0d;}
     .nd-section-inner{max-width:1200px;margin:0 auto;padding:0 2rem;}
     .nd-section-header{text-align:center;margin-bottom:2rem;}
     .nd-tag{display:inline-block;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:#1D9E75;background:rgba(29,158,117,.1);padding:.2rem .8rem;border-radius:999px;margin-bottom:.75rem;}
@@ -185,7 +176,6 @@
     .tarif-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.75rem;transition:transform .2s;}
     .tarif-card:hover{transform:translateY(-4px);}
     .tarif-card.tarif-featured{background:linear-gradient(135deg,#0d2018,#1a3a2a);border:2px solid #1D9E75;}
-    [data-theme="dark"] .tarif-card.tarif-featured{background:linear-gradient(135deg,#0a0f0d,#141c19);}
     .tarif-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.5rem;}
     .tarif-featured .tarif-label{color:#5DCAA5;}
     .tarif-prix{font-size:2.2rem;font-weight:800;color:#1D9E75;}
@@ -198,7 +188,6 @@
     .tarif-liste li::before{content:"✓";color:#1D9E75;font-weight:700;flex-shrink:0;}
     .tarif-note{text-align:center;margin-top:1.25rem;padding:.7rem 1rem;background:var(--green-light);border-radius:12px;max-width:620px;margin-left:auto;margin-right:auto;}
     .tarif-note p{font-size:.75rem;color:var(--green2);}
-    [data-theme="dark"] .tarif-note p{color:#5DCAA5;}
 
     /* TÉMOIGNAGES */
     .nd-testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
@@ -275,9 +264,6 @@
       <span class="tooltip-text">⭐ Diététicien co-fondateur de NutriDoc<br>🏥 CHU Angoulême · Restauration collective hospitalière<br>🏡 Cabinet libéral · Angoulême<br>🚒 Sapeur Pompier Expert</span>
     </div>
     <div class="header-actions">
-      <button id="themeHeaderBtn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 12px;cursor:pointer;color:#fff;font-size:14px;display:inline-flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;">
-        <span id="themeIcon">🌙</span><span id="themeLabel">Sombre</span>
-      </button>
       <div class="nd-conn-wrap" id="ndConnWrap">
         <button class="nd-btn-ghost" onclick="toggleConn()">Se connecter ▾</button>
         <div class="nd-conn-menu" id="ndConnMenu">
@@ -507,7 +493,7 @@
           <li>Personnalisé selon vos préférences et allergies</li>
           <li>Accès à tous les outils libres</li>
         </ul>
-        <a href="bilan.html" class="nd-profil-btn btn-outline" style="width:100%;justify-content:center;">Découvrir les menus →</a>
+        <a href="contact.html" class="nd-profil-btn btn-outline" style="width:100%;justify-content:center;">🔔 Ouverture prochaine — me prévenir</a>
       </div>
             <div class="tarif-card tarif-featured" data-reveal>
         <div class="tarif-label">⭐ PLAN COMPLET</div>
@@ -521,45 +507,46 @@
           <li>Périodisation J actif / J repos</li>
           <li><strong>Messagerie avec votre diét. 30 jours</strong></li>
         </ul>
-        <a href="bilan.html" class="nd-profil-btn btn-green" style="width:100%;justify-content:center;">Commander mon plan</a>
+        <a href="contact.html" class="nd-profil-btn btn-green" style="width:100%;justify-content:center;">🔔 Ouverture prochaine — me prévenir</a>
       </div>
     </div>
     <div class="tarif-note">
       <p>+ Consultation visio de suivi 45 min à 55€ TTC · Potentiellement remboursable par votre mutuelle · Attestation générée automatiquement</p>
+      <p style="margin-top:.5rem;font-size:.72rem;opacity:.85;">Version de lancement : le bilan gratuit est ouvert dès maintenant. Les offres payantes ouvrent très prochainement — contactez-nous pour être prévenu·e en premier.</p>
     </div>
   </div>
 </section>
 
-<!-- TÉMOIGNAGES -->
+<!-- LANCEMENT : ILS NOUS REJOIGNENT -->
 <section class="nd-section nd-section-light">
   <div class="nd-section-inner">
     <div class="nd-section-header">
-      <span class="nd-tag">Ils nous font confiance</span>
-      <h2 class="nd-title">Ce qu'ils en disent</h2>
+      <span class="nd-tag">Lancement</span>
+      <h2 class="nd-title">Ils nous rejoignent</h2>
     </div>
     <div class="nd-testi-grid">
       <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Enfin un plan avec de vrais grammages, pas juste "mangez des légumes". Mon diét. a adapté les portions aux jours de sport. »</p>
+        <div class="nd-testi-stars">🥗 Co-fondateur</div>
+        <p class="nd-testi-quote">NutriDoc est co-fondé par un diététicien en exercice : CHU d&apos;Angoulême (restauration collective hospitalière), cabinet libéral et sapeur-pompier expert. Chaque plan validé sur la plateforme porte le numéro RPPS du diététicien signataire.</p>
         <div class="nd-testi-author">
-          <div class="nd-testi-avatar">SL</div>
-          <div><div class="nd-testi-name">Sophie L.</div><div class="nd-testi-role">Objectif perte de poids · Bordeaux</div></div>
+          <div class="nd-testi-avatar">GM</div>
+          <div><div class="nd-testi-name">Grégoire Martin</div><div class="nd-testi-role">Diététicien RPPS · Co-fondateur · Angoulême</div></div>
         </div>
       </div>
       <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Je suis coach sportif, j'utilisais des plans non signés. Avec NutriDoc je suis enfin en règle et mes clients ont un vrai document légal. »</p>
+        <div class="nd-testi-stars">⭐ Réseau fondateur</div>
+        <p class="nd-testi-quote">Diététicien·ne certifié·e RPPS ? Rejoignez le réseau fondateur : validez des dossiers depuis chez vous, à votre rythme, avec 3 mois d&apos;accès Découverte offerts, sans carte bancaire.</p>
         <div class="nd-testi-author">
-          <div class="nd-testi-avatar">TC</div>
-          <div><div class="nd-testi-name">Thomas C.</div><div class="nd-testi-role">Coach sportif · Lyon</div></div>
+          <div class="nd-testi-avatar">🥗</div>
+          <div><div class="nd-testi-name"><a href="inscription-dieteticien.html" style="color:inherit;">Devenir diététicien partenaire →</a></div><div class="nd-testi-role">Réseau en cours de constitution</div></div>
         </div>
       </div>
       <div class="nd-testi-card" data-reveal>
-        <div class="nd-testi-stars">★★★★★</div>
-        <p class="nd-testi-quote">« Je valide 15 à 20 plans par mois depuis chez moi. La plateforme est intuitive, les dossiers bien remplis. Un vrai revenu complémentaire. »</p>
+        <div class="nd-testi-stars">🏋️ Programme fondateur</div>
+        <p class="nd-testi-quote">Coach, kiné, infirmier·e ? Soyez parmi les premiers prescripteurs : proposez enfin des plans alimentaires 100 % légaux, signés par un diététicien RPPS, à vos clients.</p>
         <div class="nd-testi-author">
-          <div class="nd-testi-avatar">AM</div>
-          <div><div class="nd-testi-name">Amélie M.</div><div class="nd-testi-role">Diététicienne RPPS · Nantes</div></div>
+          <div class="nd-testi-avatar">🏋️</div>
+          <div><div class="nd-testi-name"><a href="accueil-prescripteur.html" style="color:inherit;">Découvrir l&apos;espace prescripteur →</a></div><div class="nd-testi-role">Ouverture du programme fondateur</div></div>
         </div>
       </div>
     </div>
@@ -616,30 +603,19 @@
 <div id="profilModalContainer"></div>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<script src="js/auth.js"></script>
-<script src="js/constants.js"></script>
-<script src="js/error-handler.js"></script>
-<script src="js/cookies.js"></script>
-<script src="js/performance.js"></script>
-<script src="js/auto-save.js"></script>
-<script src="js/chatbot-widget.js"></script>
-<script src="js/home.js"></script>
-<script src="js/main.js"></script>
+<!-- CORRECTION : chemins des scripts réparés (les anciens chemins js/xxx.js n'existaient pas) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/core/auth.js"></script>
+<script src="js/core/constants.js"></script>
+<script src="js/utils/error-handler.js"></script>
+<script src="js/ui/cookies.js"></script>
+<script src="js/utils/performance.js"></script>
+<script src="js/utils/auto-save.js"></script>
+<script src="js/ui/chatbot-widget.js"></script>
+<script src="js/ui/home.js"></script>
+<script src="js/legacy/main.js"></script>
 
 <script>
-(function initDarkMode(){
-  const btn=document.getElementById('themeHeaderBtn'),iconSpan=document.getElementById('themeIcon'),labelSpan=document.getElementById('themeLabel');
-  const saved=localStorage.getItem('nutridoc_theme');
-  if(saved==='dark'){document.documentElement.setAttribute('data-theme','dark');if(iconSpan)iconSpan.textContent='☀️';if(labelSpan)labelSpan.textContent='Clair';}
-  else{document.documentElement.setAttribute('data-theme','light');if(iconSpan)iconSpan.textContent='🌙';if(labelSpan)labelSpan.textContent='Sombre';localStorage.setItem('nutridoc_theme','light');}
-  window.toggleDarkMode=function(){
-    const html=document.documentElement,isDark=html.getAttribute('data-theme')==='dark';
-    html.setAttribute('data-theme',isDark?'light':'dark');localStorage.setItem('nutridoc_theme',isDark?'light':'dark');
-    if(iconSpan)iconSpan.textContent=isDark?'🌙':'☀️';if(labelSpan)labelSpan.textContent=isDark?'Sombre':'Clair';
-    if(btn){btn.style.transform='scale(0.95)';setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},150);}
-  };
-  if(btn)btn.onclick=window.toggleDarkMode;
-})();
 
 const PROFIL_KEY='nutridoc_profil',PROFIL_DATE_KEY='nutridoc_profil_date',PROFIL_EXPIRY_DAYS=30;
 const PROFILS={patient:{name:'Patient',icon:'🧑',redirectUrl:'accueil-patient.html'},dieteticien:{name:'Diététicien',icon:'🥗',redirectUrl:'accueil-dieteticien.html'},prescripteur:{name:'Prescripteur',icon:'🏢',redirectUrl:'accueil-prescripteur.html'},structure:{name:'Structure',icon:'🏛️',redirectUrl:'partenariats.html'}};
