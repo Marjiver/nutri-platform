@@ -293,7 +293,8 @@ async function inscrireDieteticien(payload) {
     specialite:      payload.specialite|| '',
     adeli:           payload.adeli     || '',
     formule:         payload.formule   || 'essentiel',
-    statut_rpps:     'en_attente',
+    statut_rpps:     payload.rpps_verifie ? 'verifie_auto' : 'en_attente',
+    rpps_nom_officiel: payload.nom_officiel || '',
     code_parrainage: codeParrainage,
     statut:          'actif',
   }, { onConflict: 'id' });
@@ -354,6 +355,8 @@ async function inscrirePrescripteur(payload) {
     site_web:      payload.siteWeb    || '',
     cabinet:       payload.cabinet    || '',
     siret:         payload.siret      || '',
+    siret_verifie: payload.siret_verifie === true,
+    entreprise_officielle: payload.entreprise_officielle || '',
     profession:    payload.profession || '',
     ville:         payload.ville      || '',
     pack:          payload.pack       || '',

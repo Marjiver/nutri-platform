@@ -578,46 +578,58 @@ function onRppsInput(el) {
   document.getElementById('rppsFeedback').innerHTML='';
 }
 
+// Vérification BLOQUANTE via la fonction serveur (Annuaire Santé officiel ANS).
+// Contrôles : RPPS existe + profession = diététicien + nom/prénom concordants.
+const VERIF_URL = 'https://phgjpwaptrrjonoimmne.supabase.co/functions/v1/verifier-rpps';
+const VERIF_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZ2pwd2FwdHJyam9ub2ltbW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUxOTgsImV4cCI6MjA5MDEzMTE5OH0.jFqP_7-i7YEfs5KA8ge58AUTdg-gblelrlSaQ0s-ApY';
+
 async function lookupRpps() {
   const rpps = document.getElementById('rppsInput').value.trim();
   if(rpps.length!==11) return;
+  const prenomSaisi = document.getElementById('prenom').value.trim();
+  const nomSaisi = document.getElementById('nom').value.trim();
+  if(!prenomSaisi || !nomSaisi){
+    showBlocage('⚠️ Renseignez d&apos;abord votre nom et prénom (étape 1) : ils sont comparés à l&apos;annuaire officiel.');
+    return;
+  }
   show('rppsLoader'); hide('rppsResult'); hide('rppsNotFound');
   document.getElementById('rppsSearchBtn').disabled=true;
   try {
-    const url=`https://gateway.api.esante.gouv.fr/fhir/v1/Practitioner?identifier=https://esante.gouv.fr/idp/identifiant/rpps|${rpps}&_format=json`;
-    const res = await fetch(url,{headers:{'Accept':'application/fhir+json'}});
+    const res = await fetch(VERIF_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':VERIF_KEY,'Authorization':'Bearer '+VERIF_KEY},
+      body:JSON.stringify({rpps, nom:nomSaisi, prenom:prenomSaisi})
+    });
     if(!res.ok) throw new Error('unavailable');
-    const data = await res.json();
-    if(!data.entry?.length){ showNotFound(); return; }
-    const p = data.entry[0].resource;
-    const name=p.name?.[0];
-    const family=name?.family||'', given=(name?.given||[]).join(' ');
-    const fullName=`${given} ${family}`.trim();
-    const quals=p.qualification||[];
-    const specialite=quals.map(q=>q.code?.coding?.[0]?.display||'').filter(Boolean).join(' · ')||'Professionnel de santé';
-    const addr=p.address?.[0];
-    const ville=addr?.city||'', dept=addr?.postalCode?.substring(0,2)||'';
-    const loc=[ville,dept?`(${dept})`:''].filter(Boolean).join(' ');
-    rppsData={fullName,specialite,loc,rpps};
-    const ini=((given[0]||'')+(family[0]||'')).toUpperCase()||'?';
-    document.getElementById('rppsAvatar').textContent=ini;
-    document.getElementById('rppsResultName').textContent=fullName||'Professionnel vérifié';
-    document.getElementById('rppsResultDetails').innerHTML=`<strong>${specialite}</strong>${loc?'<br>📍 '+loc:''}`;
-    show('rppsResult');
+    const v = await res.json();
+
+    if(v.statut==='verifie'){
+      rppsData={fullName:v.nomOfficiel, specialite:v.profession||'Diététicien', loc:v.ville||'', rpps, verifie:true};
+      const parts=(v.nomOfficiel||'').split(' ');
+      document.getElementById('rppsAvatar').textContent=((parts[0]?.[0]||'')+(parts[1]?.[0]||'')).toUpperCase()||'?';
+      document.getElementById('rppsResultName').textContent=v.nomOfficiel;
+      document.getElementById('rppsResultDetails').innerHTML=`<strong>${rppsData.specialite}</strong>${v.ville?'<br>📍 '+v.ville:''}`;
+      show('rppsResult');
+    } else if(v.statut==='profession_incorrecte'){
+      showBlocage('⛔ Ce numéro RPPS n&apos;appartient pas à un diététicien ('+(v.profession||'profession inconnue')+'). Seuls les diététiciens certifiés peuvent s&apos;inscrire.');
+    } else if(v.statut==='nom_different'){
+      showBlocage('⛔ Le nom et prénom saisis ne correspondent pas au titulaire de ce numéro RPPS dans l&apos;annuaire officiel. Vérifiez votre saisie (étape 1). En cas d&apos;erreur de l&apos;annuaire, <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
+    } else if(v.statut==='introuvable'){
+      showNotFound();
+    } else {
+      showBlocage('⚠️ Service de vérification momentanément indisponible. L&apos;inscription nécessite une vérification réussie : réessayez dans quelques minutes ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
+    }
   } catch {
-    rppsData={rpps,manualCheck:true};
-    document.getElementById('rppsAvatar').textContent='?';
-    document.getElementById('rppsResultName').textContent='RPPS : '+rpps;
-    document.getElementById('rppsResultDetails').innerHTML='<span style="color:#f59e0b;">⚠️ Annuaire indisponible — vérification manuelle par notre équipe.</span>';
-    show('rppsResult');
+    showBlocage('⚠️ Service de vérification momentanément indisponible. L&apos;inscription nécessite une vérification réussie : réessayez dans quelques minutes ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
   } finally {
     hide('rppsLoader');
     document.getElementById('rppsSearchBtn').disabled=false;
   }
 }
-function showNotFound(){ hide('rppsLoader'); show('rppsNotFound'); }
+function showBlocage(html){ hide('rppsLoader'); const el=document.getElementById('rppsNotFound'); el.innerHTML='<p>'+html+'</p>'; show('rppsNotFound'); }
+function showNotFound(){ hide('rppsLoader'); const el=document.getElementById('rppsNotFound'); el.innerHTML='<p>⚠️ Aucun praticien trouvé pour ce numéro RPPS.</p><p>Vérifiez sur <a href="https://annuaire.sante.fr" target="_blank" style="color:var(--green);">annuaire.sante.fr</a> ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.</p>'; show('rppsNotFound'); }
 function hideRppsResult(){ hide('rppsResult'); hide('rppsNotFound'); }
-function confirmRpps(){ rppsVerified=true; nextStep(); }
+function confirmRpps(){ if(rppsData.verifie!==true){ showBlocage('⛔ La vérification n&apos;a pas abouti — impossible de continuer.'); return; } rppsVerified=true; nextStep(); }
 function resetRpps(){ rppsVerified=false; rppsData={}; document.getElementById('rppsInput').value=''; document.getElementById('rppsSearchBtn').disabled=true; hideRppsResult(); }
 
 // VÉRIFICATION IDENTITÉ
@@ -679,8 +691,8 @@ document.getElementById('inscriptionForm').addEventListener('submit', async e=>{
   const payload={
     email:document.getElementById('email').value.trim(),
     password:pwd,
-    prenom:rppsData.fullName?.split(' ')[0]||document.getElementById('prenom').value.trim(),
-    nom:rppsData.fullName?.split(' ').slice(1).join(' ')||document.getElementById('nom').value.trim(),
+    prenom:document.getElementById('prenom').value.trim(),
+    nom:document.getElementById('nom').value.trim(),
     tel:document.getElementById('tel').value.trim(),
     siteWeb:document.getElementById('siteWeb').value.trim(),
     cabinet:document.getElementById('cabinet').value.trim(),
@@ -689,7 +701,8 @@ document.getElementById('inscriptionForm').addEventListener('submit', async e=>{
     localisation:rppsData.loc||'',
     verif_method:verifMethod||'none',
     verif_cni:cniOk,
-    rpps_manual:rppsData.manualCheck||false,
+    rpps_verifie:rppsData.verifie===true,
+    nom_officiel:rppsData.fullName||'',
     formule:selectedFormule||'decouverte',
   };
 

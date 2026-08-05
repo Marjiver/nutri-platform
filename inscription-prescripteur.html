@@ -676,7 +676,11 @@ function validateStep1() {
   return true;
 }
 
-function validateSiretAndNext() {
+// Vérification BLOQUANTE du SIRET dans le répertoire officiel des entreprises
+// (recherche-entreprises.api.gouv.fr — API publique de l'État, gratuite).
+let siretData = { verifie:false, entreprise:'' };
+
+async function validateSiretAndNext() {
   const siret = document.getElementById('siret').value.replace(/\s/g, '');
   const fb    = document.getElementById('siretFeedback');
   if (!siret || siret.length !== 14 || !/^\d+$/.test(siret)) {
@@ -688,9 +692,40 @@ function validateSiretAndNext() {
     showError('Veuillez sélectionner votre profession.');
     return;
   }
-  fb.textContent = '✓ Format valide';
-  fb.className   = 'siret-feedback valid';
-  nextStep();
+  fb.textContent = '⏳ Vérification dans le répertoire officiel des entreprises…';
+  fb.className   = 'siret-feedback';
+  try {
+    const res = await fetch('https://recherche-entreprises.api.gouv.fr/search?q=' + siret);
+    if (!res.ok) throw new Error('api');
+    const data = await res.json();
+    const ent = (data.results || []).find(r =>
+      r.siege?.siret === siret ||
+      (r.matching_etablissements || []).some(e => e.siret === siret)
+    );
+    if (!ent) {
+      siretData = { verifie:false, entreprise:'' };
+      fb.textContent = '⛔ SIRET introuvable dans le répertoire officiel — inscription impossible. Vérifiez votre numéro sur annuaire-entreprises.data.gouv.fr';
+      fb.className   = 'siret-feedback error';
+      return;
+    }
+    const etab = ent.siege?.siret === siret ? ent.siege
+               : (ent.matching_etablissements || []).find(e => e.siret === siret);
+    const actif = (etab?.etat_administratif || ent.etat_administratif || 'A') === 'A';
+    if (!actif) {
+      siretData = { verifie:false, entreprise:'' };
+      fb.textContent = '⛔ Cet établissement est fermé administrativement — inscription impossible avec ce SIRET.';
+      fb.className   = 'siret-feedback error';
+      return;
+    }
+    siretData = { verifie:true, entreprise: ent.nom_complet || ent.nom_raison_sociale || '' };
+    fb.textContent = '✓ SIRET vérifié : ' + (siretData.entreprise || 'établissement actif');
+    fb.className   = 'siret-feedback valid';
+    nextStep();
+  } catch {
+    siretData = { verifie:false, entreprise:'' };
+    fb.textContent = '⚠️ Vérification momentanément indisponible. L’inscription nécessite une vérification réussie : réessayez dans quelques minutes.';
+    fb.className   = 'siret-feedback error';
+  }
 }
 
 // ── VÉRIF IDENTITÉ ──
@@ -750,6 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
       siteWeb:    document.getElementById('siteWeb').value.trim(),
       cabinet:    document.getElementById('cabinet').value.trim(),
       siret:      document.getElementById('siret').value.trim(),
+      siret_verifie: siretData.verifie === true,
+      entreprise_officielle: siretData.entreprise || '',
       profession: document.getElementById('profession').value,
       ville:      document.getElementById('ville').value.trim(),
       crm:        selectedCrm,
