@@ -245,12 +245,15 @@ tbody tr:hover td{background:#fafcfa}
     </button>
 
     <div class="sidebar-section">Utilisateurs</div>
+    <a class="nav-item" href="validation-dieteticiens.html" style="text-decoration:none;">
+      <span class="nav-icon">✅</span> Valider les diététiciens
+      <span class="nav-badge" id="badgeAValider" style="display:none;"></span>
+    </a>
     <button class="nav-item" onclick="showPage('patients')">
       <span class="nav-icon">🧑</span> Patients
     </button>
     <button class="nav-item" onclick="showPage('dietitians')">
       <span class="nav-icon">🩺</span> Diététiciens
-      <span class="nav-badge green">2</span>
     </button>
     <button class="nav-item" onclick="showPage('prescribers')">
       <span class="nav-icon">🏥</span> Prescripteurs
@@ -1175,46 +1178,14 @@ tbody tr:hover td{background:#fafcfa}
 </div><!-- /admin-layout -->
 
 <script>
-// ── DONNÉES DEMO ─────────────────────────────────────────────
+// ── DONNÉES RÉELLES (chargées depuis Supabase, voir chargerDonneesReelles) ──
 const MONTHS = ['Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc','Jan','Fév','Mar'];
 
-const PATIENTS_DATA = [
-  { nom:'Marie Dupont',  ville:'Angoulême', objectif:'Perte de gras', plan:'Premium', date:'15/03/2025', statut:'actif'  },
-  { nom:'Thomas Klein',  ville:'Poitiers',  objectif:'Prise de masse', plan:'Premium', date:'18/03/2025', statut:'actif'  },
-  { nom:'Sophie Martin', ville:'Bordeaux',  objectif:'Équilibre',      plan:'Gratuit', date:'20/03/2025', statut:'actif'  },
-  { nom:'Lucas Bernard', ville:'La Rochelle',objectif:'Sport & perf.', plan:'Premium', date:'10/03/2025', statut:'actif'  },
-  { nom:'Emma Rousseau', ville:'Niort',     objectif:'Perte de gras', plan:'Gratuit', date:'05/03/2025', statut:'actif'  },
-  { nom:'Paul Laurent',  ville:'Périgueux', objectif:'Prévention',    plan:'Premium', date:'28/02/2025', statut:'actif'  },
-  { nom:'Julie Morin',   ville:'Angoulême', objectif:'Énergie',       plan:'Gratuit', date:'22/02/2025', statut:'inactif'},
-];
-const DIETS_DATA = [
-  { nom:'Dr. A. Lemaire', rpps:'10 008 019 381', formule:'Pro 29€',    zone:'Angoulême 80km', plans:31, reversement:'558 €', statut:'actif'    },
-  { nom:'Dr. B. Mercier', rpps:'10 008 123 456', formule:'Expert 59€', zone:'Bordeaux 80km',  plans:24, reversement:'480 €', statut:'actif'    },
-  { nom:'C. Fontaine',    rpps:'10 012 987 654', formule:'Essentiel',  zone:'Poitiers 80km',  plans:18, reversement:'288 €', statut:'actif'    },
-  { nom:'Dr. D. Simon',   rpps:'10 007 654 321', formule:'Pro 29€',    zone:'La Rochelle',    plans:16, reversement:'288 €', statut:'actif'    },
-  { nom:'E. Blanc',       rpps:'10 015 222 333', formule:'Essentiel',  zone:'Périgueux',      plans:0,  reversement:'0 €',   statut:'en attente'},
-  { nom:'F. Petit',       rpps:'10 009 111 222', formule:'Pro 29€',    zone:'Niort 80km',     plans:0,  reversement:'0 €',   statut:'en attente'},
-];
-const PRESC_DATA = [
-  { nom:'Dr. G. Rolland',  prof:'Médecin généraliste', siret:'123 456 789 00012', pack:'Pro 20cr',    credits:6,  ca:'89 €'  },
-  { nom:'K. Moreau',       prof:'Kinésithérapeute',    siret:'234 567 890 00034', pack:'Volume 50cr', credits:34, ca:'219 €' },
-  { nom:'L. Coaching',     prof:'Coach sportif',       siret:'345 678 901 00056', pack:'Découverte',  credits:3,  ca:'55€'  },
-  { nom:'Dr. M. Perret',   prof:'Médecin du sport',    siret:'456 789 012 00078', pack:'Pro 20cr',    credits:14, ca:'89 €'  },
-];
-const PLANS_DATA = [
-  { id:'PLN-001', patient:'Marie D.',  objectif:'Perte de gras', diet:'Grégoire Martin', cree:'15/03', livre:'16/03', delai:'22h', statut:'livré'   },
-  { id:'PLN-002', patient:'Thomas K.', objectif:'Prise de masse', diet:'Dr. Mercier', cree:'18/03', livre:'19/03', delai:'18h', statut:'livré'   },
-  { id:'PLN-003', patient:'Sophie M.', objectif:'Équilibre',      diet:'Grégoire Martin', cree:'20/03', livre:null,    delai:'—',   statut:'en cours' },
-  { id:'PLN-004', patient:'Lucas B.',  objectif:'Sport & perf.',  diet:'C. Fontaine', cree:'21/03', livre:null,    delai:'—',   statut:'en attente'},
-  { id:'PLN-005', patient:'Emma R.',   objectif:'Perte de gras', diet:'Dr. Simon',   cree:'22/03', livre:'22/03', delai:'9h',  statut:'livré'   },
-];
-const QUEUE_DATA = [
-  { id:'Q-031', patient:'Noah R.',   ville:'Angoulême',  objectif:'Perte de gras', soumis:'27/03 09:14', diet:'Grégoire Martin', statut:'accepted'  },
-  { id:'Q-032', patient:'Léa M.',    ville:'Bordeaux',   objectif:'Équilibre',     soumis:'27/03 08:55', diet:'Dr. Mercier', statut:'in_progress'},
-  { id:'Q-033', patient:'Hugo L.',   ville:'Poitiers',   objectif:'Prise de masse',soumis:'27/03 07:30', diet:'—',           statut:'pending'   },
-  { id:'Q-034', patient:'Clara D.',  ville:'Niort',      objectif:'Sport & perf.', soumis:'27/03 06:45', diet:'—',           statut:'pending'   },
-  { id:'Q-035', patient:'Théo P.',   ville:'Périgueux',  objectif:'Énergie',       soumis:'27/03 06:10', diet:'—',           statut:'pending'   },
-];
+let PATIENTS_DATA = [];
+let DIETS_DATA = [];
+let PRESC_DATA = [];
+let PLANS_DATA = [];
+let QUEUE_DATA = [];
 const TICKETS_DATA = [
   { id:'TKT-001', profil:'Patient',      cat:'Plan non reçu',        titre:'Plan commandé il y a 3 jours, rien reçu', prio:'urgente', soumis:'25/03', statut:'ouvert'   },
   { id:'TKT-002', profil:'Diététicien',  cat:'Rémunération',         titre:'Reversement de février manquant',         prio:'haute',   soumis:'26/03', statut:'ouvert'   },
@@ -1444,15 +1415,17 @@ function renderTables() {
 
 // ── ACTIVITÉ FEED ─────────────────────────────────────────────
 function renderActivity() {
-  const events = [
-    { color:'#1D9E75', text:'<strong>Marie Dupont</strong> a reçu son plan alimentaire (perte de gras)', time:'Il y a 12 min' },
-    { color:'#8b5cf6', text:'<strong>Grégoire Martin</strong> a validé 2 plans ce matin', time:'Il y a 45 min' },
-    { color:'#f59e0b', text:'Nouvelle demande de plan — <strong>Hugo Laurent</strong> · Poitiers (en attente)', time:'Il y a 1h20' },
-    { color:'#3b82f6', text:'<strong>K. Moreau</strong> (kiné) a rechargé 50 crédits — Pack Volume', time:'Il y a 2h' },
-    { color:'#ef4444', text:'Alerte santé détecté — <strong>Emma R.</strong> · Grossesse déclarée → redirigée', time:'Il y a 3h' },
-    { color:'#1D9E75', text:'Visio <strong>Thomas Klein / Dr. Mercier</strong> confirmée pour demain 10h', time:'Il y a 4h' },
-  ];
-  document.getElementById('activityFeed').innerHTML = events.map((e,i)=>`
+  // Aucune activité inventée : le fil se remplira avec les vrais événements.
+  const events = [];
+  const zone = document.getElementById('activityFeed');
+  if (!zone) return;
+  if (!events.length) {
+    zone.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);' +
+      'font-size:.85rem;border:2px dashed var(--border,#e5e7eb);border-radius:12px;">' +
+      'Aucune activité pour le moment.</div>';
+    return;
+  }
+  zone.innerHTML = events.map((e,i)=>`
     <div class="activity-item">
       <div class="activity-dot-wrap">
         <div class="activity-dot" style="background:${e.color}"></div>
@@ -1897,7 +1870,87 @@ document.addEventListener('DOMContentLoaded', () => {
   renderQueueGauge();
 });
 </script>
+  <!-- Authentification réelle : Supabase + rôle admin vérifié en base -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/core/auth.js"></script>
   <script src="js/admin/admin-auth.js"></script>
-  <script src="js/error-handler.js"></script>
+  <script src="js/utils/error-handler.js"></script>
+
+  <!-- Chargement des données réelles (déclenché après vérification du rôle admin) -->
+  <script>
+  function fmtDate(d){ try { return new Date(d).toLocaleDateString('fr-FR'); } catch(e){ return '—'; } }
+
+  const LIB_STATUT_RPPS = {
+    en_attente:'en attente', verifie_auto:'actif', verifie_manuel:'actif', refuse:'suspendu'
+  };
+
+  async function chargerDonneesReelles(){
+    if(!window._supa) return;
+    try {
+      const { data: profils } = await _supa
+        .from('profiles')
+        .select('id, prenom, nom, email, ville, role, rpps, statut_rpps, formule, profession, siret, credits, created_at');
+
+      const tous = profils || [];
+
+      PATIENTS_DATA = tous.filter(p => p.role === 'patient').map(p => ({
+        nom: ((p.prenom||'') + ' ' + (p.nom||'')).trim() || p.email || '—',
+        ville: p.ville || '—', objectif: '—', plan: 'Gratuit',
+        date: fmtDate(p.created_at), statut: 'actif'
+      }));
+
+      DIETS_DATA = tous.filter(p => p.role === 'dietitian').map(d => ({
+        nom: ((d.prenom||'') + ' ' + (d.nom||'')).trim() || d.email || '—',
+        rpps: d.rpps || '—', formule: d.formule || 'Découverte',
+        zone: d.ville || '—', plans: 0, reversement: '0 €',
+        statut: LIB_STATUT_RPPS[d.statut_rpps] || 'en attente'
+      }));
+
+      PRESC_DATA = tous.filter(p => p.role === 'prescriber').map(p => ({
+        nom: ((p.prenom||'') + ' ' + (p.nom||'')).trim() || p.email || '—',
+        prof: p.profession || '—', siret: p.siret || '—',
+        pack: '—', credits: p.credits || 0, ca: '0 €'
+      }));
+
+      const { data: plans } = await _supa
+        .from('plans').select('id, statut, created_at').order('created_at', { ascending:false });
+      PLANS_DATA = (plans || []).map(p => ({
+        id: String(p.id).slice(0,8), patient:'—', objectif:'—', diet:'—',
+        cree: fmtDate(p.created_at), livre:'—', delai:'—', statut: p.statut || '—'
+      }));
+
+      // Compteur de diététiciens à valider dans le menu
+      const aValider = DIETS_DATA.filter(d => d.statut === 'en attente').length;
+      const badge = document.getElementById('badgeAValider');
+      if (badge && aValider > 0) { badge.textContent = aValider; badge.style.display = ''; }
+
+      if (typeof renderTables === 'function') renderTables();
+      viderTablesSiVide();
+    } catch(e) {
+      console.warn('[admin] chargement des données :', e.message);
+    }
+  }
+
+  // État vide explicite : aucune donnée inventée
+  function viderTablesSiVide(){
+    const vides = [
+      ['patientsBody', 6, 'Aucun patient inscrit pour le moment.'],
+      ['dietsBody',    8, 'Aucun diététicien inscrit pour le moment.'],
+      ['prescBody',    7, 'Aucun prescripteur inscrit pour le moment.'],
+      ['plansBody',    9, 'Aucun plan alimentaire pour le moment.'],
+      ['queueBody',    7, "Aucun dossier en file d'attente."]
+    ];
+    vides.forEach(([id, cols, txt]) => {
+      const el = document.getElementById(id);
+      if (el && !el.innerHTML.trim()) {
+        el.innerHTML = '<tr><td colspan="' + cols + '" style="text-align:center;padding:2rem;' +
+          'color:var(--gray);font-size:.85rem;border:2px dashed var(--border,#e5e7eb);' +
+          'border-radius:12px;">' + txt + '</td></tr>';
+      }
+    });
+  }
+
+  document.addEventListener('nd-admin-pret', chargerDonneesReelles);
+  </script>
 </body>
 </html>

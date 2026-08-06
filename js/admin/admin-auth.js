@@ -1,156 +1,121 @@
-/* admin-auth.js — NutriDoc · Protection page admin */
+/* ═══════════════════════════════════════════════════════════════
+   admin-auth.js — NutriDoc · Protection de la page d'administration
+
+   ⚠️ SÉCURITÉ — Ce fichier remplace l'ancienne version qui contenait
+   un identifiant et un mot de passe ÉCRITS EN CLAIR dans le code.
+   N'importe quel visiteur pouvait les lire dans le code source de la
+   page et accéder au back-office. Cette faille est corrigée.
+
+   Fonctionnement : l'accès repose désormais sur le vrai compte
+   Supabase de l'utilisateur, et exige le rôle « admin » enregistré
+   en base de données. Aucun mot de passe n'est stocké côté site.
+
+   Prérequis dans la page : charger, AVANT ce fichier,
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+     <script src="js/core/auth.js"></script>
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
-  const SESSION_KEY = 'nd_admin';
-  const SESSION_TTL = 8 * 60 * 60 * 1000; // 8h
+  'use strict';
 
-  /* ── Vérifier si déjà authentifié ──────────────────────── */
-  function estConnecte() {
-    try {
-      var s = sessionStorage.getItem(SESSION_KEY);
-      if (!s) return false;
-      return (Date.now() - JSON.parse(s).ts) < SESSION_TTL;
-    } catch (e) { return false; }
-  }
-
-  if (estConnecte()) return; // rien à faire
-
-  /* ── Masquer le contenu admin ───────────────────────────── */
+  // 1. On masque le contenu tant que l'identité n'est pas confirmée
   var style = document.createElement('style');
   style.id = 'nd-admin-hide';
-  style.textContent = '.admin-layout { display: none !important; } .sidebar { display: none !important; } .main-content { display: none !important; }';
-  document.head.appendChild(style);
+  style.textContent = '.admin-layout{display:none !important;}';
+  (document.head || document.documentElement).appendChild(style);
 
-  /* ── Créer la modale de connexion ───────────────────────── */
-  function creerModale() {
-    var overlay = document.createElement('div');
-    overlay.id = 'nd-admin-login';
-    overlay.style.cssText = 'position:fixed;inset:0;background:#0d2018;display:flex;align-items:center;justify-content:center;z-index:99999;';
+  function afficherContenu() {
+    var h = document.getElementById('nd-admin-hide');
+    if (h) h.remove();
+  }
 
-    var box = document.createElement('div');
-    box.style.cssText = 'background:#ffffff;border-radius:16px;padding:40px;width:360px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,.6);';
+  function ecran(titre, message, lien, libelleLien) {
+    var o = document.createElement('div');
+    o.style.cssText = 'position:fixed;inset:0;background:#0d2018;display:flex;' +
+      'align-items:center;justify-content:center;z-index:99999;padding:1rem;' +
+      'font-family:Outfit,system-ui,sans-serif;';
+    var b = document.createElement('div');
+    b.style.cssText = 'background:#fff;border-radius:16px;padding:2.5rem;max-width:420px;' +
+      'width:100%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.6);';
 
-    /* Logo */
     var logo = document.createElement('div');
-    logo.style.cssText = 'font-size:22px;font-weight:700;color:#0d2018;margin-bottom:4px;';
+    logo.style.cssText = 'font-size:22px;font-weight:700;color:#0d2018;margin-bottom:.25rem;';
     logo.innerHTML = 'Nutri<span style="color:#1D9E75;font-style:italic;">Doc</span>';
 
-    var sousTitre = document.createElement('div');
-    sousTitre.style.cssText = 'font-size:11px;color:#6b7b74;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:28px;';
-    sousTitre.textContent = 'Administration · Accès restreint';
+    var st = document.createElement('div');
+    st.style.cssText = 'font-size:11px;color:#6b7b74;text-transform:uppercase;' +
+      'letter-spacing:.08em;margin-bottom:1.75rem;';
+    st.textContent = 'Administration · Accès restreint';
 
-    /* Champ identifiant */
-    var labelUser = document.createElement('label');
-    labelUser.style.cssText = 'display:block;font-size:12px;color:#6b7b74;margin-bottom:5px;';
-    labelUser.textContent = 'Identifiant';
+    var t = document.createElement('div');
+    t.style.cssText = 'font-size:1.05rem;font-weight:600;color:#0d2018;margin-bottom:.5rem;';
+    t.textContent = titre;
 
-    var inputUser = document.createElement('input');
-    inputUser.type = 'text';
-    inputUser.autocomplete = 'username';
-    inputUser.placeholder = 'admin';
-    inputUser.style.cssText = 'display:block;width:100%;box-sizing:border-box;border:1px solid #e8edeb;border-radius:8px;padding:10px 14px;font-size:15px;margin-bottom:16px;outline:none;font-family:inherit;';
+    var m = document.createElement('div');
+    m.style.cssText = 'font-size:.85rem;color:#4b5563;line-height:1.6;margin-bottom:1.5rem;';
+    m.textContent = message;
 
-    /* Champ mot de passe */
-    var labelPwd = document.createElement('label');
-    labelPwd.style.cssText = 'display:block;font-size:12px;color:#6b7b74;margin-bottom:5px;';
-    labelPwd.textContent = 'Mot de passe';
+    var a = document.createElement('a');
+    a.href = lien;
+    a.textContent = libelleLien;
+    a.style.cssText = 'display:inline-block;background:#1D9E75;color:#fff;border-radius:999px;' +
+      'padding:.7rem 1.75rem;font-size:.85rem;font-weight:600;text-decoration:none;';
 
-    var inputPwd = document.createElement('input');
-    inputPwd.type = 'password';
-    inputPwd.autocomplete = 'current-password';
-    inputPwd.placeholder = '••••••••';
-    inputPwd.style.cssText = 'display:block;width:100%;box-sizing:border-box;border:1px solid #e8edeb;border-radius:8px;padding:10px 14px;font-size:15px;margin-bottom:8px;outline:none;font-family:inherit;';
+    b.appendChild(logo); b.appendChild(st); b.appendChild(t); b.appendChild(m); b.appendChild(a);
+    o.appendChild(b);
+    document.body.appendChild(o);
+  }
 
-    /* Message erreur */
-    var errMsg = document.createElement('div');
-    errMsg.style.cssText = 'font-size:12px;color:#ef4444;margin-bottom:14px;min-height:18px;';
-    errMsg.textContent = '';
-
-    /* Bouton connexion */
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = 'Se connecter';
-    btn.style.cssText = 'display:block;width:100%;background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:16px;';
-
-    /* Lien retour */
-    var retour = document.createElement('div');
-    retour.style.cssText = 'text-align:center;';
-    var lienRetour = document.createElement('a');
-    lienRetour.href = 'index.html';
-    lienRetour.textContent = '← Retour à l\'accueil';
-    lienRetour.style.cssText = 'font-size:12px;color:#6b7b74;text-decoration:none;';
-    retour.appendChild(lienRetour);
-
-    /* Assembler */
-    box.appendChild(logo);
-    box.appendChild(sousTitre);
-    box.appendChild(labelUser);
-    box.appendChild(inputUser);
-    box.appendChild(labelPwd);
-    box.appendChild(inputPwd);
-    box.appendChild(errMsg);
-    box.appendChild(btn);
-    box.appendChild(retour);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    /* Focus */
-    setTimeout(function () { inputUser.focus(); }, 100);
-
-    /* ── Logique de connexion ──────────────────────────────── */
-    // ⚠ À REMPLACER par vérification Supabase Auth en production
-    var ADMIN_USER = 'calidoc';
-    var ADMIN_PASS = 'NutriDoc2025!';
-
-    function tenterConnexion() {
-      var user = inputUser.value.trim();
-      var pass = inputPwd.value;
-
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        /* Succès */
-        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
-        overlay.remove();
-        var hide = document.getElementById('nd-admin-hide');
-        if (hide) hide.remove();
-      } else {
-        /* Échec */
-        errMsg.textContent = 'Identifiants incorrects. Réessayez.';
-        inputPwd.value = '';
-        inputPwd.style.borderColor = '#ef4444';
-        inputUser.style.borderColor = '#ef4444';
-        setTimeout(function () {
-          inputPwd.style.borderColor = '#e8edeb';
-          inputUser.style.borderColor = '#e8edeb';
-        }, 1500);
-        inputPwd.focus();
-      }
+  // 2. Attente de l'initialisation de Supabase (auth.js)
+  function attendreSupabase(essais) {
+    if (window._supa && typeof window.getProfile === 'function') return controler();
+    if (essais <= 0) {
+      return ecran(
+        'Service indisponible',
+        "La connexion sécurisée n'a pas pu être établie. Rechargez la page ; si le problème persiste, contactez le support.",
+        'index.html', "Retour à l'accueil"
+      );
     }
-
-    btn.addEventListener('click', tenterConnexion);
-    inputPwd.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') tenterConnexion();
-    });
-    inputUser.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') inputPwd.focus();
-    });
-    inputUser.addEventListener('focus', function () {
-      this.style.borderColor = '#1D9E75';
-    });
-    inputUser.addEventListener('blur', function () {
-      this.style.borderColor = '#e8edeb';
-    });
-    inputPwd.addEventListener('focus', function () {
-      this.style.borderColor = '#1D9E75';
-    });
-    inputPwd.addEventListener('blur', function () {
-      this.style.borderColor = '#e8edeb';
-    });
+    setTimeout(function () { attendreSupabase(essais - 1); }, 200);
   }
 
-  /* ── Lancer quand le DOM est prêt ───────────────────────── */
+  // 3. Contrôle : compte connecté + rôle administrateur en base
+  async function controler() {
+    try {
+      var res = await window._supa.auth.getUser();
+      var user = res && res.data ? res.data.user : null;
+
+      if (!user) {
+        return ecran(
+          'Connexion requise',
+          "Cette page est réservée à l'administration de NutriDoc. Connectez-vous avec votre compte administrateur.",
+          'login.html', 'Se connecter'
+        );
+      }
+
+      var profil = await window.getProfile();
+      if (!profil || profil.role !== 'admin') {
+        return ecran(
+          'Accès non autorisé',
+          "Votre compte ne dispose pas des droits d'administration.",
+          'index.html', "Retour à l'accueil"
+        );
+      }
+
+      afficherContenu();
+      window.ND_ADMIN = profil;
+      document.dispatchEvent(new CustomEvent('nd-admin-pret', { detail: profil }));
+    } catch (e) {
+      ecran(
+        'Erreur de vérification',
+        "Impossible de vérifier vos droits d'accès. Rechargez la page.",
+        'index.html', "Retour à l'accueil"
+      );
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', creerModale);
+    document.addEventListener('DOMContentLoaded', function () { attendreSupabase(40); });
   } else {
-    creerModale();
+    attendreSupabase(40);
   }
-
 })();
