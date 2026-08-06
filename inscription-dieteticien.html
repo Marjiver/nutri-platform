@@ -617,19 +617,41 @@ async function lookupRpps() {
     } else if(v.statut==='introuvable'){
       showNotFound();
     } else {
-      showBlocage('⚠️ Service de vérification momentanément indisponible. L&apos;inscription nécessite une vérification réussie : réessayez dans quelques minutes ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
+      // API officielle non disponible → bascule en VÉRIFICATION MANUELLE.
+      // Le compte pourra être créé mais restera bloqué tant qu'un
+      // administrateur n'aura pas contrôlé le RPPS sur annuaire.sante.fr.
+      modeManuel(rpps, prenomSaisi, nomSaisi);
     }
   } catch {
-    showBlocage('⚠️ Service de vérification momentanément indisponible. L&apos;inscription nécessite une vérification réussie : réessayez dans quelques minutes ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
+    modeManuel(rpps, prenomSaisi, nomSaisi);
   } finally {
     hide('rppsLoader');
     document.getElementById('rppsSearchBtn').disabled=false;
   }
 }
+// Mode secours : vérification humaine sous 24h ouvrées (compte bloqué en attendant)
+function modeManuel(rpps, prenom, nom){
+  rppsData={ fullName:(prenom+' '+nom).trim(), specialite:'Diététicien (à vérifier)', loc:'', rpps, verifie:false, manuel:true };
+  document.getElementById('rppsAvatar').textContent=((prenom[0]||'')+(nom[0]||'')).toUpperCase()||'?';
+  document.getElementById('rppsResultName').textContent=rppsData.fullName;
+  document.getElementById('rppsResultDetails').innerHTML=
+    '<strong>RPPS '+rpps+'</strong><br>'+
+    '<span style="color:#b45309;">⏳ Vérification par notre équipe sous 24h ouvrées.</span><br>'+
+    '<span style="font-size:.9em;color:var(--text2,#6b7b74);">Votre compte sera créé immédiatement, mais l&apos;accès aux dossiers patients et aux paiements ne sera ouvert qu&apos;après contrôle de votre numéro RPPS dans l&apos;annuaire officiel.</span>';
+  show('rppsResult');
+}
 function showBlocage(html){ hide('rppsLoader'); const el=document.getElementById('rppsNotFound'); el.innerHTML='<p>'+html+'</p>'; show('rppsNotFound'); }
 function showNotFound(){ hide('rppsLoader'); const el=document.getElementById('rppsNotFound'); el.innerHTML='<p>⚠️ Aucun praticien trouvé pour ce numéro RPPS.</p><p>Vérifiez sur <a href="https://annuaire.sante.fr" target="_blank" style="color:var(--green);">annuaire.sante.fr</a> ou <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.</p>'; show('rppsNotFound'); }
 function hideRppsResult(){ hide('rppsResult'); hide('rppsNotFound'); }
-function confirmRpps(){ if(rppsData.verifie!==true){ showBlocage('⛔ La vérification n&apos;a pas abouti — impossible de continuer.'); return; } rppsVerified=true; nextStep(); }
+function confirmRpps(){
+  // On continue si la vérification automatique a réussi OU si l'on est en
+  // mode secours (contrôle humain) — dans ce cas le compte reste bloqué.
+  if(rppsData.verifie!==true && rppsData.manuel!==true){
+    showBlocage('⛔ La vérification n&apos;a pas abouti — impossible de continuer.');
+    return;
+  }
+  rppsVerified=true; nextStep();
+}
 function resetRpps(){ rppsVerified=false; rppsData={}; document.getElementById('rppsInput').value=''; document.getElementById('rppsSearchBtn').disabled=true; hideRppsResult(); }
 
 // VÉRIFICATION IDENTITÉ

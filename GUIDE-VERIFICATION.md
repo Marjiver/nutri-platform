@@ -40,6 +40,28 @@
 4. Re-teste avec un RPPS de médecin → ⛔ blocage « pas un diététicien »
 5. Côté prescripteur : SIRET de CaliDoc (939 166 690 00019) → ✓ · un SIRET bidon (12345678901234) → ⛔
 
+## Mode « validation manuelle » (actif tant que la clé ANS n'est pas arrivée)
+
+Tant que `ESANTE_API_KEY` n'est pas configurée, le système bascule automatiquement en contrôle humain — sans jamais laisser passer un imposteur :
+
+1. Le diététicien s'inscrit normalement. Un message lui indique que son compte sera vérifié sous 24h ouvrées.
+2. Son compte est créé en statut **`en_attente`** : il peut se connecter, mais **ne voit aucun dossier patient** et **ne peut recevoir aucun paiement** (verrouillé par les règles de sécurité de la base).
+3. Tu ouvres **`validation-dieteticiens.html`** (accessible avec ton compte administrateur).
+4. Tu cliques « Ouvrir l'annuaire officiel » — le RPPS est copié automatiquement. Tu le colles sur annuaire.sante.fr et tu vérifies **le nom** et **la profession**.
+5. Tu cliques **Valider** (accès ouvert) ou **Refuser**.
+
+Quand la clé ANS arrivera : ajoute-la dans les Secrets Supabase et la vérification redeviendra automatique. Aucun autre changement à faire, le code est déjà déployé.
+
+### Vocabulaire des statuts (`profiles.statut_rpps`)
+| Statut | Signification |
+|---|---|
+| `en_attente` | Inscrit, **bloqué**, en attente de contrôle |
+| `verifie_auto` | Vérifié automatiquement par l'API ANS |
+| `verifie_manuel` | Vérifié à la main par l'administrateur |
+| `refuse` | Refusé, accès fermé |
+
+> ⚠️ N'utilise pas d'autres valeurs : les règles de sécurité ne reconnaissent que celles-ci.
+
 ## Limites honnêtes (pour plus tard)
 - La vérification empêche les imposteurs de s'inscrire ; le verrou financier complet (nom Stripe/RIB) s'activera avec Stripe Connect.
 - L'upload de pièce d'identité (étape « vérification identité ») n'envoie encore le fichier nulle part — à brancher avec le moteur (V2).

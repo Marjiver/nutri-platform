@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>NutriDoc — Validation des diététiciens</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --green:#1D9E75;--green2:#0f6e56;--green3:#5DCAA5;--green-light:#E1F5EE;
+    --dark:#0d2018;--bg:#f7f9f7;--card:#fff;--txt:#0d2018;--txt2:#4b5563;
+    --border:#e5e7eb;--orange:#b45309;--orange-bg:#fef3c7;--red:#b91c1c;--red-bg:#fee2e2;
+  }
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;}
+  .hd{background:#0d2018;padding:.75rem 2rem;position:sticky;top:0;z-index:10;}
+  .hd-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;text-decoration:none;}
+  .logo em{font-style:italic;color:#5DCAA5;}
+  .hd-r{display:flex;align-items:center;gap:.75rem;}
+  .who{font-size:.72rem;color:rgba(255,255,255,.6);}
+  .lnk{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.35rem .9rem;color:#fff;font-size:.72rem;text-decoration:none;}
+  .lnk:hover{background:rgba(255,255,255,.18);}
+  main{max-width:1000px;margin:0 auto;padding:2rem 1.25rem 4rem;}
+  h1{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:.3rem;}
+  .sub{font-size:.85rem;color:var(--txt2);margin-bottom:1.5rem;}
+  .msg{padding:.85rem 1rem;border-radius:12px;font-size:.82rem;margin-bottom:1.25rem;display:none;}
+  .msg.ok{background:var(--green-light);color:var(--green2);border-left:4px solid var(--green);display:block;}
+  .msg.err{background:var(--red-bg);color:var(--red);border-left:4px solid #ef4444;display:block;}
+  .msg.info{background:var(--orange-bg);color:var(--orange);border-left:4px solid #f59e0b;display:block;}
+  .sec-t{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin:2rem 0 .75rem;}
+  .card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:.9rem;}
+  .card.att{border-color:#fcd34d;}
+  .row{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start;}
+  .nom{font-size:1.05rem;font-weight:600;}
+  .meta{font-size:.78rem;color:var(--txt2);margin-top:.35rem;line-height:1.7;}
+  .meta b{color:var(--txt);font-weight:600;}
+  .rpps{font-family:ui-monospace,Menlo,monospace;background:var(--green-light);color:var(--green2);padding:.1rem .5rem;border-radius:6px;font-size:.85rem;font-weight:600;}
+  .badge{font-size:.65rem;border-radius:999px;padding:.2rem .7rem;white-space:nowrap;font-weight:600;}
+  .b-att{background:var(--orange-bg);color:var(--orange);}
+  .b-ok{background:var(--green-light);color:var(--green2);}
+  .b-no{background:var(--red-bg);color:var(--red);}
+  .acts{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+  .btn{border:none;border-radius:999px;padding:.55rem 1.1rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;}
+  .b-check{background:#1e40af;color:#fff;}
+  .b-val{background:var(--green);color:#fff;}
+  .b-val:hover{background:var(--green2);}
+  .b-ref{background:transparent;border:1.5px solid #ef4444;color:var(--red);}
+  .b-ref:hover{background:var(--red-bg);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .empty{border:2px dashed var(--border);border-radius:16px;padding:2.5rem 1rem;text-align:center;color:var(--txt2);font-size:.85rem;}
+  .aide{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:1rem;font-size:.8rem;color:#1e40af;line-height:1.7;margin-bottom:1.5rem;}
+  .aide b{display:block;margin-bottom:.25rem;}
+  .load{text-align:center;padding:3rem;color:var(--txt2);font-size:.85rem;}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-in">
+    <a href="index.html" class="logo">Nutri<em>Doc</em></a>
+    <div class="hd-r">
+      <span class="who" id="who"></span>
+      <a href="admin.html" class="lnk">← Back-office</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Validation des diététiciens</h1>
+  <p class="sub">Contrôlez le numéro RPPS dans l'annuaire officiel avant d'ouvrir l'accès aux dossiers patients.</p>
+
+  <div class="aide">
+    <b>Comment vérifier en 30 secondes</b>
+    1. Cliquez sur « Ouvrir l'annuaire officiel » (le numéro RPPS est copié automatiquement).<br>
+    2. Collez-le dans la recherche d'annuaire.sante.fr.<br>
+    3. Vérifiez que <b>le nom correspond</b> et que <b>la profession est bien « Diététicien »</b>.<br>
+    4. Revenez ici et cliquez sur Valider ou Refuser.
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <div id="contenu"><div class="load">Chargement…</div></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/core/auth.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+function alerte(txt, type){
+  const m = $('msg');
+  m.className = 'msg ' + type;
+  m.textContent = txt;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function ligne(p, statut){
+  const badge = statut === 'attente'
+    ? '<span class="badge b-att">⏳ À vérifier</span>'
+    : statut === 'ok'
+      ? '<span class="badge b-ok">✓ Vérifié</span>'
+      : '<span class="badge b-no">⛔ Refusé</span>';
+
+  const actions = statut === 'attente' ? `
+    <div class="acts">
+      <button class="btn b-check" data-act="annuaire" data-rpps="${esc(p.rpps)}">🔍 Ouvrir l'annuaire officiel</button>
+      <button class="btn b-val" data-act="valider" data-id="${esc(p.id)}">✓ Valider ce diététicien</button>
+      <button class="btn b-ref" data-act="refuser" data-id="${esc(p.id)}">⛔ Refuser</button>
+    </div>` : `
+    <div class="acts">
+      <button class="btn b-check" data-act="annuaire" data-rpps="${esc(p.rpps)}">🔍 Revoir dans l'annuaire</button>
+      ${statut === 'ok'
+        ? `<button class="btn b-ref" data-act="refuser" data-id="${esc(p.id)}">Retirer l'accès</button>`
+        : `<button class="btn b-val" data-act="valider" data-id="${esc(p.id)}">✓ Valider finalement</button>`}
+    </div>`;
+
+  return `<div class="card ${statut === 'attente' ? 'att' : ''}">
+    <div class="row">
+      <div>
+        <div class="nom">${esc(p.prenom)} ${esc(p.nom)}</div>
+        <div class="meta">
+          RPPS <span class="rpps">${esc(p.rpps) || 'non renseigné'}</span><br>
+          ${p.email ? '✉ <b>' + esc(p.email) + '</b><br>' : ''}
+          ${p.tel ? '☎ ' + esc(p.tel) + '<br>' : ''}
+          ${p.cabinet ? '🏥 ' + esc(p.cabinet) + '<br>' : ''}
+          ${p.rpps_nom_officiel ? '📋 Nom officiel annuaire : <b>' + esc(p.rpps_nom_officiel) + '</b>' : ''}
+        </div>
+      </div>
+      ${badge}
+    </div>
+    ${actions}
+  </div>`;
+}
+
+async function charger(){
+  if(!window._supa){
+    $('contenu').innerHTML = '<div class="empty">Connexion à la base impossible. Rechargez la page.</div>';
+    return;
+  }
+
+  const { data:{ user } } = await _supa.auth.getUser();
+  if(!user){ window.location.href = 'login.html'; return; }
+
+  const moi = await getProfile();
+  if(!moi || moi.role !== 'admin'){
+    $('contenu').innerHTML = '<div class="empty">⛔ Accès réservé à l\'administrateur de la plateforme.</div>';
+    return;
+  }
+  $('who').textContent = (moi.prenom || '') + ' ' + (moi.nom || '') + ' · Admin';
+
+  const { data, error } = await _supa
+    .from('profiles')
+    .select('id, prenom, nom, email, tel, cabinet, rpps, statut_rpps, rpps_nom_officiel')
+    .eq('role', 'dietitian')
+    .order('nom');
+
+  if(error){
+    $('contenu').innerHTML = '<div class="empty">Erreur de lecture : ' + esc(error.message) + '</div>';
+    return;
+  }
+
+  const att = (data || []).filter(p => !p.statut_rpps || p.statut_rpps === 'en_attente');
+  const ok  = (data || []).filter(p => p.statut_rpps === 'verifie_auto' || p.statut_rpps === 'verifie_manuel');
+  const no  = (data || []).filter(p => p.statut_rpps === 'refuse');
+
+  let html = '<div class="sec-t">En attente de vérification (' + att.length + ')</div>';
+  html += att.length
+    ? att.map(p => ligne(p, 'attente')).join('')
+    : '<div class="empty">Aucun diététicien en attente. Tout est à jour.</div>';
+
+  if(ok.length){
+    html += '<div class="sec-t">Diététiciens vérifiés (' + ok.length + ')</div>';
+    html += ok.map(p => ligne(p, 'ok')).join('');
+  }
+  if(no.length){
+    html += '<div class="sec-t">Refusés (' + no.length + ')</div>';
+    html += no.map(p => ligne(p, 'no')).join('');
+  }
+  $('contenu').innerHTML = html;
+}
+
+async function majStatut(id, statut){
+  const { error } = await _supa.from('profiles').update({ statut_rpps: statut }).eq('id', id);
+  if(error){ alerte('Erreur : ' + error.message, 'err'); return; }
+  alerte(statut === 'refuse'
+    ? 'Compte refusé : ce diététicien n\'a plus accès aux dossiers patients.'
+    : 'Diététicien validé : il peut désormais recevoir des dossiers.', 'ok');
+  charger();
+}
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]');
+  if(!b) return;
+  const act = b.dataset.act;
+
+  if(act === 'annuaire'){
+    try { await navigator.clipboard.writeText(b.dataset.rpps || ''); } catch(_){}
+    alerte('Numéro RPPS copié. Collez-le dans la recherche de l\'annuaire.', 'info');
+    window.open('https://annuaire.sante.fr', '_blank', 'noopener');
+    return;
+  }
+  if(act === 'valider'){
+    if(!confirm('Confirmer : le numéro RPPS a bien été vérifié dans l\'annuaire officiel, le nom correspond et la profession est diététicien ?')) return;
+    b.disabled = true;
+    await majStatut(b.dataset.id, 'verifie_manuel');
+  }
+  if(act === 'refuser'){
+    if(!confirm('Refuser ce compte ? Le diététicien n\'aura accès à aucun dossier patient.')) return;
+    b.disabled = true;
+    await majStatut(b.dataset.id, 'refuse');
+  }
+});
+
+window.addEventListener('load', () => setTimeout(charger, 400));
+</script>
+</body>
+</html>
