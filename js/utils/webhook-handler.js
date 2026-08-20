@@ -579,7 +579,7 @@ function getMockWebhookData(provider, event, customData) {
         data: {
           object: {
             id: 'pi_' + Date.now(),
-            amount: 2490,
+            amount: 2990,
             currency: 'eur',
             status: 'succeeded',
             metadata: {

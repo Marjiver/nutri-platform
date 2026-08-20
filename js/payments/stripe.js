@@ -2,7 +2,8 @@
  * stripe.js — NutriDoc · Client Stripe Checkout
  *
  * Usage :
- *   StripeCheckout.payerPlan(bilanData)      → redirige vers Stripe Checkout 24,90€
+ *   StripeCheckout.payerPlan(bilanData)      → redirige vers Stripe Checkout 29,90€
+ *                                              (24,90€ avec code partenaire — produit plan_partenaire)
  *   StripeCheckout.payerVisio(slotData)      → redirige vers Stripe Checkout 55€
  *   StripeCheckout.acheterPack(pack)         → redirige vers Stripe Checkout (prescripteur)
  *
@@ -12,7 +13,7 @@
  *   'credits_expert'   → 50 plans  — 500€ TTC  (10€/plan)
  *   'credits_volume'   → 100 plans — 900€ TTC  (9€/plan)
  *
- * Version: 1.1.0 — 2026-04-14 — harmonisation modèle tarifaire
+ * Version: 1.2.0 — 2026-08-07 — prix public 29,90€ / tarif partenaire 24,90€ · 0 commission
  */
 
 // ── Config ────────────────────────────────────────────────────
@@ -58,7 +59,13 @@ const STRIPE_PRODUCTS = {
   plan: {
     name:        'Plan alimentaire personnalisé — NutriDoc',
     description: 'Plan validé et signé par un diététicien certifié RPPS · Livré sous 48h',
-    amount:      2490,   // 24,90€ TTC
+    amount:      2990,   // 29,90€ TTC — prix public
+    currency:    'eur',
+  },
+  plan_partenaire: {
+    name:        'Plan alimentaire personnalisé — NutriDoc (tarif partenaire)',
+    description: 'Plan validé et signé par un diététicien certifié RPPS · Livré sous 48h · Tarif adhérent structure partenaire',
+    amount:      2490,   // 24,90€ TTC — réduction automatique via code ou QR code partenaire
     currency:    'eur',
   },
 
@@ -66,7 +73,7 @@ const STRIPE_PRODUCTS = {
   visio: {
     name:        'Consultation visio diététicien — NutriDoc',
     description: 'Consultation de 45 min avec votre diététicien · Remboursable mutuelle',
-    amount:      5500,   // 55€ TTC (47€ reversés au diét., 8€ commission NutriDoc)
+    amount:      5500,   // 55€ TTC — encaissé à 100 % par le diététicien (0 commission NutriDoc)
     currency:    'eur',
   },
 
@@ -172,7 +179,7 @@ const StripeCheckout = {
   },
 
   /**
-   * Patient — payer son plan (24,90€)
+   * Patient — payer son plan (29,90€ · 24,90€ avec code partenaire)
    */
   async payerPlan(bilanData = {}) {
     const user = await getCurrentUserAsync();
@@ -283,7 +290,8 @@ const StripeCheckout = {
       abo_essentiel:    '✓ Abonnement Essentiel activé (5€/mois) — démo',
       abo_premium:      '✓ Abonnement Premium activé (9€/mois) — démo',
       abo_premium_an:   '✓ Abonnement Premium annuel activé (99€/an) — démo',
-      plan:             '✓ Plan alimentaire commandé (24,90€) — démo',
+      plan:             '✓ Plan alimentaire commandé (29,90€) — démo',
+      plan_partenaire:  '✓ Plan alimentaire commandé (24,90€ — tarif partenaire) — démo',
       visio:            '✓ Visio réservée (55€) — démo',
       credits_solo:     '✓ Pack Solo — 1 plan (24,90€) — démo',
       credits_standard: '✓ Pack Standard — 10 plans (130€ — 13€/plan) — démo',

@@ -508,12 +508,12 @@ async function loadUsersData() {
  */
 async function loadPlansData() {
   adminState.data.plans = [
-    { id: 'PLN-001', patient: 'Marie D.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'completed', date: '2026-04-01', amount: 24.90 },
-    { id: 'PLN-002', patient: 'Thomas K.', dietitian: 'Grégoire Martin', objectif: 'Prise de masse', status: 'completed', date: '2026-04-02', amount: 24.90 },
-    { id: 'PLN-003', patient: 'Sophie M.', dietitian: 'Dr. A. Lemaire', objectif: 'Équilibre', status: 'pending', date: '2026-04-03', amount: 24.90 },
-    { id: 'PLN-004', patient: 'Lucas B.', dietitian: 'C. Fontaine', objectif: 'Performance', status: 'completed', date: '2026-04-04', amount: 24.90 },
-    { id: 'PLN-005', patient: 'Emma R.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'failed', date: '2026-04-05', amount: 24.90 },
-    { id: 'PLN-006', patient: 'Paul L.', dietitian: 'Dr. A. Lemaire', objectif: 'Prévention', status: 'completed', date: '2026-04-06', amount: 24.90 }
+    { id: 'PLN-001', patient: 'Marie D.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'completed', date: '2026-04-01', amount: 29.90 },
+    { id: 'PLN-002', patient: 'Thomas K.', dietitian: 'Grégoire Martin', objectif: 'Prise de masse', status: 'completed', date: '2026-04-02', amount: 29.90 },
+    { id: 'PLN-003', patient: 'Sophie M.', dietitian: 'Dr. A. Lemaire', objectif: 'Équilibre', status: 'pending', date: '2026-04-03', amount: 29.90 },
+    { id: 'PLN-004', patient: 'Lucas B.', dietitian: 'C. Fontaine', objectif: 'Performance', status: 'completed', date: '2026-04-04', amount: 29.90 },
+    { id: 'PLN-005', patient: 'Emma R.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'failed', date: '2026-04-05', amount: 29.90 },
+    { id: 'PLN-006', patient: 'Paul L.', dietitian: 'Dr. A. Lemaire', objectif: 'Prévention', status: 'completed', date: '2026-04-06', amount: 29.90 }
   ];
 }
 
@@ -522,9 +522,9 @@ async function loadPlansData() {
  */
 async function loadFinanceData() {
   adminState.data.payments = [
-    { id: 'PY-001', date: '2026-04-01', type: 'Plan patient', description: 'Plan PLN-001', amount: 24.90, status: 'completed' },
-    { id: 'PY-002', date: '2026-04-02', type: 'Plan patient', description: 'Plan PLN-002', amount: 24.90, status: 'completed' },
-    { id: 'PY-003', date: '2026-04-01', type: 'Abonnement', description: 'Abonnement Pro - Grégoire Martin', amount: 29.00, status: 'completed' },
+    { id: 'PY-001', date: '2026-04-01', type: 'Plan patient', description: 'Plan PLN-001', amount: 29.90, status: 'completed' },
+    { id: 'PY-002', date: '2026-04-02', type: 'Plan patient', description: 'Plan PLN-002', amount: 29.90, status: 'completed' },
+    { id: 'PY-003', date: '2026-04-01', type: 'Abonnement', description: 'Abonnement Essentiel - Grégoire Martin', amount: 39.00, status: 'completed' },
     { id: 'PY-004', date: '2026-04-03', type: 'Crédits', description: 'Pack Standard - Antoine Durand', amount: 130.00, status: 'pending' },
     { id: 'PY-005', date: '2026-04-05', type: 'Visio', description: 'Visio - Marie D.', amount: 55.00, status: 'completed' }
   ];

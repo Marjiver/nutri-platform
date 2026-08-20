@@ -79,8 +79,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   titulaire_compte    text,
   formule             text DEFAULT 'essentiel',
   statut_rpps         text DEFAULT 'en_attente',
-  commission_plan     int  DEFAULT 16,
-  commission_visio    int  DEFAULT 4700,
+  -- Aucune commission NutriDoc : le diététicien encaisse 100 % via Stripe Connect
   profession          text,
   siret               text,
   credits             int  DEFAULT 0,
@@ -135,7 +134,7 @@ CREATE TABLE IF NOT EXISTS plans (
   statut        text DEFAULT 'en_attente'
                 CHECK (statut IN ('en_attente','paid','in_progress','valide','livre','expire')),
   paid_at       timestamptz, valide_at timestamptz, livre_at timestamptz,
-  stripe_id     text, montant int DEFAULT 2490, pdf_url text,
+  stripe_id     text, montant int DEFAULT 2990, pdf_url text, -- 29,90€ public · 24,90€ (2490) si code partenaire
   created_at    timestamptz DEFAULT now()
 );
 ALTER TABLE plans ENABLE ROW LEVEL SECURITY;

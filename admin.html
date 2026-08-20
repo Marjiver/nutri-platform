@@ -276,7 +276,7 @@ tbody tr:hover td{background:#fafcfa}
       <span class="nav-badge">5</span>
     </button>
     <button class="nav-item" onclick="showPage('commissions')">
-      <span class="nav-icon">💰</span> Commissions & tarifs
+      <span class="nav-icon">💰</span> Tarifs
     </button>
     <button class="nav-item" onclick="showPage('parrainage')">
       <span class="nav-icon">🎁</span> Parrainage
@@ -439,19 +439,19 @@ tbody tr:hover td{background:#fafcfa}
         </div>
         <div class="kpi-card" style="--kpi-color:#f59e0b">
           <div class="kpi-label">Panier moyen plan</div>
-          <div class="kpi-value">24,90 €</div>
-          <div class="kpi-delta" style="color:var(--gray)">Stable</div>
+          <div class="kpi-value">29,90 €</div>
+          <div class="kpi-delta" style="color:var(--gray)">24,90 € tarif partenaire</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
           <div class="kpi-label">Marge nette estimée</div>
           <div class="kpi-value">61%</div>
-          <div class="kpi-delta up">Après reversements diét.</div>
+          <div class="kpi-delta up">Modèle 100 % abonnements</div>
         </div>
       </div>
 
       <div class="charts-grid-3">
         <div class="chart-card">
-          <div class="chart-header"><div class="chart-title">Plans 24,90 €</div></div>
+          <div class="chart-header"><div class="chart-title">Plans 29,90 €</div></div>
           <div class="chart-wrap" style="height:150px"><canvas id="chartPlansRev"></canvas></div>
         </div>
         <div class="chart-card">
@@ -675,7 +675,7 @@ tbody tr:hover td{background:#fafcfa}
 
       <!-- Alerte seuil -->
       <div class="alert-bar" style="background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;margin-bottom:1rem">
-        ℹ️ <strong>Base de déclaration URSSAF :</strong> En micro-BIC, vous déclarez votre <strong>CA encaissé HT</strong> (prix TTC ÷ 1,20). Le reversement aux diét. ne se déduit PAS du CA déclaré — il s'agit d'une charge d'exploitation comptabilisée séparément. Exemple : 100 plans à 24,90€ TTC = CA HT déclaré de <strong>2 075€</strong> (et non 2 490€ ni 875€ après reversement).
+        ℹ️ <strong>Base de déclaration URSSAF :</strong> En micro-BIC, vous déclarez votre <strong>CA encaissé HT</strong> (prix TTC ÷ 1,20). Avec Stripe Connect, les paiements des plans (29,90 € / 24,90 €), visios et packs vont <strong>directement aux diététiciens</strong> et n'entrent pas dans votre CA. Votre CA = vos abonnements. Exemple : 20 abonnements Essentiel à 39 € HT = CA déclaré de <strong>780 €</strong>. À confirmer avec votre expert-comptable.
       </div>
       <div class="alert-bar" id="urssafAlert" style="display:none"></div>
 
@@ -747,7 +747,7 @@ tbody tr:hover td{background:#fafcfa}
               <tr>
                 <th>Trimestre</th>
                 <th>Période</th>
-                <th>CA Plans (24,90€)</th>
+                <th>CA Plans (29,90€)</th>
                 <th>CA Visios (55€)</th>
                 <th>CA Abonnements diét.</th>
                 <th>CA Crédits pro</th>
@@ -893,11 +893,10 @@ tbody tr:hover td{background:#fafcfa}
         <table>
           <thead><tr><th>Source de revenu</th><th>Description</th><th>TVA applicable</th><th>Base de calcul</th></tr></thead>
           <tbody>
-            <tr><td><strong>Commission plans (16-20€)</strong></td><td>Commission prélevée sur chaque plan validé par un diét.</td><td><span class="badge green">20% ✓</span></td><td>Montant HT de la commission</td></tr>
-            <tr><td><strong>Abonnements diét. (39-29€/mois)</strong></td><td>Accès à la plateforme pour les diét. inscrits</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
-            <tr><td><strong>Crédits prescripteurs (4,38-4,90€/cr.)</strong></td><td>Vente de packs de crédits aux professionnels</td><td><span class="badge green">20% ✓</span></td><td>Prix HT du pack</td></tr>
-<!-- visio déjà incluse ci-dessus -->
-            <tr><td><strong>Plan patient 24,90€</strong></td><td>Paiement patient — dont 18-20€ reversés au diét.</td><td><span class="badge green">20% ✓</span></td><td>Prix total HT (pas seulement la marge)</td></tr>
+            <tr><td><strong>Abonnements diét. (Essentiel 39€/mois)</strong></td><td>Accès à la plateforme pour les diét. inscrits</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
+            <tr><td><strong>Abonnements CRM prescripteur (14,90€/mois)</strong></td><td>CRM Pro pour les prescripteurs</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
+            <tr><td><strong>Abonnements patient (5-9€/mois)</strong></td><td>Formules Essentiel et Premium patient</td><td><span class="badge green">20% ✓</span></td><td>Prix HT de l'abonnement</td></tr>
+            <tr><td><strong>Plans, visios, packs</strong></td><td>Encaissés directement par les diététiciens via Stripe Connect — aucune commission NutriDoc</td><td><span class="badge">Hors CA</span></td><td>N'entrent pas dans le CA NutriDoc</td></tr>
           </tbody>
         </table>
       </div>
@@ -927,22 +926,22 @@ tbody tr:hover td{background:#fafcfa}
 
       <!-- Note important -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
-        <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:1rem;font-size:.82rem">
-          <div style="font-weight:600;color:#dc2626;margin-bottom:.5rem">⚠ Modèle "en nom propre" — Implications TVA</div>
-          <p style="color:#7f1d1d;line-height:1.6;margin-bottom:.5rem">Vous encaissez le prix <strong>total</strong> du patient (24,90€ ou 55€) en votre nom propre, puis vous reversez une partie au diététicien. La TVA s'applique donc sur <strong>l'intégralité du prix encaissé</strong>, pas seulement sur votre marge.</p>
-          <div style="background:#fee2e2;border-radius:6px;padding:.6rem .8rem;margin-top:.5rem">
-            <div>Plan 24,90€ TTC → base HT : <strong>20,75€</strong> · TVA : <strong>4,15€</strong></div>
-            <div>Visio 55€ TTC → base HT : <strong>45,83€</strong> · TVA : <strong>9,17€</strong></div>
+        <div style="background:#e1f5ee;border:1px solid #9FE1CB;border-radius:var(--radius);padding:1rem;font-size:.82rem">
+          <div style="font-weight:600;color:#0f6e56;margin-bottom:.5rem">✅ Modèle Stripe Connect direct — Implications TVA</div>
+          <p style="color:#0f6e56;line-height:1.6;margin-bottom:.5rem">Les patients et prescripteurs paient <strong>directement les diététiciens</strong> via Stripe Connect. NutriDoc n'encaisse jamais ces sommes et ne prélève aucune commission. La TVA ne s'applique que sur <strong>vos abonnements</strong>.</p>
+          <div style="background:#d1efe3;border-radius:6px;padding:.6rem .8rem;margin-top:.5rem">
+            <div>Abonnement diét. Essentiel 39€ HT → TVA : <strong>7,80€</strong></div>
+            <div>Abonnement CRM Pro 14,90€ HT → TVA : <strong>2,98€</strong></div>
           </div>
         </div>
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:1rem;font-size:.82rem">
-          <div style="font-weight:600;color:#1d4ed8;margin-bottom:.5rem">💡 Reversements diét. : déductibles ?</div>
-          <p style="color:#1e3a8a;line-height:1.6;margin-bottom:.5rem">Les sommes reversées aux diét. sont des <strong>charges d'exploitation</strong> déductibles de votre résultat. Si les diét. sont eux-mêmes soumis à TVA, leur TVA facturée vous sera déductible. Sinon, le reversement est une charge nette.</p>
-          <p style="color:#1e3a8a;line-height:1.6">À confirmer avec votre expert-comptable : la qualification juridique du reversement (sous-traitance ? salaire ? commission ?).</p>
+          <div style="font-weight:600;color:#1d4ed8;margin-bottom:.5rem">💡 Aucun reversement à gérer</div>
+          <p style="color:#1e3a8a;line-height:1.6;margin-bottom:.5rem">Les diététiciens étant payés directement par leurs patients et prescripteurs, il n'y a <strong>aucun reversement</strong> à comptabiliser : pas de charge d'exploitation liée aux plans, pas de qualification juridique à trancher.</p>
+          <p style="color:#1e3a8a;line-height:1.6">Chaque diététicien facture et déclare ses propres honoraires selon son régime (BNC, micro-entreprise, etc.).</p>
         </div>
       </div>
       <div class="alert-bar" style="background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;margin-top:1rem">
-        📌 <strong>Votre situation :</strong> Opératrice de plateforme numérique, modèle en nom propre. TVA <strong>20%</strong> sur tous les encaissements bruts. Aucune exonération applicable. Code APE probable : <strong>6311Z</strong>. Confirmez avec votre expert-comptable.
+        📌 <strong>Votre situation :</strong> Opératrice de plateforme numérique d'intermédiation technique. TVA <strong>20%</strong> sur les abonnements uniquement — les paiements de plans transitent directement vers les diététiciens. Code APE probable : <strong>6311Z</strong>. Confirmez avec votre expert-comptable.
       </div>
     </div>
 

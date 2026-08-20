@@ -2,11 +2,23 @@
  * constants.js — NutriDoc · Constantes partagées entre tous les modules
  * Centralise les labels, listes déroulantes et configurations communes
  *
- * Version: 1.1.0
- * Dernière mise à jour: 2026-04-14
- * Changelog: harmonisation modèle tarifaire
+ * Version: 1.2.0
+ * Dernière mise à jour: 2026-08-07
+ * Changelog: suppression de toute logique de commission (modèle : 0 commission,
+ *   NutriDoc se rémunère uniquement sur les abonnements)
+ *   - PRIX_PLAN_PATIENT : prix public 29,90€ / tarif partenaire 24,90€ (code ou QR partenaire)
+ *   - FORMULES_DIETETICIEN : alignées sur le modèle réel (Découverte 0€ / Essentiel 39€)
  *   - PACKS_PRESCRIPTEUR : Solo 24,90€ / Standard 130€ / Expert 500€ / Volume 900€
  */
+
+// ==================== PRIX PLAN PATIENT ====================
+// Prix public 29,90€ TTC. Les adhérents d'une structure partenaire bénéficient
+// automatiquement du tarif préférentiel 24,90€ TTC via code partenaire ou QR code.
+// Le patient paie directement le diététicien (Stripe Connect) — 0 commission NutriDoc.
+const PRIX_PLAN_PATIENT = {
+  public:     { prixTTC: 29.90, prixHT: 24.92, stripeAmount: 2990, label: 'Prix public' },
+  partenaire: { prixTTC: 24.90, prixHT: 20.75, stripeAmount: 2490, label: 'Tarif préférentiel adhérent partenaire' }
+};
 
 // ==================== OBJECTIFS NUTRITIONNELS ====================
 const OBJECTIF_LABELS = {
@@ -152,17 +164,12 @@ const PACKS_PRESCRIPTEUR = {
 };
 
 // ==================== FORMULES DIÉTÉTICIEN ====================
-// commission = commission NutriDoc prélevée par plan HORS quota (en €)
-// Net diét par plan = 24,90€ - commission
-//   Essentiel : 24,90 - 5,00 = 19,90€ net
-//   Starter   : 24,90 - 2,50 = 22,40€ net
-//   Pro       : 24,90 - 2,00 = 22,90€ net
-//   Expert    : 24,90 - 1,50 = 23,40€ net
+// AUCUNE commission NutriDoc : le diététicien encaisse 100 % des paiements
+// patients via Stripe Connect (seuls les frais Stripe restent à sa charge).
+// NutriDoc se rémunère uniquement sur l'abonnement mensuel.
 const FORMULES_DIETETICIEN = {
-  essentiel: { label: 'Essentiel', prix: 0,  plans_inclus: 0,   commission: 5,   stripeKey: 'abo_essentiel', features: ['Référencement seul', 'Badge vérifié'] },
-  starter:   { label: 'Starter',   prix: 9,  plans_inclus: 10,  commission: 2.5, stripeKey: 'abo_starter',   features: ['Accès dossiers', '10 plans inclus', 'Agenda visio'] },
-  pro:       { label: 'Pro',       prix: 29, plans_inclus: 30,  commission: 2,   stripeKey: 'abo_pro',       features: ['30 plans inclus', 'Commission réduite', 'Support prioritaire'] },
-  expert:    { label: 'Expert',    prix: 59, plans_inclus: 100, commission: 1.5, stripeKey: 'abo_expert',    features: ['100 plans inclus', 'Commission 1,50€', 'Analytics avancés'] }
+  decouverte: { label: 'Découverte', prix: 0,  dureeMois: 3, stripeKey: null,            features: ['3 mois gratuits', 'Dossiers patients illimités', 'Encaissement 100 % direct'] },
+  essentiel:  { label: 'Essentiel',  prix: 39, dureeMois: 0, stripeKey: 'abo_essentiel', features: ['Dossiers patients illimités', 'Agenda visio', 'Revenus & déclarations', 'Encaissement 100 % direct'] }
 };
 
 // ==================== PROFESSIONS PRESCRIPTEUR ====================
@@ -255,6 +262,7 @@ window.REGIME_LIST           = REGIME_LIST;
 window.ALERTES_SANTE_LABELS  = ALERTES_SANTE_LABELS;
 window.ALERTES_SANTE_LIST    = ALERTES_SANTE_LIST;
 window.STATUT_PLAN           = STATUT_PLAN;
+window.PRIX_PLAN_PATIENT     = PRIX_PLAN_PATIENT;
 window.NIVEAUX_ABONNEMENT    = NIVEAUX_ABONNEMENT;
 window.PACKS_PRESCRIPTEUR    = PACKS_PRESCRIPTEUR;
 window.FORMULES_DIETETICIEN  = FORMULES_DIETETICIEN;
@@ -267,4 +275,4 @@ window.getFromList           = getFromList;
 window.calculerPrixTTC       = calculerPrixTTC;
 window.formatPrix            = formatPrix;
 
-console.log('[constants.js] v1.1.0 charge');
+console.log('[constants.js] v1.2.0 charge');

@@ -425,7 +425,7 @@ async function chargerDonnees() {
     const { count } = await _supa.from('plans').select('id',{count:'exact',head:true})
       .eq('dietitian_id', profile.id).gte('created_at', debut.toISOString());
     plans = count || 0;
-    revenu = plans * 24.90; // approximation patients directs
+    revenu = plans * 29.90; // approximation patients directs (prix public)
   } catch(e) { console.warn(e); }
 
   document.getElementById('kPlans').textContent  = plans;

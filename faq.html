@@ -64,7 +64,7 @@ const FAQ = [
   {
     cat: "Patients",
     items: [
-      { q: "Le bilan est-il vraiment gratuit ?", a: "Oui, entièrement. Vous accédez aux recommandations personnalisées et aux menus hebdomadaires sans payer. Le plan avec grammages précis, validé par un diététicien, est payant (24,90 €)." },
+      { q: "Le bilan est-il vraiment gratuit ?", a: "Oui, entièrement. Vous accédez aux recommandations personnalisées et aux menus hebdomadaires sans payer. Le plan avec grammages précis, validé par un diététicien, est payant : 29,90 €, ou 24,90 € si vous êtes adhérent d'une structure partenaire (salle de sport, cabinet…) — la réduction s'applique automatiquement avec le code ou le QR code remis par votre structure." },
       { q: "Combien de temps pour recevoir mon plan ?", a: "Maximum 48 heures ouvrées après validation de votre paiement. Un diététicien certifié RPPS analyse, personnalise et signe votre plan. En moyenne, les plans sont livrés en moins de 24h." },
       { q: "Que se passe-t-il si j'ai une situation médicale particulière (alerte santé) ?", a: "Si vous déclarez une grossesse, un TCA, un diabète traité, une insuffisance rénale, une chirurgie bariatrique ou d'autres pathologies, la génération automatique est bloquée. Votre dossier est transmis à un diététicien pour une prise en charge personnalisée sécurisée." },
       { q: "Puis-je modifier mon profil après le bilan ?", a: "Oui. Depuis votre tableau de bord, vous pouvez mettre à jour votre profil de vie (sport, sommeil, repas types, etc.) à tout moment. Ces modifications sont transmises au diététicien lors du prochain plan." },
@@ -76,10 +76,10 @@ const FAQ = [
     cat: "Diététiciens",
     items: [
       { q: "Comment m'inscrire comme diététicien ?", a: "Rendez-vous sur la page d'inscription diététicien. Votre numéro RPPS (11 chiffres) est obligatoire et vérifié via l'Annuaire Santé national. L'activation intervient sous 24h." },
-      { q: "Combien est-ce que je gagne par plan validé ?", a: "De 10 à 15 € selon le pack de crédits choisi à 8 € net (pack Expert, 59 €/mois annuel). Pour les visios, vous percevez 55€ intégralement (0% commission NutriDoc)." },
+      { q: "Combien est-ce que je gagne par plan validé ?", a: "Vous encaissez 100 % du montant payé, directement sur votre compte Stripe Connect. Patients directs : 29,90 € (prix public) ou 24,90 € (tarif adhérent d'une structure partenaire). Plans prescripteurs : l'intégralité du tarif du pack (9 à 24,90 € par plan selon le volume). Visios : 55 € intégralement. NutriDoc ne prélève aucune commission — la plateforme se rémunère uniquement sur les abonnements." },
       { q: "Comment reçois-je les demandes de plans ?", a: "Les demandes sont notifiées par email et notification dans votre espace. La priorité est donnée aux diét. dans un rayon de 80km du patient. Le premier à accepter prend le dossier. Si aucune réponse sous 4h, la demande est diffusée nationalement." },
       { q: "Suis-je responsable du contenu des plans ?", a: "Oui. En validant un plan, vous engagez votre responsabilité professionnelle. Vous certifiez avoir analysé le dossier patient. Votre nom, titre et RPPS figurent sur chaque plan signé. Souscrivez une assurance RCP adaptée à la téléconsultation diététique." },
-      { q: "Comment fonctionne la facturation ?", a: "Une facture électronique conforme est générée automatiquement chaque mois récapitulant tous vos actes. Les reversements sont effectués par virement sous 30 jours après fin de mois." },
+      { q: "Comment fonctionne la facturation ?", a: "Une facture électronique conforme est générée automatiquement chaque mois récapitulant tous vos actes. Vos paiements sont encaissés directement sur votre compte Stripe Connect à chaque transaction — aucun reversement à attendre, NutriDoc ne touche jamais votre argent." },
     ]
   },
   {
@@ -89,7 +89,7 @@ const FAQ = [
       { q: "Quelle est la différence avec le profil diététicien ?", a: "Le prescripteur initie des demandes de plans pour ses clients/patients, mais c'est toujours un diététicien certifié RPPS qui valide et signe le plan. Le prescripteur ne peut pas valider lui-même." },
       { q: "Les crédits expirent-ils ?", a: "Non. Les crédits n'ont pas de date d'expiration et peuvent être rechargés à tout moment depuis votre tableau de bord." },
       { q: "Que se passe-t-il si mon client a un alerte santé ?", a: "Le système bloque automatiquement la génération et redirige le dossier. 1 crédit est consommé (remboursé sur demande si le blocage est avéré). Orientez votre client vers un professionnel de santé compétent." },
-      { q: "Le diététicien reçoit-il une commission différente sur mes demandes ?", a: "Oui. Quand vous passez commande via vos crédits, le diététicien perçoit la même rémunération que pour les patients directs. La plateforme prélève sa commission sur le prix de votre crédit." },
+      { q: "Le diététicien touche-t-il l'intégralité de mes paiements ?", a: "Oui. Le montant de chaque pack est encaissé à 100 % par le diététicien référent via Stripe Connect. NutriDoc ne prélève aucune commission — ni sur vos achats de packs, ni sur vos encaissements auprès de vos clients. La plateforme se rémunère uniquement sur ses abonnements." },
     ]
   }
 ];

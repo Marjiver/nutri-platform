@@ -442,7 +442,7 @@ function getFAQItems() {
     },
     {
       question: 'Combien coûte un plan alimentaire personnalisé ?',
-      answer: 'Le plan alimentaire personnalisé coûte 24,90€ TTC. Il est élaboré et signé par un diététicien certifié RPPS, livré sous 48h.'
+      answer: 'Le plan alimentaire personnalisé coûte 29,90€ TTC (24,90€ TTC pour les adhérents d\'une structure partenaire, via le code ou QR code remis par leur structure). Il est validé et signé par un diététicien certifié RPPS, livré sous 48h.'
     },
     {
       question: 'La consultation visio est-elle remboursée par la mutuelle ?',

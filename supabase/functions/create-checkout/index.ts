@@ -52,8 +52,18 @@ serve(async (req) => {
   if (authErr || !user) return json({ error: "Non authentifié" }, 401);
 
   // ── Lire le body ────────────────────────────────────────────────────────
-  const { bilan_id, success_url, cancel_url } = await req.json();
+  const { bilan_id, success_url, cancel_url, code_partenaire } = await req.json();
   if (!bilan_id) return json({ error: "bilan_id requis" }, 400);
+
+  // ── Tarification ────────────────────────────────────────────────────────
+  // Prix public : 29,90 € TTC. Tarif préférentiel adhérent structure partenaire :
+  // 24,90 € TTC, appliqué automatiquement si un code partenaire valide est fourni
+  // (saisi manuellement ou pré-rempli via le QR code de la structure).
+  // TODO : valider code_partenaire contre la table `partenaires` (code actif)
+  // dès que la table est créée, au lieu du simple contrôle de format ci-dessous.
+  const codePartenaireValide =
+    typeof code_partenaire === "string" && /^[A-Z0-9_-]{4,20}$/i.test(code_partenaire.trim());
+  const montantPlan = codePartenaireValide ? 2490 : 2990;
 
   // ── Récupérer le profil patient ─────────────────────────────────────────
   const { data: profile } = await sb
@@ -69,7 +79,7 @@ serve(async (req) => {
       patient_id: user.id,
       bilan_id,
       statut:  "en_attente",
-      montant: 2490,
+      montant: montantPlan,
     })
     .select("id")
     .single();
@@ -90,19 +100,22 @@ serve(async (req) => {
       quantity: 1,
       price_data: {
         currency:     "eur",
-        unit_amount:  2490,           // 24,90 €
+        unit_amount:  montantPlan,    // 29,90 € public · 24,90 € tarif partenaire
         product_data: {
           name:        "Plan alimentaire NutriDoc — 4 semaines",
-          description: "Plan personnalisé validé par un diététicien RPPS sous 48h",
+          description: codePartenaireValide
+            ? "Plan personnalisé validé par un diététicien RPPS sous 48h · Tarif adhérent partenaire"
+            : "Plan personnalisé validé par un diététicien RPPS sous 48h",
           images:      ["https://nutridoc.calidoc-sante.fr/assets/og-image.png"],
         },
       },
     }],
     metadata: {
-      type:       "plan",
-      patient_id: user.id,
+      type:            "plan",
+      patient_id:      user.id,
       bilan_id,
-      plan_id:    plan?.id ?? "",
+      plan_id:         plan?.id ?? "",
+      code_partenaire: codePartenaireValide ? code_partenaire.trim().toUpperCase() : "",
     },
     success_url: `${baseUrl}?payment=success&plan_id=${plan?.id ?? ""}`,
     cancel_url:  cancel_url ?? `${baseUrl}?payment=cancelled`,

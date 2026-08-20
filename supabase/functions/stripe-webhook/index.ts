@@ -63,11 +63,12 @@ async function sendEmail(
 }
 
 // ── TEMPLATES EMAILS ──────────────────────────────────────────────────────────
-function emailPlanConfirmation(prenom: string): string {
+function emailPlanConfirmation(prenom: string, montantCentimes = 2990): string {
+  const montantAffiche = (montantCentimes / 100).toFixed(2).replace(".", ",");
   return `
     <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#0d2018">
       <h2>Bonjour ${prenom} 👋</h2>
-      <p>Votre paiement de <strong>24,90 €</strong> a bien été reçu.</p>
+      <p>Votre paiement de <strong>${montantAffiche} €</strong> a bien été reçu.</p>
       <p>Votre demande de plan alimentaire est maintenant dans la file d'attente.
          Un diététicien certifié RPPS, proche de chez vous, va prendre en charge
          votre dossier dans les prochaines heures.</p>
@@ -303,7 +304,7 @@ serve(async (req) => {
             resendKey,
             patient.email,
             "✅ Paiement reçu — Votre plan est en cours de préparation",
-            emailPlanConfirmation(patient.prenom ?? ""),
+            emailPlanConfirmation(patient.prenom ?? "", montant),
           );
         }
 
