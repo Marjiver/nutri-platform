@@ -50,7 +50,7 @@
       
   <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/core/auth.js?v=3"></script>
   <script defer src="js/ui/cookies.js?v=5"></script>
   
   <!-- ==================== PERFORMANCE MONITORING ==================== -->
@@ -687,7 +687,12 @@
          dimensionner le formulaire autour le rendrait etrique pour toujours.
          Le padding-bottom pose par cookies.js empeche deja qu'il recouvre
          durablement le contenu. */
-      max-height: calc(100vh - 12rem);
+      /* 16rem = en-tete du site (62 px) + padding haut du conteneur (76 px) +
+         barre de progression + boutons de brouillon + padding bas. Mesure sur
+         une fenetre de 800 px de haut, ou l'etape la plus longue depassait de
+         58 px : la carte tenait presque, et ce presque obligeait a faire
+         defiler la page entiere. */
+      max-height: calc(100vh - 16rem);
       overflow-y: auto;
       overscroll-behavior: contain;
     }
@@ -829,10 +834,19 @@
           </select>
         </div>
       </div>
-      <div class="form-group">
-        <label for="ville">Ville <span class="req">*</span></label>
-        <input type="text" name="ville" placeholder="Ex : Angoulême" required id="ville"/>
-        <span class="field-hint">Permet d'assigner un diététicien proche de chez vous</span>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="code_postal">Code postal <span class="req">*</span></label>
+          <input type="text" name="code_postal" id="code_postal" required
+                 inputmode="numeric" pattern="[0-9]{5}" maxlength="5"
+                 placeholder="Ex : 16000" autocomplete="postal-code"/>
+          <span class="field-hint">Détermine le diététicien de votre secteur</span>
+        </div>
+        <div class="form-group">
+          <label for="ville">Ville <span class="req">*</span></label>
+          <input type="text" name="ville" placeholder="Ex : Angoulême" required id="ville"
+                 autocomplete="address-level2"/>
+        </div>
       </div>
       <button type="button" class="btn-next" data-next="2">Continuer →</button>
     </div>
@@ -1492,6 +1506,16 @@ function validateStep(stepNum) {
       showStepError(stepNum, "⚠️ Cette date de naissance ne semble pas valide. Vérifiez l'année saisie.");
       return false;
     }
+
+    // Le code postal n'est pas un champ d'adresse de plus : c'est lui qui
+    // dirige la demande vers un dieteticien du secteur. Un code a quatre
+    // chiffres passerait sans erreur et donnerait un departement faux.
+    const cp = (stepEl.querySelector('[name="code_postal"]')?.value || '').replace(/\D/g, '');
+    if (cp.length !== 5) {
+      showStepError(stepNum, '⚠️ Le code postal doit comporter 5 chiffres (ex : 16000).');
+      stepEl.querySelector('[name="code_postal"]')?.focus();
+      return false;
+    }
   }
 
   // Étape 2 (Votre morphologie) : taille et poids cohérents.
@@ -1678,6 +1702,9 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
     date_naissance: document.querySelector('[name="date_naissance"]')?.value || null,
     sexe:          document.querySelector('[name="sexe"]')?.value || '',
     ville:         document.querySelector('[name="ville"]')?.value?.trim() || '',
+    // Le code postal alimente la colonne generee `departement`, sur laquelle
+    // le declencheur choisit un dieteticien du secteur du patient.
+    code_postal:   document.querySelector('[name="code_postal"]')?.value?.replace(/\D/g, '').slice(0, 5) || null,
     taille:        parseFloat(document.querySelector('[name="taille"]')?.value) || null,
     poids:         parseFloat(document.querySelector('[name="poids"]')?.value) || null,
     poids_objectif:parseFloat(document.querySelector('[name="poids_objectif"]')?.value) || null,
@@ -1752,6 +1779,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       nom:    bilanData.nom,
       email,
       ville:  bilanData.ville,
+      code_postal: bilanData.code_postal,
       statut: 'actif',
     }, { onConflict: 'id' });
 
@@ -1763,8 +1791,15 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       prenom:        bilanData.prenom,
       nom:           bilanData.nom || '',
       age:           bilanData.age,
+      // La date etait collectee dans bilanData mais jamais transmise : la
+      // colonne date_naissance restait vide et la vue v_bilans_age retombait
+      // sur `age`, fige a la date du bilan.
+      date_naissance: bilanData.date_naissance,
       sexe:          bilanData.sexe,
       ville:         bilanData.ville,
+      // Declenche l'affectation : le trigger nd_affecter_bilan() lit le
+      // departement derive de ce code postal pour choisir un dieteticien.
+      code_postal:   bilanData.code_postal,
       taille:        bilanData.taille,
       poids:         bilanData.poids,
       poids_objectif:bilanData.poids_objectif,
@@ -1789,7 +1824,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       statut:        'en_attente',
       paiement:      'gratuit',
     })
-    .select('id')
+    .select('id, dietitian_id, departement')
     .single();
 
     if (bilanError) console.warn('Bilan:', bilanError.message);
@@ -1805,6 +1840,11 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
         patient_id:     userId,
         patient_prenom: bilanData.prenom,
         ville:          bilanData.ville,
+        // Reprend l'affectation decidee sur le bilan, pour que la file
+        // d'attente et le dossier designent le meme praticien. NULL signifie
+        // « aucun dieteticien dans le departement » : la demande est ouverte
+        // a tous des le depart.
+        dietitian_id:   bilanRow.dietitian_id || null,
         objectif:       bilanData.objectif,
         bilan_id:       bilanRow.id,
         source:         'patient',

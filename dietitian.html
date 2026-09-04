@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/core/auth.js?v=3"></script>
   <script defer src="js/ui/cookies.js?v=5"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -87,6 +87,14 @@
     .badge-cours{background:#eff6ff;color:#0ea5e9;border:1px solid rgba(14,165,233,.25);}
     .badge-valide{background:#e1f5ee;color:#1D9E75;border:1px solid rgba(29,158,117,.25);}
     .badge-source{font-size:.65rem;padding:1px 7px;border-radius:999px;background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2);}
+    /* Portee du dossier : secteur du patient, ou ouvert au national. */
+    .badge-portee{font-size:.65rem;padding:1px 7px;border-radius:999px;border:1px solid;cursor:help;}
+    .badge-portee-sec{background:rgba(18,121,90,.09);color:#0f6a4e;border-color:rgba(18,121,90,.22);}
+    .badge-portee-nat{background:rgba(217,119,6,.10);color:#a35a06;border-color:rgba(217,119,6,.24);}
+    /* Rappel discret quand le praticien n'a pas de secteur declare. */
+    .avis-secteur{margin:0 0 1rem;padding:.7rem .9rem;border-radius:10px;font-size:.8rem;line-height:1.5;
+      background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.24);color:#7c4a04;}
+    .avis-secteur a{color:#7c4a04;font-weight:700;}
     .obj-badge{background:var(--bg-tertiary,#eef4ee);color:var(--text-secondary,#6b7b74);font-size:.7rem;padding:2px 8px;border-radius:999px;}
     .dossier-actions{display:flex;gap:.4rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-light,#e8edeb);}
     .btn-sm{padding:.32rem .75rem;border-radius:999px;font-size:.75rem;font-weight:500;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
@@ -183,6 +191,8 @@
       <a href="compta-dieteticien.html" class="btn-action btn-outline">💶 Compta</a>
     </div>
   </div>
+
+  <div class="avis-secteur" id="avisSecteur" hidden></div>
 
   <div class="kanban-grid" id="kanbanGrid">
     <div class="loading-state"><div class="spinner"></div> Chargement…</div>
@@ -337,12 +347,13 @@ function renderDossiers(pts) {
     if (['en_cours','accepted','in_progress'].includes(p.statut)){badgeClass='badge-cours';badgeLabel='En cours';}
     if (['valide','valide_rpps','delivered'].includes(p.statut)){badgeClass='badge-valide';badgeLabel='Validé';}
     const imc = calculIMC(p.poids, p.taille);
+    const hRest = heuresRestantes(p);
     return `<div class="dossier-card" onclick="ouvrirDossier('${p.id}')">
       <div class="dossier-header">
         <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
         <div style="flex:1;min-width:0;">
-          <div class="dossier-name">${p.prenom} ${p.nom}${p.age?' · '+p.age+' ans':''}</div>
-          <div class="dossier-meta">${p.ville?'📍 '+p.ville:''}${imc?' · IMC '+imc:''}</div>
+          <div class="dossier-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}${p.age?' · '+p.age+' ans':''}</div>
+          <div class="dossier-meta">${p.ville?'📍 '+escapeHtml(p.ville):''}${p.code_postal?' ('+escapeHtml(p.code_postal)+')':''}${imc?' · IMC '+imc:''}</div>
         </div>
         <span class="status-badge ${badgeClass}">${badgeLabel}</span>
       </div>
@@ -350,6 +361,8 @@ function renderDossiers(pts) {
         ${obj?`<span class="obj-badge">${obj.icon} ${obj.label}</span>`:''}
         ${p.source==='prescripteur'?`<span class="badge-source">🏢 Via prescripteur</span>`:''}
         ${p.alertes?.length?`<span style="background:#fef2f2;color:#ef4444;font-size:.68rem;padding:1px 7px;border-radius:999px;border:1px solid rgba(239,68,68,.2);">⚠️ ${p.alertes.length} alerte${p.alertes.length>1?'s':''}</span>`:''}
+        ${p.statut==='a_faire' && p.portee==='national'?`<span class="badge-portee badge-portee-nat" title="Aucun diététicien du secteur ne l'a pris en charge : ce dossier est ouvert à tous.">🌐 National</span>`:''}
+        ${hRest!==null?`<span class="badge-portee badge-portee-sec" title="Votre secteur. Sans prise en charge, ce dossier bascule au national.">📍 Votre secteur · ${hRest} h</span>`:''}
       </div>
       <div class="dossier-actions">
         <button class="btn-sm btn-sm-green" onclick="event.stopPropagation();ouvrirWizard('${p.id}')" style="font-weight:700;">
@@ -571,9 +584,21 @@ async function mettreEnCours(id) {
   const p = patientsData.find(x => String(x.id) === String(id));
   if (!p) return;
   if (typeof _supa !== 'undefined') {
-    await _supa.from('bilans').update({statut:'in_progress'}).eq('id', id);
+    // nd_prendre_en_charge() verrouille l'attribution dans une seule
+    // instruction UPDATE. Un simple update du statut laissait deux
+    // dieteticiens ouvrir le meme dossier bascule au national et travailler
+    // tous les deux dessus sans le savoir.
+    const { data: pris, error } = await _supa.rpc('nd_prendre_en_charge', { p_bilan: id });
+    if (error) { showToast('Erreur : ' + error.message); return; }
+    if (!pris) {
+      showToast(`Ce dossier vient d'être pris en charge par un autre diététicien.`);
+      chargerDonnees();
+      return;
+    }
   }
   p.statut = 'en_cours';
+  p.portee = 'mien';
+  p.dietitian_id = await getDietId();
   renderKanban(patientsData); filtrer();
   if (dossierCourant) renderModal(p);
   showToast(`Dossier de ${p.prenom} pris en charge ✓`);
@@ -600,6 +625,35 @@ async function getDietId() {
   const profile = await getProfile();
   _dietId = profile?.id;
   return _dietId;
+}
+
+// Delai au-dela duquel une demande non prise en charge bascule au national.
+// Doit rester identique a l'INTERVAL de la politique SQL diet_lit_bilans_autorises.
+const HEURES_AVANT_NATIONAL = 24;
+
+// Portee d'un dossier, du point de vue du dieteticien connecte.
+//   'mien'     : affecte a ce praticien, dans les temps
+//   'national' : plus personne ne le tient — soit aucun diet. dans le
+//                departement du patient, soit les 24 h sont ecoulees
+//   'autre'    : affecte a un confrere et encore dans son delai. La politique
+//                de lecture ne remonte pas ces lignes ; le cas est traite ici
+//                pour ne rien etiqueter « votre secteur » par defaut si elle
+//                venait a changer.
+function porteeDossier(b, monId) {
+  if (b.dietitian_id && String(b.dietitian_id) === String(monId)) return 'mien';
+  if (!b.dietitian_id) return 'national';
+  if (b.statut === 'en_attente' && b.assigned_at &&
+      (Date.now() - new Date(b.assigned_at).getTime()) > HEURES_AVANT_NATIONAL * 3600e3) {
+    return 'national';
+  }
+  return 'autre';
+}
+
+// Heures restantes avant bascule nationale, ou null si sans objet.
+function heuresRestantes(p) {
+  if (!p.assigned_at || p.statut !== 'a_faire' || p.portee !== 'mien') return null;
+  const reste = HEURES_AVANT_NATIONAL * 3600e3 - (Date.now() - new Date(p.assigned_at).getTime());
+  return reste > 0 ? Math.ceil(reste / 3600e3) : 0;
 }
 
 
@@ -719,6 +773,28 @@ async function chargerDonnees() {
     [profile.rpps ? 'RPPS '+profile.rpps : null, profile.formule ? 'Formule '+profile.formule : null]
     .filter(Boolean).join(' · ') || 'Bienvenue sur NutriDoc';
 
+  // Sans departement, ce compte n'est jamais retenu par l'affectation : il ne
+  // recevra que les dossiers deja bascules au national. L'absence est
+  // silencieuse cote base, on la rend visible ici.
+  const avis = document.getElementById('avisSecteur');
+  if (avis) {
+    if (!profile.departement) {
+      avis.innerHTML = '⚠️ <strong>Aucun secteur déclaré.</strong> ' +
+        'Renseignez le code postal de votre cabinet pour recevoir en priorité les ' +
+        'demandes des patients de votre département. Sans lui, seuls les dossiers ' +
+        'non pris en charge sous ' + HEURES_AVANT_NATIONAL + ' h vous parviennent. ' +
+        '<a href="profil-dieteticien.html">Compléter mon profil →</a>';
+      avis.hidden = false;
+    } else if (profile.statut_rpps !== 'verifie_auto' && profile.statut_rpps !== 'verifie_manuel') {
+      avis.innerHTML = '⏳ <strong>Vérification RPPS en cours.</strong> ' +
+        'Les nouvelles demandes de votre secteur (' + escapeHtml(profile.departement) + ') vous ' +
+        'seront adressées dès la validation de votre numéro RPPS.';
+      avis.hidden = false;
+    } else {
+      avis.hidden = true;
+    }
+  }
+
   try {
     // ── Récupérer TOUS les champs du bilan pour le dossier complet
     const {data: bilans, error} = await _supa
@@ -726,6 +802,7 @@ async function chargerDonnees() {
       .select(`
         id, created_at,
         prenom, nom, age, sexe, ville,
+        code_postal, departement, dietitian_id, assigned_at,
         poids, taille, poids_objectif,
         objectif, activite,
         regime, allergies, aversions,
@@ -750,6 +827,15 @@ async function chargerDonnees() {
       age:         b.age,
       sexe:        b.sexe   || '',
       ville:       b.ville  || '',
+      code_postal: b.code_postal || '',
+      departement: b.departement || '',
+      dietitian_id: b.dietitian_id,
+      assigned_at: b.assigned_at,
+      // Meme regle que la politique de lecture cote base : un dossier non
+      // pris en charge dans les 24 h devient visible nationalement. La
+      // calculer ici aussi evite d'afficher « votre secteur » sur un dossier
+      // que tout le monde voit deja.
+      portee:      porteeDossier(b, _dietId),
       poids:       b.poids,
       taille:      b.taille,
       poids_objectif: b.poids_objectif,

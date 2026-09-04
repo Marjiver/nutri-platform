@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/core/auth.js?v=3"></script>
   <script defer src="js/ui/cookies.js?v=5"></script>
   <script defer src="js/utils/auto-save.js?v=2"></script>
   <style>
@@ -380,6 +380,14 @@
           <div class="fg"><label for="tel">Téléphone</label><input type="tel" id="tel" placeholder="06 xx xx xx xx" autocomplete="tel"/></div>
           <div class="fg"><label for="cabinet">Ville d'exercice</label><input type="text" id="cabinet" placeholder="Paris, Lyon…"/></div>
         </div>
+        <div class="fg">
+          <label for="codePostal">Code postal du cabinet <span class="req">*</span></label>
+          <input type="text" id="codePostal" placeholder="16000" maxlength="5" inputmode="numeric"
+                 pattern="[0-9]{5}" autocomplete="postal-code" required/>
+          <div style="font-size:.75rem;color:var(--text2);margin-top:.3rem;">
+            Il d&eacute;finit votre secteur : les demandes des patients de votre d&eacute;partement vous sont adress&eacute;es en priorit&eacute;.
+          </div>
+        </div>
         <div class="fg"><label for="siteWeb">Site web / Doctolib <span style="font-weight:400;color:var(--text2)">(optionnel)</span></label><input type="url" id="siteWeb" placeholder="https://..."/></div>
         <div class="btn-row"><button type="button" class="btn-n" onclick="nextStep()">Continuer →</button></div>
       </div>
@@ -711,6 +719,10 @@ document.getElementById('inscriptionForm').addEventListener('submit', async e=>{
   if(pwd!==pwdC){showError('Les mots de passe ne correspondent pas.'); return;}
   if(!document.getElementById('rcpCheckbox').checked){showError('Certifiez disposer d\'une assurance RCP.'); return;}
   if(!document.getElementById('cgu').checked){showError('Acceptez les CGU pour continuer.'); return;}
+  // Sans code postal, le compte n'appartient a aucun secteur et ne recevra
+  // que les dossiers deja bascules au national : autant le demander ici.
+  if(document.getElementById('codePostal').value.replace(/\D/g,'').length!==5){
+    showError('Code postal du cabinet invalide : 5 chiffres attendus.'); return;}
 
   const payload={
     email:document.getElementById('email').value.trim(),
@@ -720,6 +732,7 @@ document.getElementById('inscriptionForm').addEventListener('submit', async e=>{
     tel:document.getElementById('tel').value.trim(),
     siteWeb:document.getElementById('siteWeb').value.trim(),
     cabinet:document.getElementById('cabinet').value.trim(),
+    codePostal:document.getElementById('codePostal').value.replace(/\D/g,'').slice(0,5),
     rpps:document.getElementById('rppsInput').value.trim(),
     specialite:rppsData.specialite||'dieteticien',
     localisation:rppsData.loc||'',

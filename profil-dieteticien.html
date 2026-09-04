@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/core/auth.js?v=3"></script>
   <script defer src="js/ui/cookies.js?v=5"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -365,14 +365,16 @@
             <input type="text" id="adresse" placeholder="N&deg; et rue"/>
           </div>
           <div class="form-group">
-            <label for="codePostal">Code postal</label>
-            <input type="text" id="codePostal" placeholder="16000" maxlength="5"/>
+            <label for="codePostal">Code postal <span class="req">*</span></label>
+            <input type="text" id="codePostal" placeholder="16000" maxlength="5"
+                   inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code"/>
+            <span class="field-hint">D&eacute;finit votre secteur : les demandes des patients de votre d&eacute;partement vous sont adress&eacute;es en priorit&eacute;.</span>
           </div>
         </div>
         <div class="form-group">
           <label for="ville">Ville <span class="req">*</span></label>
           <input type="text" id="ville" placeholder="Angoul&ecirc;me"/>
-          <span class="field-hint">Utilis&eacute;e pour localiser les demandes de patients proches de votre cabinet</span>
+          <span class="field-hint">Affich&eacute;e sur votre fiche publique</span>
         </div>
         <div class="form-group">
           <label for="specialite">Sp&eacute;cialit&eacute; principale</label>
@@ -924,6 +926,22 @@ function sauvegarderInfos() {
   if (btn) { btn.textContent = 'Sauvegarde\u2026'; btn.disabled = true; }
   var fields = ['prenom','nom','email','tel','cabinet','siteWeb','adresse','codePostal','ville','specialite','adeli','description'];
   fields.forEach(function(id) { var el = document.getElementById(id); if (el) DATA[id] = el.value; });
+
+  // Un code postal absent ou mal saisi n'affiche aucune erreur visible : le
+  // praticien n'apparait simplement dans aucun secteur et cesse de recevoir
+  // des demandes. On bloque donc la sauvegarde plutot que de le laisser
+  // invisible sans le savoir.
+  var cpSaisi = (DATA.codePostal || '').replace(/\D/g, '');
+  if (cpSaisi.length !== 5) {
+    if (btn) { btn.textContent = '\u{1F4BE} Sauvegarder'; btn.disabled = false; }
+    toast('Code postal invalide : 5 chiffres attendus. Il d\u00e9termine le secteur o\u00f9 vous recevez les demandes.', 'error');
+    var cpEl = document.getElementById('codePostal');
+    if (cpEl) { cpEl.style.borderColor = '#ef4444'; cpEl.focus(); }
+    return;
+  }
+  var cpEl2 = document.getElementById('codePostal');
+  if (cpEl2) cpEl2.style.borderColor = '';
+
   save();
   if (btn) { btn.textContent = '\u{1F4BE} Sauvegarder'; btn.disabled = false; }
   var nom = ((DATA.prenom || '') + (DATA.nom ? ' ' + DATA.nom : '')).trim();
@@ -940,6 +958,7 @@ function sauvegarderInfos() {
     _supa.from('profiles').update({
       prenom: DATA.prenom, nom: DATA.nom, email: DATA.email, tel: DATA.tel,
       cabinet: DATA.cabinet, site_web: DATA.siteWeb, ville: DATA.ville,
+      code_postal: (DATA.codePostal || '').replace(/\D/g, '').slice(0, 5) || null,
       specialite: DATA.specialite, notes: DATA.description
     }).eq('id', profileData.id).then(function(r) {
       if (r.error) toast('Erreur Supabase : ' + r.error.message, 'error');

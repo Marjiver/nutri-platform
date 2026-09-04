@@ -69,6 +69,11 @@ CREATE TABLE IF NOT EXISTS profiles (
   email               text,
   tel                 text,
   ville               text,
+  -- Secteur d'exercice. La colonne derivee `departement` et l'affectation
+  -- des demandes sont ajoutees par sql/affectation-dieteticien.sql, a jouer
+  -- APRES ce fichier : `departement` est une colonne generee, elle ne peut
+  -- pas etre declaree ici en texte simple sans casser la migration.
+  code_postal         text,
   site_web            text,
   cabinet             text,
   rpps                text,
@@ -104,6 +109,12 @@ CREATE TABLE IF NOT EXISTS bilans (
   id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   patient_id     uuid REFERENCES auth.users ON DELETE CASCADE,
   prenom         text, nom text, age int, sexe text, ville text,
+  -- code_postal : secteur du patient, base de l'affectation automatique.
+  -- dietitian_id / assigned_at : praticien affecte et depart du delai de
+  -- 24 h avant bascule nationale. Voir sql/affectation-dieteticien.sql.
+  code_postal    text,
+  dietitian_id   uuid REFERENCES auth.users,
+  assigned_at    timestamptz,
   -- date_naissance : source de verite de l’age. `age` reste l’age au moment
   -- du bilan. Voir sql/date-naissance.sql et la vue v_bilans_age.
   date_naissance date,

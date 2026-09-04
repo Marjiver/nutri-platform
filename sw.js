@@ -2,7 +2,7 @@
 // Chemins RELATIFS : compatibles GitHub Pages (/nutri-platform/) ET domaine OVH (racine)
 // Incrementer a CHAQUE mise en ligne : sans cela les visiteurs deja venus
 // conservent l'ancienne version en cache (c'est ce qui a fige style.css vide).
-const CACHE_NAME = 'nutridoc-v5';
+const CACHE_NAME = 'nutridoc-v6';
 const urlsToCache = [
   './',
   './index.html',

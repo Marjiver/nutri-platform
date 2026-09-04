@@ -340,6 +340,9 @@ async function inscrireDieteticien(payload) {
     tel:             payload.tel       || '',
     site_web:        payload.siteWeb   || '',
     cabinet:         payload.cabinet   || '',
+    // Alimente la colonne generee `departement`, sur laquelle repose
+    // l'affectation des demandes par secteur.
+    code_postal:     payload.codePostal || null,
     rpps:            payload.rpps      || '',
     specialite:      payload.specialite|| '',
     adeli:           payload.adeli     || '',
