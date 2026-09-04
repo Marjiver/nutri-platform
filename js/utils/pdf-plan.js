@@ -137,14 +137,16 @@ async function loadJsPDF() {
 }
 
 // ── Données démo si non fournies ─────────────────────────────
+// Jeu d'exemple reserve a la previsualisation de la maquette PDF.
+// Il n'alimente jamais un document destine a un patient reel.
 function getDemoData() {
   return {
     patient: {
-      prenom: 'Marie', nom: 'Dupont', age: 34,
+      prenom: 'Exemple', nom: 'Patient', age: 34,
       poids: 65, taille: 168, objectif: 'Perte de poids',
       ville: 'Angoulême', regime: 'Aucun',
       activite: 'modere', sexe: 'femme',
-      email: 'marie.d@mail.fr'
+      email: 'exemple@nutridoc.fr'
     },
     plan: {
       petitDej: [
@@ -169,9 +171,9 @@ function getDemoData() {
       ]
     },
     dietitian: {
-      nom: 'Dr. A. Lemaire', rpps: '10 003 456 789',
+      nom: 'Dieteticien Exemple', rpps: '000 000 000 00',
       titre: 'Diététicien-Nutritionniste',
-      email: 'lemaire@nutridoc.fr', tel: '05 45 XX XX XX',
+      email: 'exemple@nutridoc.fr', tel: '00 00 00 00 00',
       cabinet: 'Cabinet NutriDoc Angoulême'
     },
     options: { semaines: 4 }
@@ -187,10 +189,15 @@ async function genererPDF(patient, plan, dietitian, options = {}) {
     const JsPDF = await loadJsPDF();
     const doc   = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-    // Données de secours
-    if (!patient) patient = getDemoData().patient;
-    if (!plan) plan = getDemoData().plan;
-    if (!dietitian) dietitian = getDemoData().dietitian;
+    // Aucune substitution silencieuse : un plan alimentaire signe par un
+    // dieteticien inexistant serait un faux document de sante.
+    const manquant = [];
+    if (!patient)   manquant.push('le patient');
+    if (!plan)      manquant.push('le plan alimentaire');
+    if (!dietitian) manquant.push('le dieteticien signataire');
+    if (manquant.length) {
+      throw new Error('PDF non genere : ' + manquant.join(', ') + ' manque.');
+    }
 
     const W  = doc.internal.pageSize.getWidth();   // 210mm
     const H  = doc.internal.pageSize.getHeight();  // 297mm

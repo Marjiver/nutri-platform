@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="description" content="Dossier patient — NutriDoc"/>
@@ -9,12 +10,13 @@
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
   <title>Dossier patient — NutriDoc</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);line-height:1.5}
@@ -71,7 +73,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 .tab-btn:hover{color:var(--text-primary)}
 .tab-btn.active{color:#1D9E75;border-bottom-color:#1D9E75;font-weight:600}
 .tab-btn .tab-num{display:inline-block;width:20px;height:20px;border-radius:50%;background:rgba(29,158,117,.12);color:#1D9E75;font-size:.65rem;line-height:20px;text-align:center;font-weight:700}
-.tab-btn.active .tab-num{background:#1D9E75;color:#fff}
+.tab-btn.active .tab-num{background:#12795a;color:#fff}
 .tab-btn .tab-alert{width:7px;height:7px;border-radius:50%;background:#ef4444;margin-left:.2rem}
 
 /* ── LAYOUT ── */
@@ -134,7 +136,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 .objectif-rank-item{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;background:var(--bg-secondary);border:1.5px solid var(--border-color);border-radius:10px;cursor:grab;transition:.15s;user-select:none}
 .objectif-rank-item:hover{border-color:#1D9E75}
 .objectif-rank-item.dragging{opacity:.5;border-color:#1D9E75;background:rgba(29,158,117,.1)}
-.rank-num{width:24px;height:24px;border-radius:50%;background:#1D9E75;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-num{width:24px;height:24px;border-radius:50%;background:#12795a;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rank-drag{color:var(--text-secondary);font-size:.8rem;cursor:grab}
 
 /* PANNEAU DROIT */
@@ -144,7 +146,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 .panel-card.featured .panel-title{color:rgba(255,255,255,.9)}
 .panel-card.featured p{color:rgba(255,255,255,.55);font-size:.78rem;line-height:1.5;margin-bottom:1rem}
 .panel-title{font-size:.875rem;font-weight:600;color:var(--text-primary);margin-bottom:.75rem}
-.btn-main{width:100%;padding:.8rem;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s}
+.btn-main{width:100%;padding:.8rem;background:#12795a;color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s}
 .btn-main:hover{background:#0f6e56;transform:translateY(-1px)}
 .btn-main:disabled{background:#9ca3af;cursor:not-allowed;transform:none}
 .btn-outline-panel{width:100%;padding:.65rem;background:transparent;color:#1D9E75;border:1.5px solid rgba(29,158,117,.4);border-radius:10px;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;margin-top:.5rem}
@@ -154,7 +156,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 .panel-nav-btns{display:flex;gap:.5rem;margin-top:.75rem}
 .btn-nav{flex:1;padding:.55rem;border:1px solid var(--border-color);border-radius:8px;background:transparent;cursor:pointer;font-size:.8rem;font-family:'Outfit',sans-serif;color:var(--text-primary);transition:.15s}
 .btn-nav:hover{border-color:#1D9E75;color:#1D9E75}
-.btn-nav.next{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-nav.next{background:#12795a;color:#fff;border-color:#1D9E75}
 .btn-nav.next:hover{background:#0f6e56}
 .progress-mini{display:flex;gap:3px;margin-bottom:.75rem}
 .prog-dot{flex:1;height:4px;border-radius:2px;background:var(--border-color);transition:.2s}
@@ -173,7 +175,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 .save-bar p{font-size:.78rem;color:rgba(255,255,255,.65)}
 .save-btns{display:flex;gap:.6rem}
 .sb-cancel{padding:.45rem 1rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:transparent;cursor:pointer;font-size:.8rem;font-family:'Outfit',sans-serif;color:rgba(255,255,255,.6)}
-.sb-save{padding:.45rem 1.25rem;background:#1D9E75;color:#fff;border:none;border-radius:999px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:'Outfit',sans-serif;transition:.2s}
+.sb-save{padding:.45rem 1.25rem;background:#12795a;color:#fff;border:none;border-radius:999px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:'Outfit',sans-serif;transition:.2s}
 .sb-save:hover{background:#0f6e56}
 
 /* MODAL */
@@ -283,15 +285,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
   <div class="form-card">
     <div class="form-card-title"><span>👤</span> Informations personnelles</div>
     <div class="form-grid">
-      <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="f_prenom" oninput="markDirty()"/></div>
-      <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="f_nom" oninput="markDirty()"/></div>
+      <div class="field"><label for="f_prenom">Prénom <span class="req">*</span></label><input type="text" id="f_prenom" oninput="markDirty()"/></div>
+      <div class="field"><label for="f_nom">Nom <span class="req">*</span></label><input type="text" id="f_nom" oninput="markDirty()"/></div>
       <div class="field">
-        <label>Date de naissance</label>
+        <label for="f_ddn">Date de naissance</label>
         <input type="date" id="f_ddn" onchange="calcAge();markDirty()" max="2026-04-16"/>
         <span class="hint" id="age_calcule" style="font-size:.78rem;color:#1D9E75;font-weight:500;margin-top:3px;display:block"></span>
       </div>
       <div class="field">
-        <label>Sexe</label>
+        <label for="f_sexe">Sexe</label>
         <select id="f_sexe" onchange="markDirty()">
           <option value="">— Choisir —</option>
           <option value="femme">Femme</option>
@@ -299,16 +301,16 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
           <option value="autre">Autre / Non précisé</option>
         </select>
       </div>
-      <div class="field form-full"><label>Ville de résidence</label><input type="text" id="f_ville" placeholder="Ex : Angoulême" oninput="markDirty()"/></div>
+      <div class="field form-full"><label for="f_ville">Ville de résidence</label><input type="text" id="f_ville" placeholder="Ex : Angoulême" oninput="markDirty()"/></div>
     </div>
   </div>
 
   <div class="form-card">
     <div class="form-card-title"><span>⚖️</span> Morphologie</div>
     <div class="form-grid-3">
-      <div class="field"><label>Taille (cm) <span class="req">*</span></label><input type="number" id="f_taille" min="100" max="250" oninput="calcIMC();markDirty()"/></div>
-      <div class="field"><label>Poids actuel (kg) <span class="req">*</span></label><input type="number" id="f_poids" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
-      <div class="field"><label>Poids objectif (kg)</label><input type="number" id="f_poids_objectif" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
+      <div class="field"><label for="f_taille">Taille (cm) <span class="req">*</span></label><input type="number" id="f_taille" min="100" max="250" oninput="calcIMC();markDirty()"/></div>
+      <div class="field"><label for="f_poids">Poids actuel (kg) <span class="req">*</span></label><input type="number" id="f_poids" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
+      <div class="field"><label for="f_poids_objectif">Poids objectif (kg)</label><input type="number" id="f_poids_objectif" step="0.1" min="30" max="300" oninput="calcIMC();markDirty()"/></div>
     </div>
     <div class="imc-display hidden" id="imcDisplay">
       <div class="imc-stat"><div class="imc-val" id="imc_val">—</div><div class="imc-lbl">IMC</div></div>
@@ -331,7 +333,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
       <label class="check-item"><input type="checkbox" id="p_tca" onchange="syncAlertes();markDirty()"/> Troubles du comportement alimentaire (TCA)</label>
       <label class="check-item"><input type="checkbox" id="p_grossesse" onchange="syncAlertes();markDirty()"/> Grossesse ou allaitement en cours</label>
       <label class="check-item"><input type="checkbox" id="p_renale" onchange="syncAlertes();markDirty()"/> Insuffisance rénale</label>
-      <label class="check-item"><input type="checkbox" id="p_autre_patho" onchange="markDirty()"/> Autre pathologie</label>
+      <label class="check-item" for="f_autres_patho"><input type="checkbox" id="p_autre_patho" onchange="markDirty()"/> Autre pathologie</label>
     </div>
     <div class="field form-full" style="margin-top:.75rem">
       <label>Précisez les autres pathologies</label>
@@ -342,7 +344,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
   <div class="form-card">
     <div class="form-card-title"><span>💊</span> Médicaments</div>
     <div class="field">
-      <label>Médicaments actuels <span class="hint">(listez tous ceux que vous prenez régulièrement)</span></label>
+      <label for="f_medicaments">Médicaments actuels <span class="hint">(listez tous ceux que vous prenez régulièrement)</span></label>
       <textarea id="f_medicaments" rows="3" placeholder="Ex : Metformine 500mg, Levothyrox 75µg, Ramipril 5mg…" oninput="markDirty()"></textarea>
     </div>
   </div>
@@ -366,7 +368,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
       <label>Habitudes (cocher si concerné)</label>
       <div class="check-group check-group-inline">
         <label class="check-item"><input type="checkbox" id="h_tabac" onchange="markDirty()"/> Tabac</label>
-        <label class="check-item"><input type="checkbox" id="h_alcool" onchange="markDirty()"/> Alcool</label>
+        <label class="check-item" for="f_tabac_alcool_detail"><input type="checkbox" id="h_alcool" onchange="markDirty()"/> Alcool</label>
       </div>
     </div>
     <div class="field">
@@ -387,7 +389,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
           <label class="radio-opt"><input type="radio" name="f_freq_pj" value="jamais" onchange="markDirty()"/> Jamais</label>
           <label class="radio-opt"><input type="radio" name="f_freq_pj" value="rarement" onchange="markDirty()"/> Rarement</label>
           <label class="radio-opt"><input type="radio" name="f_freq_pj" value="souvent" onchange="markDirty()"/> Souvent</label>
-          <label class="radio-opt"><input type="radio" name="f_freq_pj" value="tous_jours" onchange="markDirty()"/> Tous les jours</label>
+          <label class="radio-opt" for="f_temps_repas_min"><input type="radio" name="f_freq_pj" value="tous_jours" onchange="markDirty()"/> Tous les jours</label>
         </div>
       </div>
       <div class="field">
@@ -395,11 +397,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
         <input type="number" id="f_temps_repas_min" min="5" max="120" placeholder="Ex : 20" oninput="markDirty()"/>
       </div>
       <div class="field">
-        <label>Hydratation quotidienne (litres)</label>
+        <label for="f_hydratation_l">Hydratation quotidienne (litres)</label>
         <input type="number" id="f_hydratation_l" step="0.5" min="0" max="10" placeholder="Ex : 1.5" oninput="markDirty()"/>
       </div>
       <div class="field">
-        <label>Régime alimentaire</label>
+        <label for="f_regime">Régime alimentaire</label>
         <select id="f_regime" onchange="markDirty()">
           <option value="">— Aucune restriction —</option>
           <option value="vegetarien">Végétarien</option>
@@ -411,15 +413,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
         </select>
       </div>
       <div class="field form-full">
-        <label>Aliments aimés</label>
+        <label for="f_aliments_aimes">Aliments aimés</label>
         <textarea id="f_aliments_aimes" rows="2" placeholder="Ex : poulet, légumes verts, fruits, fromage…" oninput="markDirty()"></textarea>
       </div>
       <div class="field form-full">
-        <label>Aversions, allergies et intolérances</label>
+        <label for="f_aversions">Aversions, allergies et intolérances</label>
         <textarea id="f_aversions" rows="2" placeholder="Ex : poisson, noix, lactose, gluten, fruits de mer…" oninput="markDirty()"></textarea>
       </div>
       <div class="field">
-        <label>Budget alimentaire / semaine</label>
+        <label for="f_budget">Budget alimentaire / semaine</label>
         <select id="f_budget" onchange="markDirty()">
           <option value="">— Choisir —</option>
           <option value="moins_30">Moins de 30€</option>
@@ -429,7 +431,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
         </select>
       </div>
       <div class="field">
-        <label>Fringales / grignotages</label>
+        <label for="f_fringales">Fringales / grignotages</label>
         <select id="f_fringales" onchange="markDirty()">
           <option value="">— Choisir —</option>
           <option value="jamais">Jamais</option>
@@ -449,7 +451,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
     </div>
     <div id="journalRows"></div>
     <div class="field form-full" style="margin-top:.75rem">
-      <label>Commentaires libres sur votre alimentation</label>
+      <label for="f_journal_commentaires">Commentaires libres sur votre alimentation</label>
       <textarea id="f_journal_commentaires" rows="3" placeholder="Contraintes horaires, contexte repas (bureau, maison, restaurant), remarques…" oninput="markDirty()"></textarea>
     </div>
   </div>
@@ -460,9 +462,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
   <div class="form-card">
     <div class="form-card-title"><span>💼</span> Vie professionnelle</div>
     <div class="form-grid">
-      <div class="field"><label>Métier <span class="req">*</span></label><input type="text" id="f_metier" placeholder="Ex : Infirmière, Coach sportif, Comptable…" oninput="markDirty()"/></div>
+      <div class="field"><label for="f_metier">Métier <span class="req">*</span></label><input type="text" id="f_metier" placeholder="Ex : Infirmière, Coach sportif, Comptable…" oninput="markDirty()"/></div>
       <div class="field">
-        <label>Niveau d'activité professionnelle <span class="req">*</span></label>
+        <label for="f_activite_pro">Niveau d'activité professionnelle <span class="req">*</span></label>
         <select id="f_activite_pro" onchange="markDirty()">
           <option value="">— Choisir —</option>
           <option value="sedentaire">Sédentaire (bureau, assis)</option>
@@ -472,7 +474,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
         </select>
       </div>
       <div class="field form-full">
-        <label>Intensité physique liée au métier (1 = très faible, 10 = très élevée) <span class="req">*</span></label>
+        <label for="f_intensite_metier">Intensité physique liée au métier (1 = très faible, 10 = très élevée) <span class="req">*</span></label>
         <div class="intensity-wrap">
           <input type="range" id="f_intensite_metier" min="1" max="10" value="3" oninput="document.getElementById('ival_metier').textContent=this.value;markDirty()"/>
           <span class="intensity-val" id="ival_metier">3</span>
@@ -493,7 +495,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
           <label class="check-item"><input type="checkbox" id="sp_cyclisme" onchange="markDirty()"/> Cyclisme</label>
           <label class="check-item"><input type="checkbox" id="sp_muscu" onchange="markDirty()"/> Musculation</label>
           <label class="check-item"><input type="checkbox" id="sp_yoga" onchange="markDirty()"/> Yoga</label>
-          <label class="check-item"><input type="checkbox" id="sp_autre_sport" onchange="markDirty()"/> Autre</label>
+          <label class="check-item" for="f_sport"><input type="checkbox" id="sp_autre_sport" onchange="markDirty()"/> Autre</label>
         </div>
       </div>
       <div class="field form-full">
@@ -509,15 +511,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
         </div>
       </div>
       <div class="field">
-        <label>Fréquence hebdomadaire (séances/semaine)</label>
+        <label for="f_sport_freq">Fréquence hebdomadaire (séances/semaine)</label>
         <input type="number" id="f_sport_freq" min="0" max="14" placeholder="Ex : 3" oninput="markDirty()"/>
       </div>
       <div class="field">
-        <label>Durée moyenne par séance (minutes)</label>
+        <label for="f_sport_duree">Durée moyenne par séance (minutes)</label>
         <input type="number" id="f_sport_duree" min="10" max="300" placeholder="Ex : 60" oninput="markDirty()"/>
       </div>
       <div class="field form-full">
-        <label>Intensité de l'activité sportive (1 = légère, 10 = maximale)</label>
+        <label for="f_intensite_sport">Intensité de l'activité sportive (1 = légère, 10 = maximale)</label>
         <div class="intensity-wrap">
           <input type="range" id="f_intensite_sport" min="1" max="10" value="5" oninput="document.getElementById('ival_sport').textContent=this.value;markDirty()"/>
           <span class="intensity-val" id="ival_sport">5</span>
@@ -541,7 +543,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
       <label class="check-item"><input type="checkbox" id="obj_sommeil" onchange="syncRanking();markDirty()"/> Améliorer la qualité du sommeil</label>
       <label class="check-item"><input type="checkbox" id="obj_energie" onchange="syncRanking();markDirty()"/> Améliorer mon énergie / vitalité</label>
       <label class="check-item"><input type="checkbox" id="obj_performance" onchange="syncRanking();markDirty()"/> Performance sportive</label>
-      <label class="check-item"><input type="checkbox" id="obj_autre_obj" onchange="markDirty()"/> Autre</label>
+      <label class="check-item" for="f_autre_obj_detail"><input type="checkbox" id="obj_autre_obj" onchange="markDirty()"/> Autre</label>
     </div>
     <div class="field" style="margin-top:.75rem">
       <label>Précisez vos autres objectifs</label>
@@ -567,12 +569,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
   <div class="form-card">
     <div class="form-card-title"><span>📝</span> Notes privées</div>
     <div style="font-size:.72rem;color:var(--text-secondary);margin-bottom:.5rem">Visibles uniquement par vous</div>
-    <textarea class="notes-area" id="f_notes" placeholder="Observations, comportement alimentaire, motivation, contexte de vie…" oninput="saveNotesDebounce()"></textarea>
+    <textarea class="notes-area" id="f_notes" placeholder="Observations, comportement alimentaire, motivation, contexte de vie…" oninput="saveNotesDebounce()" aria-label="Observations, comportement alimentaire, motivation, contexte de vie…"></textarea>
     <div class="saved-hint" id="notesSaved">✓ Sauvegardé</div>
   </div>
   <div class="form-card">
     <div class="form-card-title"><span>⏰</span> Rappel automatique</div>
-    <label style="font-size:.82rem;color:var(--text-secondary)">Prochain check-in dans</label>
+    <label style="font-size:.82rem;color:var(--text-secondary)" for="f_rappel">Prochain check-in dans</label>
     <select class="rappel-sel" id="f_rappel" onchange="updateRappel(this.value)">
       <option value="7">7 jours</option>
       <option value="14">14 jours</option>
@@ -634,8 +636,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
 <div class="modal-overlay" id="modalPoids">
   <div class="modal-box" style="max-width:360px">
     <div class="modal-title">Ajouter une mesure</div>
-    <div class="field" style="margin-bottom:1rem"><label>Date</label><input type="date" id="mesureDate"/></div>
-    <div class="field" style="margin-bottom:1.5rem"><label>Poids (kg)</label><input type="number" id="mesurePoids" step="0.1" placeholder="Ex : 76.5"/></div>
+    <div class="field" style="margin-bottom:1rem"><label for="mesureDate">Date</label><input type="date" id="mesureDate"/></div>
+    <div class="field" style="margin-bottom:1.5rem"><label for="mesurePoids">Poids (kg)</label><input type="number" id="mesurePoids" step="0.1" placeholder="Ex : 76.5"/></div>
     <div class="modal-footer">
       <button onclick="document.getElementById('modalPoids').classList.remove('open')" style="padding:.45rem 1rem;border:1px solid var(--border-color);border-radius:999px;background:transparent;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--text-primary)">Annuler</button>
       <button onclick="confirmerPoids()" style="padding:.45rem 1.25rem;background:#1D9E75;color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500">Ajouter</button>
@@ -649,7 +651,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
     <div class="modal-title">Commander un plan alimentaire</div>
     <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:1.25rem">Utilise <strong>1 crédit</strong>. Un diét. RPPS traitera la demande sous 48h.</p>
     <div class="field" style="margin-bottom:1rem">
-      <label>Objectif principal pour ce plan</label>
+      <label for="planObj">Objectif principal pour ce plan</label>
       <select id="planObj" style="width:100%;padding:.7rem .9rem;border:1.5px solid var(--border-color);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary);outline:none">
         <option value="reequilibrage">Rééquilibrage alimentaire</option>
         <option value="prise_masse">Prise de masse</option>
@@ -658,7 +660,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);colo
       </select>
     </div>
     <div class="field" style="margin-bottom:1.5rem">
-      <label>Instructions pour le diété.</label>
+      <label for="planNotes">Instructions pour le diété.</label>
       <textarea id="planNotes" rows="3" style="width:100%;padding:.7rem .9rem;border:1.5px solid var(--border-color);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary);outline:none;resize:vertical" placeholder="Précisions, contraintes particulières…"></textarea>
     </div>
     <div class="modal-footer">
@@ -747,9 +749,9 @@ function buildJournalRows(){
   cont.innerHTML=REPAS_NOMS.map((r,i)=>`
     <div class="journal-row">
       <span style="font-size:.78rem;font-weight:500;color:var(--text-secondary)">${r}</span>
-      <input type="text" id="j_alim_${i}" placeholder="Aliments…" oninput="markDirty()"/>
-      <input type="text" id="j_qte_${i}" placeholder="Quantités" oninput="markDirty()"/>
-      <input type="text" id="j_boisson_${i}" placeholder="Boissons…" oninput="markDirty()"/>
+      <input type="text" id="j_alim_${i}" placeholder="Aliments…" oninput="markDirty()" aria-label="Aliments…"/>
+      <input type="text" id="j_qte_${i}" placeholder="Quantités" oninput="markDirty()" aria-label="Quantités"/>
+      <input type="text" id="j_boisson_${i}" placeholder="Boissons…" oninput="markDirty()" aria-label="Boissons…"/>
     </div>`).join('');
 }
 
@@ -932,7 +934,7 @@ function renderBadges(){
   const obj=d.objectif||d.objectifs_cibles?.[0];
   if(obj)h+=`<span class="badge badge-green">${OBJ_MAP[obj]||obj}</span>`;
   if(alertes.length)h+=`<span class="badge badge-red">⚠️ ${alertes.length} alerte${alertes.length>1?'s':''}</span>`;
-  if(d.regime&&d.regime!=='')h+=`<span class="badge badge-blue">${d.regime}</span>`;
+  if(d.regime&&d.regime!=='')h+=`<span class="badge badge-blue">${escapeHtml(d.regime)}</span>`;
   if(d.statut&&MODE==='prescripteur')h+=`<span class="badge badge-${d.statut==='en_cours'?'green':d.statut==='atteint'?'blue':'amber'}">${d.statut==='en_cours'?'En cours':d.statut==='atteint'?'Objectif atteint':'En pause'}</span>`;
   document.getElementById('pBadges').innerHTML=h;
 }

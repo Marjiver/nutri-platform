@@ -7,10 +7,12 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="description" content="Tableau de bord statistique avancé pour l'administration NutriDoc. KPIs, graphiques, analyses prédictives et rapports."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Statistiques — Administration NutriDoc</title>
   
+  <script src="js/utils/escape.js?v=1"></script>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -29,12 +31,8 @@
   
   <!-- ==================== ICÔNES APPLE ==================== -->
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
   
   <!-- ==================== MASQUE POUR ANDROID ==================== -->
-  <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#1D9E75">
   
   <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
   <meta name="msapplication-TileColor" content="#0d2018">
@@ -53,16 +51,16 @@
   <script defer src="js/utils/version-manager.js"></script>
   
   <!-- ==================== ERROR HANDLER ==================== -->
-  <script defer src="js/utils/error-handler.js"></script>
+  <script defer src="js/utils/error-handler.js?v=2"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PWA MANAGER ==================== -->
   <script defer src="js/utils/pwa.js"></script>
   
   <!-- ==================== CORE ==================== -->
-  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/admin/admin-auth.js"></script>
   <script defer src="js/core/constants.js"></script>
 
   <style>
@@ -117,7 +115,7 @@
     .admin-avatar {
       width: 32px;
       height: 32px;
-      background: #1D9E75;
+      background:#12795a;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -160,7 +158,7 @@
       color: #1D9E75;
     }
     .periode-btn.active {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border-color: #1D9E75;
     }
@@ -413,7 +411,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -421,7 +419,6 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- ==================== THÈME SELECTOR ==================== -->
@@ -605,61 +602,48 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
-// ==================== DONNÉES SIMULÉES ====================
+// ==================== DONNÉES ====================
+// Plateforme au démarrage : tous les compteurs sont à zéro.
+// Ces structures seront alimentées par Supabase (profiles, plans, visios,
+// alertes) une fois les requêtes branchées. Aucune valeur ne doit être
+// écrite en dur ici : un chiffre inventé dans un tableau de bord est
+// indiscernable d'un chiffre réel.
 let currentPeriode = '30j';
 
 const DONNEES = {
-  caMensuel: [12500, 14200, 15800, 17200, 18900, 21200, 23500, 25100, 27800, 30100, 33400, 36200],
-  usersMensuel: [45, 52, 58, 63, 71, 82, 94, 108, 125, 142, 161, 185],
+  caMensuel:      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  usersMensuel:   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   mois: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
-  
+
+  // Libellés et couleurs conservés : ce sont des catégories de l'application,
+  // pas des mesures. Les valeurs restent à zéro.
   objectifs: [
-    { label: 'Perte de poids', value: 42, color: '#1D9E75' },
-    { label: 'Prise de masse', value: 28, color: '#f59e0b' },
-    { label: 'Équilibre', value: 15, color: '#3b82f6' },
-    { label: 'Performance', value: 10, color: '#8b5cf6' },
-    { label: 'Prévention', value: 5, color: '#ec489a' }
+    { label: 'Perte de poids', value: 0, color: '#1D9E75' },
+    { label: 'Prise de masse', value: 0, color: '#f59e0b' },
+    { label: 'Équilibre',      value: 0, color: '#3b82f6' },
+    { label: 'Performance',    value: 0, color: '#8b5cf6' },
+    { label: 'Prévention',     value: 0, color: '#ec489a' }
   ],
-  
-  geo: [
-    { ville: 'Angoulême', valeur: 245 },
-    { ville: 'Bordeaux', valeur: 189 },
-    { ville: 'Poitiers', valeur: 156 },
-    { ville: 'Limoges', valeur: 98 },
-    { ville: 'La Rochelle', valeur: 87 }
-  ],
-  
+
   revenueSources: [
-    { label: 'Plans patients', value: 45200, color: '#1D9E75' },
-    { label: 'Abonnements diét.', value: 12400, color: '#8b5cf6' },
-    { label: 'Visios', value: 8800, color: '#3b82f6' },
-    { label: 'Crédits prescripteurs', value: 15600, color: '#f59e0b' }
+    { label: 'Plans patients',        value: 0, color: '#1D9E75' },
+    { label: 'Abonnements diét.',     value: 0, color: '#8b5cf6' },
+    { label: 'Visios',                value: 0, color: '#3b82f6' },
+    { label: 'Crédits prescripteurs', value: 0, color: '#f59e0b' }
   ],
-  
-  topDiets: [
-    { nom: 'Grégoire Martin', plans: 45, visios: 12, revenu: 1240, note: 4.9 },
-    { nom: 'Dr. A. Lemaire', plans: 38, visios: 8, revenu: 980, note: 4.8 },
-    { nom: 'C. Fontaine', plans: 31, visios: 6, revenu: 820, note: 4.7 },
-    { nom: 'Dr. B. Mercier', plans: 28, visios: 5, revenu: 720, note: 4.8 },
-    { nom: 'E. Blanc', plans: 22, visios: 4, revenu: 580, note: 4.6 }
-  ],
-  
-  topPresc: [
-    { nom: 'Antoine Durand', profession: 'Coach sportif', plans: 28, ca: 840, credits: 12 },
-    { nom: 'Sophie Martin', profession: 'Kinésithérapeute', plans: 22, ca: 660, credits: 8 },
-    { nom: 'Dr. Marc Perret', profession: 'Médecin', plans: 18, ca: 540, credits: 15 },
-    { nom: 'Thomas Klein', profession: 'Ostéopathe', plans: 15, ca: 450, credits: 5 },
-    { nom: 'Julie Moreau', profession: 'Sage-femme', plans: 12, ca: 360, credits: 20 }
-  ],
-  
-  alertes: [
-    { date: '2026-04-12', patient: 'Marie D.', type: 'Grossesse', statut: 'En cours' },
-    { date: '2026-04-11', patient: 'Thomas K.', type: 'TCA', statut: 'Traité' },
-    { date: '2026-04-10', patient: 'Sophie M.', type: 'Diabète', statut: 'En attente' },
-    { date: '2026-04-09', patient: 'Lucas B.', type: 'Allergies sévères', statut: 'Traité' },
-    { date: '2026-04-08', patient: 'Emma R.', type: 'Insuffisance rénale', statut: 'En attente' }
-  ]
+
+  geo:       [],
+  topDiets:  [],
+  topPresc:  [],
+  alertes:   []
 };
+
+// Compteurs affichés dans les cartes KPI, alimentés par Supabase.
+const COMPTEURS = { dietsActifs: 0, prescActifs: 0 };
+
+// Message affiché à la place d'un tableau vide.
+const LIGNE_VIDE = (colonnes, texte) =>
+  `<tr><td colspan="${colonnes}" style="text-align:center;padding:2rem;color:#6b7b74;">${texte}</td></tr>`;
 
 // Calculer les totaux pour la période
 function getDataForPeriode(periode) {
@@ -672,18 +656,31 @@ function getDataForPeriode(periode) {
 }
 
 // Calculer les variations
+// Variation en % entre deux périodes. Renvoie 0 quand la période de
+// référence est vide : sans historique, il n'y a pas de progression à
+// annoncer (et une division par zéro afficherait « NaN% »).
+function variation(current, previous) {
+  if (!previous) return '0.0';
+  return ((current - previous) / previous * 100).toFixed(1);
+}
+
 function calculateVariation(periode) {
+  const ca = DONNEES.caMensuel, us = DONNEES.usersMensuel;
+  const somme = (t, a, b) => t.slice(a, b).reduce((x, y) => x + y, 0);
+
   if (periode === '30j') {
-    const current = DONNEES.caMensuel[11];
-    const previous = DONNEES.caMensuel[10];
-    return { ca: ((current - previous) / previous * 100).toFixed(1), users: 8.2 };
+    return { ca: variation(ca[11], ca[10]), users: variation(us[11], us[10]) };
   }
   if (periode === '90j') {
-    const current = DONNEES.caMensuel.slice(9,12).reduce((a,b)=>a+b,0);
-    const previous = DONNEES.caMensuel.slice(6,9).reduce((a,b)=>a+b,0);
-    return { ca: ((current - previous) / previous * 100).toFixed(1), users: 12.5 };
+    return {
+      ca:    variation(somme(ca, 9, 12), somme(ca, 6, 9)),
+      users: variation(somme(us, 9, 12), somme(us, 6, 9))
+    };
   }
-  return { ca: 15.2, users: 18.3 };
+  return {
+    ca:    variation(somme(ca, 6, 12), somme(ca, 0, 6)),
+    users: variation(somme(us, 6, 12), somme(us, 0, 6))
+  };
 }
 
 // Rendre les KPIs
@@ -725,14 +722,14 @@ function renderKPIs() {
     <div class="kpi-card">
       <div class="kpi-icon">🥗</div>
       <div class="kpi-label">Diététiciens actifs</div>
-      <div class="kpi-value">8</div>
-      <div class="kpi-sub">+2 ce mois</div>
+      <div class="kpi-value">${COMPTEURS.dietsActifs}</div>
+      <div class="kpi-sub">ce mois</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon">🏢</div>
       <div class="kpi-label">Prescripteurs actifs</div>
-      <div class="kpi-value">14</div>
-      <div class="kpi-sub">+3 ce mois</div>
+      <div class="kpi-value">${COMPTEURS.prescActifs}</div>
+      <div class="kpi-sub">ce mois</div>
     </div>
   `;
 }
@@ -844,74 +841,95 @@ function initCharts() {
 }
 
 // Prédictions
+// Projection du mois suivant, extrapolée du mois écoulé.
+// Sans activité, il n'y a rien à projeter : on affiche 0 plutôt qu'une
+// croissance inventée ou un « NaN% » issu d'une division par zéro.
+const CROISSANCE_CA    = 1.12;  // hypothèse : +12 % de CA
+const CROISSANCE_USERS = 1.15;  // hypothèse : +15 % d'inscriptions
+
 function renderPredictions() {
-  const data = getDataForPeriode('30j');
-  const prevCA = Math.round(data.ca * 1.12);
-  const prevUsers = Math.round(data.users * 1.15);
-  const variation = ((prevCA - data.ca) / data.ca * 100).toFixed(1);
-  
+  const data     = getDataForPeriode('30j');
+  const prevCA   = Math.round(data.ca * CROISSANCE_CA);
+  const prevUsers = Math.round(data.users * CROISSANCE_USERS);
+  const varCA    = variation(prevCA, data.ca);
+
   document.getElementById('prevCA').textContent = prevCA.toLocaleString('fr-FR') + ' €';
-  document.getElementById('prevVariation').textContent = variation;
-  document.getElementById('prevBar').style.width = Math.min(100, parseInt(variation) + 50) + '%';
-  
+  document.getElementById('prevVariation').textContent = varCA;
+  document.getElementById('prevBar').style.width =
+    (data.ca ? Math.min(100, Math.max(0, parseFloat(varCA) + 50)) : 0) + '%';
+
   document.getElementById('prevUsers').textContent = prevUsers;
-  document.getElementById('prevConversion').textContent = '18.5';
-  document.getElementById('prevUsersBar').style.width = '68%';
+
+  // Taux de conversion = inscriptions rapportées aux bilans démarrés.
+  // Reste à brancher sur Supabase ; zéro tant que la mesure n'existe pas.
+  document.getElementById('prevConversion').textContent = '0';
+  document.getElementById('prevUsersBar').style.width = '0%';
 }
 
 // Tableaux
 function renderTables() {
   // Top diététiciens
-  document.getElementById('topDietsBody').innerHTML = DONNEES.topDiets.map(d => `
+  document.getElementById('topDietsBody').innerHTML = DONNEES.topDiets.length === 0
+    ? LIGNE_VIDE(5, 'Aucun diététicien actif sur la période.')
+    : DONNEES.topDiets.map(d => `
     <tr>
-      <td><strong>${d.nom}</strong></td>
+      <td><strong>${escapeHtml(d.nom)}</strong></td>
       <td>${d.plans}</td>
       <td>${d.visios}</td>
       <td>${d.revenu} €</td>
       <td>${d.note} ★</td>
     </tr>
   `).join('');
-  
+
   // Top prescripteurs
-  document.getElementById('topPrescBody').innerHTML = DONNEES.topPresc.map(p => `
+  document.getElementById('topPrescBody').innerHTML = DONNEES.topPresc.length === 0
+    ? LIGNE_VIDE(5, 'Aucun prescripteur actif sur la période.')
+    : DONNEES.topPresc.map(p => `
     <tr>
-      <td><strong>${p.nom}</strong></td>
-      <td>${p.profession}</td>
+      <td><strong>${escapeHtml(p.nom)}</strong></td>
+      <td>${escapeHtml(p.profession)}</td>
       <td>${p.plans}</td>
       <td>${p.ca} €</td>
       <td>${p.credits}</td>
     </tr>
   `).join('');
-  
+
   // Alertes santé
-  document.getElementById('alertesBody').innerHTML = DONNEES.alertes.map(a => `
+  document.getElementById('alertesBody').innerHTML = DONNEES.alertes.length === 0
+    ? LIGNE_VIDE(5, 'Aucune alerte santé à traiter.')
+    : DONNEES.alertes.map(a => `
     <tr>
       <td>${new Date(a.date).toLocaleDateString('fr-FR')}</td>
-      <td><strong>${a.patient}</strong></td>
-      <td><span class="badge-warning" style="background:#fff8e6;padding:2px 8px;border-radius:999px;">${a.type}</span></td>
-      <td><span class="${a.statut === 'Traité' ? 'badge-success' : 'badge-warning'}" style="background:${a.statut === 'Traité' ? '#e1f5ee' : '#fff8e6'};padding:2px 8px;border-radius:999px;">${a.statut}</span></td>
-      <td><button class="btn-export" style="font-size:0.65rem;" onclick="alert('Traiter l\'alerte de ${a.patient}')">📋 Traiter</button></td>
+      <td><strong>${escapeHtml(a.patient)}</strong></td>
+      <td><span class="badge-warning" style="background:#fff8e6;padding:2px 8px;border-radius:999px;">${escapeHtml(a.type)}</span></td>
+      <td><span class="${a.statut === 'Traité' ? 'badge-success' : 'badge-warning'}" style="background:${a.statut === 'Traité' ? '#e1f5ee' : '#fff8e6'};padding:2px 8px;border-radius:999px;">${escapeHtml(a.statut)}</span></td>
+      <td><button class="btn-export" style="font-size:0.65rem;" onclick="alert('Traiter l\'alerte de ${escapeHtml(a.patient)}')">📋 Traiter</button></td>
     </tr>
   `).join('');
 }
 
 // Alertes
 function renderAlerts() {
-  const data = getDataForPeriode('30j');
   const alerts = [];
-  if (DONNEES.topDiets[0].plans > 40) {
-    alerts.push({ title: '⚠️ Activité élevée', desc: 'Le volume de plans a augmenté de 25% ce mois. Pensez à recruter des diététiciens supplémentaires.', type: 'warning' });
+
+  // Les alertes se déclenchent sur les données réelles. Tant qu'il n'y a
+  // pas d'activité, il n'y a rien à signaler.
+  const premierDiet = DONNEES.topDiets[0];
+  if (premierDiet && premierDiet.plans > 40) {
+    alerts.push({ title: '⚠️ Activité élevée', desc: `Le diététicien le plus actif a validé ${premierDiet.plans} plans sur la période. Envisagez de renforcer le réseau.`, type: 'warning' });
   }
-  if (DONNEES.topPresc[0].credits < 10) {
+
+  const premierPresc = DONNEES.topPresc[0];
+  if (premierPresc && premierPresc.credits < 10) {
     alerts.push({ title: '📉 Crédits bas', desc: 'Plusieurs prescripteurs ont des crédits faibles. Une campagne de relance est recommandée.', type: 'info' });
   }
-  
+
   document.getElementById('alertsContainer').innerHTML = alerts.map(a => `
     <div class="alert-card">
       <div class="alert-icon">⚠️</div>
       <div class="alert-content">
         <div class="alert-title">${a.title}</div>
-        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-desc">${escapeHtml(a.desc)}</div>
       </div>
       <button class="alert-btn" onclick="alert('Voir les détails')">Voir →</button>
     </div>
@@ -984,6 +1002,5 @@ window.addEventListener('scroll', () => {
 window.exportCSV = exportCSV;
 </script>
 
-  <script src="js/error-handler.js"></script>
 </body>
 </html>

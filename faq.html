@@ -23,13 +23,14 @@
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
     <meta name="description" content="Toutes vos questions sur NutriDoc — fonctionnement, tarifs, diététiciens certifiés RPPS, plans alimentaires, remboursement mutuelle."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>FAQ - Questions Fréquentes - NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css?v=4"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="js/ui/nav.js" defer></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script src="js/ui/nav.js?v=2" defer></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   </head>
 <header class="header">
   <a href="index.html" class="logo">Nutri<span>Doc</span></a>
@@ -171,9 +172,9 @@ function toggleFaq(id) {
       </div>
     </div>
   </section>
-  <script src="js/error-handler.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/auto-save.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/auto-save.js?v=2"></script>
   <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {

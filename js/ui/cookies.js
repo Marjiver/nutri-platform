@@ -1,8 +1,53 @@
 /**
  * cookies.js — NutriDoc · Bandeau consentement RGPD
+ *
+ * Le choix de l'utilisateur était écrit dans localStorage (nd_consent) mais
+ * le test « a-t-on déjà demandé ? » lisait sessionStorage : la clé durable
+ * n'était jamais relue. Le bandeau réapparaissait donc à chaque nouvelle
+ * session, y compris après un refus explicite — ce qui revient à redemander
+ * un consentement déjà exprimé.
+ *
+ * Le choix est désormais relu depuis localStorage et vaut 6 mois, durée
+ * recommandée par la CNIL avant de solliciter à nouveau la personne.
  */
 
+var ND_CONSENT_KEY = 'nd_consent';
+var ND_CONSENT_MS  = 182 * 24 * 3600 * 1000;   // ~6 mois
+
+/** Renvoie le consentement encore valide, ou null s'il faut redemander. */
+function ndConsentActuel() {
+  try {
+    var brut = localStorage.getItem(ND_CONSENT_KEY);
+    if (!brut) return null;
+    var c = JSON.parse(brut);
+    if (!c || !c.date) return null;
+    if (Date.now() - new Date(c.date).getTime() > ND_CONSENT_MS) return null;
+    return c;
+  } catch (e) { return null; }
+}
+
+/** true si la personne a accepté la mesure d'audience. */
+function ndAnalytiqueAutorise() {
+  var c = ndConsentActuel();
+  return !!(c && c.analytics);
+}
+
+function ndEnregistrerConsentement(analytics) {
+  try {
+    localStorage.setItem(ND_CONSENT_KEY, JSON.stringify({
+      essential: true,
+      analytics: !!analytics,
+      date: new Date().toISOString(),
+      version: '1.1'
+    }));
+  } catch (e) { /* stockage bloqué : on ne peut pas mémoriser le choix */ }
+  // Conservé pour ne pas re-afficher le bandeau dans l'onglet courant même
+  // si l'écriture durable a échoué (navigation privée).
+  try { sessionStorage.setItem('nd_cookies_ok', '1'); } catch (e) {}
+}
+
 document.addEventListener("DOMContentLoaded", function() {
+  if (ndConsentActuel()) return;
   if (sessionStorage.getItem('nd_cookies_ok')) return;
 
   const banner = document.createElement('div');
@@ -43,7 +88,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     .cookie-btn-refuse:hover { border-color: rgba(255,255,255,.5); color: #fff; }
     .cookie-btn-accept {
-      background: #1D9E75; color: #fff; border: none;
+      /* #12795a et non #1D9E75 : le blanc sur le vert de marque ne donne
+         que 3,39:1, sous le seuil AA de 4,5:1. */
+      background: #12795a; color: #fff; border: none;
       padding: .5rem 1.25rem; border-radius: 999px;
       font-size: .82rem; cursor: pointer; font-family: inherit;
       font-weight: 500; transition: background .2s;
@@ -60,25 +107,14 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function cookieAccept() {
-  sessionStorage.setItem('nd_cookies_ok', '1');
-  localStorage.setItem('nd_consent', JSON.stringify({
-    essential: true,
-    analytics: true,
-    date: new Date().toISOString(),
-    version: '1.0'
-  }));
+  ndEnregistrerConsentement(true);
   hideCookieBanner();
 }
 
 function cookieRefuse() {
-  sessionStorage.setItem('nd_cookies_ok', '1');
-  localStorage.setItem('nd_consent', JSON.stringify({
-    essential: true,
-    analytics: false,
-    date: new Date().toISOString(),
-    version: '1.0'
-  }));
-  localStorage.removeItem('nd_analytics_id');
+  ndEnregistrerConsentement(false);
+  // Le refus doit aussi effacer ce qui avait pu être posé auparavant.
+  try { localStorage.removeItem('nd_analytics_id'); } catch (e) {}
   hideCookieBanner();
 }
 
@@ -94,3 +130,7 @@ function hideCookieBanner() {
 // ⭐ Exports globaux
 window.cookieAccept = cookieAccept;
 window.cookieRefuse = cookieRefuse;
+// Exposées pour que les scripts de mesure d'audience puissent vérifier le
+// consentement avant de se déclencher.
+window.ndConsentActuel      = ndConsentActuel;
+window.ndAnalytiqueAutorise = ndAnalytiqueAutorise;

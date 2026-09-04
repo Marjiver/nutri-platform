@@ -10,8 +10,10 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Admin CaliDoc Santé — NutriDoc</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
@@ -78,7 +80,7 @@ button{font-family:var(--font-b);cursor:pointer}
 .nav-badge.amber{background:var(--amber);color:#fff}
 .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.07)}
 .sidebar-user{display:flex;align-items:center;gap:.6rem}
-.sidebar-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;flex-shrink:0}
+.sidebar-avatar{width:32px;height:32px;border-radius:50%;background:#12795a;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;flex-shrink:0}
 .sidebar-user-info{flex:1;min-width:0}
 .sidebar-user-name{font-size:.8rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar-user-role{font-size:.68rem;color:rgba(255,255,255,.35)}
@@ -98,7 +100,7 @@ button{font-family:var(--font-b);cursor:pointer}
 .topbar-left{display:flex;align-items:center;gap:1rem}
 .topbar-title{font-family:var(--font-d);font-size:1.15rem;color:var(--dark)}
 .topbar-right{display:flex;align-items:center;gap:.75rem}
-.topbar-btn{background:var(--green);color:#fff;border:none;padding:.45rem 1rem;border-radius:999px;font-size:.8rem;font-weight:500;transition:background .2s}
+.topbar-btn{background:#12795a;color:#fff;border:none;padding:.45rem 1rem;border-radius:999px;font-size:.8rem;font-weight:500;transition:background .2s}
 .topbar-btn:hover{background:var(--green2)}
 .topbar-btn.ghost{background:transparent;color:var(--gray);border:1px solid var(--border)}
 .topbar-btn.ghost:hover{background:var(--bg-card,#fff);color:var(--dark)}
@@ -166,7 +168,7 @@ tbody tr:hover td{background:#fafcfa}
 
 /* ── Action buttons ───────────────────────────────────────── */
 .btn-sm{border:none;padding:.35rem .85rem;border-radius:6px;font-size:.75rem;font-weight:500;font-family:var(--font-b);transition:all .15s}
-.btn-sm.green{background:var(--green);color:#fff}.btn-sm.green:hover{background:var(--green2)}
+.btn-sm.green{background:#12795a;color:#fff}.btn-sm.green:hover{background:var(--green2)}
 .btn-sm.red  {background:#fef2f2;color:var(--red);border:1px solid #fca5a5}.btn-sm.red:hover{background:#fee2e2}
 .btn-sm.gray {background:var(--cream);color:var(--gray);border:1px solid var(--border)}.btn-sm.gray:hover{background:var(--bg-card,#fff)}
 
@@ -210,17 +212,36 @@ tbody tr:hover td{background:#fafcfa}
   .charts-grid{grid-template-columns:1fr}
   .charts-grid-3{grid-template-columns:1fr 1fr}
 }
+/* Bouton d'ouverture du menu : masqué sur grand écran, où la barre
+   latérale est déjà visible en permanence. */
+.menu-btn{
+  display:none;background:none;border:1px solid var(--border,#e5e7eb);
+  border-radius:8px;width:36px;height:36px;font-size:1.1rem;line-height:1;
+  cursor:pointer;color:var(--dark);flex-shrink:0;
+}
+.menu-btn:hover{background:var(--cream)}
+.menu-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+/* Voile derrière la barre latérale ouverte : un clic en dehors referme. */
+.sidebar-voile{
+  display:none;position:fixed;inset:0;background:rgba(13,32,24,.5);z-index:99;
+}
+.sidebar-voile.open{display:block}
+
 @media(max-width:768px){
+  .menu-btn{display:flex;align-items:center;justify-content:center}
+  .topbar-left{display:flex;align-items:center;gap:.75rem}
   .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:none}
+  .sidebar.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.4)}
   .main-content{margin-left:0}
   .charts-grid-3{grid-template-columns:1fr}
   .kpi-grid{grid-template-columns:1fr 1fr}
 }
+@media(prefers-reduced-motion:reduce){ .sidebar{transition:none} }
   </style>
-  <link rel="stylesheet" href="css/style.css">
   </head>
 <div class="admin-layout">
+
+<div class="sidebar-voile" id="sidebarVoile" onclick="fermerMenu()"></div>
 
 <!-- ══ SIDEBAR ═══════════════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
@@ -241,7 +262,7 @@ tbody tr:hover td{background:#fafcfa}
     </button>
     <button class="nav-item" onclick="showPage('queue')">
       <span class="nav-icon">⏱</span> File d'attente
-      <span class="nav-badge">3</span>
+      <span class="nav-badge" id="badgeQueue" style="display:none;"></span>
     </button>
 
     <div class="sidebar-section">Utilisateurs</div>
@@ -273,7 +294,7 @@ tbody tr:hover td{background:#fafcfa}
     </button>
     <button class="nav-item" onclick="showPage('tickets')">
       <span class="nav-icon">🎫</span> Tickets support
-      <span class="nav-badge">5</span>
+      <span class="nav-badge" id="badgeTickets" style="display:none;"></span>
     </button>
     <button class="nav-item" onclick="showPage('commissions')">
       <span class="nav-icon">💰</span> Tarifs
@@ -306,6 +327,8 @@ tbody tr:hover td{background:#fafcfa}
   <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-left">
+      <button class="menu-btn" id="menuBtn" onclick="basculerMenu()"
+              aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false">☰</button>
       <div class="topbar-title" id="topbarTitle">Tableau de bord</div>
     </div>
     <div class="topbar-right">
@@ -325,8 +348,8 @@ tbody tr:hover td{background:#fafcfa}
       <div class="page-sub" id="pageSubDate"></div>
 
       <!-- Alertes -->
-      <div class="alert-bar">
-        ⚠ <strong>3 dossiers</strong> dans la file d'attente depuis plus de 4h — diffusion nationale déclenchée.
+      <div class="alert-bar" id="alerteFile" style="display:none;">
+        ⚠ <strong><span id="alerteFileNb">0</span> dossier(s)</strong> dans la file d'attente depuis plus de 4h — diffusion nationale déclenchée.
         <button class="btn-sm gray" style="margin-left:auto;" onclick="showPage('queue')">Voir →</button>
       </div>
 
@@ -335,38 +358,38 @@ tbody tr:hover td{background:#fafcfa}
         <div class="kpi-card" style="--kpi-color:#1D9E75">
           <div class="kpi-icon" style="background:#e1f5ee">💶</div>
           <div class="kpi-label">Revenus ce mois</div>
-          <div class="kpi-value" id="kpiRevMois">4 720 €</div>
-          <div class="kpi-delta up">↑ +18% vs mois dernier</div>
+          <div class="kpi-value" id="kpiRevMois">0 €</div>
+          <div class="kpi-delta">vs mois dernier —</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
           <div class="kpi-icon" style="background:#eff6ff">🧑</div>
           <div class="kpi-label">Patients actifs</div>
-          <div class="kpi-value" id="kpiPatients">247</div>
-          <div class="kpi-delta up">↑ +32 ce mois</div>
+          <div class="kpi-value" id="kpiPatients">0</div>
+          <div class="kpi-delta">ce mois</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#8b5cf6">
           <div class="kpi-icon" style="background:#f5f3ff">📋</div>
           <div class="kpi-label">Plans livrés</div>
-          <div class="kpi-value" id="kpiPlans">89</div>
-          <div class="kpi-delta up">↑ +12 vs mois dernier</div>
+          <div class="kpi-value" id="kpiPlans">0</div>
+          <div class="kpi-delta">vs mois dernier —</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#f59e0b">
           <div class="kpi-icon" style="background:#fff8e6">⏱</div>
           <div class="kpi-label">Délai moyen livraison</div>
-          <div class="kpi-value" id="kpiDelai">14h</div>
-          <div class="kpi-delta up">↓ −3h vs mois dernier</div>
+          <div class="kpi-value" id="kpiDelai">0h</div>
+          <div class="kpi-delta">vs mois dernier —</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#ef4444">
           <div class="kpi-icon" style="background:#fef2f2">🚨</div>
           <div class="kpi-label">Alerte santé</div>
-          <div class="kpi-value" id="kpiRedFlags">7</div>
-          <div class="kpi-delta down">↑ +2 ce mois</div>
+          <div class="kpi-value" id="kpiRedFlags">0</div>
+          <div class="kpi-delta">ce mois</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#1D9E75">
           <div class="kpi-icon" style="background:#e1f5ee">📅</div>
           <div class="kpi-label">Visios réalisées</div>
-          <div class="kpi-value" id="kpiVisios">23</div>
-          <div class="kpi-delta up">× 55€ = 1 265 €</div>
+          <div class="kpi-value" id="kpiVisios">0</div>
+          <div class="kpi-delta">× 55 €</div>
         </div>
       </div>
 
@@ -429,23 +452,23 @@ tbody tr:hover td{background:#fafcfa}
       <div class="kpi-grid">
         <div class="kpi-card" style="--kpi-color:#1D9E75">
           <div class="kpi-label">MRR (Revenu mensuel récurrent)</div>
-          <div class="kpi-value">2 156 €</div>
-          <div class="kpi-delta up">↑ +8% — abonnements diét. actifs</div>
+          <div class="kpi-value">0 €</div>
+          <div class="kpi-delta">abonnements diét. actifs</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#8b5cf6">
           <div class="kpi-label">ARR (Projection annuelle)</div>
-          <div class="kpi-value">56 640 €</div>
-          <div class="kpi-delta up">↑ Trajectoire actuelle</div>
+          <div class="kpi-value">0 €</div>
+          <div class="kpi-delta">sur la trajectoire actuelle</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#f59e0b">
           <div class="kpi-label">Panier moyen plan</div>
-          <div class="kpi-value">29,90 €</div>
+          <div class="kpi-value">0 €</div>
           <div class="kpi-delta" style="color:var(--gray)">24,90 € tarif partenaire</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
           <div class="kpi-label">Marge nette estimée</div>
-          <div class="kpi-value">61%</div>
-          <div class="kpi-delta up">Modèle 100 % abonnements</div>
+          <div class="kpi-value">0%</div>
+          <div class="kpi-delta">Modèle 100 % abonnements</div>
         </div>
       </div>
 
@@ -484,23 +507,23 @@ tbody tr:hover td{background:#fafcfa}
       <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="kpi-card" style="--kpi-color:#f59e0b">
           <div class="kpi-label">En attente</div>
-          <div class="kpi-value">8</div>
+          <div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
           <div class="kpi-label">Acceptés</div>
-          <div class="kpi-value">12</div>
+          <div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#8b5cf6">
           <div class="kpi-label">En cours</div>
-          <div class="kpi-value">7</div>
+          <div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#1D9E75">
           <div class="kpi-label">Livrés (mois)</div>
-          <div class="kpi-value">89</div>
+          <div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#ef4444">
           <div class="kpi-label">Expirés</div>
-          <div class="kpi-value">2</div>
+          <div class="kpi-value">0</div>
         </div>
       </div>
 
@@ -558,7 +581,7 @@ tbody tr:hover td{background:#fafcfa}
         <div class="table-header">
           <div class="chart-title">Liste patients</div>
           <div class="table-search">
-            <input type="text" id="searchPat" placeholder="Rechercher…" oninput="filterTable('patients')"/>
+            <input type="text" id="searchPat" placeholder="Rechercher…" oninput="filterTable('patients')" aria-label="Rechercher…"/>
             <button class="btn-sm green" onclick="exportCSV('patients')">↓ CSV</button>
           </div>
         </div>
@@ -576,17 +599,17 @@ tbody tr:hover td{background:#fafcfa}
 
       <div class="kpi-grid">
         <div class="kpi-card" style="--kpi-color:#1D9E75">
-          <div class="kpi-label">Diét. actifs</div><div class="kpi-value">8</div>
-          <div class="kpi-delta up">2 en attente de validation</div>
+          <div class="kpi-label">Diét. actifs</div><div class="kpi-value">0</div>
+          <div class="kpi-delta">en attente de validation</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#8b5cf6">
-          <div class="kpi-label">Plans validés (mois)</div><div class="kpi-value">89</div>
+          <div class="kpi-label">Plans validés (mois)</div><div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#f59e0b">
-          <div class="kpi-label">Reversements (mois)</div><div class="kpi-value">1 602 €</div>
+          <div class="kpi-label">Reversements (mois)</div><div class="kpi-value">0 €</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
-          <div class="kpi-label">Note moy. patients</div><div class="kpi-value">4,8 ★</div>
+          <div class="kpi-label">Note moy. patients</div><div class="kpi-value">0 ★</div>
         </div>
       </div>
 
@@ -609,16 +632,16 @@ tbody tr:hover td{background:#fafcfa}
 
       <div class="kpi-grid">
         <div class="kpi-card" style="--kpi-color:#1D9E75">
-          <div class="kpi-label">Prescripteurs actifs</div><div class="kpi-value">14</div>
+          <div class="kpi-label">Prescripteurs actifs</div><div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#f59e0b">
-          <div class="kpi-label">Crédits consommés</div><div class="kpi-value">63</div>
+          <div class="kpi-label">Crédits consommés</div><div class="kpi-value">0</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#8b5cf6">
-          <div class="kpi-label">CA prescripteurs</div><div class="kpi-value">891 €</div>
+          <div class="kpi-label">CA prescripteurs</div><div class="kpi-value">0 €</div>
         </div>
         <div class="kpi-card" style="--kpi-color:#3b82f6">
-          <div class="kpi-label">Panier moyen pack</div><div class="kpi-value">89 €</div>
+          <div class="kpi-label">Panier moyen pack</div><div class="kpi-value">0 €</div>
         </div>
       </div>
 
@@ -640,7 +663,7 @@ tbody tr:hover td{background:#fafcfa}
         <div class="table-header">
           <div class="chart-title">Tous les plans</div>
           <div class="table-search">
-            <input type="text" id="searchPlans" placeholder="Rechercher…" oninput="filterTable('plans')"/>
+            <input type="text" id="searchPlans" placeholder="Rechercher…" oninput="filterTable('plans')" aria-label="Rechercher…"/>
             <button class="btn-sm green" onclick="exportCSV('plans')">↓ CSV</button>
           </div>
         </div>
@@ -769,7 +792,7 @@ tbody tr:hover td{background:#fafcfa}
           <div class="chart-header"><div class="chart-title">Simulateur déclaration</div></div>
           <div style="display:flex;flex-direction:column;gap:.75rem">
             <div>
-              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem">CA du trimestre (€)</label>
+              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem" for="simCA">CA du trimestre (€)</label>
               <input type="number" id="simCA" value="4720" oninput="calculerSimu()"
                 style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;font-size:1rem;font-family:var(--font-b)"/>
             </div>
@@ -875,7 +898,7 @@ tbody tr:hover td{background:#fafcfa}
           </div>
           <div style="display:flex;flex-direction:column;gap:.75rem">
             <div>
-              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem">CA mensuel HT estimé (€)</label>
+              <label style="font-size:.78rem;color:var(--gray);display:block;margin-bottom:.3rem" for="simuTVACA">CA mensuel HT estimé (€)</label>
               <input type="number" id="simuTVACA" value="4720" oninput="calculerTVA()"
                 style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;font-size:1rem;font-family:var(--font-b)"/>
             </div>
@@ -946,63 +969,46 @@ tbody tr:hover td{background:#fafcfa}
     </div>
 
 
-    <!-- ══ PAGE : COMMISSIONS ════════════════════════════════ -->
+    <!-- ══ PAGE : TARIFS ════════════════════════════════ -->
     <div class="page" id="page-commissions">
-      <div class="page-title">Commissions & tarifs</div>
-      <div class="page-sub">Modifier les commissions reversées aux diét. et les tarifs patients</div>
+      <div class="page-title">Tarifs & abonnements</div>
+      <div class="page-sub">Modèle 0 commission — NutriDoc se rémunère uniquement sur les abonnements</div>
+
+      <div class="alert-bar" style="margin-bottom:1rem;background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56;">✅ Aucune commission sur les plans, packs ou visios. Le diététicien encaisse 100 % du paiement patient/prescripteur via Stripe Connect (frais Stripe à sa charge). NutriDoc facture uniquement les abonnements ci-dessous.</div>
 
       <div class="charts-grid">
         <div class="chart-card">
-          <div class="chart-header"><div class="chart-title">Commissions diét. par plan (€ net)</div></div>
-          <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
-            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Formule Essentiel</span>
-              <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="16" min="0" max="25" id="commEssentiel"
-                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
-                <span style="font-size:.78rem;color:var(--gray);">€</span>
-                <button class="btn-sm green" onclick="saveComm('essentiel')">Sauver</button>
-              </div>
-            </div>
-            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Formule Pro (29€/mois)</span>
-              <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="18" min="0" max="25" id="commPro"
-                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
-                <span style="font-size:.78rem;color:var(--gray);">€</span>
-                <button class="btn-sm green" onclick="saveComm('pro')">Sauver</button>
-              </div>
-            </div>
-            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Formule Expert (59€/mois annuel)</span>
-              <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="20" min="0" max="25" id="commExpert"
-                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
-                <span style="font-size:.78rem;color:var(--gray);">€</span>
-                <button class="btn-sm green" onclick="saveComm('expert')">Sauver</button>
-              </div>
-            </div>
-            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Reversement visio (patient paie 55€)</span>
-              <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="49" min="0" max="55" id="commVisio"
-                  style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
-                <span style="font-size:.78rem;color:var(--gray);">€</span>
-                <button class="btn-sm green" onclick="saveComm('visio')">Sauver</button>
-              </div>
-            </div>
+          <div class="chart-header"><div class="chart-title">Encaissement diététicien par prestation (0 commission)</div></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem;">
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan patient — prix public</span><strong class="green">29,90 € (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan patient — tarif partenaire (code/QR)</span><strong class="green">24,90 € (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan via prescripteur — pack Solo</span><strong class="green">24,90 €/plan (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan via prescripteur — pack Standard</span><strong class="green">13,00 €/plan (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan via prescripteur — pack Expert</span><strong class="green">10,00 €/plan (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Plan via prescripteur — pack Volume</span><strong class="green">9,00 €/plan (100 %)</strong></div>
+            <div class="inline-stat" style="justify-content:space-between;"><span>Téléconsultation visio</span><strong class="green">55,00 € (100 %)</strong></div>
           </div>
+          <div style="font-size:.75rem;color:var(--gray);margin-top:.75rem;">Seuls les frais bancaires Stripe (~1,5 % + 0,25 €/transaction) sont déduits par Stripe, à la charge du diététicien. Source : CGU diététicien, art. 4.2.</div>
         </div>
         <div class="chart-card">
           <div class="chart-header"><div class="chart-title">Tarifs patients & prescripteurs</div></div>
           <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;">
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Plan premium patient (TTC)</span>
+              <span>Plan patient — prix public (TTC)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="24.90" step="0.10" id="tarifPlan"
+                <input type="number" value="29.90" step="0.10" id="tarifPlanPublic"
                   style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
                 <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
-                <button class="btn-sm green" onclick="saveTarif('plan')">Sauver</button>
+                <button class="btn-sm green" onclick="saveTarif('planPublic')">Sauver</button>
+              </div>
+            </div>
+            <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+              <span>Plan patient — tarif partenaire (TTC)</span>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <input type="number" value="24.90" step="0.10" id="tarifPlanPartenaire"
+                  style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
+                <span style="font-size:.78rem;color:var(--gray);">€ TTC</span>
+                <button class="btn-sm green" onclick="saveTarif('planPartenaire')">Sauver</button>
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
@@ -1015,23 +1021,23 @@ tbody tr:hover td{background:#fafcfa}
               </div>
             </div>
             <div class="inline-stat" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-              <span>Abonnement diét. Pro (HT/mois)</span>
+              <span>Abonnement diét. Essentiel (HT/mois)</span>
               <div style="display:flex;align-items:center;gap:.5rem;">
-                <input type="number" value="49" step="1" id="tarifAboPro"
+                <input type="number" value="39" step="1" id="tarifAboEssentiel"
                   style="width:80px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.9rem;text-align:center;"/>
                 <span style="font-size:.78rem;color:var(--gray);">€ HT</span>
-                <button class="btn-sm green" onclick="saveTarif('aboPro')">Sauver</button>
+                <button class="btn-sm green" onclick="saveTarif('aboEssentiel')">Sauver</button>
               </div>
             </div>
           </div>
           <div class="chart-header" style="margin-top:1.25rem;"><div class="chart-title">Packs plans prescripteurs</div></div>
         <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.75rem;">
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>24,90€</strong></div>
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Équipe — 10 plans</span><strong>180 € (24,90€/plan)</strong></div>
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Clinique — 20 plans</span><strong>340 € (12€/plan)</strong></div>
-          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Volume — 50 plans</span><strong>840 € (10€/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Solo — 1 plan</span><strong>24,90 € (24,90 €/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Standard — 10 plans</span><strong>130,00 € (13,00 €/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Expert — 50 plans</span><strong>500,00 € (10,00 €/plan)</strong></div>
+          <div class="inline-stat" style="justify-content:space-between;"><span>Pack Volume — 100 plans</span><strong>900,00 € (9,00 €/plan)</strong></div>
         </div>
-        <div class="alert-bar" style="margin-top:.5rem;background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56;font-size:.78rem;">ℹ Les packs sont réglés directement aux diét. — NutriDoc ne perçoit que l'abonnement 29€.</div>
+        <div class="alert-bar" style="margin-top:.5rem;background:#e1f5ee;border-color:#9FE1CB;color:#0f6e56;font-size:.78rem;">ℹ Les packs sont réglés intégralement au diététicien référent — NutriDoc ne perçoit que les abonnements (diététicien et CRM prescripteur), aucune commission sur les packs.</div>
         <div class="alert-bar" style="margin-top:.5rem;background:#fff8e6;border-color:#fed7aa;">
             ⚠ La modification des tarifs met à jour les affichages. Les prix Stripe doivent être mis à jour manuellement dans le Dashboard Stripe.
           </div>
@@ -1056,9 +1062,9 @@ tbody tr:hover td{background:#fafcfa}
       <div class="page-sub">Crédits cumulables · Récompenses automatiques</div>
 
       <div class="kpi-grid">
-        <div class="kpi-card" style="--kpi-color:#8b5cf6"><div class="kpi-label">Parrainages actifs</div><div class="kpi-value">23</div></div>
-        <div class="kpi-card" style="--kpi-color:#1D9E75"><div class="kpi-label">Crédits distribués</div><div class="kpi-value">115</div></div>
-        <div class="kpi-card" style="--kpi-color:#f59e0b"><div class="kpi-label">Plans offerts</div><div class="kpi-value">8</div></div>
+        <div class="kpi-card" style="--kpi-color:#8b5cf6"><div class="kpi-label">Parrainages actifs</div><div class="kpi-value">0</div></div>
+        <div class="kpi-card" style="--kpi-color:#1D9E75"><div class="kpi-label">Crédits distribués</div><div class="kpi-value">0</div></div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b"><div class="kpi-label">Plans offerts</div><div class="kpi-value">0</div></div>
       </div>
 
       <div class="charts-grid">
@@ -1139,12 +1145,10 @@ tbody tr:hover td{background:#fafcfa}
         <div class="chart-card">
           <div class="chart-header"><div class="chart-title">Tarifs</div></div>
           <div style="display:flex;flex-direction:column;gap:.75rem">
-            <div class="inline-stat" style="justify-content:space-between"><span>Plan premium patient</span><strong>24,90 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Visio patient</span><strong>50,00 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Reversement visio diét.</span><strong>50,00 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Essentiel)</span><strong>16,00 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Pro)</span><strong>18,00 €</strong></div>
-            <div class="inline-stat" style="justify-content:space-between"><span>Commission plan (Expert)</span><strong>20,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Plan patient — prix public</span><strong>29,90 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Plan patient — tarif partenaire</span><strong>24,90 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Visio patient</span><strong>55,00 €</strong></div>
+            <div class="inline-stat" style="justify-content:space-between"><span>Commission NutriDoc</span><strong class="green">0 € — aucune</strong></div>
           </div>
         </div>
         <div class="chart-card">
@@ -1185,21 +1189,28 @@ let DIETS_DATA = [];
 let PRESC_DATA = [];
 let PLANS_DATA = [];
 let QUEUE_DATA = [];
-const TICKETS_DATA = [
-  { id:'TKT-001', profil:'Patient',      cat:'Plan non reçu',        titre:'Plan commandé il y a 3 jours, rien reçu', prio:'urgente', soumis:'25/03', statut:'ouvert'   },
-  { id:'TKT-002', profil:'Diététicien',  cat:'Rémunération',         titre:'Reversement de février manquant',         prio:'haute',   soumis:'26/03', statut:'ouvert'   },
-  { id:'TKT-003', profil:'Prescripteur', cat:'Crédits',              titre:'Crédits non débités après paiement',      prio:'haute',   soumis:'26/03', statut:'en_cours' },
-  { id:'TKT-004', profil:'Patient',      cat:'Compte',               titre:'Impossible de me connecter',              prio:'normale', soumis:'27/03', statut:'ouvert'   },
-  { id:'TKT-005', profil:'Diététicien',  cat:'Notification',         titre:'Je ne reçois plus les alertes dossiers',  prio:'normale', soumis:'27/03', statut:'ouvert'   },
-];
-const TRANSACTIONS_DATA = [
-  { date:'27/03', type:'Plan premium',   montant:'24,90 €', de:'Marie D.',   reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
-  { date:'27/03', type:'Visio',          montant:'50,00 €', de:'Thomas K.',  reverse:'50,00 €', net:'6,00 €',  statut:'payé'    },
-  { date:'26/03', type:'Pack Pro',       montant:'89,00 €', de:'Dr. Rolland',reverse:'—',       net:'89,00 €', statut:'payé'    },
-  { date:'26/03', type:'Plan premium',   montant:'24,90 €', de:'Sophie M.',  reverse:'18,00 €', net:'6,90 €',  statut:'payé'    },
-  { date:'25/03', type:'Abonnement Pro', montant:'50,00 €', de:'Grégoire Martin',reverse:'—',       net:'50,00 €', statut:'payé'    },
-  { date:'24/03', type:'Plan premium',   montant:'24,90 €', de:'Lucas B.',   reverse:'16,00 €', net:'8,90 €',  statut:'payé'    },
-];
+// Alimentés depuis Supabase (support_tickets, paiements Stripe).
+// Aucun ticket ni aucune transaction inventés.
+let TICKETS_DATA = [];
+let TRANSACTIONS_DATA = [];
+
+// ── MENU LATÉRAL (mobile) ─────────────────────────────────────
+// Sous 768px la barre latérale sort de l'écran. Sans ce bouton, aucune
+// des 14 sections n'était atteignable : l'administration se réduisait au
+// seul tableau de bord.
+function basculerMenu() {
+  const ouvert = document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarVoile').classList.toggle('open', ouvert);
+  document.getElementById('menuBtn').setAttribute('aria-expanded', String(ouvert));
+}
+
+function fermerMenu() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarVoile').classList.remove('open');
+  document.getElementById('menuBtn')?.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerMenu(); });
 
 // ── NAVIGATION ────────────────────────────────────────────────
 function showPage(id) {
@@ -1208,8 +1219,17 @@ function showPage(id) {
   document.getElementById('page-' + id)?.classList.add('active');
   const btn = [...document.querySelectorAll('.nav-item')].find(b => b.getAttribute('onclick')?.includes("'"+id+"'"));
   if (btn) btn.classList.add('active');
-  const TITLES = { dashboard:'Tableau de bord', revenus:'Revenus & finances', queue:'File d\'attente', patients:'Patients', dietitians:'Diététiciens', prescribers:'Prescripteurs', plans:'Plans alimentaires', tickets:'Tickets support', settings:'Paramètres' };
+  const TITLES = {
+    dashboard:'Tableau de bord', revenus:'Revenus & finances', queue:'File d\'attente',
+    patients:'Patients', dietitians:'Diététiciens', prescribers:'Prescripteurs',
+    plans:'Plans alimentaires', tickets:'Tickets support', settings:'Paramètres',
+    // Ces cinq sections manquaient : la barre du haut affichait leur
+    // identifiant technique (« urssaf », « tva »…) au lieu de leur nom.
+    urssaf:'URSSAF & Déclarations', tva:'TVA', commissions:'Tarifs & abonnements',
+    parrainage:'Parrainage', emailing:'Emailing & relances'
+  };
   document.getElementById('topbarTitle').textContent = TITLES[id] || id;
+  fermerMenu();   // sur mobile, on referme le menu après le choix
 }
 
 // ── DATE ──────────────────────────────────────────────────────
@@ -1222,15 +1242,24 @@ function initDate() {
 
 // ── CHARTS ────────────────────────────────────────────────────
 let chartRevenus;
-const REVENUS_DATA = {
-  '12m': { plans:[890,1020,780,1340,1560,1890,2100,1780,2340,2890,3560,4720], visios:[0,0,55,110,55,165,220,110,275,330,495,1265], abo:[380,380,380,430,430,490,490,490,540,540,590,680] },
-  '6m':  { plans:[1890,2100,1780,2340,2890,3560], visios:[165,220,110,275,330,495], abo:[490,490,490,540,540,590] },
-  '3m':  { plans:[2340,2890,3560], visios:[275,330,495], abo:[540,540,590] },
-};
 const MONTHS_MAP = { '12m': MONTHS, '6m': MONTHS.slice(6), '3m': MONTHS.slice(9) };
 
+// Le graphique de revenus lit CA_MENSUEL, seule source de vérité du CA :
+// les barres et le tableau URSSAF ne peuvent donc plus diverger.
+// (Fonction et non constante : CA_MENSUEL est déclaré plus bas dans le
+// fichier, une constante l'évaluerait avant son initialisation.)
+function getRevenusData(period) {
+  const mois = MONTHS_MAP[period] || MONTHS;
+  const val  = (m, cle) => (CA_MENSUEL[m] && CA_MENSUEL[m][cle]) || 0;
+  return {
+    plans:  mois.map(m => val(m, 'plans')),
+    visios: mois.map(m => val(m, 'visios')),
+    abo:    mois.map(m => val(m, 'abo')),
+  };
+}
+
 function initChartRevenus(period = '12m') {
-  const d   = REVENUS_DATA[period];
+  const d   = getRevenusData(period);
   const mo  = MONTHS_MAP[period];
   if (chartRevenus) chartRevenus.destroy();
   const ctx = document.getElementById('chartRevenus');
@@ -1265,11 +1294,13 @@ function switchPeriod(p, btn) {
 function initChartSources() {
   const ctx = document.getElementById('chartSources');
   if (!ctx) return;
+  // Catégories de revenus de la plateforme. Les montants viendront de
+  // Stripe ; ils restent à zéro tant qu'aucun paiement n'a été encaissé.
   const sources = [
-    { label:'Plans premium', val:2100, color:'#1D9E75' },
-    { label:'Abonnements diét.', val:680, color:'#8b5cf6' },
-    { label:'Visios', val:1265, color:'#5DCAA5' },
-    { label:'Crédits pro', val:675, color:'#f59e0b' },
+    { label:'Plans premium',     val:0, color:'#1D9E75' },
+    { label:'Abonnements diét.', val:0, color:'#8b5cf6' },
+    { label:'Visios',            val:0, color:'#5DCAA5' },
+    { label:'Crédits pro',       val:0, color:'#f59e0b' },
   ];
   new Chart(ctx, {
     type:'doughnut',
@@ -1277,8 +1308,10 @@ function initChartSources() {
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, cutout:'68%' }
   });
   const total = sources.reduce((a,s)=>a+s.val,0);
+  // Sans revenu encaissé, afficher 0 % plutôt que « NaN% ».
+  const part = s => total ? Math.round(s.val / total * 100) : 0;
   document.getElementById('chartSourcesLegend').innerHTML = sources.map(s=>
-    `<div style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:${s.color};flex-shrink:0"></span>${s.label}<span style="margin-left:auto;font-weight:500">${Math.round(s.val/total*100)}%</span></div>`
+    `<div style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:${s.color};flex-shrink:0"></span>${s.label}<span style="margin-left:auto;font-weight:500">${part(s)}%</span></div>`
   ).join('');
 }
 
@@ -1292,11 +1325,14 @@ function initSmallCharts() {
       options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}}, y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}} } }
     });
   };
-  make('chartPlansRev',  [22,28,18,32,41,50], '#1D9E75');
-  make('chartVisiosRev', [3,4,2,5,6,9],       '#5DCAA5');
-  make('chartCreditsRev',[14,10,8,16,22,27],  '#f59e0b');
-  make('chartObjectifs', [38,24,16,12,7,3],   null, 'doughnut');
-  make('chartInscrip',   [12,18,14,22,28,32], '#3b82f6', 'line');
+  // Séries à zéro sur 6 mois : les courbes se rempliront avec les données
+  // Supabase. Aucune valeur inventée, aucun tirage aléatoire.
+  const VIDE_6 = [0,0,0,0,0,0];
+  make('chartPlansRev',  VIDE_6, '#1D9E75');
+  make('chartVisiosRev', VIDE_6, '#5DCAA5');
+  make('chartCreditsRev',VIDE_6, '#f59e0b');
+  make('chartObjectifs', VIDE_6, null, 'doughnut');
+  make('chartInscrip',   VIDE_6, '#3b82f6', 'line');
 
   const qCtx = document.getElementById('chartQueue');
   if (qCtx) new Chart(qCtx, {
@@ -1304,8 +1340,8 @@ function initSmallCharts() {
     data:{
       labels:Array.from({length:30},(_,i)=>i+1+'j'),
       datasets:[
-        { label:'Délai moy (h)', data:Array.from({length:30},()=>Math.round(10+Math.random()*8)), borderColor:'#1D9E75', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
-        { label:'Saturation %',  data:Array.from({length:30},()=>Math.round(40+Math.random()*35)), borderColor:'#f59e0b', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
+        { label:'Délai moy (h)', data:Array.from({length:30},()=>0), borderColor:'#1D9E75', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
+        { label:'Saturation %',  data:Array.from({length:30},()=>0), borderColor:'#f59e0b', fill:false, tension:.4, pointRadius:0, borderWidth:2 },
       ]
     },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{size:10},boxWidth:10}}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af',maxTicksLimit:10}}, y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}} } }
@@ -1339,7 +1375,7 @@ function renderTables() {
   // Patients
   const pb = document.getElementById('patientsBody');
   if (pb) pb.innerHTML = PATIENTS_DATA.map(p=>`<tr>
-    <td><strong>${p.nom}</strong></td><td>${p.ville}</td><td>${p.objectif}</td>
+    <td><strong>${escapeHtml(p.nom)}</strong></td><td>${escapeHtml(p.ville)}</td><td>${escapeHtml(p.objectif)}</td>
     <td><span class="badge ${p.plan==='Premium'?'green':'gray'}">${p.plan}</span></td>
     <td>${p.date}</td><td>${STATUS_BADGES[p.statut]||p.statut}</td>
   </tr>`).join('');
@@ -1347,18 +1383,18 @@ function renderTables() {
   // Diets
   const db = document.getElementById('dietsBody');
   if (db) db.innerHTML = DIETS_DATA.map(d=>`<tr>
-    <td><strong>${d.nom}</strong></td><td style="font-size:.75rem;color:var(--gray)">${d.rpps}</td>
+    <td><strong>${escapeHtml(d.nom)}</strong></td><td style="font-size:.75rem;color:var(--gray)">${escapeHtml(d.rpps)}</td>
     <td><span class="badge purple">${d.formule}</span></td><td>${d.zone}</td>
     <td style="font-weight:500">${d.plans}</td><td style="color:var(--green);font-weight:500">${d.reversement}</td>
     <td>${STATUS_BADGES[d.statut]||d.statut}</td>
-    <td><button class="btn-sm ${d.statut==='actif'?'red':'green'}" onclick="toggleDiet('${d.nom}')">${d.statut==='actif'?'Suspendre':'Activer'}</button></td>
+    <td><button class="btn-sm ${d.statut==='actif'?'red':'green'}" onclick="toggleDiet('${escapeHtml(d.nom)}')">${d.statut==='actif'?'Suspendre':'Activer'}</button></td>
   </tr>`).join('');
 
   // Prescripteurs
   const prb = document.getElementById('prescBody');
   if (prb) prb.innerHTML = PRESC_DATA.map(p=>`<tr>
-    <td><strong>${p.nom}</strong></td><td>${p.prof}</td>
-    <td style="font-size:.75rem;color:var(--gray)">${p.siret}</td>
+    <td><strong>${escapeHtml(p.nom)}</strong></td><td>${p.prof}</td>
+    <td style="font-size:.75rem;color:var(--gray)">${escapeHtml(p.siret)}</td>
     <td><span class="badge amber">${p.pack}</span></td>
     <td>${p.credits} créd.</td>
     <td style="color:var(--green);font-weight:500">${p.ca}</td>
@@ -1369,7 +1405,7 @@ function renderTables() {
   const plb = document.getElementById('plansBody');
   if (plb) plb.innerHTML = PLANS_DATA.map(p=>`<tr>
     <td style="font-size:.72rem;color:var(--gray)">${p.id}</td>
-    <td><strong>${p.patient}</strong></td><td>${p.objectif}</td><td>${p.diet}</td>
+    <td><strong>${escapeHtml(p.patient)}</strong></td><td>${escapeHtml(p.objectif)}</td><td>${p.diet}</td>
     <td>${p.cree}</td><td>${p.livre||'—'}</td>
     <td style="font-weight:500;color:${p.delai==='—'?'var(--gray)':parseFloat(p.delai)>24?'var(--red)':'var(--green)'}">${p.delai}</td>
     <td>${STATUS_BADGES[p.statut]||p.statut}</td>
@@ -1380,7 +1416,7 @@ function renderTables() {
   const qb = document.getElementById('queueBody');
   if (qb) qb.innerHTML = QUEUE_DATA.map(q=>`<tr>
     <td style="font-size:.72rem;color:var(--gray)">${q.id}</td>
-    <td><strong>${q.patient}</strong></td><td>${q.ville}</td><td>${q.objectif}</td>
+    <td><strong>${escapeHtml(q.patient)}</strong></td><td>${escapeHtml(q.ville)}</td><td>${escapeHtml(q.objectif)}</td>
     <td style="font-size:.75rem">${q.soumis}</td>
     <td>${q.diet}</td>
     <td>${STATUS_BADGES[q.statut]||q.statut}</td>
@@ -1392,7 +1428,7 @@ function renderTables() {
   if (tkb) tkb.innerHTML = TICKETS_DATA.map(t=>`<tr>
     <td style="font-size:.72rem;color:var(--gray)">${t.id}</td>
     <td><span class="badge ${t.profil==='Patient'?'blue':t.profil==='Diététicien'?'green':'purple'}">${t.profil}</span></td>
-    <td>${t.cat}</td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.titre}</td>
+    <td>${t.cat}</td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(t.titre)}</td>
     <td>${PRIO_BADGES[t.prio]||t.prio}</td>
     <td>${t.soumis}</td>
     <td>${STATUS_BADGES[t.statut]||t.statut}</td>
@@ -1403,7 +1439,7 @@ function renderTables() {
   const trb = document.getElementById('transactionsBody');
   if (trb) trb.innerHTML = TRANSACTIONS_DATA.map(t=>`<tr>
     <td>${t.date}</td>
-    <td>${t.type}</td>
+    <td>${escapeHtml(t.type)}</td>
     <td style="font-weight:500">${t.montant}</td>
     <td>${t.de}</td>
     <td style="color:var(--red)">${t.reverse}</td>
@@ -1439,7 +1475,12 @@ function renderActivity() {
 
 // ── FILE D'ATTENTE GAUGE ──────────────────────────────────────
 function renderQueueGauge() {
-  const saturation = 42;
+  // Saturation = part de la file d'attente occupée, calculée sur les
+  // dossiers réellement en attente. Zéro tant que la file est vide.
+  const CAPACITE = 50;
+  const saturation = QUEUE_DATA.length
+    ? Math.min(100, Math.round(QUEUE_DATA.length / CAPACITE * 100))
+    : 0;
   const color = saturation < 60 ? '#1D9E75' : saturation < 85 ? '#f59e0b' : '#ef4444';
   const status = saturation < 60 ? 'Nominal' : saturation < 85 ? 'Chargé' : 'Saturé';
   document.getElementById('queueGauge').innerHTML = `
@@ -1483,22 +1524,23 @@ function filterTable(type)    { /* à brancher sur Supabase */ }
 // ════════════════════════════════════════════════
 
 // ── Données CA mensuel 2025 ───────────────────────────────────
+// Chiffre d'affaires HT par mois (HT = prix TTC / 1,20).
+// ⚠ Ces montants alimentent le tableau URSSAF et le calcul des cotisations.
+// Ils doivent refléter le CA réellement encaissé : ne renseignez un mois
+// qu'à partir des paiements Stripe effectifs, jamais d'une estimation.
 const CA_MENSUEL = {
-  // CA réel ou estimé par mois (HT = prix TTC / 1.20)
-  // Plan : 24,90€ TTC → 20,75€ HT · Visio : 55€ TTC → 45,83€ HT
-  // Abonnements diét. : 55€ TTC → 40,83€ HT · Crédits pro : prix HT
-  Jan: { plans: 890,  visios: 330, abo: 540, credits: 120 },
-  Fév: { plans: 1020, visios: 495, abo: 540, credits: 160 },
-  Mar: { plans: 1340, visios: 550, abo: 590, credits: 240 },
-  Avr: { plans: 1560, visios: 605, abo: 590, credits: 280 },
-  Mai: { plans: 0,    visios: 0,   abo: 0,   credits: 0   }, // à venir
-  Jun: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Jul: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Aoû: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Sep: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Oct: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Nov: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
-  Déc: { plans: 0,    visios: 0,   abo: 0,   credits: 0   },
+  Jan: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Fév: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Mar: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Avr: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Mai: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Jun: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Jul: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Aoû: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Sep: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Oct: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Nov: { plans: 0, visios: 0, abo: 0, credits: 0 },
+  Déc: { plans: 0, visios: 0, abo: 0, credits: 0 },
 };
 
 const TAUX_COTISATIONS = 0.212;  // URSSAF micro-entreprise BIC services commerciaux
@@ -1554,7 +1596,7 @@ function renderURSSAF() {
       <td style="font-weight:600;color:#ef4444">${t.cotisations.toLocaleString('fr-FR')} €</td>
       <td style="color:var(--blue)">${t.cfp.toLocaleString('fr-FR')} €</td>
       <td>
-        <span class="${STATUS_STYLE[t.statut]||'badge gray'}">${t.statut}</span>
+        <span class="${STATUS_STYLE[t.statut]||'badge gray'}">${escapeHtml(t.statut)}</span>
         ${t.statut==='à déclarer' ? '<br><a href="https://www.autoentrepreneur.urssaf.fr" target="_blank" style="font-size:.7rem;color:var(--green);margin-top:2px;display:inline-block">Déclarer sur URSSAF →</a>' : ''}
       </td>
     </tr>`).join('');
@@ -1599,13 +1641,16 @@ function renderURSSAF() {
 
 // ── Déclarations passées ─────────────────────────────────────
 function renderDeclarations() {
-  const PAST = [
-    { trim:'T4 2024', date:'27/01/2025', ca:'3 560', cot:'783,20', cfp:'7,12', total:'790,32', ref:'URSSAF-2025-01-4872' },
-    { trim:'T3 2024', date:'28/10/2024', ca:'2 890', cot:'635,80', cfp:'5,78', total:'641,58', ref:'URSSAF-2024-10-3341' },
-    { trim:'T2 2024', date:'30/07/2024', ca:'1 890', cot:'415,80', cfp:'3,78', total:'419,58', ref:'URSSAF-2024-07-2210' },
-  ];
+  // Déclarations URSSAF déjà effectuées. À renseigner à partir des
+  // accusés de réception réels — jamais de numéro de référence inventé.
+  const PAST = [];
   const el = document.getElementById('declarationsBody');
   if (!el) return;
+  if (!PAST.length) {
+    el.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;' +
+      'color:var(--gray);font-size:.85rem;">Aucune déclaration enregistrée.</td></tr>';
+    return;
+  }
   el.innerHTML = PAST.map(d => `
     <tr>
       <td><strong>${d.trim}</strong></td>
@@ -1810,10 +1855,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function saveComm(type) {
-  const vals = { essentiel: document.getElementById('commEssentiel')?.value, pro: document.getElementById('commPro')?.value, expert: document.getElementById('commExpert')?.value, visio: document.getElementById('commVisio')?.value };
-  showToast(`Commission ${type} mise à jour : ${vals[type]} € ✓`);
-}
 function saveTarif(type) { showToast(`Tarif ${type} sauvegardé ✓ — pensez à mettre à jour Stripe`); }
 function saveParrainageRules() { showToast('Règles de parrainage enregistrées ✓'); }
 function ajouterDietPilote() {
@@ -1824,7 +1865,7 @@ function ajouterDietPilote() {
     const item = document.createElement('div');
     item.className = 'inline-stat';
     item.style.justifyContent = 'space-between';
-    item.innerHTML = `<span>${email}</span><span class="badge green">Mode pilote · Gratuit</span>`;
+    item.innerHTML = `<span>${escapeHtml(email)}</span><span class="badge green">Mode pilote · Gratuit</span>`;
     el.appendChild(item);
     showToast(`${email} ajouté en mode pilote ✓`);
   }
@@ -1842,9 +1883,9 @@ function renderTemplates() {
   if (!el) return;
   el.innerHTML = TEMPLATES.map(t => `<tr>
     <td style="font-family:monospace;font-size:.75rem;color:var(--gray)">${t.slug}</td>
-    <td><strong>${t.nom}</strong></td>
+    <td><strong>${escapeHtml(t.nom)}</strong></td>
     <td style="max-width:250px;font-size:.8rem;">${t.sujet}</td>
-    <td><span class="badge ${t.type==='Transactionnel'?'green':t.type==='Relance'?'amber':t.type==='Alerte'?'red':'blue'}">${t.type}</span></td>
+    <td><span class="badge ${t.type==='Transactionnel'?'green':t.type==='Relance'?'amber':t.type==='Alerte'?'red':'blue'}">${escapeHtml(t.type)}</span></td>
     <td><span class="badge green">Actif</span></td>
     <td><button class="btn-sm gray" onclick="editTemplate('${t.slug}')">✏ Éditer</button></td>
   </tr>`).join('');
@@ -1871,9 +1912,9 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
   <!-- Authentification réelle : Supabase + rôle admin vérifié en base -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/core/auth.js"></script>
+  <script src="js/core/auth.js?v=2"></script>
   <script src="js/admin/admin-auth.js"></script>
-  <script src="js/utils/error-handler.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
 
   <!-- Chargement des données réelles (déclenché après vérification du rôle admin) -->
   <script>
@@ -1923,11 +1964,32 @@ document.addEventListener('DOMContentLoaded', () => {
       const badge = document.getElementById('badgeAValider');
       if (badge && aValider > 0) { badge.textContent = aValider; badge.style.display = ''; }
 
+      // Pastilles de la barre latérale : affichées uniquement s'il y a
+      // réellement quelque chose à traiter.
+      majPastille('badgeQueue',   QUEUE_DATA.length);
+      majPastille('badgeTickets', TICKETS_DATA.length);
+
+      // Bandeau « dossiers en retard » : basé sur la file réelle.
+      const enRetard = QUEUE_DATA.filter(q => q.retard === true).length;
+      const bandeau  = document.getElementById('alerteFile');
+      if (bandeau) {
+        document.getElementById('alerteFileNb').textContent = enRetard;
+        bandeau.style.display = enRetard > 0 ? '' : 'none';
+      }
+
       if (typeof renderTables === 'function') renderTables();
       viderTablesSiVide();
     } catch(e) {
       console.warn('[admin] chargement des données :', e.message);
     }
+  }
+
+  // Affiche une pastille de compteur, ou la masque si le compteur est nul.
+  function majPastille(id, n){
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = n;
+    el.style.display = n > 0 ? '' : 'none';
   }
 
   // État vide explicite : aucune donnée inventée
@@ -1937,7 +1999,9 @@ document.addEventListener('DOMContentLoaded', () => {
       ['dietsBody',    8, 'Aucun diététicien inscrit pour le moment.'],
       ['prescBody',    7, 'Aucun prescripteur inscrit pour le moment.'],
       ['plansBody',    9, 'Aucun plan alimentaire pour le moment.'],
-      ['queueBody',    7, "Aucun dossier en file d'attente."]
+      ['queueBody',    7, "Aucun dossier en file d'attente."],
+      ['ticketsBody',  8, 'Aucun ticket support pour le moment.'],
+      ['transactionsBody', 7, 'Aucune transaction pour le moment.']
     ];
     vides.forEach(([id, cols, txt]) => {
       const el = document.getElementById(id);

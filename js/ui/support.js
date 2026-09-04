@@ -105,7 +105,7 @@ function initSupportWidget(containerId, role = 'patient') {
             <div class="support-ticket-row">
               <div class="support-ticket-status ${t.statut}"></div>
               <div class="support-ticket-info">
-                <div style="font-size:.82rem;font-weight:500;">${t.titre}</div>
+                <div style="font-size:.82rem;font-weight:500;">${escapeHtml(t.titre)}</div>
                 <div style="font-size:.72rem;color:var(--gray);">${t.categorie} · ${new Date(t.created_at).toLocaleDateString('fr-FR')} · <span class="support-statut-label ${t.statut}">${{ouvert:'Ouvert',en_cours:'En cours',resolu:'Résolu',ferme:'Fermé'}[t.statut]||t.statut}</span></div>
               </div>
             </div>`).join('')}

@@ -9,10 +9,21 @@
  *   await Email.planLivre(patientEmail, { diet_nom, kcal, ... })
  */
 
-const SUPABASE_URL = window._supabaseUrl
-  || (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : 'https://phgjpwaptrrjonoimmne.supabase.co');
-const SUPABASE_KEY = window._supabaseKey
+/* window._supabaseKey n'etait defini nulle part : SUPABASE_KEY valait donc
+   toujours la chaine vide, et send() repartait aussitot en « mode demo » en
+   se contentant d'un console.info. Aucun email n'a jamais quitte le site.
+   On lit desormais la cle exposee par js/core/auth.js, qui est la source de
+   verite des identifiants Supabase. */
+const ND_URL = window._supabaseUrl
+  || (window._supa && window._supa.supabaseUrl)
+  || 'https://phgjpwaptrrjonoimmne.supabase.co';
+
+const ND_KEY = window._supabaseKey
+  || (window._supa && (window._supa.supabaseKey || window._supa.anonKey))
   || (typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : '');
+
+const SUPABASE_URL = ND_URL;
+const SUPABASE_KEY = ND_KEY;
 
 const Email = {
 
@@ -97,3 +108,6 @@ const Email = {
     return this.send('ticket_support', email, { ticket_id, titre, categorie, priorite });
   },
 };
+
+// Exposition globale : sans cela le module etait charge sans etre utilisable.
+window.Email = Email;

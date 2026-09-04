@@ -130,7 +130,7 @@ RÈGLES :
     .chat-bubble {
       padding:.6rem .85rem;border-radius:12px;font-size:.82rem;line-height:1.55;
     }
-    .chat-msg.user  .chat-bubble { background:#1D9E75;color:#fff;border-bottom-right-radius:3px; }
+    .chat-msg.user  .chat-bubble { background:#12795a;color:#fff;border-bottom-right-radius:3px; }
     .chat-msg.bot   .chat-bubble { background:#f3f4f6;color:#1f2937;border-bottom-left-radius:3px; }
     .chat-msg.error .chat-bubble { background:#fef2f2;color:#dc2626; }
     .chat-time { font-size:.65rem;color:#9ca3af;align-self:flex-end;padding:0 4px; }
@@ -163,7 +163,7 @@ RÈGLES :
     }
     .chat-input:focus { border-color:#1D9E75; }
     .chat-send {
-      width:34px;height:34px;border-radius:50%;background:#1D9E75;border:none;
+      width:34px;height:34px;border-radius:50%;background:#12795a;border:none;
       display:flex;align-items:center;justify-content:center;cursor:pointer;
       transition:background .15s;flex-shrink:0;
     }
@@ -242,7 +242,7 @@ RÈGLES :
     const now   = new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     const div   = document.createElement('div');
     div.className = `chat-msg ${role}${error ? ' error' : ''}`;
-    div.innerHTML = `<div class="chat-bubble">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div><div class="chat-time">${now}</div>`;
+    div.innerHTML = `<div class="chat-bubble">${escapeHtml(text).replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div><div class="chat-time">${now}</div>`;
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
     messages.push({ role: role === 'user' ? 'user' : 'assistant', content: text });

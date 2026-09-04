@@ -258,7 +258,7 @@ function previewPhoto(input) {
   const reader = new FileReader();
   reader.onload = e => {
     document.getElementById('ncPhotoPreview').innerHTML =
-      `<img src="${e.target.result}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #1a3a6b;" />`;
+      `<img src="${escapeAttr(e.target.result)}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #1a3a6b;" />`;
     input._dataUrl = e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
@@ -269,7 +269,7 @@ function previewPhotoSlot(input, previewId) {
   const reader = new FileReader();
   reader.onload = e => {
     document.getElementById(previewId).innerHTML =
-      `<img src="${e.target.result}" style="width:100%;height:60px;object-fit:cover;border-radius:4px;" />`;
+      `<img src="${escapeAttr(e.target.result)}" style="width:100%;height:60px;object-fit:cover;border-radius:4px;" />`;
     input._dataUrl = e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
@@ -398,39 +398,15 @@ function switchTabDirect(tabId) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Données de démo
-  const existants = loadClients();
-  if (existants.length === 0) {
-    const demo = [
-      { id:'c_demo1', prenom:'Julien', nom:'Bernard', age:28, poidsInitial:82, taille:180, objectif:'perte_gras', statut:'en_cours', photoFace:null, notes:'Motivé, manque de régularité le week-end.', rappelDate: new Date(Date.now()+12*86400000).toISOString(), rappelDelai:30,
-        mesures:[
-          { date: new Date(Date.now()-60*86400000).toISOString(), poids:82 },
-          { date: new Date(Date.now()-45*86400000).toISOString(), poids:80.5 },
-          { date: new Date(Date.now()-30*86400000).toISOString(), poids:79.2 },
-          { date: new Date(Date.now()-15*86400000).toISOString(), poids:78.1 },
-          { date: new Date().toISOString(), poids:77.4 }
-        ],
-        plans:[{ objectif:'perte_gras', statut:'valide', date: new Date(Date.now()-55*86400000).toISOString() }]
-      },
-      { id:'c_demo2', prenom:'Sarah', nom:'Moreau', age:24, poidsInitial:58, taille:165, objectif:'prise_masse', statut:'en_cours', photoFace:null, notes:'Végétarienne. Entraînement 5x/sem.',
-        mesures:[
-          { date: new Date(Date.now()-30*86400000).toISOString(), poids:58 },
-          { date: new Date(Date.now()-15*86400000).toISOString(), poids:58.8 },
-          { date: new Date().toISOString(), poids:59.5 }
-        ],
-        plans:[]
-      },
-      { id:'c_demo3', prenom:'Marc', nom:'Dupont', age:35, poidsInitial:90, taille:178, objectif:'reequilibrage', statut:'atteint', photoFace:null, notes:'Objectif atteint en 3 mois.',
-        mesures:[
-          { date: new Date(Date.now()-90*86400000).toISOString(), poids:90 },
-          { date: new Date(Date.now()-60*86400000).toISOString(), poids:87 },
-          { date: new Date(Date.now()-30*86400000).toISOString(), poids:84.5 },
-          { date: new Date().toISOString(), poids:83 }
-        ],
-        plans:[{ objectif:'reequilibrage', statut:'valide', date: new Date(Date.now()-85*86400000).toISOString() }]
-      }
-    ];
-    saveClients(demo);
+  // Nettoyage unique : les anciennes versions du CRM inseraient trois
+  // clients de demonstration (Julien Bernard, Sarah Moreau, Marc Dupont)
+  // dans le navigateur au premier chargement. On les retire des postes
+  // qui les ont deja enregistres. Les clients reels ne sont pas touches.
+  const clients = loadClients();
+  const nettoyes = clients.filter(c => !/^c_demo\d+$/.test(c.id || ''));
+  if (nettoyes.length !== clients.length) {
+    saveClients(nettoyes);
   }
+
   filterClients();
 });

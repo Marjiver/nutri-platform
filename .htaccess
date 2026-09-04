@@ -1,0 +1,140 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  NutriDoc — En-têtes de sécurité et blocage des fichiers internes
+#  Hébergement OVH mutualisé (Apache). Ce fichier doit être uploadé à la
+#  racine du site, au même niveau que index.html.
+#
+#  Deux rôles distincts :
+#    · bloquer le téléchargement des fichiers de travail (section 1) ;
+#    · poser les en-têtes que le navigateur applique (sections 2 et 3).
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+# ───────────────────────────────────────────────────────────────────────────
+#  1. FICHIERS À NE JAMAIS SERVIR
+# ───────────────────────────────────────────────────────────────────────────
+#  DEPLOYMENT.md liste des dossiers « à ne pas uploader », mais c'est une
+#  consigne manuelle : un envoi FTP complet la contourne sans prévenir.
+#  Ces règles rendent le blocage automatique.
+#
+#  Le cas le plus grave est .git/ : le dossier reste lisible fichier par
+#  fichier même sans listing de répertoire, et permet de reconstituer tout
+#  l'historique du dépôt. Viennent ensuite les .sql — supabase-schema.sql et
+#  sql/*.sql décrivent vos tables et vos règles d'accès, ce qui donne à un
+#  attaquant la carte exacte de ce qu'il peut tenter.
+
+RedirectMatch 404 (?i)/\.git(/|$)
+RedirectMatch 404 (?i)/(backup|docs|script|node_modules|supabase)(/|$)
+
+<FilesMatch "(?i)\.(sql|py|sh|md|txt|log|ts|yml|yaml|toml|ini|bak|old|orig|swp|dist|lock)$">
+  Require all denied
+</FilesMatch>
+
+# Exceptions : ces trois-là doivent rester publics.
+<FilesMatch "^(robots\.txt|ads\.txt|sitemap\.xml)$">
+  Require all granted
+</FilesMatch>
+
+<FilesMatch "(?i)^(\.env.*|\.gitignore|\.gitattributes|package(-lock)?\.json|LISEZMOI\.txt)$">
+  Require all denied
+</FilesMatch>
+
+# Pas de listing de répertoire (assets/, css/, js/ …).
+Options -Indexes
+
+
+# ───────────────────────────────────────────────────────────────────────────
+#  2. EN-TÊTES DE SÉCURITÉ
+# ───────────────────────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+
+  # Le site manipule des données de santé : le HTTPS ne doit pas être
+  # négociable. preload est volontairement omis — l'inscription à la liste
+  # preload des navigateurs est difficile à annuler, à n'ajouter qu'une fois
+  # le HTTPS stabilisé sur tous les sous-domaines.
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Empêche l'affichage du site dans une iframe : sans cela, un tiers
+  # superpose sa page à la vôtre et fait cliquer l'utilisateur à son insu
+  # (clickjacking) — sur « Valider le plan » ou « Supprimer mon compte ».
+  Header always set X-Frame-Options "DENY"
+
+  # Interdit au navigateur de « deviner » le type d'un fichier. Un fichier
+  # déposé par un utilisateur et servi en text/plain ne peut plus être
+  # réinterprété comme du HTML, donc exécuté.
+  Header always set X-Content-Type-Options "nosniff"
+
+  # L'URL d'une page comme dossier-patient.html?id=… ne doit pas partir dans
+  # le Referer vers un domaine tiers.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Coupe les capteurs dont le site n'a aucun usage.
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()"
+
+  # Isole la fenêtre des pages ouvertes par window.open et réciproquement.
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+
+  # Les réponses des espaces connectés ne doivent pas finir dans un cache
+  # partagé (proxy d'entreprise, cache CDN).
+  <FilesMatch "(?i)^(admin|dashboard.*|dossier-patient|profil-.*|compta-.*|bilan|validation-.*|agenda-.*|prescripteur-.*|partenaire-.*|accueil-.*|gestion-.*|statistiques-admin)\.html$">
+    Header always set Cache-Control "no-store, must-revalidate"
+  </FilesMatch>
+
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  3. CONTENT-SECURITY-POLICY
+  # ─────────────────────────────────────────────────────────────────────────
+  #  ⚠ HONNÊTETÉ SUR CE QUE CETTE CSP FAIT ET NE FAIT PAS
+  #
+  #  script-src contient 'unsafe-inline', parce que les 87 pages du site
+  #  portent leur JavaScript en <script> inline et en attributs onclick=.
+  #  Conséquence : cette CSP N'ARRÊTE PAS une injection XSS. Le vrai
+  #  correctif XSS est l'échappement des sorties (js/utils/escape.js), pas
+  #  cet en-tête.
+  #
+  #  Ce qu'elle apporte quand même, et qui n'est pas rien :
+  #    · connect-src ferme l'exfiltration. Un script injecté peut s'exécuter,
+  #      mais il ne peut pas envoyer les données lues vers un serveur qui
+  #      n'est pas dans la liste ci-dessous.
+  #    · form-action empêche de rediriger la soumission d'un formulaire
+  #      (identifiants compris) vers un domaine extérieur.
+  #    · script-src bloque le chargement d'un script depuis un CDN inconnu.
+  #    · object-src 'none' et base-uri 'self' ferment deux détournements
+  #      classiques (plugins, réécriture de la base des URL relatives).
+  #
+  #  Étape suivante, quand vous voudrez une vraie protection XSS : sortir le
+  #  JS inline dans des fichiers .js, puis retirer 'unsafe-inline' ici.
+  #  Testez d'abord en Content-Security-Policy-Report-Only (voir plus bas).
+  #
+  #  Origines retenues, relevées dans le code :
+  #    cdn.jsdelivr.net       supabase-js (63 pages)
+  #    cdnjs.cloudflare.com   librairies + feuilles de style (18 pages)
+  #    js.stripe.com          paiement
+  #    fonts.googleapis.com   polices (42 pages) — la feuille
+  #    fonts.gstatic.com      polices — les fichiers
+  #    googletagmanager.com   analytics
+  #    *.supabase.co          base de données (REST + Realtime en wss)
+  #    recherche-entreprises.api.gouv.fr   vérification SIRET
+  #    storage.nutridoc.fr    stockage des PDF
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://phgjpwaptrrjonoimmne.supabase.co wss://phgjpwaptrrjonoimmne.supabase.co https://api.stripe.com https://recherche-entreprises.api.gouv.fr https://storage.nutridoc.fr https://www.google-analytics.com https://www.googletagmanager.com; frame-src https://js.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+
+  # Variante d'essai : pour durcir sans rien casser, commentez la ligne
+  # ci-dessus et décommentez celle-ci. Le navigateur signale les violations
+  # dans sa console sans bloquer quoi que ce soit — de quoi repérer une
+  # origine oubliée avant de passer au mode bloquant.
+  # Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com; object-src 'none'; base-uri 'self'"
+
+</IfModule>
+
+
+# ───────────────────────────────────────────────────────────────────────────
+#  4. FORCER HTTPS
+# ───────────────────────────────────────────────────────────────────────────
+#  Strict-Transport-Security n'agit qu'à partir de la deuxième visite : le
+#  navigateur doit avoir reçu l'en-tête au moins une fois. Cette redirection
+#  couvre la première.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>

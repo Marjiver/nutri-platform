@@ -17,10 +17,14 @@
 (function () {
   'use strict';
 
-  // 1. On masque le contenu tant que l'identité n'est pas confirmée
+  // 1. On masque le contenu tant que l'identité n'est pas confirmée.
+  //    La règle porte sur tous les enfants directs de <body> plutôt que sur
+  //    une classe précise : les pages d'administration n'ont pas toutes le
+  //    même conteneur (.admin-layout sur admin.html, .admin-header ailleurs).
+  //    L'écran d'authentification est exclu pour rester visible.
   var style = document.createElement('style');
   style.id = 'nd-admin-hide';
-  style.textContent = '.admin-layout{display:none !important;}';
+  style.textContent = 'body > *:not(#nd-admin-screen){display:none !important;}';
   (document.head || document.documentElement).appendChild(style);
 
   function afficherContenu() {
@@ -30,6 +34,7 @@
 
   function ecran(titre, message, lien, libelleLien) {
     var o = document.createElement('div');
+    o.id = 'nd-admin-screen';
     o.style.cssText = 'position:fixed;inset:0;background:#0d2018;display:flex;' +
       'align-items:center;justify-content:center;z-index:99999;padding:1rem;' +
       'font-family:Outfit,system-ui,sans-serif;';

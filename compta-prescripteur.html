@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -12,14 +13,14 @@
   <meta name="author" content="CaliDoc Santé"/>
   <link rel="manifest" href="manifest.json"/>
   <title>Comptabilité — NutriDoc Prescripteur</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/ui/dark-mode.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);line-height:1.5;}
@@ -86,7 +87,7 @@
     .card-header-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
     .btn-sm-action{background:transparent;border:1px solid var(--border-light,#eef4ee);border-radius:999px;padding:.3rem .8rem;font-size:.72rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;color:var(--text-secondary,#6b7b74);text-decoration:none;display:inline-block;}
     .btn-sm-action:hover{border-color:#1D9E75;color:#1D9E75;}
-    .btn-green-sm{background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s;text-decoration:none;display:inline-block;}
+    .btn-green-sm{background:#12795a;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s;text-decoration:none;display:inline-block;}
     .btn-green-sm:hover{background:#0f6e56;}
     .btn-blue-sm{background:#0ea5e9;color:#fff;border:none;border-radius:999px;padding:.4rem 1rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s;text-decoration:none;}
     .btn-blue-sm:hover{background:#0284c7;}
@@ -111,7 +112,7 @@
     /* ── ALERTE CRÉDITS ─────────────────────────────────────── */
     .alert-credits{background:#fff8e6;border:1px solid #fcd34d;border-radius:16px;padding:.9rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
     .alert-credits-text{font-size:.85rem;color:#633806;}
-    .btn-upgrade{background:#1D9E75;color:#fff;padding:.45rem 1.1rem;border-radius:999px;font-size:.78rem;font-weight:500;text-decoration:none;transition:background .2s;}
+    .btn-upgrade{background:#12795a;color:#fff;padding:.45rem 1.1rem;border-radius:999px;font-size:.78rem;font-weight:500;text-decoration:none;transition:background .2s;}
     .btn-upgrade:hover{background:#0f6e56;}
 
     /* ── BLOC CRÉDITS ────────────────────────────────────────── */
@@ -122,7 +123,7 @@
     .credits-bar-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#5DCAA5);border-radius:999px;transition:width .6s ease;}
     .credits-bar-label{font-size:.72rem;color:rgba(255,255,255,.4);}
     .credits-actions{display:flex;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap;}
-    .btn-recharge{background:#1D9E75;color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;transition:background .2s;}
+    .btn-recharge{background:#12795a;color:#fff;border:none;border-radius:999px;padding:.55rem 1.25rem;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;transition:background .2s;}
     .btn-recharge:hover{background:#0f6e56;}
     .btn-recharge-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.5rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;transition:all .2s;}
     .btn-recharge-ghost:hover{background:rgba(255,255,255,.14);}
@@ -186,7 +187,7 @@
     .sim-toggle:hover{transform:scale(1.05);background:#0f6e56;}
     .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--bg-card,#fff);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid rgba(29,158,117,.2);overflow:hidden;}
     .sim-window.open{display:block;}
-    .sim-header{background:#1D9E75;color:#fff;padding:.7rem 1rem;font-size:.88rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .sim-header{background:#12795a;color:#fff;padding:.7rem 1rem;font-size:.88rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
     .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
     .sim-body{padding:1rem;}
     .sim-field{margin-bottom:.85rem;}
@@ -228,9 +229,10 @@
     .nd-footer-col a:hover{color:#fff;}
     .nd-footer-bottom{text-align:center;font-size:.65rem;padding-top:2rem;margin-top:2rem;border-top:1px solid rgba(255,255,255,.05);}
     @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
-    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:40px;height:40px;background:#1D9E75;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;font-size:1rem;}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:40px;height:40px;background:#12795a;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;font-size:1rem;}
     .scroll-top-btn.visible{opacity:1;}
   </style>
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 <body>
 
@@ -457,7 +459,7 @@
       </div>
 
       <div class="filtres-bar">
-        <label>Filtrer :</label>
+        <label for="filtreStatut">Filtrer :</label>
         <select id="filtreStatut" onchange="filtrerPlans()">
           <option value="">Tous les statuts</option>
           <option value="livré">✅ Livré</option>
@@ -927,10 +929,10 @@ function renderRecapMois() {
         <tbody>
           ${plansMois.map(p => `<tr>
             <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
-            <td class="text-bold">${p.client}</td>
-            <td>${p.objectif}</td>
+            <td class="text-bold">${escapeHtml(p.client)}</td>
+            <td>${escapeHtml(p.objectif)}</td>
             <td>${p.prixVente ? p.prixVente + ' €' : '—'}</td>
-            <td><span class="${p.statut==='livré'?'badge-ok':p.statut==='en cours'?'badge-pending':'badge-waiting'}">${p.statut}</span></td>
+            <td><span class="${p.statut==='livré'?'badge-ok':p.statut==='en cours'?'badge-pending':'badge-waiting'}">${escapeHtml(p.statut)}</span></td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -1312,6 +1314,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSim();
 });
 </script>
-<script src="js/error-handler.js"></script>
+<script src="js/utils/error-handler.js?v=2"></script>
 </body>
 </html>

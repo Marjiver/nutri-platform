@@ -24,14 +24,16 @@
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tableau de Bord - Mon Espace - NutriDoc</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-init.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     * {
       margin: 0;
@@ -171,7 +173,7 @@
       background: rgba(29,158,117,.1);
     }
     .btn-primary {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       padding: 0.5rem 1.2rem;
@@ -278,7 +280,7 @@
       background: rgba(29,158,117,.05);
     }
     .quiz-btn.correct {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border-color: #1D9E75;
     }
@@ -439,7 +441,7 @@
     }
     .chat-window.open { display: flex; flex-direction: column; }
     .chat-header {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       padding: 0.75rem 1rem;
       display: flex;
@@ -470,7 +472,7 @@
       line-height: 1.4;
     }
     .chat-msg.patient {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       align-self: flex-end;
       border-bottom-right-radius: 3px;
@@ -497,7 +499,7 @@
       outline: none;
     }
     .chat-input button {
-      background: #1D9E75;
+      background:#12795a;
       border: none;
       color: #fff;
       padding: 0.4rem 0.8rem;
@@ -526,13 +528,11 @@
     .quiz-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#f59e0b;border-radius:50%;font-size:.6rem;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
     .quiz-window{display:none;position:absolute;bottom:70px;left:0;width:340px;background:var(--bg-card,#fff);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid rgba(29,158,117,.2);max-height:500px;}
     .quiz-window.open{display:block;}
-    .quiz-win-header{background:#1D9E75;color:#fff;padding:.75rem 1rem;font-size:.9rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .quiz-win-header{background:#12795a;color:#fff;padding:.75rem 1rem;font-size:.9rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
     .quiz-win-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
     .quiz-win-body{padding:1rem;overflow-y:auto;max-height:420px;}
 
   </style>
-  <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/style.css">
   <meta name="robots" content="noindex, nofollow">
   </head>
 
@@ -585,23 +585,27 @@
           <span class="badge">Espace personnel</span>
         </div>
         <div class="stats-row">
-          <div class="stat-card"><div class="stat-number" id="statBilan">1</div><div class="stat-label">Bilan complété</div></div>
+          <div class="stat-card"><div class="stat-number" id="statBilan">0</div><div class="stat-label">Bilan complété</div></div>
           <div class="stat-card"><div class="stat-number" id="statPlan">—</div><div class="stat-label">Plan actif</div></div>
           <div class="stat-card"><div class="stat-number" id="statMessages">0</div><div class="stat-label">Messages</div></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-title">🥗 Votre diététicien</div><span class="badge">✓ RPPS vérifié</span></div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 56px; height: 56px; background: linear-gradient(135deg,#1D9E75,#0f6e56); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.2rem;">GM</div>
+        <div class="card-header"><div class="card-title">🥗 Votre diététicien</div><span class="badge" id="dietBadge" style="display:none;">✓ RPPS vérifié</span></div>
+        <!-- Renseigné par afficherDieteticien() avec le diététicien qui a
+             réellement validé le plan du patient. Aucun praticien affiché
+             par défaut : un nom en dur ferait croire à une prise en charge
+             qui n'existe pas. -->
+        <div id="dietVide" style="font-size:.8rem;color:#6b7b74;padding:.25rem 0;">
+          Aucun diététicien ne vous est encore attribué. Un praticien certifié RPPS
+          vous sera assigné dès la commande de votre plan alimentaire.
+        </div>
+        <div id="dietFiche" style="display:none; align-items: center; gap: 1rem;">
+          <div id="dietAvatar" style="width: 56px; height: 56px; background: linear-gradient(135deg,#1D9E75,#0f6e56); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.2rem;"></div>
           <div>
-            <div style="font-weight: 600;">Grégoire Martin</div>
-            <div style="font-size: 0.7rem; color: #6b7b74;">Diététicien-Nutritionniste · RPPS 10 008 019 381</div>
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;">
-              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🏥 CHU Angoulême</span>
-              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🏡 Cabinet libéral</span>
-              <span style="font-size: 0.6rem; background: #eef4ee; padding: 0.15rem 0.5rem; border-radius: 999px;">🚒 Pompier volontaire</span>
-            </div>
+            <div style="font-weight: 600;" id="dietNom"></div>
+            <div style="font-size: 0.7rem; color: #6b7b74;" id="dietQualite"></div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;" id="dietTags"></div>
           </div>
         </div>
       </div>
@@ -729,7 +733,7 @@
           <div class="tool-content">
             <canvas id="weightHistoryChart" height="150" style="max-height:150px;"></canvas>
             <div style="display:flex;gap:.5rem;margin-top:.75rem;">
-              <input type="number" id="newWeight" placeholder="Nouveau poids (kg)" style="padding:.4rem;border-radius:8px;border:1px solid #eef4ee;width:150px;">
+              <input type="number" id="newWeight" placeholder="Nouveau poids (kg)" style="padding:.4rem;border-radius:8px;border:1px solid #eef4ee;width:150px;" aria-label="Nouveau poids (kg)">
               <button class="btn-outline" onclick="ajouterPoidsHistorique()">Ajouter</button>
             </div>
           </div>
@@ -746,7 +750,7 @@
             <p style="font-size:.78rem;color:var(--text-muted,#6b7280);margin-bottom:1rem;line-height:1.5;">Quelle quantité d'un autre féculent apporte les mêmes calories que votre portion de référence ?</p>
             <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin-bottom:1rem;">
               <div>
-                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;">Aliment de référence</label>
+                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;" for="equivRef">Aliment de référence</label>
                 <select id="equivRef" onchange="calculerEquivalences()" style="padding:.4rem .6rem;border-radius:8px;border:1px solid var(--border-light,#eef4ee);font-family:Outfit,sans-serif;font-size:.82rem;">
                   <option value="70">Pommes de terre cuites</option>
                   <option value="85">Patate douce cuite</option>
@@ -771,7 +775,7 @@
                 </select>
               </div>
               <div>
-                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;">Portion (g)</label>
+                <label style="font-size:.7rem;display:block;margin-bottom:.25rem;" for="equivQte">Portion (g)</label>
                 <input type="number" id="equivQte" value="400" min="10" max="2000" oninput="calculerEquivalences()" style="width:85px;padding:.4rem .6rem;border-radius:8px;border:1px solid var(--border-light,#eef4ee);font-family:Outfit,sans-serif;font-size:.82rem;">
               </div>
               <div style="font-size:.8rem;color:var(--text-secondary,#4b5563);">= <strong id="equivKcal" style="color:#1D9E75;font-size:1rem;">280</strong> kcal</div>
@@ -790,14 +794,14 @@
           </div>
           <div class="tool-content">
             <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
-              <div><label style="font-size:.7rem;">Aliment</label>
+              <div><label style="font-size:.7rem;" for="calcAliment">Aliment</label>
                 <select id="calcAliment" style="padding:.4rem;border-radius:8px;border:1px solid #eef4ee;">
                   <option value="1.0">Eau</option><option value="0.916">Huile d'olive</option><option value="1.03">Lait</option>
                   <option value="1.42">Miel</option><option value="1.18">Sauce soja</option>
                 </select>
               </div>
-              <div><label style="font-size:.7rem;">Quantité</label><input type="number" id="calcQte" value="100" style="width:90px;padding:.4rem;border-radius:8px;border:1px solid #eef4ee;"></div>
-              <div><label style="font-size:.7rem;">Unité</label>
+              <div><label style="font-size:.7rem;" for="calcQte">Quantité</label><input type="number" id="calcQte" value="100" style="width:90px;padding:.4rem;border-radius:8px;border:1px solid #eef4ee;"></div>
+              <div><label style="font-size:.7rem;" for="calcUnite">Unité</label>
                 <select id="calcUnite" style="padding:.4rem;border-radius:8px;">
                   <option value="g">grammes (g)</option><option value="ml">millilitres (ml)</option>
                   <option value="cs">cuillères à soupe</option><option value="cc">cuillères à café</option>
@@ -839,9 +843,9 @@
       <div class="card">
         <div class="card-header"><div class="card-title">🍽️ Mes habitudes alimentaires</div><button class="btn-outline" onclick="sauvegarderHabitudes()">💾 Sauvegarder</button></div>
         <div class="habits-grid">
-          <div class="habit-card"><label>🍳 Petit-déjeuner</label><textarea id="habitMatin" rows="2" placeholder="Ex: café + tartines..."></textarea></div>
-          <div class="habit-card"><label>🥗 Déjeuner</label><textarea id="habitMidi" rows="2" placeholder="Ex: cantine, sandwich..."></textarea></div>
-          <div class="habit-card"><label>🍽 Dîner</label><textarea id="habitSoir" rows="2" placeholder="Ex: repas familial..."></textarea></div>
+          <div class="habit-card"><label for="habitMatin">🍳 Petit-déjeuner</label><textarea id="habitMatin" rows="2" placeholder="Ex: café + tartines..."></textarea></div>
+          <div class="habit-card"><label for="habitMidi">🥗 Déjeuner</label><textarea id="habitMidi" rows="2" placeholder="Ex: cantine, sandwich..."></textarea></div>
+          <div class="habit-card"><label for="habitSoir">🍽 Dîner</label><textarea id="habitSoir" rows="2" placeholder="Ex: repas familial..."></textarea></div>
         </div>
       </div>
     </div>
@@ -861,7 +865,7 @@
       <div class="chat-msg diet">Bonjour ! Je suis Grégoire, votre diététicien. Posez-moi vos questions ici.</div>
     </div>
     <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+      <input type="text" id="chatInput" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendChatMessage()" aria-label="Votre message">
       <button onclick="sendChatMessage()">Envoyer</button>
     </div>
   </div>
@@ -1181,9 +1185,42 @@ function toggleFAQ(element) {
 }
 
 // ===== INITIALISATION =====
+// Affiche le diététicien réellement attribué au patient, ou l'état vide.
+// `diet` provient de la table profiles (via le plan validé du patient).
+function afficherDieteticien(diet) {
+  const vide  = document.getElementById('dietVide');
+  const fiche = document.getElementById('dietFiche');
+  const badge = document.getElementById('dietBadge');
+  if (!vide || !fiche) return;
+
+  if (!diet || !diet.nom) {
+    vide.style.display = '';
+    fiche.style.display = 'none';
+    if (badge) badge.style.display = 'none';
+    return;
+  }
+
+  const nomComplet = [diet.prenom, diet.nom].filter(Boolean).join(' ');
+  document.getElementById('dietAvatar').textContent =
+    ((diet.prenom || '')[0] || '') + ((diet.nom || '')[0] || '');
+  document.getElementById('dietNom').textContent = nomComplet;
+  document.getElementById('dietQualite').textContent =
+    'Diététicien-Nutritionniste' + (diet.rpps ? ' · RPPS ' + diet.rpps : '');
+  document.getElementById('dietTags').innerHTML = (diet.tags || [])
+    .map(t => `<span style="font-size:0.6rem;background:#eef4ee;padding:0.15rem 0.5rem;border-radius:999px;">${t}</span>`)
+    .join('');
+
+  vide.style.display = 'none';
+  fiche.style.display = 'flex';
+  if (badge && diet.statut_rpps && diet.statut_rpps.startsWith('verifie')) badge.style.display = '';
+}
+
 function init() {
-  // Données simulées
+  // Identité de l'utilisateur connecté
   document.getElementById('greetingName').textContent = localStorage.getItem('user_prenom') || 'Patient';
+  // Aucun diététicien attribué tant que le plan n'a pas été pris en charge.
+  // TODO: passer ici le profil du diététicien issu du plan du patient.
+  afficherDieteticien(null);
   // Header : avatar + nom
   const prenom = localStorage.getItem('user_prenom') || '';
   const nom    = localStorage.getItem('user_nom') || '';
@@ -1232,6 +1269,33 @@ function init() {
   calculerEquivalences();
 }
 
+// EQUIV_DATA etait declare APRES init(), qui l'utilise via
+// calculerEquivalences() : la zone morte temporelle du const levait
+// « Cannot access 'EQUIV_DATA' before initialization » et interrompait
+// toute la fin du script. Le bloc doit donc precer l'appel.
+const EQUIV_DATA = [
+  {nom:'Pommes de terre cuites',      kcal:70,  icon:'🥔'},
+  {nom:'Patate douce cuite',           kcal:85,  icon:'🍠'},
+  {nom:'Riz blanc cuit',              kcal:120, icon:'🍚'},
+  {nom:'Riz complet cuit',            kcal:130, icon:'🍚'},
+  {nom:'Pâtes cuites',                kcal:115, icon:'🍝'},
+  {nom:'Pâtes complètes cuites',      kcal:125, icon:'🍝'},
+  {nom:'Quinoa cuit',                 kcal:125, icon:'🌾'},
+  {nom:'Lentilles cuites',            kcal:95,  icon:'🫘'},
+  {nom:'Pois chiches cuits',          kcal:110, icon:'🫘'},
+  {nom:'Haricots rouges cuits',       kcal:100, icon:'🫘'},
+  {nom:'Haricots blancs cuits',       kcal:100, icon:'🫘'},
+  {nom:'Semoule de blé cuite',        kcal:110, icon:'🌾'},
+  {nom:'Boulgour cuit',               kcal:108, icon:'🌾'},
+  {nom:'Maïs (grains cuits)',         kcal:100, icon:'🌽'},
+  {nom:'Pain blanc',                  kcal:265, icon:'🍞'},
+  {nom:'Pain complet',                kcal:250, icon:'🍞'},
+  {nom:'Pain de seigle',              kcal:260, icon:'🍞'},
+  {nom:'Flocons d\'avoine',           kcal:370, icon:'🌾'},
+  {nom:'Polenta cuite',               kcal:70,  icon:'🌽'},
+  {nom:'Millet cuit',                 kcal:120, icon:'🌾'},
+];
+
 init();
 window.answerQuiz = answerQuiz;
 window.resetQuiz = resetQuiz;
@@ -1268,28 +1332,6 @@ function toast(msg) {
 
 
 // ===== ÉQUIVALENCES FÉCULENTS =====
-const EQUIV_DATA = [
-  {nom:'Pommes de terre cuites',      kcal:70,  icon:'🥔'},
-  {nom:'Patate douce cuite',           kcal:85,  icon:'🍠'},
-  {nom:'Riz blanc cuit',              kcal:120, icon:'🍚'},
-  {nom:'Riz complet cuit',            kcal:130, icon:'🍚'},
-  {nom:'Pâtes cuites',                kcal:115, icon:'🍝'},
-  {nom:'Pâtes complètes cuites',      kcal:125, icon:'🍝'},
-  {nom:'Quinoa cuit',                 kcal:125, icon:'🌾'},
-  {nom:'Lentilles cuites',            kcal:95,  icon:'🫘'},
-  {nom:'Pois chiches cuits',          kcal:110, icon:'🫘'},
-  {nom:'Haricots rouges cuits',       kcal:100, icon:'🫘'},
-  {nom:'Haricots blancs cuits',       kcal:100, icon:'🫘'},
-  {nom:'Semoule de blé cuite',        kcal:110, icon:'🌾'},
-  {nom:'Boulgour cuit',               kcal:108, icon:'🌾'},
-  {nom:'Maïs (grains cuits)',         kcal:100, icon:'🌽'},
-  {nom:'Pain blanc',                  kcal:265, icon:'🍞'},
-  {nom:'Pain complet',                kcal:250, icon:'🍞'},
-  {nom:'Pain de seigle',              kcal:260, icon:'🍞'},
-  {nom:'Flocons d\'avoine',           kcal:370, icon:'🌾'},
-  {nom:'Polenta cuite',               kcal:70,  icon:'🌽'},
-  {nom:'Millet cuit',                 kcal:120, icon:'🌾'},
-];
 function calculerEquivalences() {
   const kcalRef = parseFloat(document.getElementById('equivRef').value) || 70;
   const qteRef  = parseFloat(document.getElementById('equivQte').value) || 400;
@@ -1303,7 +1345,7 @@ function calculerEquivalences() {
     const col  = qte < qteRef * 0.8 ? '#1D9E75' : qte > qteRef * 1.2 ? '#f59e0b' : '#3b82f6';
     return `<div style="background:var(--bg-secondary,#f7f9f7);border-radius:10px;padding:.6rem .75rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">
-        <span style="font-size:.75rem;font-weight:500;color:var(--text-primary,#0d2018);">${a.icon} ${a.nom}</span>
+        <span style="font-size:.75rem;font-weight:500;color:var(--text-primary,#0d2018);">${a.icon} ${escapeHtml(a.nom)}</span>
         <span style="font-size:.82rem;font-weight:700;color:${col};">${qte} g</span>
       </div>
       <div style="height:4px;background:var(--border-light,#eef4ee);border-radius:2px;">
@@ -1325,9 +1367,9 @@ window.ajouterPoids = ajouterPoids;
 window.ajouterPoidsHistorique = ajouterPoidsHistorique;
 window.sauvegarderHabitudes = sauvegarderHabitudes;
 </script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/auto-save.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/auto-save.js?v=2"></script>
   <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -1337,7 +1379,6 @@ window.sauvegarderHabitudes = sauvegarderHabitudes;
     });
   }
   </script>
-  <script src="js/error-handler.js"></script>
 <!-- BULLE QUIZ NUTRITION -->
 <div class="quiz-bubble" id="quizBubble">
   <button class="quiz-toggle" onclick="toggleQuizBubble()" title="Quiz nutrition">🧠</button>

@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <title>Espace prescripteur — NutriDoc</title>
@@ -11,8 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     :root{
@@ -72,7 +73,7 @@
     .fb-pill.pro{background:linear-gradient(135deg,#5DCAA5,#1D9E75);color:#fff;}
     .fb-txt{font-size:.72rem;color:rgba(255,255,255,.75);}
     .fb-txt strong{color:#fff;}
-    .fb-btn{font-size:.68rem;background:var(--green);color:#fff;border:none;border-radius:999px;padding:.25rem .75rem;cursor:pointer;font-family:"Outfit",sans-serif;white-space:nowrap;}
+    .fb-btn{font-size:.68rem;background:#12795a;color:#fff;border:none;border-radius:999px;padding:.25rem .75rem;cursor:pointer;font-family:"Outfit",sans-serif;white-space:nowrap;}
 
     /* PRO LOCK OVERLAY */
     .pro-lock{position:relative;}
@@ -80,7 +81,7 @@
     .pro-lock-icon{font-size:1.5rem;}
     .pro-lock-txt{font-size:.78rem;font-weight:700;color:var(--text);}
     .pro-lock-sub{font-size:.7rem;color:var(--text2);}
-    .pro-lock-btn{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.4rem 1.1rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:"Outfit",sans-serif;margin-top:.25rem;}
+    .pro-lock-btn{background:#12795a;color:#fff;border:none;border-radius:999px;padding:.4rem 1.1rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:"Outfit",sans-serif;margin-top:.25rem;}
 
     /* MAIN */
     .main-content{flex:1;min-width:0;}
@@ -124,7 +125,7 @@
     .form-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin:1.25rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
 
     /* BOUTONS */
-    .btn-primary{background:var(--green);color:#fff;border:none;padding:.7rem 1.25rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-primary{background:#12795a;color:#fff;border:none;padding:.7rem 1.25rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
     .btn-primary:hover{background:var(--green-dark);}
     .btn-secondary{background:var(--cream);border:1px solid var(--border);color:var(--text2);padding:.6rem 1rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
     .btn-secondary:hover{border-color:var(--green);color:var(--green);}
@@ -209,7 +210,7 @@
     .sim-toggle:hover{transform:scale(1.05);background:var(--green-dark);}
     .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid var(--green-border);}
     .sim-window.open{display:block;}
-    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-hd{background:#12795a;color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
     .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
     .sim-body{padding:.9rem;}
     .sim-field{margin-bottom:.75rem;}
@@ -230,7 +231,7 @@
     .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.35rem;}
 
     /* TOAST */
-    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#12795a;color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
     .toast.error{background:#ef4444;}
     @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
 
@@ -246,7 +247,7 @@
     .nd-footer-col a:hover{color:#fff;}
     .nd-footer-bottom{text-align:center;font-size:.62rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.05);}
     @media(max-width:768px){.nd-footer-inner{grid-template-columns:1fr;}.nd-footer-links{grid-template-columns:1fr 1fr;}}
-    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:#12795a;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
     .scroll-top-btn.visible{opacity:1;}
   </style>
 </head>
@@ -360,7 +361,7 @@
         <button class="btn-primary" onclick="openModalClient()">+ Nouveau client</button>
       </div>
       <div class="patients-toolbar">
-        <input type="text" class="search-input" id="searchClient" placeholder="Rechercher un client..." oninput="filterClients()"/>
+        <input type="text" class="search-input" id="searchClient" placeholder="Rechercher un client..." oninput="filterClients()" aria-label="Rechercher un client"/>
         <select style="padding:.6rem .9rem;border:1.5px solid var(--border);border-radius:999px;font-size:.78rem;font-family:Outfit,sans-serif;" id="filterStatut" onchange="filterClients()">
           <option value="">Tous les statuts</option>
           <option value="valide">Plan valid&eacute;</option>
@@ -382,7 +383,7 @@
       <div class="card">
         <div class="card-title">1&#65039;&#8419; Client</div>
         <div class="form-group">
-          <label>Client <span class="req">*</span></label>
+          <label for="selectClient">Client <span class="req">*</span></label>
           <select id="selectClient" style="width:100%;" onchange="showCommandeDetails()">
             <option value="">&#8212; Choisir un client existant &#8212;</option>
           </select>
@@ -396,7 +397,7 @@
         <div class="card-title">2&#65039;&#8419; Dossier nutritionnel</div>
         <div class="form-section-title">Objectif &amp; mode de vie</div>
         <div class="form-group">
-          <label>Objectif principal <span class="req">*</span></label>
+          <label for="cmdObjectif">Objectif principal <span class="req">*</span></label>
           <select id="cmdObjectif">
             <option value="poids">Perte de poids / de gras</option>
             <option value="masse">Prise de masse / muscle</option>
@@ -409,16 +410,16 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Taille (cm) <span class="req">*</span></label>
+            <label for="cmdTaille">Taille (cm) <span class="req">*</span></label>
             <input type="number" id="cmdTaille" placeholder="170" min="100" max="250"/>
           </div>
           <div class="form-group">
-            <label>Poids (kg) <span class="req">*</span></label>
+            <label for="cmdPoids">Poids (kg) <span class="req">*</span></label>
             <input type="number" id="cmdPoids" placeholder="70" step="0.1" min="30" max="300"/>
           </div>
         </div>
         <div class="form-group">
-          <label>Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
+          <label for="cmdActivite">Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
           <select id="cmdActivite">
             <option value="sedentaire">S&eacute;dentaire (peu ou pas d&apos;exercice)</option>
             <option value="leger">L&eacute;g&egrave;rement actif (1&#8211;2&times;/semaine)</option>
@@ -429,7 +430,7 @@
         </div>
         <div class="form-section-title">Restrictions &amp; s&eacute;curit&eacute;</div>
         <div class="form-group">
-          <label>R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
+          <label for="cmdRegime">R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
           <select id="cmdRegime">
             <option value="aucun">Aucune restriction</option>
             <option value="vegetarien">V&eacute;g&eacute;tarien</option>
@@ -442,22 +443,22 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Allergies ou intol&eacute;rances <span class="req">*</span></label>
+          <label for="cmdAllergies">Allergies ou intol&eacute;rances <span class="req">*</span></label>
           <input type="text" id="cmdAllergies" placeholder="Arachides, fruits de mer, lait... ou &quot;aucune&quot;"/>
           <span class="field-hint">Indiquez &laquo; aucune &raquo; si pas d&apos;allergie</span>
         </div>
         <div class="form-group">
-          <label>Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
+          <label for="cmdPathologies">Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
           <textarea id="cmdPathologies" rows="2" placeholder="Diab&egrave;te, hypertension, grossesse, TCA, insuffisance r&eacute;nale, chirurgie r&eacute;cente... ou &quot;aucun&quot;"></textarea>
           <span class="field-warn">&#9888;&#65039; Obligatoire. Le di&eacute;t. adaptera le plan en cons&eacute;quence. Tout ant&eacute;c&eacute;dent non signal&eacute; engage votre responsabilit&eacute;.</span>
         </div>
         <div class="form-section-title">Pr&eacute;f&eacute;rences (facultatif)</div>
         <div class="form-group">
-          <label>Aliments &agrave; exclure (aversions)</label>
+          <label for="cmdAversions">Aliments &agrave; exclure (aversions)</label>
           <input type="text" id="cmdAversions" placeholder="Brocolis, foie, sardines..."/>
         </div>
         <div class="form-group">
-          <label>Notes compl&eacute;mentaires pour le di&eacute;t.</label>
+          <label for="cmdNotes">Notes compl&eacute;mentaires pour le di&eacute;t.</label>
           <textarea id="cmdNotes" rows="2" placeholder="Contexte de votre accompagnement, objectifs sp&eacute;cifiques..."></textarea>
         </div>
       </div>
@@ -612,20 +613,20 @@
     <form id="formClient" onsubmit="submitClient(event)" novalidate>
       <div class="form-section-title">Identit&eacute;</div>
       <div class="form-row">
-        <div class="form-group"><label>Pr&eacute;nom <span class="req">*</span></label><input type="text" id="cPrenom" required/></div>
-        <div class="form-group"><label>Nom <span class="req">*</span></label><input type="text" id="cNom" required/></div>
+        <div class="form-group"><label for="cPrenom">Pr&eacute;nom <span class="req">*</span></label><input type="text" id="cPrenom" required/></div>
+        <div class="form-group"><label for="cNom">Nom <span class="req">*</span></label><input type="text" id="cNom" required/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>&#194;ge <span class="req">*</span></label><input type="number" id="cAge" min="1" max="120" required/></div>
-        <div class="form-group"><label>Sexe <span class="req">*</span></label><select id="cSexe" required><option value="F">Femme</option><option value="H">Homme</option><option value="A">Autre</option></select></div>
+        <div class="form-group"><label for="cAge">&#194;ge <span class="req">*</span></label><input type="number" id="cAge" min="1" max="120" required/></div>
+        <div class="form-group"><label for="cSexe">Sexe <span class="req">*</span></label><select id="cSexe" required><option value="F">Femme</option><option value="H">Homme</option><option value="A">Autre</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Taille (cm) <span class="req">*</span></label><input type="number" id="cTaille" min="100" max="250" required/></div>
-        <div class="form-group"><label>Poids (kg) <span class="req">*</span></label><input type="number" id="cPoids" step="0.1" min="30" max="300" required/></div>
+        <div class="form-group"><label for="cTaille">Taille (cm) <span class="req">*</span></label><input type="number" id="cTaille" min="100" max="250" required/></div>
+        <div class="form-group"><label for="cPoids">Poids (kg) <span class="req">*</span></label><input type="number" id="cPoids" step="0.1" min="30" max="300" required/></div>
       </div>
       <div class="form-section-title">Objectif &amp; mode de vie</div>
       <div class="form-group">
-        <label>Objectif principal <span class="req">*</span></label>
+        <label for="cObjectif">Objectif principal <span class="req">*</span></label>
         <select id="cObjectif" required>
           <option value="">&#8212; Choisir &#8212;</option>
           <option value="poids">Perte de poids / de gras</option>
@@ -638,7 +639,7 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
+        <label for="cActivite">Niveau d&apos;activit&eacute; physique <span class="req">*</span></label>
         <select id="cActivite" required>
           <option value="">&#8212; Choisir &#8212;</option>
           <option value="sedentaire">S&eacute;dentaire (peu ou pas d&apos;exercice)</option>
@@ -650,7 +651,7 @@
       </div>
       <div class="form-section-title">Restrictions &amp; s&eacute;curit&eacute;</div>
       <div class="form-group">
-        <label>R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
+        <label for="cRegime">R&eacute;gime ou restriction alimentaire <span class="req">*</span></label>
         <select id="cRegime" required>
           <option value="aucun">Aucune restriction</option>
           <option value="vegetarien">V&eacute;g&eacute;tarien</option>
@@ -663,21 +664,21 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Allergies ou intol&eacute;rances <span class="req">*</span></label>
+        <label for="cAllergies">Allergies ou intol&eacute;rances <span class="req">*</span></label>
         <input type="text" id="cAllergies" placeholder="Arachides, gluten... ou &quot;aucune&quot;" required/>
         <span class="field-hint">Indiquez &laquo;&nbsp;aucune&nbsp;&raquo; si pas d&apos;allergie connue</span>
       </div>
       <div class="form-group">
-        <label>Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
+        <label for="cPathologies">Ant&eacute;c&eacute;dents m&eacute;dicaux ou pathologies <span class="req">*</span></label>
         <textarea id="cPathologies" rows="2" placeholder="Diab&egrave;te, hypertension, grossesse, TCA, insuffisance r&eacute;nale... ou &quot;aucun&quot;" required></textarea>
         <span class="field-warn">&#9888;&#65039; Obligatoire. Transmis au di&eacute;t. pour adapter le plan. Tout ant&eacute;c&eacute;dent non signal&eacute; engage votre responsabilit&eacute;.</span>
       </div>
       <div class="form-section-title">Coordonn&eacute;es (facultatif)</div>
       <div class="form-row">
-        <div class="form-group"><label>Email</label><input type="email" id="cEmail"/></div>
-        <div class="form-group"><label>T&eacute;l&eacute;phone</label><input type="tel" id="cTel"/></div>
+        <div class="form-group"><label for="cEmail">Email</label><input type="email" id="cEmail"/></div>
+        <div class="form-group"><label for="cTel">T&eacute;l&eacute;phone</label><input type="tel" id="cTel"/></div>
       </div>
-      <div class="form-group"><label>Notes libres</label><textarea id="cNotes" rows="2" placeholder="Contexte, habitudes alimentaires, pr&eacute;f&eacute;rences..."></textarea></div>
+      <div class="form-group"><label for="cNotes">Notes libres</label><textarea id="cNotes" rows="2" placeholder="Contexte, habitudes alimentaires, pr&eacute;f&eacute;rences..."></textarea></div>
       <div id="formClientError" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:.6rem 1rem;font-size:.78rem;color:#b91c1c;margin-bottom:.75rem;"></div>
       <div class="modal-footer">
         <button type="button" class="btn-secondary" onclick="closeModal('modalClient')">Annuler</button>

@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Espace Diététicien - NutriDoc</title>
   <meta name="description" content="Diététicien certifié RPPS : générez des revenus complémentaires en validant des plans alimentaires depuis chez vous. 3 mois gratuits, sans engagement."/>
@@ -43,7 +44,7 @@
     .nd-conn-menu.open { display:block; }
     .nd-conn-item { display:block; padding:0.5rem 1rem; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.75rem; transition:background 0.15s; }
     .nd-conn-item:hover { background:rgba(29,158,117,0.1); color:#fff; }
-    .btn-primary { background:var(--green); color:#fff; padding:0.45rem 1.2rem; border-radius:999px; font-size:0.78rem; font-weight:600; text-decoration:none; transition:background 0.2s,transform 0.15s; }
+    .btn-primary { background:#12795a; color:#fff; padding:0.45rem 1.2rem; border-radius:999px; font-size:0.78rem; font-weight:600; text-decoration:none; transition:background 0.2s,transform 0.15s; }
     .btn-primary:hover { background:var(--green-dark); transform:translateY(-1px); }
     @media(max-width:900px){ .nd-nav,.cofond{display:none;} .nd-header{padding:0.65rem 1rem;} }
 
@@ -67,7 +68,7 @@
     .car-chip { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:999px; padding:0.3rem 0.9rem; font-size:0.75rem; color:rgba(255,255,255,0.75); }
     .car-chip.g { background:rgba(29,158,117,0.15); border-color:rgba(29,158,117,0.35); color:var(--green-light); }
     .car-ctas { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
-    .car-cta { background:var(--green); color:#fff; padding:0.85rem 2rem; border-radius:999px; text-decoration:none; font-size:0.9rem; font-weight:600; transition:background 0.2s,transform 0.2s; display:inline-flex; align-items:center; gap:0.4rem; }
+    .car-cta { background:#12795a; color:#fff; padding:0.85rem 2rem; border-radius:999px; text-decoration:none; font-size:0.9rem; font-weight:600; transition:background 0.2s,transform 0.2s; display:inline-flex; align-items:center; gap:0.4rem; }
     .car-cta:hover { background:var(--green-dark); transform:translateX(4px); }
     .car-cta2 { color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.85rem; border-bottom:1px solid rgba(255,255,255,0.25); transition:color 0.2s; }
     .car-cta2:hover { color:#fff; }
@@ -201,7 +202,7 @@
     .pack-card { background:var(--white); border:1px solid var(--border); border-radius:18px; padding:1.75rem 1.25rem; text-align:center; position:relative; transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s; }
     .pack-card:hover { border-color:var(--green); transform:translateY(-5px); box-shadow:0 12px 32px rgba(0,0,0,0.09); }
     .pack-card.featured { background:linear-gradient(140deg,var(--dark) 0%,#1a3a2a 100%); border:2px solid var(--green); }
-    .pack-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:0.62rem; font-weight:700; padding:0.22rem 0.85rem; border-radius:999px; white-space:nowrap; }
+    .pack-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#12795a; color:#fff; font-size:0.62rem; font-weight:700; padding:0.22rem 0.85rem; border-radius:999px; white-space:nowrap; }
     .pack-name { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin-bottom:0.4rem; }
     .pack-card.featured .pack-name { color:var(--green-light); }
     .pack-plans { font-size:0.75rem; color:var(--text2); margin-bottom:0.85rem; }
@@ -225,7 +226,7 @@
     .adv-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; }
     .adv-card { background:rgba(255,255,255,0.04); border:1px solid rgba(93,202,165,0.15); border-radius:18px; padding:1.5rem; text-align:center; transition:border-color 0.2s,transform 0.2s; }
     .adv-card:hover { border-color:var(--green); transform:translateY(-4px); }
-    .adv-icon { width:48px; height:48px; border-radius:14px; background:var(--green); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff; }
+    .adv-icon { width:48px; height:48px; border-radius:14px; background:#12795a; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff; }
     .adv-card h3 { font-size:0.9rem; color:#fff; margin-bottom:0.4rem; }
     .adv-card p  { font-size:0.72rem; color:rgba(255,255,255,0.55); line-height:1.6; }
     @media(max-width:900px){ .adv-grid{grid-template-columns:1fr 1fr;} }
@@ -256,7 +257,7 @@
     .t-card { background:var(--white); border:1px solid var(--border); border-radius:22px; padding:2rem; position:relative; transition:transform 0.2s,box-shadow 0.2s; }
     .t-card:hover { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.1); }
     .t-card.featured { background:linear-gradient(140deg,var(--dark) 0%,#1a3a2a 100%); border:2px solid var(--green); }
-    .t-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:0.68rem; font-weight:700; padding:0.28rem 1.1rem; border-radius:999px; white-space:nowrap; }
+    .t-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:#12795a; color:#fff; font-size:0.68rem; font-weight:700; padding:0.28rem 1.1rem; border-radius:999px; white-space:nowrap; }
     .t-name { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin-bottom:0.5rem; }
     .t-card.featured .t-name { color:var(--green-light); }
     .t-price { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700; color:var(--green); line-height:1; }
@@ -277,7 +278,7 @@
     .t-btn { display:block; text-align:center; width:100%; padding:0.85rem 1rem; border-radius:999px; font-size:0.85rem; font-weight:700; text-decoration:none; transition:all 0.2s; }
     .t-btn-outline { border:2px solid var(--green); color:var(--green); background:transparent; }
     .t-btn-outline:hover { background:rgba(29,158,117,0.08); }
-    .t-btn-filled { background:var(--green); color:#fff; }
+    .t-btn-filled { background:#12795a; color:#fff; }
     .t-btn-filled:hover { background:var(--green-dark); transform:translateY(-2px); }
     .t-note { text-align:center; margin-top:1.5rem; font-size:0.78rem; color:var(--text2); }
     @media(max-width:640px){ .tarifs-grid{grid-template-columns:1fr;} }
@@ -297,7 +298,7 @@
     .cta-final-title { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4vw,3rem); color:#fff; margin-bottom:1rem; line-height:1.2; }
     .cta-final-title em { font-style:italic; color:var(--green-light); }
     .cta-final-sub { font-size:1rem; color:rgba(255,255,255,0.6); margin-bottom:2.5rem; max-width:480px; margin-left:auto; margin-right:auto; }
-    .cta-final-btn { display:inline-flex; align-items:center; gap:0.5rem; background:var(--green); color:#fff; padding:1rem 2.5rem; border-radius:999px; font-size:1rem; font-weight:700; text-decoration:none; transition:background 0.2s,transform 0.2s; }
+    .cta-final-btn { display:inline-flex; align-items:center; gap:0.5rem; background:#12795a; color:#fff; padding:1rem 2.5rem; border-radius:999px; font-size:1rem; font-weight:700; text-decoration:none; transition:background 0.2s,transform 0.2s; }
     .cta-final-btn:hover { background:var(--green-dark); transform:translateY(-3px); }
     .cta-final-note { font-size:0.75rem; color:rgba(255,255,255,0.35); margin-top:1rem; }
 
@@ -314,7 +315,7 @@
     .footer-bottom { text-align:center; font-size:0.62rem; color:rgba(255,255,255,0.2); padding-top:2rem; margin-top:2rem; border-top:1px solid rgba(255,255,255,0.05); }
     @media(max-width:768px){ .footer-inner{grid-template-columns:1fr;} .footer-cols{grid-template-columns:1fr 1fr;} }
 
-    .scroll-top { position:fixed; bottom:1.25rem; right:1.25rem; z-index:300; width:42px; height:42px; background:var(--green); border:none; border-radius:50%; cursor:pointer; color:#fff; font-size:1.1rem; opacity:0; transition:opacity 0.25s; display:flex; align-items:center; justify-content:center; }
+    .scroll-top { position:fixed; bottom:1.25rem; right:1.25rem; z-index:300; width:42px; height:42px; background:#12795a; border:none; border-radius:50%; cursor:pointer; color:#fff; font-size:1.1rem; opacity:0; transition:opacity 0.25s; display:flex; align-items:center; justify-content:center; }
     .scroll-top.visible { opacity:1; }
   </style>
   <meta name="keywords" content="diététicien, exercice libéral, revenus supplémentaires, patients, plans alimentaires">

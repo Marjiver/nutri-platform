@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="robots" content="noindex"/>
@@ -13,8 +14,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     :root{
@@ -127,7 +128,7 @@
     /* ECHEANCIER */
     .echeancier{display:flex;flex-direction:column;gap:.6rem;}
     .echean-item{display:flex;align-items:center;gap:1rem;padding:.85rem 1.1rem;background:var(--cream);border-radius:14px;}
-    .echean-date{background:var(--green);color:#fff;border-radius:10px;padding:.45rem .65rem;text-align:center;min-width:52px;flex-shrink:0;}
+    .echean-date{background:#12795a;color:#fff;border-radius:10px;padding:.45rem .65rem;text-align:center;min-width:52px;flex-shrink:0;}
     .echean-date .ed-day{font-size:1.1rem;font-weight:700;line-height:1;}
     .echean-date .ed-month{font-size:.58rem;opacity:.85;}
     .echean-date.orange{background:#f59e0b;}
@@ -141,7 +142,7 @@
     @media(max-width:680px){.abo-grid{grid-template-columns:1fr;}}
     .abo-card{border:1.5px solid var(--border);border-radius:14px;padding:1.1rem;position:relative;transition:all .2s;}
     .abo-card.active{border-color:var(--green);background:rgba(29,158,117,.04);box-shadow:0 0 0 3px rgba(29,158,117,.1);}
-    .abo-ribbon{position:absolute;top:-10px;right:.85rem;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:999px;background:var(--green);color:#fff;}
+    .abo-ribbon{position:absolute;top:-10px;right:.85rem;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:999px;background:#12795a;color:#fff;}
     .abo-name{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.25rem;}
     .abo-price{font-family:"Playfair Display",serif;font-size:1.5rem;font-weight:700;color:var(--green);}
     .abo-price span{font-family:"Outfit",sans-serif;font-size:.72rem;font-weight:400;color:var(--text2);}
@@ -182,7 +183,7 @@
     .sim-toggle:hover{transform:scale(1.06);background:var(--green-dark);}
     .sim-window{display:none;position:absolute;bottom:64px;left:0;width:320px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid var(--green-border);overflow:hidden;}
     .sim-window.open{display:block;}
-    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-hd{background:#12795a;color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
     .sim-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
     .sim-body{padding:.9rem;}
     .sim-field{margin-bottom:.75rem;}
@@ -198,15 +199,15 @@
     .sim-row.hl strong{color:var(--green);}
     .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.4rem;}
     /* TOAST */
-    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;pointer-events:none;}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#12795a;color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;pointer-events:none;}
     .toast.error{background:#ef4444;}
     @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
     /* BOUTONS */
-    .btn-primary{background:var(--green);color:#fff;border:none;padding:.65rem 1.5rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
+    .btn-primary{background:#12795a;color:#fff;border:none;padding:.65rem 1.5rem;border-radius:999px;font-size:.83rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
     .btn-primary:hover{background:var(--green-dark);}
     .btn-secondary{background:var(--cream);border:1px solid var(--border);color:var(--text2);padding:.6rem 1rem;border-radius:999px;font-size:.78rem;cursor:pointer;font-family:"Outfit",sans-serif;transition:all .2s;}
     .btn-secondary:hover{border-color:var(--green);color:var(--green);}
-    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:#12795a;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
     .scroll-top-btn.visible{opacity:1;}
     /* FOOTER */
     .nd-footer{background:#080f0b;color:rgba(255,255,255,.5);padding:2.5rem 2rem 1.5rem;}

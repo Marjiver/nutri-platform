@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="description" content="Proposez des plans alimentaires légaux et certifiés RPPS à vos clients. Coach sportif, cabinet minceur, kiné, infirmière. Inscription avec votre SIRET."/>
@@ -12,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -47,7 +48,7 @@
     .nd-conn-menu.open { display:block; }
     .nd-conn-item { display:block; padding:.5rem 1rem; color:rgba(255,255,255,.7); text-decoration:none; font-size:.75rem; transition:background .15s; }
     .nd-conn-item:hover { background:rgba(29,158,117,.1); color:#fff; }
-    .btn-primary { background:var(--green); color:#fff; padding:.45rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:600; text-decoration:none; transition:background .2s,transform .15s; }
+    .btn-primary { background:#12795a; color:#fff; padding:.45rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:600; text-decoration:none; transition:background .2s,transform .15s; }
     .btn-primary:hover { background:var(--green-dark); transform:translateY(-1px); }
     @media(max-width:900px){ .nd-nav,.cofond{display:none;} .nd-header{padding:.65rem 1rem;} }
 
@@ -71,7 +72,7 @@
     .car-chip { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.3rem .9rem; font-size:.75rem; color:rgba(255,255,255,.75); }
     .car-chip.g { background:rgba(29,158,117,.15); border-color:rgba(29,158,117,.35); color:var(--green-light); }
     .car-ctas { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
-    .car-cta { background:var(--green); color:#fff; padding:.85rem 2rem; border-radius:999px; text-decoration:none; font-size:.9rem; font-weight:600; transition:background .2s,transform .2s; display:inline-flex; align-items:center; gap:.4rem; position:relative; overflow:hidden; }
+    .car-cta { background:#12795a; color:#fff; padding:.85rem 2rem; border-radius:999px; text-decoration:none; font-size:.9rem; font-weight:600; transition:background .2s,transform .2s; display:inline-flex; align-items:center; gap:.4rem; position:relative; overflow:hidden; }
     .car-cta:hover { background:var(--green-dark); transform:translateX(4px); }
     .car-cta2 { color:rgba(255,255,255,.55); text-decoration:none; font-size:.85rem; border-bottom:1px solid rgba(255,255,255,.25); transition:color .2s; }
     .car-cta2:hover { color:#fff; }
@@ -138,7 +139,7 @@
     .lb-quote-author { font-size:.72rem; color:rgba(255,255,255,.4); margin-bottom:1rem; }
     .lb-steps { display:flex; flex-direction:column; gap:.65rem; }
     .lb-step { display:flex; align-items:center; gap:.75rem; }
-    .lb-step-n { width:28px; height:28px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:#fff; flex-shrink:0; }
+    .lb-step-n { width:28px; height:28px; background:#12795a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:#fff; flex-shrink:0; }
     .lb-step-t { font-size:.8rem; color:rgba(255,255,255,.7); }
     .lb-step-t strong { color:#fff; }
 
@@ -181,7 +182,7 @@
     .pack { background:var(--white); border:1.5px solid var(--border); border-radius:20px; padding:1.5rem 1.25rem; text-align:center; position:relative; transition:transform .2s,box-shadow .2s; }
     .pack:hover { transform:translateY(-5px); box-shadow:0 12px 30px rgba(0,0,0,.08); }
     .pack.featured { border-color:var(--green); box-shadow:0 0 0 3px rgba(29,158,117,.12); }
-    .pack-badge { position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:.64rem; font-weight:700; padding:.22rem 1rem; border-radius:999px; white-space:nowrap; }
+    .pack-badge { position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:#12795a; color:#fff; font-size:.64rem; font-weight:700; padding:.22rem 1rem; border-radius:999px; white-space:nowrap; }
     .pack-name { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text2); margin-bottom:.5rem; }
     .pack-price { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:700; color:var(--text); line-height:1; }
     .pack-unit { font-size:.75rem; color:var(--text2); margin-bottom:.35rem; }
@@ -190,7 +191,7 @@
     .pack-list li { font-size:.75rem; color:var(--text2); display:flex; align-items:flex-start; gap:.4rem; line-height:1.5; }
     .pack-list li::before { content:"✓"; color:var(--green); font-weight:700; flex-shrink:0; }
     .pack-btn { display:block; text-align:center; width:100%; padding:.6rem 1rem; border-radius:999px; font-size:.8rem; font-weight:700; text-decoration:none; font-family:'Outfit',sans-serif; transition:all .2s; border:none; cursor:pointer; }
-    .pack-btn-green { background:var(--green); color:#fff; box-shadow:0 4px 14px rgba(29,158,117,.3); }
+    .pack-btn-green { background:#12795a; color:#fff; box-shadow:0 4px 14px rgba(29,158,117,.3); }
     .pack-btn-green:hover { background:var(--green-dark); transform:translateY(-2px); }
     .pack-btn-outline { background:transparent; border:1.5px solid var(--border); color:var(--text2); }
     .pack-btn-outline:hover { border-color:var(--green); color:var(--green); }
@@ -201,7 +202,7 @@
     .abo-card { border-radius:22px; padding:2.5rem 2rem 2rem; position:relative; overflow:visible; border:2px solid var(--border); background:var(--white); transition:transform .2s,box-shadow .2s; }
     .abo-card:hover { transform:translateY(-5px); box-shadow:0 14px 36px rgba(0,0,0,.08); }
     .abo-card.featured { border-color:var(--green); background:linear-gradient(160deg,#f0faf6,#fff); box-shadow:0 0 0 3px rgba(29,158,117,.1); }
-    .abo-card-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:.64rem; font-weight:700; padding:.22rem 1rem; border-radius:999px; white-space:nowrap; z-index:2; }
+    .abo-card-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:#12795a; color:#fff; font-size:.64rem; font-weight:700; padding:.22rem 1rem; border-radius:999px; white-space:nowrap; z-index:2; }
     .abo-tier { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text2); margin-bottom:.5rem; }
     .abo-price { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:700; color:var(--text); line-height:1; }
     .abo-price-unit { font-size:.78rem; color:var(--text2); margin-bottom:1rem; }
@@ -241,7 +242,7 @@
     .sim-toggle:hover { transform:scale(1.06); background:var(--green-dark); }
     .sim-window { display:none; position:absolute; bottom:68px; left:0; width:320px; background:var(--white); border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,.15); overflow:hidden; border:1px solid var(--green-border); }
     .sim-window.open { display:block; }
-    .sim-head { background:var(--green); color:#fff; padding:.7rem 1rem; font-size:.86rem; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+    .sim-head { background:#12795a; color:#fff; padding:.7rem 1rem; font-size:.86rem; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
     .sim-close { background:none; border:none; color:#fff; cursor:pointer; font-size:1rem; }
     .sim-body { padding:.9rem; }
     .sim-field { margin-bottom:.75rem; }
@@ -274,7 +275,7 @@
     .nd-footer-col a:hover { color:#fff; }
     .nd-footer-bottom { text-align:center; font-size:.62rem; padding-top:1.5rem; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,.05); }
     @media(max-width:768px){ .nd-footer-inner{grid-template-columns:1fr;} .nd-footer-links{grid-template-columns:1fr 1fr;} }
-    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:var(--green); color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
+    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:#12795a; color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
     /* ── BANNIÈRE PROMO TARIFS (fond sombre sur section claire) ── */
     .promo-band {
       background:linear-gradient(135deg,#0d2018,#142c1f);
@@ -330,12 +331,12 @@
     .pyr-price-new { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:var(--green-dark); }
     .pyr-price-unit { font-size:.68rem; color:var(--text2); }
     .pyr-per { font-size:.72rem; font-weight:700; color:var(--green); white-space:nowrap; }
-    .pyr-badge { position:absolute; top:.6rem; right:.75rem; background:var(--green); color:#fff; font-size:.58rem; font-weight:800; padding:.1rem .5rem; border-radius:999px; }
+    .pyr-badge { position:absolute; top:.6rem; right:.75rem; background:#12795a; color:#fff; font-size:.58rem; font-weight:800; padding:.1rem .5rem; border-radius:999px; }
 
     .pyramid-cta-wrap { text-align:center; margin-top:1.25rem; }
     .pyramid-cta {
       display:inline-flex; align-items:center; gap:.5rem;
-      background:var(--green); color:#fff;
+      background:#12795a; color:#fff;
       padding:.85rem 2.5rem; border-radius:999px;
       font-size:.92rem; font-weight:700; text-decoration:none;
       box-shadow:0 4px 18px rgba(29,158,117,.3);

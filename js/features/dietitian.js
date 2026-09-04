@@ -4,81 +4,9 @@
  */
 
 // ── Définition de PATIENTS pour compatibilité avec d'autres modules ─────────
-const PATIENTS_DEMO = [
-  { 
-    id: 'p1', 
-    prenom: 'Marie', 
-    nom: 'D.', 
-    age: 34, 
-    objectif: 'perte_poids', 
-    activite: 'modere', 
-    regime: 'vegetarien', 
-    poids: 65, 
-    taille: 168, 
-    statut: 'en_attente', 
-    email: 'marie.d@example.com',
-    plan: {
-      petitDej: [
-        { aliment: "Flocons d'avoine", qte: 60, unite: "g" },
-        { aliment: "Lait demi-écrémé", qte: 200, unite: "ml" },
-        { aliment: "Compote sans sucre", qte: 100, unite: "g" }
-      ],
-      dejeuner: [
-        { aliment: "Lentilles cuites", qte: 150, unite: "g" },
-        { aliment: "Carottes cuites", qte: 100, unite: "g" },
-        { aliment: "Yaourt nature", qte: 125, unite: "g" },
-        { aliment: "Huile d'olive", qte: 10, unite: "ml" }
-      ],
-      collation: [
-        { aliment: "Pomme", qte: 150, unite: "g" },
-        { aliment: "Amandes", qte: 20, unite: "g" }
-      ],
-      diner: [
-        { aliment: "Tofu ferme", qte: 120, unite: "g" },
-        { aliment: "Haricots verts cuits", qte: 200, unite: "g" },
-        { aliment: "Riz blanc cuit", qte: 80, unite: "g" },
-        { aliment: "Huile de colza", qte: 8, unite: "ml" }
-      ]
-    }
-  },
-  { 
-    id: 'p2', 
-    prenom: 'Thomas', 
-    nom: 'K.', 
-    age: 28, 
-    objectif: 'prise_masse', 
-    activite: 'actif', 
-    regime: '', 
-    poids: 72, 
-    taille: 180, 
-    statut: 'en_attente', 
-    email: 'thomas.k@example.com',
-    plan: {
-      petitDej: [
-        { aliment: "Flocons d'avoine", qte: 100, unite: "g" },
-        { aliment: "Lait demi-écrémé", qte: 300, unite: "ml" },
-        { aliment: "Beurre de cacahuète", qte: 30, unite: "g" },
-        { aliment: "Banane", qte: 130, unite: "g" }
-      ],
-      dejeuner: [
-        { aliment: "Blanc de poulet cuit", qte: 180, unite: "g" },
-        { aliment: "Riz blanc cuit", qte: 200, unite: "g" },
-        { aliment: "Brocolis cuits", qte: 150, unite: "g" },
-        { aliment: "Huile d'olive", qte: 15, unite: "ml" }
-      ],
-      collation: [
-        { aliment: "Yaourt grec nature", qte: 200, unite: "g" },
-        { aliment: "Banane", qte: 120, unite: "g" }
-      ],
-      diner: [
-        { aliment: "Saumon cuit", qte: 150, unite: "g" },
-        { aliment: "Pomme de terre vapeur", qte: 300, unite: "g" },
-        { aliment: "Haricots verts cuits", qte: 150, unite: "g" },
-        { aliment: "Huile de colza", qte: 10, unite: "ml" }
-      ]
-    }
-  }
-];
+// Dossiers patients. Alimentes par Supabase (table bilans) : aucun
+// patient fictif n'est charge au demarrage.
+const PATIENTS_DEMO = [];
 
 // ── Alias pour compatibilité avec dossier-patient.js ──────────────────────
 const PATIENTS = PATIENTS_DEMO;

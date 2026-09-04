@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-title" content="NutriDoc"/>
@@ -10,13 +11,13 @@
   <meta name="description" content="NutriDoc — Espace Diététicien"/>
   <link rel="manifest" href="manifest.json"/>
   <title>Espace Diététicien — NutriDoc</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/home.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
-  <script defer src="js/ui/dark-mode.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Outfit',sans-serif;background:var(--bg-secondary,#f7f9f7);color:var(--text-primary,#0d2018);}
@@ -45,7 +46,7 @@
     .greeting-row p{font-size:.85rem;color:var(--text-secondary,#6b7b74);margin-top:.25rem;}
     .greeting-actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
     .btn-action{display:inline-flex;align-items:center;gap:.35rem;padding:.45rem 1rem;border-radius:999px;font-size:.78rem;font-weight:500;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .2s;}
-    .btn-primary{background:#1D9E75;color:#fff;}
+    .btn-primary{background:#12795a;color:#fff;}
     .btn-primary:hover{background:#0f6e56;}
     .btn-outline{background:transparent;color:var(--text-secondary,#6b7b74);border:1px solid var(--border-light,#e8edeb);}
     .btn-outline:hover{border-color:#1D9E75;color:#1D9E75;}
@@ -71,7 +72,7 @@
     .filters-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
     .filter-btn{background:var(--bg-secondary,#f7f9f7);border:1px solid var(--border-light,#e8edeb);border-radius:999px;padding:.3rem .8rem;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--text-secondary,#6b7b74);transition:all .15s;}
     .filter-btn:hover{border-color:#1D9E75;color:#1D9E75;}
-    .filter-btn.active{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:500;}
+    .filter-btn.active{background:#12795a;border-color:#1D9E75;color:#fff;font-weight:500;}
     .search-input{width:100%;padding:.6rem 1rem;border:1.5px solid var(--border-light,#e8edeb);border-radius:12px;font-size:.88rem;font-family:'Outfit',sans-serif;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);margin-bottom:1rem;transition:border-color .2s;}
     .search-input:focus{outline:none;border-color:#1D9E75;}
     .search-input::placeholder{color:#b0bdb7;}
@@ -89,7 +90,7 @@
     .obj-badge{background:var(--bg-tertiary,#eef4ee);color:var(--text-secondary,#6b7b74);font-size:.7rem;padding:2px 8px;border-radius:999px;}
     .dossier-actions{display:flex;gap:.4rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-light,#e8edeb);}
     .btn-sm{padding:.32rem .75rem;border-radius:999px;font-size:.75rem;font-weight:500;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
-    .btn-sm-green{background:#1D9E75;color:#fff;}
+    .btn-sm-green{background:#12795a;color:#fff;}
     .btn-sm-green:hover{background:#0f6e56;}
     .btn-sm-outline{background:transparent;border:1px solid var(--border-light,#e8edeb);color:var(--text-secondary,#6b7b74);}
     .btn-sm-outline:hover{border-color:#1D9E75;color:#1D9E75;}
@@ -147,6 +148,7 @@
     .hidden{display:none!important;}
     @media(max-width:600px){.main-container{padding:5rem 1rem 2rem;}.modal-panel{border-radius:16px;}.modal-body{padding:1rem;}.info-grid{grid-template-columns:1fr 1fr;}}
   </style>
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 <body>
 
@@ -189,7 +191,7 @@
   <div class="section-card">
     <h2 class="section-title">Dossiers patients</h2>
     <div class="filters-row" id="filtersRow"></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un patient, une ville…" oninput="filtrer()"/>
+    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un patient, une ville…" oninput="filtrer()" aria-label="Rechercher un patient, une ville…"/>
     <div id="dossiersList">
       <div class="loading-state"><div class="spinner"></div> Chargement…</div>
     </div>
@@ -289,7 +291,7 @@ function renderKanban(patients) {
             return `<div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
               <div class="avatar-circle" style="background:${avatarColor(i)};">${initiales(p.prenom,p.nom)}</div>
               <div>
-                <div class="kanban-card-name">${p.prenom} ${p.nom}</div>
+                <div class="kanban-card-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</div>
                 <div class="kanban-card-obj">${obj ? obj.icon+' '+obj.label : p.objectif||'—'}${p.source==='prescripteur'?' · 🏢':''}</div>
               </div>
             </div>`;
@@ -366,6 +368,23 @@ function ouvrirDossier(id) {
   document.getElementById('modalOverlay').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
+
+/**
+ * Ouvre l'assistant de validation d'un plan alimentaire.
+ *
+ * Cette fonction etait appelee par le bouton principal du kanban et par le
+ * pied de modale, mais n'existait nulle part : le parcours metier central du
+ * dieteticien — ouvrir un dossier pour valider un plan — etait inaccessible.
+ *
+ * validation-plan.html accepte indifferemment un id de plan ou un id de
+ * bilan : il cherche d'abord plans.id, puis plans.bilan_id, puis bilans.id.
+ * On peut donc lui transmettre directement l'identifiant du dossier.
+ */
+function ouvrirWizard(id) {
+  if (!id) { showToast("Dossier introuvable.", 'error'); return; }
+  window.location.href = 'validation-plan.html?plan_id=' + encodeURIComponent(id);
+}
+window.ouvrirWizard = ouvrirWizard;
 
 function fermerModal(e) {
   if (e && e.target !== document.getElementById('modalOverlay') && e.type !== 'click') return;
@@ -528,14 +547,24 @@ function renderModal(p) {
 
     // Zone de notes du diet
     html += `<div style="margin-top:.75rem;">
-      <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.35rem;">📝 Vos notes / modifications (visibles par le patient)</label>
-      <textarea id="dietNotesInput" style="width:100%;padding:.6rem;border-radius:10px;border:1px solid var(--border-light,#e8edeb);font-family:'Outfit',sans-serif;font-size:.82rem;resize:vertical;min-height:80px;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);" placeholder="Ajoutez vos commentaires, modifications ou précisions au patient…">${p.diet_notes||''}</textarea>
+      <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.35rem;" for="dietNotesInput">📝 Vos notes / modifications (visibles par le patient)</label>
+      <textarea id="dietNotesInput" style="width:100%;padding:.6rem;border-radius:10px;border:1px solid var(--border-light,#e8edeb);font-family:'Outfit',sans-serif;font-size:.82rem;resize:vertical;min-height:80px;background:var(--bg-input,#fff);color:var(--text-primary,#0d2018);" placeholder="Ajoutez vos commentaires, modifications ou précisions au patient…" aria-label="Ajoutez vos commentaires, modifications ou précisions au patient…">${p.diet_notes||''}</textarea>
     </div>`;
 
   if(['valide','valide_rpps','delivered'].includes(p.statut)) badgeClass2='badge-valide';
 
   const _tid = p.id;
-  document.getElementById("modalFooter").innerHTML = ["valide","valide_rpps","delivered"].includes(p.statut) ? "<button class=\"btn-action btn-outline\" onclick=\"fermerModal()\">Fermer</button><span style=\"color:#1D9E75\">&#10003; Plan valide</span><button class=\"btn-action btn-primary\" onclick=\"fermerModal();ouvrirWizard(\ + _tid + )\">Consulter</button>" : "<button class=\"btn-action btn-outline\" onclick=\"fermerModal()\">Fermer</button><button class=\"btn-action btn-primary\" style=\"background:#1D9E75;color:#fff\" onclick=\"fermerModal();ouvrirWizard(\ + _tid + )\">Ouvrir et valider</button>";
+    // Le pied de modale etait ecrit en chaines echappees ou l'interpolation
+  // de _tid avait ete mangee : le HTML produit contenait litteralement
+  // « ouvrirWizard( + _tid + ) », qui levait une SyntaxError au clic.
+  // Reecrit en gabarit, avec l'identifiant correctement insere.
+  const _valide = ["valide","valide_rpps","delivered"].includes(p.statut);
+  document.getElementById("modalFooter").innerHTML = `
+    <button class="btn-action btn-outline" onclick="fermerModal()">Fermer</button>
+    ${_valide ? '<span style="color:#12795a">&#10003; Plan validé</span>' : ''}
+    <button class="btn-action btn-primary" onclick="fermerModal();ouvrirWizard('${_tid}')">
+      ${_valide ? "Consulter" : "Ouvrir et valider"}
+    </button>`;
 }
 // ── ACTIONS SUR UN DOSSIER ────────────────────────────────────
 async function mettreEnCours(id) {
@@ -655,9 +684,32 @@ async function chargerDonnees() {
     return;
   }
 
+  // On distingue les trois cas plutôt que de renvoyer au login dans tous :
+  // un utilisateur déjà connecté que l'on renvoie à la connexion se
+  // reconnecte, revient ici, et se fait renvoyer — la page paraît bloquée.
+  const { data: { user } } = await _supa.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+
   const profile = await getProfile();
-  if (!profile) { window.location.href = 'login.html'; return; }
-  if (profile.role !== 'dietitian') { window.location.href = 'login.html'; return; }
+  if (!profile) {
+    afficherVide("Votre compte est bien connecté mais son profil est introuvable. " +
+                 "Contactez contact@calidoc-sante.fr en précisant votre adresse : " + user.email);
+    document.getElementById('navUser').textContent = user.email;
+    return;
+  }
+  if (profile.role !== 'dietitian') {
+    const espaces = {
+      patient:    ['votre espace patient', 'dashboard.html'],
+      prescriber: ['votre espace prescripteur', 'prescripteur-dashboard.html'],
+      admin:      ["l'administration", 'admin.html'],
+    };
+    const [libelle, url] = espaces[profile.role] || ['votre espace', 'index.html'];
+    afficherVide(`Cet espace est réservé aux diététiciens. Votre compte donne accès à ${libelle}. ` +
+                 `<a href="${url}" style="color:#1D9E75;font-weight:600;">Y accéder →</a>`);
+    document.getElementById('navUser').textContent =
+      [profile.prenom, profile.nom].filter(Boolean).join(' ') || profile.email;
+    return;
+  }
 
   _dietId = profile.id;
   document.getElementById('navUser').textContent =
@@ -768,6 +820,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(
 document.addEventListener('DOMContentLoaded', chargerDonnees);
 </script>
 
-<script defer src="js/error-handler.js"></script>
+<script defer src="js/utils/error-handler.js?v=2"></script>
 </body>
 </html>

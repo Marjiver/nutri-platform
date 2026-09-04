@@ -10,14 +10,16 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta name="description" content="Espace diététicien NutriDoc : gérez vos patients, validez des plans alimentaires, suivez vos revenus et votre quota mensuel."/>
   <title>Espace Diététicien — NutriDoc</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <script defer src="js/ui/support.js"></script>
   <script defer src="js/utils/pdf-plan.js"></script>
   <script defer src="js/utils/email.js"></script>
@@ -271,7 +273,7 @@
       box-shadow: 0 4px 12px rgba(14,165,233,0.4);
     }
     .btn-compta {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       box-shadow: 0 2px 8px rgba(29,158,117,0.3);
     }
@@ -306,7 +308,7 @@
     }
     .diet-tab:hover { background:var(--cream); color:var(--text); }
     .diet-tab.active {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
     }
     .tab-badge {
@@ -371,7 +373,7 @@
     }
     .filter-chip:hover { border-color: #1D9E75; color: #1D9E75; }
     .filter-chip.active {
-      background: #1D9E75;
+      background:#12795a;
       border-color: #1D9E75;
       color: #fff;
     }
@@ -526,7 +528,7 @@
       margin-top: 0.75rem;
     }
     .btn-validate {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       padding: 0.4rem 1rem;
@@ -610,7 +612,7 @@
     }
     .sim-window.open { display: block; }
     .sim-header {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       padding: 0.75rem 1rem;
       font-size: 0.9rem;
@@ -748,7 +750,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -766,6 +768,7 @@
       .dashboard-container { padding: 5rem 1rem 2rem; }
     }
   </style>
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 
 <!-- HEADER -->
@@ -1250,7 +1253,7 @@ function renderKanbanDashboard() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1260,7 +1263,7 @@ function renderKanbanDashboard() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1270,7 +1273,7 @@ function renderKanbanDashboard() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1291,7 +1294,7 @@ function renderKanbanFull() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1301,7 +1304,7 @@ function renderKanbanFull() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1311,7 +1314,7 @@ function renderKanbanFull() {
     <div class="kanban-card" onclick="ouvrirDossier('${p.id}')">
       <div class="kanban-card-name">
         <div class="kanban-card-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
-        ${p.prenom} ${p.nom}
+        ${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}
       </div>
       <div class="kanban-card-objectif">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</div>
     </div>
@@ -1365,17 +1368,17 @@ function renderPatientsGrid(patients) {
       <div class="patient-header">
         <div class="patient-avatar" style="background:${p.avatar}">${p.prenom[0]}${p.nom[0]}</div>
         <div class="patient-info">
-          <h4>${p.prenom} ${p.nom} · ${p.age} ans</h4>
-          <p>📍 ${p.ville} · IMC ${p.bmi}</p>
+          <h4>${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} · ${p.age} ans</h4>
+          <p>📍 ${escapeHtml(p.ville)} · IMC ${p.bmi}</p>
         </div>
         <div class="patient-status ${statusClasses[p.statut]}">${statusLabels[p.statut]}</div>
       </div>
       <div class="patient-badges">
         <span class="patient-badge">${getObjectifIcon(p.objectif)} ${getObjectifLabel(p.objectif)}</span>
-        <span class="patient-badge">📧 ${p.email}</span>
-        <span class="patient-badge">📞 ${p.tel}</span>
+        <span class="patient-badge">📧 ${escapeHtml(p.email)}</span>
+        <span class="patient-badge">📞 ${escapeHtml(p.tel)}</span>
       </div>
-      <div class="patient-notes" style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.5rem;">${p.notes}</div>
+      <div class="patient-notes" style="font-size:0.7rem; color:#6b7b74; margin-bottom:0.5rem;">${escapeHtml(p.notes)}</div>
       <div class="patient-actions">
         <button class="btn-validate" onclick="event.stopPropagation();validerPlan('${p.id}')">✓ Valider plan</button>
         <button class="btn-view" onclick="event.stopPropagation();ouvrirDossier('${p.id}')">📋 Voir dossier</button>

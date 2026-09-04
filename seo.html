@@ -7,6 +7,7 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="description" content="Gestion des paramètres SEO de NutriDoc : métadonnées, sitemap, robots.txt, analytics et optimisation pour les moteurs de recherche."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SEO — Administration NutriDoc</title>
@@ -42,16 +43,16 @@
   <script defer src="js/utils/version-manager.js"></script>
   
   <!-- ==================== ERROR HANDLER ==================== -->
-  <script defer src="js/utils/error-handler.js"></script>
+  <script defer src="js/utils/error-handler.js?v=2"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PWA MANAGER ==================== -->
   <script defer src="js/utils/pwa.js"></script>
   
   <!-- ==================== CORE ==================== -->
-  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/admin/admin-auth.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -266,7 +267,7 @@
       font-size: 0.8rem;
     }
     .add-keyword button {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -328,7 +329,7 @@
       bottom: 1.5rem;
       left: 50%;
       transform: translateX(-50%);
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       padding: 0.6rem 1.2rem;
       border-radius: 999px;
@@ -348,7 +349,7 @@
 
     /* BUTTONS */
     .btn-primary {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -377,7 +378,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -385,7 +386,6 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- ==================== THÈME SELECTOR ==================== -->
@@ -418,24 +418,24 @@
     </div>
 
     <div class="form-group">
-      <label>Titre par défaut (title)</label>
+      <label for="defaultTitle">Titre par défaut (title)</label>
       <input type="text" id="defaultTitle" placeholder="NutriDoc — Plateforme nutritionnelle certifiée" value="NutriDoc — Plateforme nutritionnelle certifiée · CaliDoc Santé">
       <span class="field-hint">Apparaît dans l'onglet du navigateur et dans les résultats de recherche</span>
     </div>
 
     <div class="form-group">
-      <label>Méta description</label>
+      <label for="metaDescription">Méta description</label>
       <textarea id="metaDescription" rows="2" placeholder="Description du site pour les moteurs de recherche">Bilan nutritionnel gratuit · Plan alimentaire avec grammages précis validé par un diététicien certifié RPPS. Perte de poids, prise de masse, performance sportive. Livré sous 48h.</textarea>
       <span class="field-hint">Entre 120 et 160 caractères. Actuellement: <span id="descLength">0</span> caractères</span>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Auteur</label>
+        <label for="author">Auteur</label>
         <input type="text" id="author" value="CaliDoc Santé">
       </div>
       <div class="form-group">
-        <label>Langue</label>
+        <label for="language">Langue</label>
         <select id="language">
           <option value="fr" selected>Français (fr)</option>
           <option value="en">English (en)</option>
@@ -468,23 +468,23 @@
     </div>
 
     <div class="form-group">
-      <label>OG Title (titre pour les réseaux sociaux)</label>
+      <label for="ogTitle">OG Title (titre pour les réseaux sociaux)</label>
       <input type="text" id="ogTitle" placeholder="Titre pour les réseaux sociaux" value="NutriDoc — Votre plan alimentaire personnalisé">
     </div>
 
     <div class="form-group">
-      <label>OG Description</label>
+      <label for="ogDescription">OG Description</label>
       <textarea id="ogDescription" rows="2" placeholder="Description pour les réseaux sociaux">Obtenez un plan alimentaire personnalisé validé par un diététicien certifié RPPS. Bilan gratuit, livraison sous 48h.</textarea>
     </div>
 
     <div class="form-group">
-      <label>OG Image URL</label>
+      <label for="ogImage">OG Image URL</label>
       <input type="url" id="ogImage" placeholder="https://nutridoc.fr/assets/images/og-image.jpg" value="/assets/images/og-image.jpg">
       <span class="field-hint">Image recommandée: 1200x630px, moins de 1 Mo</span>
     </div>
 
     <div class="form-group">
-      <label>Twitter Card</label>
+      <label for="twitterCard">Twitter Card</label>
       <select id="twitterCard">
         <option value="summary" selected>summary</option>
         <option value="summary_large_image">summary_large_image</option>
@@ -506,7 +506,7 @@
     </div>
 
     <div class="form-group">
-      <label>Type d'organisation</label>
+      <label for="organizationType">Type d'organisation</label>
       <select id="organizationType">
         <option value="MedicalOrganization">MedicalOrganization</option>
         <option value="HealthAndBeautyBusiness">HealthAndBeautyBusiness</option>
@@ -515,27 +515,27 @@
     </div>
 
     <div class="form-group">
-      <label>Nom de l'organisation</label>
+      <label for="orgName">Nom de l'organisation</label>
       <input type="text" id="orgName" value="CaliDoc Santé - NutriDoc">
     </div>
 
     <div class="form-group">
-      <label>Logo URL</label>
+      <label for="orgLogo">Logo URL</label>
       <input type="url" id="orgLogo" value="/assets/images/logo.png">
     </div>
 
     <div class="form-group">
-      <label>URL du site</label>
+      <label for="orgUrl">URL du site</label>
       <input type="url" id="orgUrl" value="https://nutridoc.calidoc-sante.fr">
     </div>
 
     <div class="form-group">
-      <label>Téléphone</label>
+      <label for="orgPhone">Téléphone</label>
       <input type="tel" id="orgPhone" value="+33 5 45 XX XX XX">
     </div>
 
     <div class="form-group">
-      <label>Adresse</label>
+      <label for="orgAddress">Adresse</label>
       <input type="text" id="orgAddress" value="4 rue Saint-André, 16000 Angoulême, France">
     </div>
 
@@ -557,7 +557,7 @@
     </div>
 
     <div class="form-group">
-      <label>robots.txt</label>
+      <label for="robotsTxt">robots.txt</label>
       <textarea id="robotsTxt" rows="6" style="font-family: monospace;">User-agent: *
 Allow: /
 Disallow: /admin/
@@ -613,7 +613,7 @@ Sitemap: https://nutridoc.calidoc-sante.fr/sitemap.xml</textarea>
     </div>
 
     <div class="add-keyword">
-      <input type="text" id="newKeyword" placeholder="Nouveau mot-clé...">
+      <input type="text" id="newKeyword" placeholder="Nouveau mot-clé..." aria-label="Nouveau mot-clé">
       <button onclick="ajouterKeyword()">+ Ajouter</button>
     </div>
   </div>
@@ -628,24 +628,24 @@ Sitemap: https://nutridoc.calidoc-sante.fr/sitemap.xml</textarea>
     </div>
 
     <div class="form-group">
-      <label>Google Analytics ID (GA4)</label>
-      <input type="text" id="gaId" placeholder="G-XXXXXXXXXX" value="G-XXXXXXXXXX">
+      <label for="gaId">Google Analytics ID (GA4)</label>
+      <input type="text" id="gaId" placeholder="G-XXXXXXXXXX" value="">
       <span class="field-hint">Exemple: G-1234567890</span>
     </div>
 
     <div class="form-group">
-      <label>Google Tag Manager ID</label>
+      <label for="gtmId">Google Tag Manager ID</label>
       <input type="text" id="gtmId" placeholder="GTM-XXXXXX" value="">
       <span class="field-hint">Optionnel</span>
     </div>
 
     <div class="form-group">
-      <label>Matomo URL (auto-hébergé)</label>
+      <label for="matomoUrl">Matomo URL (auto-hébergé)</label>
       <input type="url" id="matomoUrl" placeholder="https://stats.votre-site.com/matomo.js">
     </div>
 
     <div class="form-group">
-      <label>Meta verification (Google Search Console)</label>
+      <label for="googleVerification">Meta verification (Google Search Console)</label>
       <input type="text" id="googleVerification" placeholder="google-site-verification=xxxxx">
     </div>
 
@@ -713,7 +713,8 @@ Sitemap: https://nutridoc.calidoc-sante.fr/sitemap.xml</textarea>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script>
-// ==================== DONNÉES SIMULÉES ====================
+// ==================== CONFIGURATION SEO ====================
+// Valeurs réelles publiées sur le site.
 let seoData = {
   defaultTitle: "NutriDoc — Plateforme nutritionnelle certifiée · CaliDoc Santé",
   metaDescription: "Bilan nutritionnel gratuit · Plan alimentaire avec grammages précis validé par un diététicien certifié RPPS. Perte de poids, prise de masse, performance sportive. Livré sous 48h.",
@@ -739,7 +740,7 @@ Disallow: /api/
 Disallow: /dashboard-dieteticien.html
 Disallow: /prescripteur-dashboard.html
 Sitemap: https://nutridoc.calidoc-sante.fr/sitemap.xml`,
-  gaId: "G-XXXXXXXXXX",
+  gaId: "",
   gtmId: "",
   matomoUrl: "",
   googleVerification: ""
@@ -943,6 +944,5 @@ window.sauvegarderAnalytics = sauvegarderAnalytics;
 window.lancerAuditSEO = lancerAuditSEO;
 </script>
 
-  <script src="js/error-handler.js"></script>
 </body>
 </html>

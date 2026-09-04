@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="description" content="Gerez vos plans alimentaires sur-mesure NutriDoc. Consultez votre solde, historique et commandez de nouveaux plans."/>
@@ -11,8 +12,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     :root{
@@ -156,11 +157,11 @@
     .modal-desc{font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;line-height:1.65;}
     .modal-btns{display:flex;gap:.75rem;justify-content:flex-end;}
     .btn-cancel{background:var(--cream);border:1px solid var(--border);color:var(--text2);border-radius:999px;padding:.6rem 1.1rem;font-size:.82rem;cursor:pointer;font-family:"Outfit",sans-serif;}
-    .btn-confirm{background:var(--green);color:#fff;border:none;border-radius:999px;padding:.6rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;}
+    .btn-confirm{background:#12795a;color:#fff;border:none;border-radius:999px;padding:.6rem 1.25rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:"Outfit",sans-serif;}
     .btn-confirm:hover{background:var(--green-dark);}
 
     /* TOAST */
-    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#12795a;color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.8rem;z-index:2000;animation:fadeInOut 2.8s ease;white-space:nowrap;}
     .toast.error{background:#ef4444;}
     @keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(16px);}15%,85%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(16px);}}
     .cofond{display:flex;align-items:center;gap:.45rem;background:rgba(29,158,117,.1);border:1px solid var(--green-border);border-radius:999px;padding:.2rem .75rem;position:relative;cursor:default;}
@@ -176,7 +177,7 @@
     .sim-toggle:hover{transform:scale(1.05);background:var(--green-dark);}
     .sim-window{display:none;position:absolute;bottom:64px;left:0;width:310px;background:var(--white);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.15);overflow:hidden;border:1px solid var(--green-border);}
     .sim-window.open{display:block;}
-    .sim-hd{background:var(--green);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .sim-hd{background:#12795a;color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
     .sim-close-btn{background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;}
     .sim-body{padding:.9rem;}
     .sim-field{margin-bottom:.75rem;}
@@ -195,9 +196,10 @@
     .sim-row.hl{font-weight:700;font-size:.8rem;}
     .sim-row.hl strong{color:var(--green);}
     .sim-note{font-size:.6rem;color:var(--text2);text-align:center;margin-top:.35rem;}
-    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:var(--green);color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
+    .scroll-top-btn{position:fixed;bottom:1rem;right:1rem;width:38px;height:38px;background:#12795a;color:#fff;border:none;border-radius:50%;cursor:pointer;opacity:0;transition:opacity .2s;z-index:200;}
     .scroll-top-btn.visible{opacity:1;}
   </style>
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 <body>
 
@@ -431,15 +433,9 @@ function savePlans(n) { localStorage.setItem(PLANS_KEY, String(n)); }
 function loadAchats() { try { return JSON.parse(localStorage.getItem(ACHATS_KEY)) || []; } catch(e) { return []; } }
 function saveAchats(d){ localStorage.setItem(ACHATS_KEY, JSON.stringify(d)); }
 
-// Historique demo si vide
-var DEMO = [
-  {date:'2026-04-01', type:'achat',       desc:'Pack Confort - 10 plans sur-mesure',    qte:10,  montant:162,  statut:'pay&eacute;',    facture:'FAC-2026-001'},
-  {date:'2026-03-15', type:'achat',       desc:'Pack D&eacute;couverte - 1 plan sur-mesure', qte:1,   montant:19.80,statut:'pay&eacute;',    facture:'FAC-2026-002'},
-  {date:'2026-03-10', type:'consommation',desc:'Plan pour Marie D.',                    qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null},
-  {date:'2026-03-05', type:'consommation',desc:'Plan pour Thomas K.',                   qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null},
-  {date:'2026-02-20', type:'achat',       desc:'Pack Essentiel - 5 plans sur-mesure',   qte:5,   montant:90,   statut:'pay&eacute;',    facture:'FAC-2026-003'},
-  {date:'2026-02-10', type:'consommation',desc:'Plan pour Sophie M.',                   qte:-1,  montant:0,    statut:'livr&eacute;',   facture:null}
-];
+// Historique d'achats et de consommations. Alimenté par les paiements
+// réels : aucune facture ni aucun plan fictif au démarrage.
+var DEMO = [];
 
 // PROMO
 function isPromoActive() {
@@ -486,7 +482,7 @@ function fmtP(n) { return n % 1 === 0 ? String(n) : n.toFixed(2).replace('.', ',
 
 // DASHBOARD
 function refreshDashboard() {
-  var achats   = loadAchats().length ? loadAchats() : DEMO;
+  var achats   = loadAchats();
   var plans    = loadPlans();
   var totalQte = achats.filter(function(a){ return a.type === 'achat'; }).reduce(function(s,a){ return s + a.qte; }, 0);
   var totalEur = achats.filter(function(a){ return a.type === 'achat'; }).reduce(function(s,a){ return s + parseFloat(a.montant); }, 0);
@@ -616,7 +612,7 @@ function confirmerPaiement() {
 
 // EXPORT CSV
 function exportCSV() {
-  var achats = loadAchats().length ? loadAchats() : DEMO;
+  var achats = loadAchats();
   var lignes = ["Date,Type,Description,Plans,Montant,Statut,Facture"];
   achats.forEach(function(h) {
     lignes.push([h.date, h.type, (h.desc||h.description||"").replace(/"/g,""), h.qte, h.montant, h.statut||"", h.facture||""].join(","));

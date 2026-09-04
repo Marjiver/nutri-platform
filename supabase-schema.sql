@@ -63,7 +63,7 @@ EXCEPTION WHEN undefined_table THEN NULL; END $$;
 -- ── 1. PROFILES ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS profiles (
   id                  uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  role                text NOT NULL CHECK (role IN ('patient','dietitian','prescriber')),
+  role                text NOT NULL CHECK (role IN ('patient','dietitian','prescriber','admin')),
   prenom              text,
   nom                 text,
   email               text,
@@ -104,6 +104,9 @@ CREATE TABLE IF NOT EXISTS bilans (
   id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   patient_id     uuid REFERENCES auth.users ON DELETE CASCADE,
   prenom         text, nom text, age int, sexe text, ville text,
+  -- date_naissance : source de verite de l’age. `age` reste l’age au moment
+  -- du bilan. Voir sql/date-naissance.sql et la vue v_bilans_age.
+  date_naissance date,
   poids          numeric, taille numeric, poids_objectif numeric,
   objectif       text, activite text, regime text,
   allergies      text, aversions text, budget text,

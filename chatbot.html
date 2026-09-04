@@ -10,11 +10,12 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Assistant NutriDoc</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css?v=4"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="js/ui/nav.js" defer></script>
+  <script src="js/ui/nav.js?v=2" defer></script>
   <style>
 @media(max-width:768px){
   .nd-header{padding:.75rem 1rem;}
@@ -39,7 +40,8 @@
 // Ce fichier est le widget chatbot. 
 // Il est instancié depuis chatbot-widget.js (inclus dans toutes les pages).
 </script>
-<script src="js/ui/chatbot-widget.js"></script>
-  <script src="js/error-handler.js"></script>
+<script src="js/utils/escape.js?v=1"></script>
+<script src="js/ui/chatbot-widget.js?v=2"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
 </body>
 </html>

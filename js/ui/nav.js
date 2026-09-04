@@ -57,8 +57,11 @@ function buildUniversalNav() {
   const config = NAV_CONFIG[role] || NAV_CONFIG.public;
   const page   = window.location.pathname.split('/').pop() || 'index.html';
 
-  // Ne pas injecter si une nav existe déjà dans la page (header personnalisé)
-  if (document.querySelector('.nd-header')) {
+  // Ne pas injecter si une nav existe déjà dans la page (header personnalisé).
+  // On teste tous les en-têtes du site, pas seulement .nd-header : faq.html,
+  // politique-confidentialite.html et prescripteur-crm.html utilisent .header
+  // et se retrouvaient sinon avec deux barres de navigation empilées.
+  if (document.querySelector('.nd-header, .header, .admin-header')) {
     // Sur les pages avec header personnalisé, on ne fait qu'ajouter le scroll-top
     addScrollTopButton();
     return;
@@ -141,7 +144,9 @@ function buildUniversalNav() {
                               document.querySelector('.profil-selector');
   
   if (!document.getElementById('unavProfilBar') && !hasDynamicProfilBar) {
-    var page = window.location.pathname.split('/').pop() || 'index.html';
+    // `page` est déjà déclaré en tête de buildUniversalNav() ; le redéclarer
+    // en var provoquait « Identifier 'page' has already been declared »,
+    // une erreur de syntaxe qui empêchait TOUT le fichier de s'exécuter.
     var isDiet  = page.includes('dieteticien') || page.includes('dietitian') || page.includes('agenda-diet') || page.includes('compta-diet');
     var isPresc = page.includes('prescripteur');
     var barHtml = '<div id="unavProfilBar" style="position:sticky;top:60px;z-index:98;background:#080f0b;border-bottom:1px solid rgba(255,255,255,.07);padding:.38rem 2rem;">' +

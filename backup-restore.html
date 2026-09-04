@@ -7,6 +7,7 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="description" content="Gestion des sauvegardes et restaurations des données NutriDoc. Export/import des bases de données, fichiers et configurations."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sauvegarde & Restauration — Administration NutriDoc</title>
@@ -42,16 +43,16 @@
   <script defer src="js/utils/version-manager.js"></script>
   
   <!-- ==================== ERROR HANDLER ==================== -->
-  <script defer src="js/utils/error-handler.js"></script>
+  <script defer src="js/utils/error-handler.js?v=2"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PWA MANAGER ==================== -->
   <script defer src="js/utils/pwa.js"></script>
   
   <!-- ==================== CORE ==================== -->
-  <script defer src="js/core/auth.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/admin/admin-auth.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -236,7 +237,7 @@
 
     /* BUTTONS */
     .btn-primary {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -313,7 +314,7 @@
       bottom: 1.5rem;
       left: 50%;
       transform: translateX(-50%);
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       padding: 0.6rem 1.2rem;
       border-radius: 999px;
@@ -334,7 +335,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -342,7 +343,6 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- ==================== THÈME SELECTOR ==================== -->
@@ -464,7 +464,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Fréquence</label>
+        <label for="autoBackupFreq">Fréquence</label>
         <select id="autoBackupFreq">
           <option value="daily">Quotidienne (à 02:00)</option>
           <option value="weekly">Hebdomadaire (dimanche 02:00)</option>
@@ -473,7 +473,7 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Conservation</label>
+        <label for="autoBackupRetention">Conservation</label>
         <select id="autoBackupRetention">
           <option value="7">7 jours</option>
           <option value="30">30 jours</option>
@@ -484,7 +484,7 @@
     </div>
 
     <div class="form-group">
-      <label>Destination (optionnel)</label>
+      <label for="autoBackupDestination">Destination (optionnel)</label>
       <input type="text" id="autoBackupDestination" placeholder="bucket/s3/path" value="supabase/storage/backups/">
     </div>
 
@@ -528,22 +528,20 @@
 </div>
 
 <script>
-// ==================== DONNÉES SIMULÉES ====================
-let backups = [
-  { id: 'b1', name: 'backup_complet_2026-04-13.json', type: 'complet', size: '2.4 MB', date: '2026-04-13 02:00:00' },
-  { id: 'b2', name: 'backup_utilisateurs_2026-04-12.json', type: 'utilisateurs', size: '0.8 MB', date: '2026-04-12 02:00:00' },
-  { id: 'b3', name: 'backup_plans_2026-04-11.json', type: 'plans', size: '1.2 MB', date: '2026-04-11 02:00:00' },
-  { id: 'b4', name: 'backup_config_2026-04-10.json', type: 'config', size: '0.1 MB', date: '2026-04-10 02:00:00' }
-];
+// ==================== DONNÉES ====================
+// Liste des sauvegardes réellement effectuées. Vide au démarrage :
+// afficher une sauvegarde qui n'existe pas donne une fausse sécurité.
+let backups = [];
 
 let actionConfirm = null;
 
 // Initialisation
 function init() {
-  document.getElementById('statUsers').textContent = '1,284';
-  document.getElementById('statPatients').textContent = '847';
-  document.getElementById('statPlans').textContent = '1,256';
-  document.getElementById('statSize').textContent = '12.4';
+  // Compteurs alimentés par Supabase. Zéro tant qu'aucune donnée n'existe.
+  document.getElementById('statUsers').textContent = '0';
+  document.getElementById('statPatients').textContent = '0';
+  document.getElementById('statPlans').textContent = '0';
+  document.getElementById('statSize').textContent = '0';
   
   renderBackups();
   document.getElementById('lastAutoBackupDate').textContent = '2026-04-13 02:00:00';
@@ -799,4 +797,8 @@ window.viderLogs = viderLogs;
 window.anonymiserDonneesTest = anonymiserDonneesTest;
 window.resetComplet = resetComplet;
 window.fermerModalConfirm = fermerModalConfirm;
-window.executar
+window.executerActionConfirm = executerActionConfirm;
+</script>
+
+</body>
+</html>

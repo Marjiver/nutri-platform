@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="description" content="Conditions Générales d'Utilisation diététicien NutriDoc — CaliDoc Santé. Formules, obligations, responsabilité professionnelle, RPPS."/>
@@ -16,8 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -120,7 +121,7 @@
     .nd-footer-bottom { text-align:center; font-size:.62rem; padding-top:1.5rem; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,.05); }
     @media(max-width:768px){ .nd-footer-inner{grid-template-columns:1fr;} .nd-footer-links{grid-template-columns:1fr 1fr;} }
 
-    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:var(--green); color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
+    .scroll-top-btn { position:fixed; bottom:1rem; right:1rem; width:40px; height:40px; background:#12795a; color:#fff; border:none; border-radius:50%; cursor:pointer; opacity:0; transition:opacity .2s; z-index:200; }
     .scroll-top-btn.visible { opacity:1; }
   </style>
 </head>

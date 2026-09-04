@@ -490,44 +490,26 @@ async function loadAdminData() {
  * Charge les données utilisateurs
  */
 async function loadUsersData() {
-  // Données simulées
-  adminState.data.users = [
-    { id: 1, name: 'Marie Dupont', email: 'marie@email.fr', role: 'patient', status: 'active', created: '2026-01-15', plans: 2 },
-    { id: 2, name: 'Thomas Klein', email: 'thomas@email.fr', role: 'patient', status: 'active', created: '2026-01-20', plans: 1 },
-    { id: 3, name: 'Grégoire Martin', email: 'gmartin@diet.fr', role: 'dietitian', status: 'active', created: '2026-01-10', plans: 45 },
-    { id: 4, name: 'Antoine Durand', email: 'antoine@presc.fr', role: 'prescriber', status: 'active', created: '2026-01-25', plans: 28 },
-    { id: 5, name: 'Sophie Martin', email: 'sophie@email.fr', role: 'patient', status: 'inactive', created: '2026-02-01', plans: 0 },
-    { id: 6, name: 'Dr. A. Lemaire', email: 'lemaire@diet.fr', role: 'dietitian', status: 'active', created: '2026-01-05', plans: 38 },
-    { id: 7, name: 'C. Fontaine', email: 'fontaine@diet.fr', role: 'dietitian', status: 'active', created: '2026-01-12', plans: 31 },
-    { id: 8, name: 'Julie Moreau', email: 'julie@presc.fr', role: 'prescriber', status: 'active', created: '2026-01-18', plans: 15 }
-  ];
+  // TODO: requeter Supabase -> _supa.from('profiles').select(...)
+  // Aucun utilisateur invente : la liste reste vide tant que la requete
+  // n'est pas branchee.
+  adminState.data.users = [];
 }
 
 /**
- * Charge les données des plans
+ * Charge les donnees des plans
  */
 async function loadPlansData() {
-  adminState.data.plans = [
-    { id: 'PLN-001', patient: 'Marie D.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'completed', date: '2026-04-01', amount: 29.90 },
-    { id: 'PLN-002', patient: 'Thomas K.', dietitian: 'Grégoire Martin', objectif: 'Prise de masse', status: 'completed', date: '2026-04-02', amount: 29.90 },
-    { id: 'PLN-003', patient: 'Sophie M.', dietitian: 'Dr. A. Lemaire', objectif: 'Équilibre', status: 'pending', date: '2026-04-03', amount: 29.90 },
-    { id: 'PLN-004', patient: 'Lucas B.', dietitian: 'C. Fontaine', objectif: 'Performance', status: 'completed', date: '2026-04-04', amount: 29.90 },
-    { id: 'PLN-005', patient: 'Emma R.', dietitian: 'Grégoire Martin', objectif: 'Perte de poids', status: 'failed', date: '2026-04-05', amount: 29.90 },
-    { id: 'PLN-006', patient: 'Paul L.', dietitian: 'Dr. A. Lemaire', objectif: 'Prévention', status: 'completed', date: '2026-04-06', amount: 29.90 }
-  ];
+  // TODO: requeter Supabase -> _supa.from('plans').select(...)
+  adminState.data.plans = [];
 }
 
 /**
- * Charge les données financières
+ * Charge les donnees financieres
  */
 async function loadFinanceData() {
-  adminState.data.payments = [
-    { id: 'PY-001', date: '2026-04-01', type: 'Plan patient', description: 'Plan PLN-001', amount: 29.90, status: 'completed' },
-    { id: 'PY-002', date: '2026-04-02', type: 'Plan patient', description: 'Plan PLN-002', amount: 29.90, status: 'completed' },
-    { id: 'PY-003', date: '2026-04-01', type: 'Abonnement', description: 'Abonnement Essentiel - Grégoire Martin', amount: 39.00, status: 'completed' },
-    { id: 'PY-004', date: '2026-04-03', type: 'Crédits', description: 'Pack Standard - Antoine Durand', amount: 130.00, status: 'pending' },
-    { id: 'PY-005', date: '2026-04-05', type: 'Visio', description: 'Visio - Marie D.', amount: 55.00, status: 'completed' }
-  ];
+  // TODO: requeter les paiements Stripe reels.
+  adminState.data.payments = [];
 }
 
 // ==================== TABLEAUX ====================

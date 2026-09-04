@@ -53,6 +53,12 @@ let MODE_SUPA = false;
 window._supa     = _supa;
 window.MODE_SUPA = MODE_SUPA;
 
+// Identifiants exposes pour les modules qui appellent les Edge Functions
+// (js/utils/email.js notamment). Ils cherchaient window._supabaseKey, qui
+// n'etait defini nulle part : l'envoi d'emails repartait donc en mode demo.
+window._supabaseUrl = SUPABASE_URL;
+window._supabaseKey = SUPABASE_ANON_KEY;
+
 /* ─────────────────────────────────────────────────────────────
    2. SESSION & PROFIL
    ───────────────────────────────────────────────────────────── */
@@ -80,21 +86,64 @@ async function getProfile() {
     const { data: { user } } = await _supa.auth.getUser();
     if (!user) return null;
 
+    // maybeSingle() plutôt que single() : sans ligne de profil, single()
+    // remonte une erreur et l'appelant croit à tort que personne n'est
+    // connecté — ce qui bloquait l'accès aux espaces professionnels.
     const { data: profile, error } = await _supa
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.warn('[getProfile]', error.message);
       return null;
     }
-    return profile;
+    if (profile) return profile;
+
+    // Compte authentifié sans profil : le trigger handle_new_user() ne
+    // bloque jamais la création du compte et avale ses erreurs, si bien
+    // qu'un utilisateur peut exister dans auth.users sans ligne profiles.
+    // On répare au vol à partir des métadonnées d'inscription.
+    return await creerProfilManquant(user);
   } catch (err) {
     console.error('[getProfile]', err);
     return null;
   }
+}
+
+/**
+ * Crée la ligne `profiles` absente d'un compte déjà authentifié.
+ * Retourne le profil créé, ou null si l'insertion est refusée.
+ */
+async function creerProfilManquant(user) {
+  const meta = user.user_metadata || {};
+  const brouillon = {
+    id:     user.id,
+    role:   meta.role || 'patient',
+    email:  user.email,
+    prenom: meta.prenom || '',
+    nom:    meta.nom || '',
+    statut: 'actif'
+  };
+  if (meta.tel)        brouillon.tel = meta.tel;
+  if (meta.rpps)       brouillon.rpps = meta.rpps;
+  if (meta.cabinet)    brouillon.cabinet = meta.cabinet;
+  if (meta.profession) brouillon.profession = meta.profession;
+  if (meta.siret)      brouillon.siret = meta.siret;
+
+  const { data, error } = await _supa
+    .from('profiles')
+    .insert(brouillon)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('[getProfile] profil absent et non réparable :', error.message);
+    return null;
+  }
+  console.info('[NutriDoc auth.js] Profil manquant recréé pour', user.email);
+  return data;
 }
 
 /**
@@ -127,22 +176,24 @@ async function connecter(email, password, redirectUrl = null) {
     return { data, error: null };
   }
 
-  // Redirection selon le rôle
+  // Redirection selon le rôle.
+  // La connexion doit TOUJOURS aboutir à une redirection : si le profil est
+  // introuvable, on se rabat sur le rôle déclaré à l'inscription plutôt que
+  // de laisser l'utilisateur sur la page de connexion sans explication.
+  const redirects = {
+    patient:    'dashboard.html',
+    dietitian:  'dietitian.html',
+    prescriber: 'prescripteur-dashboard.html',
+    admin:      'admin.html',
+  };
+  let role;
   try {
     const profile = await getProfile();
-    if (profile) {
-      const redirects = {
-        patient:    'dashboard.html',
-        dietitian:  'dietitian.html',
-        prescriber: 'prescripteur-dashboard.html',
-        admin:      'admin.html',
-      };
-      const dest = redirects[profile.role] || 'dashboard.html';
-      window.location.href = dest;
-    }
+    role = profile?.role || data?.user?.user_metadata?.role;
   } catch {
-    window.location.href = 'dashboard.html';
+    role = data?.user?.user_metadata?.role;
   }
+  window.location.href = redirects[role] || 'dashboard.html';
 
   return { data, error: null };
 }

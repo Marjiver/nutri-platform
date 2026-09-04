@@ -129,40 +129,12 @@ async function loadPartnerData() {
 }
 
 /**
- * Données utilisateurs par défaut
+ * Etat initial d'un espace partenaire : aucun utilisateur, aucune commande,
+ * aucune facture. Ces listes se remplissent avec l'activite reelle.
  */
-function getDefaultUsers() {
-  return [
-    { id: 'u1', name: 'Antoine D.', role: 'admin', email: 'antoine@partner.fr', orders: 15, avatar: 'A', active: true },
-    { id: 'u2', name: 'Sophie M.', role: 'coach', email: 'sophie@partner.fr', orders: 7, avatar: 'S', active: true },
-    { id: 'u3', name: 'Romain L.', role: 'coach', email: 'romain@partner.fr', orders: 5, avatar: 'R', active: true }
-  ];
-}
-
-/**
- * Commandes par défaut
- */
-function getDefaultOrders() {
-  return [
-    { id: 'cmd_001', patient: 'Marie D.', objectif: 'Perte de poids', user: 'Antoine D.', status: 'completed', date: '2026-04-01', credits: 1 },
-    { id: 'cmd_002', patient: 'Thomas K.', objectif: 'Prise de masse', user: 'Sophie M.', status: 'completed', date: '2026-04-02', credits: 1 },
-    { id: 'cmd_003', patient: 'Sophie M.', objectif: 'Équilibre', user: 'Romain L.', status: 'pending', date: '2026-04-03', credits: 1 },
-    { id: 'cmd_004', patient: 'Lucas B.', objectif: 'Performance', user: 'Antoine D.', status: 'progress', date: '2026-04-04', credits: 1 },
-    { id: 'cmd_005', patient: 'Emma R.', objectif: 'Perte de poids', user: 'Sophie M.', status: 'completed', date: '2026-04-05', credits: 1 },
-    { id: 'cmd_006', patient: 'Paul L.', objectif: 'Prévention', user: 'Antoine D.', status: 'pending', date: '2026-04-06', credits: 1 }
-  ];
-}
-
-/**
- * Factures par défaut
- */
-function getDefaultInvoices() {
-  return [
-    { id: 'INV-001', date: '2026-03-01', amount: 249, status: 'paid', period: 'Mars 2026', downloadUrl: '#' },
-    { id: 'INV-002', date: '2026-02-01', amount: 249, status: 'paid', period: 'Février 2026', downloadUrl: '#' },
-    { id: 'INV-003', date: '2026-01-01', amount: 249, status: 'paid', period: 'Janvier 2026', downloadUrl: '#' }
-  ];
-}
+function getDefaultUsers()    { return []; }
+function getDefaultOrders()   { return []; }
+function getDefaultInvoices() { return []; }
 
 /**
  * Sauvegarde les données

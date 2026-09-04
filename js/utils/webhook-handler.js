@@ -617,11 +617,11 @@ function getMockWebhookData(provider, event, customData) {
         plan_id: 'plan_' + Date.now(),
         patient_id: 'pat_' + Date.now(),
         patient_email: 'patient@example.com',
-        patient_prenom: 'Marie',
+        patient_prenom: 'Test',
         objectif: 'perte_poids',
         dieteticien: {
-          nom: 'Grégoire Martin',
-          rpps: '10008019381'
+          nom: 'Diététicien Test',
+          rpps: '00000000000'
         },
         pdf_url: 'https://storage.nutridoc.fr/plans/plan_test.pdf'
       }
@@ -631,7 +631,7 @@ function getMockWebhookData(provider, event, customData) {
       timestamp: new Date().toISOString(),
       data: {
         plan_id: 'plan_' + Date.now(),
-        patient_prenom: 'Thomas',
+        patient_prenom: 'Test',
         objectif: 'prise_masse',
         prescripteur_id: 'pre_' + Date.now()
       }
@@ -707,22 +707,9 @@ function getWebhookStats() {
  */
 function getWebhookLogs(limit = 50) {
   // Logs simulés
-  const logs = [];
-  for (let i = 0; i < Math.min(limit, 20); i++) {
-    const date = new Date();
-    date.setHours(date.getHours() - i);
-    
-    logs.push({
-      id: 'log_' + i,
-      timestamp: date.toISOString(),
-      endpoint: endpoints[i % endpoints.length]?.url || 'https://example.com/webhook',
-      event: ['plan.completed', 'payment_intent.succeeded', 'patient.created'][i % 3],
-      status: i % 5 === 0 ? 'error' : 'success',
-      duration: Math.floor(Math.random() * 500) + 50,
-      responseCode: i % 5 === 0 ? 500 : 200
-    });
-  }
-  return logs;
+  // Journal des appels reellement emis. Vide tant qu'aucun webhook n'a
+  // ete envoye : un historique fabrique masque les vraies erreurs.
+  return [];
 }
 
 // ==================== UTILITAIRES ====================

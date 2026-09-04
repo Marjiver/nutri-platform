@@ -16,6 +16,7 @@
   <meta name="author" content="CaliDoc Santé">
   <meta name="keywords" content="bilan nutritionnel, diagnostic nutrition, évaluation gratuite">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="description" content="Bilan nutritionnel gratuit · Créez votre compte et recevez des recommandations personnalisées."/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>NutriDoc — Bilan nutritionnel gratuit en 6 étapes</title>
@@ -38,12 +39,8 @@
   
   <!-- ==================== ICÔNES APPLE ==================== -->
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
   
   <!-- ==================== MASQUE POUR ANDROID ==================== -->
-  <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#1D9E75">
   
   <!-- ==================== FICHIERS POUR IE/EDGE ==================== -->
   <meta name="msapplication-TileColor" content="#0d2018">
@@ -53,17 +50,16 @@
       
   <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   
   <!-- ==================== PERFORMANCE MONITORING ==================== -->
   <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== AUTO-SAVE JS ==================== -->
-  <script defer src="js/utils/auto-save.js"></script>
+  <script defer src="js/utils/auto-save.js?v=2"></script>
 
   <style>
     /* Tous les styles identiques à la version précédente */
@@ -425,7 +421,7 @@
       transition: all 0.2s;
     }
     .btn-next, .btn-submit {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
     }
     .btn-next:hover, .btn-submit:hover {
@@ -497,7 +493,7 @@
     }
     .btn-hero {
       display: inline-block;
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       padding: 0.7rem 1.5rem;
       border-radius: 999px;
@@ -520,8 +516,6 @@
       padding: 6px 12px;
     }
 
-    /* Theme selector wrapper */
-    @media (max-width: 768px) {
 
     .nd-footer {
       background: #080f0b;
@@ -581,7 +575,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -589,7 +583,7 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 
 <header class="nd-header" id="ndHeader">
@@ -668,22 +662,24 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Prénom <span class="req">*</span></label>
-          <input type="text" name="prenom" placeholder="Ex : Marie" required/>
+          <label for="prenom">Prénom <span class="req">*</span></label>
+          <input type="text" name="prenom" placeholder="Ex : Marie" required id="prenom"/>
         </div>
         <div class="form-group">
-          <label>Nom <span class="req">*</span></label>
-          <input type="text" name="nom" placeholder="Ex : Dupont" required/>
+          <label for="nom">Nom <span class="req">*</span></label>
+          <input type="text" name="nom" placeholder="Ex : Dupont" required id="nom"/>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Âge <span class="req">*</span></label>
-          <input type="number" name="age" placeholder="Ex : 34" min="16" max="120" required/>
+          <label for="date_naissance">Date de naissance <span class="req">*</span></label>
+          <input type="date" name="date_naissance" id="date_naissance" required
+                 placeholder="jj/mm/aaaa" autocomplete="bday"/>
+          <span class="field-hint" id="ageCalcule">Format jj/mm/aaaa — service réservé aux 16 ans et plus</span>
         </div>
         <div class="form-group">
-          <label>Sexe <span class="req">*</span></label>
-          <select name="sexe" required>
+          <label for="sexe">Sexe <span class="req">*</span></label>
+          <select name="sexe" required id="sexe">
             <option value="">— Choisir —</option>
             <option value="femme">Femme</option>
             <option value="homme">Homme</option>
@@ -692,8 +688,8 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Ville <span class="req">*</span></label>
-        <input type="text" name="ville" placeholder="Ex : Angoulême" required/>
+        <label for="ville">Ville <span class="req">*</span></label>
+        <input type="text" name="ville" placeholder="Ex : Angoulême" required id="ville"/>
         <span class="field-hint">Permet d'assigner un diététicien proche de chez vous</span>
       </div>
       <button type="button" class="btn-next" data-next="2">Continuer →</button>
@@ -707,17 +703,17 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Taille (cm) <span class="req">*</span></label>
-          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="250" required/>
+          <label for="taille">Taille (cm) <span class="req">*</span></label>
+          <input type="number" name="taille" placeholder="Ex : 168" min="100" max="250" required id="taille"/>
         </div>
         <div class="form-group">
-          <label>Poids actuel (kg) <span class="req">*</span></label>
-          <input type="number" name="poids" placeholder="Ex : 65" min="30" max="300" required/>
+          <label for="poids">Poids actuel (kg) <span class="req">*</span></label>
+          <input type="number" name="poids" placeholder="Ex : 65" min="30" max="300" required id="poids"/>
         </div>
       </div>
       <div class="form-group">
-        <label>Poids objectif (kg) <span style="color:#6b7b74;font-weight:400">optionnel</span></label>
-        <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300"/>
+        <label for="poids_objectif">Poids objectif (kg) <span style="color:#6b7b74;font-weight:400">optionnel</span></label>
+        <input type="number" name="poids_objectif" placeholder="Ex : 60" min="30" max="300" id="poids_objectif"/>
       </div>
       <div class="btn-row">
         <button type="button" class="btn-back" data-prev="1">← Retour</button>
@@ -732,8 +728,8 @@
         <h2>Activité &amp; objectif</h2>
       </div>
       <div class="form-group">
-        <label>Niveau d'activité physique <span class="req">*</span></label>
-        <select name="activite" required>
+        <label for="activite">Niveau d'activité physique <span class="req">*</span></label>
+        <select name="activite" required id="activite">
           <option value="">— Choisir —</option>
           <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
           <option value="leger">Légèrement actif (1-2x/semaine)</option>
@@ -742,8 +738,8 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Objectif principal <span class="req">*</span></label>
-        <select name="objectif" required onchange="toggleNiveauPratique(this.value)">
+        <label for="objectif">Objectif principal <span class="req">*</span></label>
+        <select name="objectif" required onchange="toggleNiveauPratique(this.value)" id="objectif">
           <option value="">— Choisir —</option>
           <option value="perte_poids">Perte de poids / de gras</option>
           <option value="prise_masse">Prise de masse / muscle</option>
@@ -754,8 +750,8 @@
         </select>
       </div>
       <div class="form-group" id="niveauPratiqueGroup" style="display:none;">
-        <label>Depuis combien de temps pratiquez-vous ?</label>
-        <select name="niveau_pratique">
+        <label for="niveau_pratique">Depuis combien de temps pratiquez-vous ?</label>
+        <select name="niveau_pratique" id="niveau_pratique">
           <option value="">— Choisir —</option>
           <option value="debutant">Débutant (moins de 2 ans)</option>
           <option value="intermediaire">Intermédiaire (2-6 ans)</option>
@@ -787,8 +783,8 @@
 
       <!-- Type de travail -->
       <div class="form-group">
-        <label>Type de travail</label>
-        <select name="travail">
+        <label for="travail">Type de travail</label>
+        <select name="travail" id="travail">
           <option value="">— Choisir —</option>
           <option value="bureau">Bureau / travail assis</option>
           <option value="debout">Travail debout / en déplacement</option>
@@ -800,14 +796,14 @@
 
       <!-- Sport pratiqué -->
       <div class="form-group">
-        <label>Sport(s) pratiqué(s)</label>
-        <input type="text" name="sport" placeholder="Ex : course à pied, musculation, natation…"/>
+        <label for="sport">Sport(s) pratiqué(s)</label>
+        <input type="text" name="sport" placeholder="Ex : course à pied, musculation, natation…" id="sport"/>
         <span class="field-hint">Précisez le ou les sports pratiqués régulièrement</span>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Fréquence sport</label>
-          <select name="sport_freq">
+          <label for="sport_freq">Fréquence sport</label>
+          <select name="sport_freq" id="sport_freq">
             <option value="">— Choisir —</option>
             <option value="1">1 fois/semaine</option>
             <option value="2">2 fois/semaine</option>
@@ -817,8 +813,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Durée moyenne / séance</label>
-          <select name="sport_duree">
+          <label for="sport_duree">Durée moyenne / séance</label>
+          <select name="sport_duree" id="sport_duree">
             <option value="">— Choisir —</option>
             <option value="30">30 min</option>
             <option value="45">45 min</option>
@@ -832,8 +828,8 @@
       <!-- Sommeil & hydratation -->
       <div class="form-row">
         <div class="form-group">
-          <label>Qualité du sommeil</label>
-          <select name="sommeil">
+          <label for="sommeil">Qualité du sommeil</label>
+          <select name="sommeil" id="sommeil">
             <option value="">— Choisir —</option>
             <option value="excellent">Excellent (7-9h, réparateur)</option>
             <option value="bon">Bon (6-7h)</option>
@@ -842,8 +838,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Consommation d'eau / jour</label>
-          <select name="hydratation">
+          <label for="hydratation">Consommation d'eau / jour</label>
+          <select name="hydratation" id="hydratation">
             <option value="">— Choisir —</option>
             <option value="moins_1l">Moins de 1 litre</option>
             <option value="1_1.5l">1 à 1,5 litre</option>
@@ -856,8 +852,8 @@
       <!-- Tabagisme & fringales -->
       <div class="form-row">
         <div class="form-group">
-          <label>Tabagisme</label>
-          <select name="tabagisme">
+          <label for="tabagisme">Tabagisme</label>
+          <select name="tabagisme" id="tabagisme">
             <option value="non">Non-fumeur</option>
             <option value="ex">Ex-fumeur</option>
             <option value="occasionnel">Fumeur occasionnel</option>
@@ -865,8 +861,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Fringales / grignotages</label>
-          <select name="fringales">
+          <label for="fringales">Fringales / grignotages</label>
+          <select name="fringales" id="fringales">
             <option value="">— Choisir —</option>
             <option value="jamais">Jamais</option>
             <option value="matin">Souvent le matin</option>
@@ -879,27 +875,27 @@
 
       <!-- Habitudes repas -->
       <div class="form-group">
-        <label>Que mangez-vous habituellement le matin ?</label>
-        <input type="text" name="repas_matin" placeholder="Ex : café + tartines, rien, yaourt + fruits…"/>
+        <label for="repas_matin">Que mangez-vous habituellement le matin ?</label>
+        <input type="text" name="repas_matin" placeholder="Ex : café + tartines, rien, yaourt + fruits…" id="repas_matin"/>
       </div>
       <div class="form-group">
-        <label>Que mangez-vous habituellement le midi ?</label>
-        <input type="text" name="repas_midi" placeholder="Ex : sandwich bureau, repas chaud à domicile, restaurant…"/>
+        <label for="repas_midi">Que mangez-vous habituellement le midi ?</label>
+        <input type="text" name="repas_midi" placeholder="Ex : sandwich bureau, repas chaud à domicile, restaurant…" id="repas_midi"/>
       </div>
       <div class="form-group">
-        <label>Que mangez-vous habituellement le soir ?</label>
-        <input type="text" name="repas_soir" placeholder="Ex : repas complet, soupe, plat simple rapide…"/>
+        <label for="repas_soir">Que mangez-vous habituellement le soir ?</label>
+        <input type="text" name="repas_soir" placeholder="Ex : repas complet, soupe, plat simple rapide…" id="repas_soir"/>
       </div>
 
       <!-- Aliments non aimés & budget -->
       <div class="form-group">
-        <label>Aliments que vous n'aimez pas ou ne souhaitez pas manger</label>
-        <input type="text" name="aversions" placeholder="Ex : poisson, brocolis, foie…"/>
+        <label for="aversions">Aliments que vous n'aimez pas ou ne souhaitez pas manger</label>
+        <input type="text" name="aversions" placeholder="Ex : poisson, brocolis, foie…" id="aversions"/>
         <span class="field-hint">Différent des allergies — ce sont des préférences alimentaires</span>
       </div>
       <div class="form-group">
-        <label>Budget alimentaire estimé / semaine</label>
-        <select name="budget">
+        <label for="budget">Budget alimentaire estimé / semaine</label>
+        <select name="budget" id="budget">
           <option value="">— Choisir —</option>
           <option value="moins_30">Moins de 30€</option>
           <option value="30_50">30 à 50€</option>
@@ -940,12 +936,17 @@
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="tdah"/><span>TDAH / impulsivité alimentaire (trouble du déficit de l'attention)</span></label>
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="tsa"/><span>TSA / sélectivité alimentaire (spectre autistique)</span></label>
           <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="bipolarite"/><span>Bipolarité ou trouble de l'humeur impactant l'alimentation</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="anemie"/><span>Anémie, carence en fer ou règles abondantes</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="hypertension"/><span>Hypertension artérielle</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="cholesterol"/><span>Cholestérol ou triglycérides élevés</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="fatigue"/><span>Fatigue chronique inexpliquée</span></label>
+          <label class="checkbox-option"><input type="checkbox" name="alerte_sante" value="obesite"/><span>Obésité diagnostiquée (IMC ≥ 30)</span></label>
           <label class="checkbox-option checkbox-none"><input type="checkbox" id="redFlagAucun"/><span>Aucune de ces situations ne me concerne</span></label>
         </div>
       </div>
       <div class="form-group">
-        <label>Régime alimentaire</label>
-        <select name="regime">
+        <label for="regime">Régime alimentaire</label>
+        <select name="regime" id="regime">
           <option value="">— Aucune restriction —</option>
           <option value="vegetarien">Végétarien</option>
           <option value="vegan">Vegan</option>
@@ -956,8 +957,8 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Allergies ou intolérances</label>
-        <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2"></textarea>
+        <label for="allergies">Allergies ou intolérances</label>
+        <textarea name="allergies" placeholder="Ex : noix, fruits de mer..." rows="2" id="allergies"></textarea>
       </div>
       <div class="btn-row">
         <button type="button" class="btn-back" data-prev="4">← Retour</button>
@@ -974,12 +975,12 @@
       <p class="step-intro">Un email vous sera envoyé pour confirmer votre compte.</p>
       
       <div class="form-group">
-        <label>Email <span class="req">*</span></label>
+        <label for="email">Email <span class="req">*</span></label>
         <input type="email" id="email" name="email" placeholder="votre@email.fr" required/>
       </div>
       
       <div class="form-group">
-        <label>Mot de passe <span class="req">*</span></label>
+        <label for="password">Mot de passe <span class="req">*</span></label>
         <div class="pwd-wrap">
           <input type="password" id="password" name="password" placeholder="Minimum 8 caractères" required/>
           <button type="button" class="pwd-toggle" onclick="togglePassword()">Voir</button>
@@ -987,7 +988,7 @@
       </div>
       
       <div class="form-group">
-        <label>Confirmer le mot de passe <span class="req">*</span></label>
+        <label for="passwordConfirm">Confirmer le mot de passe <span class="req">*</span></label>
         <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe" required/>
       </div>
       
@@ -1213,6 +1214,71 @@ function updateProgress() {
 }
 
 // ── Affiche/masque les erreurs inline ──────────────────────────
+/* ═══════════════ AGE ET DATE DE NAISSANCE ═══════════════
+   Le formulaire demandait un age en saisie libre. Une date de naissance est
+   plus fiable : elle ne vieillit pas, elle se verifie, et le navigateur
+   propose son propre selecteur de date. L'age est recalcule a chaque usage.  */
+
+const AGE_MINIMUM = 16;
+
+/**
+ * Age revolu a partir d'une date ISO (aaaa-mm-jj), ou null si la date est
+ * absente, illisible ou dans le futur.
+ */
+function ageDepuisNaissance(iso) {
+  if (!iso) return null;
+  const n = new Date(iso + 'T00:00:00');
+  if (isNaN(n.getTime())) return null;
+
+  const today = new Date();
+  if (n > today) return null;
+
+  let age = today.getFullYear() - n.getFullYear();
+  // On retire une annee si l'anniversaire n'est pas encore passe.
+  const m = today.getMonth() - n.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < n.getDate())) age--;
+  return age;
+}
+
+/**
+ * Borne le champ date et affiche l'age calcule sous celui-ci.
+ * Le `max` natif empeche deja la selection d'une date rendant l'utilisateur
+ * plus jeune que l'age minimum ; la verification JS reste le vrai garde-fou,
+ * un attribut HTML se contournant trivialement.
+ */
+function initDateNaissance() {
+  const champ = document.getElementById('date_naissance');
+  const hint  = document.getElementById('ageCalcule');
+  if (!champ) return;
+
+  const today = new Date();
+  const limite = new Date(today.getFullYear() - AGE_MINIMUM, today.getMonth(), today.getDate());
+  const iso = d => d.toISOString().slice(0, 10);
+  champ.max = iso(limite);
+  champ.min = iso(new Date(today.getFullYear() - 120, today.getMonth(), today.getDate()));
+
+  function afficher() {
+    if (!hint) return;
+    const age = ageDepuisNaissance(champ.value);
+    if (age === null) {
+      hint.textContent = 'Format jj/mm/aaaa — service réservé aux ' + AGE_MINIMUM + ' ans et plus';
+      hint.style.color = '';
+      return;
+    }
+    if (age < AGE_MINIMUM) {
+      hint.textContent = age + ' ans — le service est réservé aux ' + AGE_MINIMUM + ' ans et plus';
+      hint.style.color = '#b3261e';
+    } else {
+      hint.textContent = age + ' ans';
+      hint.style.color = '';
+    }
+  }
+  champ.addEventListener('change', afficher);
+  champ.addEventListener('input', afficher);
+  afficher();
+}
+document.addEventListener('DOMContentLoaded', initDateNaissance);
+
 function showStepError(stepNum, msg) {
   // Cherche un div d'erreur dédié à cette étape, sinon le crée
   const stepEl = document.querySelector(`.step[data-step="${stepNum}"]`);
@@ -1261,24 +1327,40 @@ function validateStep(stepNum) {
     return false;
   }
 
-  // Étape 2 : validation âge min/max
-  if (stepNum === 2) {
-    const age = parseInt(stepEl.querySelector('[name="age"]')?.value);
-    if (isNaN(age) || age < 16 || age > 120) {
-      showStepError(stepNum, '⚠️ Veuillez entrer un âge valide (entre 16 et 120 ans).');
+  // Étape 1 (Votre profil) : contrôle de la date de naissance.
+  // L'âge est calculé, plus saisi : une date ne se trompe pas d'année et
+  // reste juste quand le dossier est relu des mois plus tard.
+  if (stepNum === 1) {
+    const val = stepEl.querySelector('[name="date_naissance"]')?.value || '';
+    const age = ageDepuisNaissance(val);
+
+    if (age === null) {
+      showStepError(stepNum, "⚠️ Merci d'indiquer votre date de naissance au format jj/mm/aaaa.");
+      return false;
+    }
+    if (age < AGE_MINIMUM) {
+      showStepError(stepNum,
+        '⚠️ Ce service est réservé aux personnes de ' + AGE_MINIMUM + ' ans et plus. ' +
+        "Un accompagnement nutritionnel avant cet âge relève d'une consultation " +
+        "avec un professionnel de santé, accompagné d'un représentant légal. " +
+        'Parlez-en à votre médecin traitant.');
+      return false;
+    }
+    if (age > 120) {
+      showStepError(stepNum, "⚠️ Cette date de naissance ne semble pas valide. Vérifiez l'année saisie.");
       return false;
     }
   }
 
-  // Étape 3 : vérifier que taille et poids sont cohérents
-  if (stepNum === 3) {
+  // Étape 2 (Votre morphologie) : taille et poids cohérents.
+  if (stepNum === 2) {
     const taille = parseFloat(stepEl.querySelector('[name="taille"]')?.value);
     const poids  = parseFloat(stepEl.querySelector('[name="poids"]')?.value);
-    if (taille < 100 || taille > 250) {
+    if (isNaN(taille) || taille < 100 || taille > 250) {
       showStepError(stepNum, '⚠️ Taille invalide (entre 100 cm et 250 cm).');
       return false;
     }
-    if (poids < 30 || poids > 300) {
+    if (isNaN(poids) || poids < 30 || poids > 300) {
       showStepError(stepNum, '⚠️ Poids invalide (entre 30 kg et 300 kg).');
       return false;
     }
@@ -1457,7 +1539,11 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
   const bilanData = {
     prenom:        document.querySelector('[name="prenom"]')?.value?.trim() || '',
     nom:           document.querySelector('[name="nom"]')?.value?.trim() || '',
-    age:           parseInt(document.querySelector('[name="age"]')?.value) || null,
+    // `age` reste l'age AU MOMENT DU BILAN : c'est l'information juste pour
+    // un bilan date. `date_naissance` est la source de verite, elle ne
+    // vieillit pas ; la vue v_bilans_age en derive l'age courant.
+    age:            ageDepuisNaissance(document.querySelector('[name="date_naissance"]')?.value),
+    date_naissance: document.querySelector('[name="date_naissance"]')?.value || null,
     sexe:          document.querySelector('[name="sexe"]')?.value || '',
     ville:         document.querySelector('[name="ville"]')?.value?.trim() || '',
     taille:        parseFloat(document.querySelector('[name="taille"]')?.value) || null,
@@ -1540,7 +1626,7 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
     if (profileError) console.warn('Profil:', profileError.message);
 
     // 3. Enregistrer le bilan dans `bilans`
-    const { error: bilanError } = await _supa.from('bilans').insert({
+    const { data: bilanRow, error: bilanError } = await _supa.from('bilans').insert({
       patient_id:    userId,
       prenom:        bilanData.prenom,
       nom:           bilanData.nom || '',
@@ -1570,9 +1656,33 @@ document.getElementById('bilanForm').addEventListener('submit', async (e) => {
       budget:        bilanData.budget        || '',
       statut:        'en_attente',
       paiement:      'gratuit',
-    });
+    })
+    .select('id')
+    .single();
 
     if (bilanError) console.warn('Bilan:', bilanError.message);
+
+    // 3 bis. Inscrire la demande dans la file d'attente des diététiciens.
+    //
+    // Rien n'écrivait jamais dans queue_plans : la table existait, la page
+    // d'administration l'affichait, mais la file restait structurellement
+    // vide. La demande de plan n'apparaissait donc nulle part côté pilotage.
+    // La politique RLS « patient crée une demande » autorise cette insertion.
+    if (bilanRow?.id) {
+      const { error: queueError } = await _supa.from('queue_plans').insert({
+        patient_id:     userId,
+        patient_prenom: bilanData.prenom,
+        ville:          bilanData.ville,
+        objectif:       bilanData.objectif,
+        bilan_id:       bilanRow.id,
+        source:         'patient',
+        type:           'plan',
+        statut:         'pending',
+        priorite:       0,
+        notes_medicales: (bilanData.alertes_sante || []).join(', ') || null,
+      });
+      if (queueError) console.warn("File d'attente :", queueError.message);
+    }
 
     // 4. Nettoyer le brouillon
     if (typeof clearCurrentDraft === 'function') clearCurrentDraft('bilanForm');
@@ -1620,6 +1730,6 @@ window.nextStep = nextStep;
 
 </script>
 
-  <script src="js/error-handler.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@
   <meta name="description" content="NutriDoc - Plateforme nutritionnelle certifiée">
   <meta name="author" content="CaliDoc Santé">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="description" content="Documentation complète de l'API NutriDoc pour l'intégration des partenaires, prescripteurs et diététiciens."/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>API NutriDoc — Documentation technique</title>
@@ -36,7 +37,6 @@
   <script defer src="js/utils/performance.js"></script>
   
   <!-- ==================== DARK MODE JS ==================== -->
-  <script defer src="js/ui/dark-mode.js"></script>
   
   <!-- ==================== PRISM.JS POUR SYNTAX HIGHLIGHTING ==================== -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -325,7 +325,7 @@
       font-family: monospace;
     }
     .tryit-btn {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       padding: 0.4rem 1rem;
@@ -379,7 +379,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -387,7 +387,6 @@
     }
     .scroll-top-btn.visible { opacity: 1; }
   </style>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <!-- ==================== THÈME SELECTOR ==================== -->
@@ -532,7 +531,7 @@
 }</code></pre>
             <div class="tryit-section">
               <div class="tryit-input">
-                <input type="text" id="tryPlans" placeholder="Token JWT" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.EXEMPLE">
+                <input type="text" id="tryPlans" placeholder="Token JWT" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.EXEMPLE" aria-label="Token JWT">
                 <button class="tryit-btn" onclick="tryAPI('plans')">Essayer</button>
               </div>
               <div id="tryPlansResult" class="tryit-result" style="display:none;"></div>
@@ -590,8 +589,8 @@
     "diner": [...]
   },
   "dieteticien": {
-    "nom": "Grégoire Martin",
-    "rpps": "10008019381"
+    "nom": "Prénom Nom",
+    "rpps": "00000000000"
   }
 }</code></pre>
           </div>
@@ -840,8 +839,8 @@ function tryAPI(endpoint) {
     const mockResponses = {
       plans: {
         data: [
-          { id: "plan_123", patient: "Marie D.", objectif: "perte_poids", statut: "completed", created_at: "2026-04-01" },
-          { id: "plan_124", patient: "Thomas K.", objectif: "prise_masse", statut: "pending", created_at: "2026-04-10" }
+          { id: "plan_123", patient: "Patient A.", objectif: "perte_poids", statut: "completed", created_at: "2026-04-01" },
+          { id: "plan_124", patient: "Patient B.", objectif: "prise_masse", statut: "pending", created_at: "2026-04-10" }
         ],
         meta: { page: 1, total: 2 }
       }
@@ -872,6 +871,6 @@ window.addEventListener('scroll', () => {
 window.tryAPI = tryAPI;
 </script>
 
-  <script src="js/error-handler.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
 </body>
 </html>

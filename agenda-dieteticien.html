@@ -2,17 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2018"/>
   <meta name="robots" content="noindex"/>
   <title>Agenda — NutriDoc Diététicien</title>
+  <script src="js/utils/escape.js?v=1"></script>
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/core/auth.js"></script>
-  <script defer src="js/ui/cookies.js"></script>
+  <script defer src="js/core/auth.js?v=2"></script>
+  <script defer src="js/ui/cookies.js?v=3"></script>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
@@ -88,7 +90,7 @@
     .ts.warn .ts-val { color:#f59e0b; }
 
     /* Bouton + */
-    .btn-add { background:var(--green); color:#fff; border:none; padding:.4rem 1rem; border-radius:999px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s, transform .15s; display:flex; align-items:center; gap:.3rem; }
+    .btn-add { background:#12795a; color:#fff; border:none; padding:.4rem 1rem; border-radius:999px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s, transform .15s; display:flex; align-items:center; gap:.3rem; }
     .btn-add:hover { background:var(--green-dark); transform:translateY(-1px); }
 
     /* Légende */
@@ -118,7 +120,7 @@
     .day-col-header.today-col { background:rgba(29,158,117,.06); border-bottom-color:var(--green); }
     .day-col-name { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
     .day-col-num { font-size:1rem; font-weight:600; color:var(--text); line-height:1.2; }
-    .day-col-num.today-num { background:var(--green); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; }
+    .day-col-num.today-num { background:#12795a; color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; }
 
     .day-col { flex:1; position:relative; border-left:1px solid var(--border); }
 
@@ -216,7 +218,7 @@
     .month-cell.month-empty { border-color:transparent; background:transparent; cursor:default; }
     .month-cell.month-today { border-color:var(--green); border-width:2px; }
     .month-cell-num { font-size:.78rem; font-weight:600; color:var(--text); margin-bottom:.3rem; }
-    .month-cell.month-today .month-cell-num { background:var(--green); color:#fff; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.7rem; }
+    .month-cell.month-today .month-cell-num { background:#12795a; color:#fff; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.7rem; }
     .month-dots { display:flex; flex-direction:column; gap:2px; }
     .month-dot { font-size:.62rem; padding:1px 5px; border-radius:4px; font-weight:500; }
     .month-dot.confirme { background:#e8f7f1; color:#0f6e56; }
@@ -350,7 +352,7 @@
       color:var(--text2); display:flex; align-items:center; justify-content:center;
       transition:all .15s; font-family:'Outfit',sans-serif;
     }
-    .day-toggle.active { background:var(--green); border-color:var(--green); color:#fff; }
+    .day-toggle.active { background:#12795a; border-color:var(--green); color:#fff; }
     .day-toggle:hover:not(.active) { border-color:var(--green); color:var(--green); }
     /* Plage horaire */
     .hour-range { display:flex; align-items:center; gap:.75rem; }
@@ -390,7 +392,7 @@
     .sp-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); position:sticky; bottom:0; background:var(--white); display:flex; gap:.75rem; justify-content:flex-end; }
     .btn-reset { background:var(--cream); border:1px solid var(--border); color:var(--text2); padding:.55rem 1rem; border-radius:999px; font-size:.76rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .15s; }
     .btn-reset:hover { background:var(--border); }
-    .btn-save-settings { background:var(--green); color:#fff; border:none; padding:.55rem 1.25rem; border-radius:999px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
+    .btn-save-settings { background:#12795a; color:#fff; border:none; padding:.55rem 1.25rem; border-radius:999px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
     .btn-save-settings:hover { background:var(--green-dark); }
     /* Bouton paramètres toolbar */
     .btn-settings { background:var(--cream); border:1.5px solid var(--border); color:var(--text2); padding:.38rem .75rem; border-radius:8px; font-size:.78rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .15s; display:flex; align-items:center; gap:.35rem; }
@@ -431,7 +433,7 @@
 
     /* Boutons modal */
     .modal-btns { display:flex; gap:.6rem; justify-content:flex-end; margin-top:1.25rem; flex-wrap:wrap; }
-    .btn-primary { background:var(--green); color:#fff; border:none; padding:.6rem 1.35rem; border-radius:999px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
+    .btn-primary { background:#12795a; color:#fff; border:none; padding:.6rem 1.35rem; border-radius:999px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .2s; }
     .btn-primary:hover { background:var(--green-dark); }
     .btn-secondary { background:var(--cream); border:1px solid var(--border); color:var(--text2); padding:.6rem 1.2rem; border-radius:999px; font-size:.82rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:background .15s; }
     .btn-secondary:hover { background:var(--border); }
@@ -544,13 +546,13 @@
       <div class="sp-section">
         <div class="sp-section-title">🕐 Plages horaires</div>
         <div style="margin-bottom:.75rem;">
-          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;">Début de journée</label>
+          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;" for="spHeureDebut">Début de journée</label>
           <select class="sp-select" id="spHeureDebut" onchange="applySettings()">
             <!-- injecté JS -->
           </select>
         </div>
         <div>
-          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;">Fin de journée</label>
+          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;" for="spHeureFin">Fin de journée</label>
           <select class="sp-select" id="spHeureFin" onchange="applySettings()">
             <!-- injecté JS -->
           </select>
@@ -561,7 +563,7 @@
       <div class="sp-section">
         <div class="sp-section-title">📋 Nouveaux créneaux</div>
         <div style="margin-bottom:.75rem;">
-          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;">Durée par défaut</label>
+          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;" for="spDuree">Durée par défaut</label>
           <select class="sp-select" id="spDuree">
             <option value="30">30 minutes</option>
             <option value="45" selected>45 minutes</option>
@@ -569,7 +571,7 @@
           </select>
         </div>
         <div>
-          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;">Statut par défaut</label>
+          <label style="font-size:.76rem;font-weight:600;color:var(--text);display:block;margin-bottom:.4rem;" for="spStatutDefaut">Statut par défaut</label>
           <select class="sp-select" id="spStatutDefaut">
             <option value="libre" selected>Disponible</option>
             <option value="confirme">Confirmée</option>
@@ -586,7 +588,7 @@
             <div class="sw-label">Rappel avant chaque visio</div>
             <div class="sw-sub">Notification 30 min avant</div>
           </div>
-          <label class="sw"><input type="checkbox" id="spNotifRappel" checked/><div class="sw-track"></div><div class="sw-thumb"></div></label>
+          <label class="sw" for="spMsgAbsence"><input type="checkbox" id="spNotifRappel" checked/><div class="sw-track"></div><div class="sw-thumb"></div></label>
         </div>
         <div class="sw-row">
           <div>
@@ -1027,10 +1029,10 @@ function renderSlots(dk) {
         <div class="slot-inner">
           <div class="slot-avatar" style="background:${p.color};">${ini}</div>
           <div class="slot-info">
-            <div class="slot-name">${p.prenom} ${p.nom}</div>
+            <div class="slot-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</div>
             <div class="slot-time">
               <span class="slot-time-pill">${heure}</span>
-              <span>· ${p.objectif}</span>
+              <span>· ${escapeHtml(p.objectif)}</span>
             </div>
           </div>
           ${statut !== 'passe' ? `<div class="slot-status-dot"></div>` : ''}
@@ -1118,21 +1120,21 @@ function showTT(e, key) {
         <div class="tt-head" style="border-left:4px solid ${p.color};">
           <div class="tt-av" style="background:${p.color};">${initials(p)}</div>
           <div>
-            <div class="tt-name">${p.prenom} ${p.nom}</div>
-            <div class="tt-sub">${p.age} ans · ${p.objectif}</div>
+            <div class="tt-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</div>
+            <div class="tt-sub">${p.age} ans · ${escapeHtml(p.objectif)}</div>
           </div>
         </div>
         <div class="tt-body">
           <div class="tt-row"><span class="tt-icon">🕐</span>${slot.heure} · 45 min · <strong style="color:var(--text);">${PRIX_VISIO} €</strong></div>
-          <div class="tt-row"><span class="tt-icon">📧</span><a href="mailto:${p.email}" style="color:var(--green);text-decoration:none;">${p.email}</a></div>
-          <div class="tt-row"><span class="tt-icon">📞</span>${p.tel}</div>
+          <div class="tt-row"><span class="tt-icon">📧</span><a href="mailto:${escapeHtml(p.email)}" style="color:var(--green);text-decoration:none;">${escapeHtml(p.email)}</a></div>
+          <div class="tt-row"><span class="tt-icon">📞</span>${escapeHtml(p.tel)}</div>
           <div class="tt-badge-row">
             <span class="tt-badge" style="background:${sc.bg};color:${sc.text};border:1px solid ${sc.border};">${sc.label}</span>
             ${statut === 'confirme' ? `<a href="${visioUrl}" target="_blank" style="font-size:.68rem;color:var(--green);font-weight:600;text-decoration:none;margin-left:auto;">🎥 Rejoindre →</a>` : ''}
           </div>
         </div>
         <div class="tt-actions">
-          <div class="tt-action" onclick="quickCall('${p.tel}');hideTT();">
+          <div class="tt-action" onclick="quickCall('${escapeHtml(p.tel)}');hideTT();">
             <span class="tt-action-icon">📞</span>Appeler
           </div>
           <div class="tt-action" onclick="openEdit('${key}');hideTT();">
@@ -1183,30 +1185,30 @@ function openAddAt(dk, heure) {
   document.getElementById('modalTitle').textContent = 'Nouveau créneau';
   document.getElementById('modalContent').innerHTML = `
     <div class="fg">
-      <label>Date</label>
+      <label for="mDate">Date</label>
       <input type="date" id="mDate" value="${dk}"/>
     </div>
     <div class="fg-row">
       <div class="fg">
-        <label>Heure de début</label>
+        <label for="mHeure">Heure de début</label>
         <select id="mHeure">
           ${SLOTS_LIST.map(h => `<option value="${h}" ${h===heure?'selected':''}>${h}</option>`).join('')}
         </select>
       </div>
       <div class="fg">
-        <label>Durée</label>
+        <label for="mDuree">Durée</label>
         <select id="mDuree"><option value="45" selected>45 min</option></select>
       </div>
     </div>
     <div class="fg">
-      <label>Patient (optionnel)</label>
+      <label for="mPatient">Patient (optionnel)</label>
       <select id="mPatient">
         <option value="">— Créneau libre —</option>
-        ${PATIENTS.map(p => `<option value="${p.id}">${p.prenom} ${p.nom}</option>`).join('')}
+        ${PATIENTS.map(p => `<option value="${escapeAttr(p.id)}">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</option>`).join('')}
       </select>
     </div>
     <div class="fg">
-      <label>Statut</label>
+      <label for="mStatut">Statut</label>
       <select id="mStatut">
         <option value="libre">Disponible</option>
         <option value="confirme">Confirmée</option>
@@ -1214,8 +1216,8 @@ function openAddAt(dk, heure) {
       </select>
     </div>
     <div class="fg">
-      <label>Notes internes</label>
-      <textarea id="mNotes" placeholder="Notes visibles uniquement par vous…"></textarea>
+      <label for="mNotes">Notes internes</label>
+      <textarea id="mNotes" placeholder="Notes visibles uniquement par vous…" aria-label="Notes visibles uniquement par vous…"></textarea>
     </div>
     <div class="prix-recap">
       <div class="pr-row"><span>Prix patient</span><span>${PRIX_VISIO} €</span></div>
@@ -1256,13 +1258,13 @@ function openEdit(key, defaultTab = 'info') {
     <div class="modal-tab-panel" id="panelInfo" style="padding:1.1rem 1.25rem;">
       ${hasPatient ? `
       <div class="patient-card-mini">
-        <div class="pcm-av" style="background:${p.color};">${initials(p)}</div>
+        <div class="pcm-av" style="background:${escapeAttr(p.color)};">${escapeHtml(initials(p))}</div>
         <div style="flex:1;min-width:0;">
-          <div class="pcm-name">${p.prenom} ${p.nom}</div>
-          <div class="pcm-sub">${p.age} ans · ${p.objectif}</div>
+          <div class="pcm-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</div>
+          <div class="pcm-sub">${escapeHtml(p.age)} ans · ${escapeHtml(p.objectif)}</div>
           <div class="pcm-contact">
-            <div class="pcm-row">📧 <a href="mailto:${p.email}">${p.email}</a></div>
-            <div class="pcm-row">📞 <a href="tel:${p.tel.replace(/\s/g,'')}">${p.tel}</a></div>
+            <div class="pcm-row">📧 <a href="mailto:${escapeAttr(p.email)}">${escapeHtml(p.email)}</a></div>
+            <div class="pcm-row">📞 <a href="tel:${escapeAttr(String(p.tel).replace(/\s/g,''))}">${escapeHtml(p.tel)}</a></div>
           </div>
         </div>
       </div>
@@ -1281,7 +1283,7 @@ function openEdit(key, defaultTab = 'info') {
           <span style="color:var(--text2);">Tarif patient</span>
           <strong>${PRIX_VISIO} €</strong>
         </div>
-        ${slot.notes ? `<div style="font-size:.78rem;color:var(--text2);background:var(--cream);border-radius:8px;padding:.6rem .8rem;margin-top:.25rem;">📝 ${slot.notes}</div>` : ''}
+        ${slot.notes ? `<div style="font-size:.78rem;color:var(--text2);background:var(--cream);border-radius:8px;padding:.6rem .8rem;margin-top:.25rem;">📝 ${escapeHtml(slot.notes)}</div>` : ''}
       </div>
 
       ${statut === 'confirme' && p ? `
@@ -1302,28 +1304,28 @@ function openEdit(key, defaultTab = 'info') {
       <input type="hidden" id="mKey" value="${key}"/>
       <div class="fg-row">
         <div class="fg">
-          <label>Heure</label>
+          <label for="mHeure">Heure</label>
           <select id="mHeure">
             ${SLOTS_LIST.map(h => `<option value="${h}" ${h===slot.heure?'selected':''}>${h}</option>`).join('')}
           </select>
         </div>
         <div class="fg">
-          <label>Statut</label>
+          <label for="mStatut">Statut</label>
           <select id="mStatut">
             ${['libre','confirme','attente'].map(s=>`<option value="${s}" ${slot.statut===s?'selected':''}>${STATUTS[s].label}</option>`).join('')}
           </select>
         </div>
       </div>
       <div class="fg">
-        <label>Patient</label>
+        <label for="mPatient">Patient</label>
         <select id="mPatient">
           <option value="">— Créneau libre —</option>
-          ${PATIENTS.map(pat=>`<option value="${pat.id}" ${p?.id===pat.id?'selected':''}>${pat.prenom} ${pat.nom}</option>`).join('')}
+          ${PATIENTS.map(pat=>`<option value="${pat.id}" ${p?.id===pat.id?'selected':''}>${escapeHtml(pat.prenom)} ${escapeHtml(pat.nom)}</option>`).join('')}
         </select>
       </div>
       <div class="fg">
-        <label>Notes internes</label>
-        <textarea id="mNotes" placeholder="Visibles uniquement par vous…">${slot.notes||''}</textarea>
+        <label for="mNotes">Notes internes</label>
+        <textarea id="mNotes" placeholder="Visibles uniquement par vous…" aria-label="Visibles uniquement par vous…">${escapeHtml(slot.notes||'')}</textarea>
       </div>
       <div class="modal-btns" style="justify-content:space-between;">
         <button class="btn-danger" onclick="confirmDelete('${key}')">Supprimer</button>
@@ -1338,7 +1340,7 @@ function openEdit(key, defaultTab = 'info') {
     <!-- TAB MAIL -->
     <div class="modal-tab-panel" id="panelMail" style="padding:1.1rem 1.25rem;">
       <p style="font-size:.76rem;color:var(--text2);margin-bottom:.85rem;">
-        Choisissez le type de mail à envoyer à <strong>${p.prenom} ${p.nom}</strong> :
+        Choisissez le type de mail à envoyer à <strong>${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</strong> :
       </p>
       <div class="email-types" id="emailTypesList"></div>
       <div class="email-preview" id="emailPreview" style="display:none;"></div>
@@ -1379,8 +1381,25 @@ const EMAIL_TYPES = [
   { id:'libre',        icon:'✍️', label:'Message libre',                 desc:'Rédigez votre propre message' },
 ];
 
+// Signature des emails : nom du diététicien connecté, jamais un nom en dur.
+// Un praticien ne doit pas envoyer de courriel signé du nom d'un confrère.
+let SIGNATURE_DIET = '';
+
+async function chargerSignature() {
+  try {
+    if (typeof getProfile === 'function') {
+      const prof = await getProfile();
+      if (prof) {
+        const nom = [prof.prenom, prof.nom].filter(Boolean).join(' ');
+        if (nom) SIGNATURE_DIET = nom + ', Diététicien' + (prof.rpps ? ' RPPS' : '');
+      }
+    }
+  } catch {}
+}
+document.addEventListener('DOMContentLoaded', chargerSignature);
+
 const EMAIL_PREVIEWS = {
-  confirmation: (p, s) => `Bonjour ${p.prenom},\n\nJe vous confirme notre rendez-vous de téléconsultation nutritionnelle le [date] à ${s.heure}.\n\nLien de connexion :\nhttps://meet.nutridoc.fr/${p.id}\n\nN'hésitez pas à me contacter si vous avez des questions.\n\nCordialement,\nGrégoire Martin, Diététicien RPPS`,
+  confirmation: (p, s) => `Bonjour ${p.prenom},\n\nJe vous confirme notre rendez-vous de téléconsultation nutritionnelle le [date] à ${s.heure}.\n\nLien de connexion :\nhttps://meet.nutridoc.fr/${p.id}\n\nN'hésitez pas à me contacter si vous avez des questions.\n\nCordialement,\n${SIGNATURE_DIET}`,
   rappel:       (p, s) => `Bonjour ${p.prenom},\n\nJe vous rappelle notre rendez-vous de demain à ${s.heure}.\n\nLien de connexion :\nhttps://meet.nutridoc.fr/${p.id}\n\nÀ demain !`,
   plan_pret:    (p, s) => `Bonjour ${p.prenom},\n\nVotre plan alimentaire personnalisé est maintenant disponible dans votre espace NutriDoc.\n\nObjectif : ${p.objectif}\n\nBonne continuation dans votre démarche nutritionnelle !`,
   doc_manquant: (p, s) => `Bonjour ${p.prenom},\n\nAfin de finaliser votre bilan, pourriez-vous me transmettre les documents suivants : [préciser].\n\nMerci d'avance,`,
@@ -1401,7 +1420,7 @@ function initEmailTypes(key) {
       <div class="email-type-icon">${t.icon}</div>
       <div style="flex:1;min-width:0;">
         <div class="email-type-label">${t.label}</div>
-        <div class="email-type-desc">${t.desc}</div>
+        <div class="email-type-desc">${escapeHtml(t.desc)}</div>
       </div>
       <div class="email-type-radio" id="eradio_${t.id}"></div>
     </div>`).join('');
@@ -1421,7 +1440,7 @@ function selectEmailType(typeId, key) {
 
   const text = EMAIL_PREVIEWS[typeId]?.(p, slot) || '';
   if (typeId === 'libre') {
-    preview.innerHTML = `<textarea id="emailLibreText" style="width:100%;border:none;background:transparent;font-size:.76rem;color:var(--text2);resize:vertical;min-height:100px;font-family:'Outfit',sans-serif;outline:none;" placeholder="Rédigez votre message…"></textarea>`;
+    preview.innerHTML = `<textarea id="emailLibreText" style="width:100%;border:none;background:transparent;font-size:.76rem;color:var(--text2);resize:vertical;min-height:100px;font-family:'Outfit',sans-serif;outline:none;" placeholder="Rédigez votre message…" aria-label="Rédigez votre message…"></textarea>`;
   } else {
     preview.textContent = text;
   }

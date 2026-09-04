@@ -1,11 +1,13 @@
 // sw.js - Service Worker NutriDoc v2
 // Chemins RELATIFS : compatibles GitHub Pages (/nutri-platform/) ET domaine OVH (racine)
-const CACHE_NAME = 'nutridoc-v2';
+// Incrementer a CHAQUE mise en ligne : sans cela les visiteurs deja venus
+// conservent l'ancienne version en cache (c'est ce qui a fige style.css vide).
+const CACHE_NAME = 'nutridoc-v5';
 const urlsToCache = [
   './',
   './index.html',
   './offline.html',
-  './css/style.css',
+  './css/style.css?v=4',
   './css/home.css',
   './manifest.json'
 ];

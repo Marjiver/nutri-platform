@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>NutriDoc — Connexion · Espace sécurisé</title>
   <meta name="description" content="Accédez à votre espace patient, diététicien ou prescripteur. Connexion rapide et sécurisée sur NutriDoc."/>
@@ -227,7 +228,7 @@
       transition: all 0.2s;
     }
     .profile-tab.active {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       box-shadow: 0 2px 8px rgba(29,158,117,0.2);
     }
@@ -291,7 +292,7 @@
     .btn-login {
       width: 100%;
       padding: 0.85rem;
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -384,7 +385,7 @@
       border-color: #1D9E75;
     }
     .partner-btn {
-      background: #1D9E75;
+      background:#12795a;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -505,7 +506,7 @@
     .scroll-top-btn {
       position: fixed; bottom: 1rem; right: 1rem;
       width: 40px; height: 40px;
-      background: #1D9E75; color: #fff;
+      background:#12795a; color: #fff;
       border: none; border-radius: 50%;
       cursor: pointer;
       opacity: 0; transition: opacity 0.2s;
@@ -573,6 +574,7 @@
     @media (max-width: 900px) { .gregoire-mini { display: none; } }
 
   </style>
+  <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
 <body>
 
@@ -625,14 +627,14 @@
       <div id="successMsg" class="success-message hidden"></div>
 
       <div class="form-group">
-        <label>Adresse email</label>
+        <label for="loginEmail">Adresse email</label>
         <div class="input-icon">
           <input type="email" id="loginEmail" placeholder="exemple@email.fr" autocomplete="email">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Mot de passe</label>
+        <label for="loginPassword">Mot de passe</label>
         <div class="input-icon">
           <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') soumettreConnexion()">
           <button type="button" class="pwd-toggle" onclick="togglePassword()">Afficher</button>
@@ -661,7 +663,7 @@
         Mutuelles, salles de sport, CSE — solutions B2B sur-mesure. Bêta privée à venir.
       </div>
       <div class="partner-form">
-        <input type="email" id="partnerEmail" placeholder="votre email professionnel" autocomplete="email">
+        <input type="email" id="partnerEmail" placeholder="votre email professionnel" autocomplete="email" aria-label="votre email professionnel">
         <button class="partner-btn" onclick="subscribePartner()">Me prévenir · Gratuit</button>
       </div>
       <div id="partnerMessage" class="partner-message"></div>
@@ -703,7 +705,7 @@
     <h2>Réinitialisation</h2>
     <div class="profil-modal-sub" style="color:var(--text-secondary);">Entrez votre email pour recevoir un lien</div>
     <div class="form-group" style="margin-top:1rem;">
-      <input type="email" id="resetEmail" placeholder="votre@email.fr" style="width:100%; padding:0.8rem; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary);">
+      <input type="email" id="resetEmail" placeholder="votre@email.fr" style="width:100%; padding:0.8rem; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary);" aria-label="votre@email.fr">
     </div>
     <div id="resetMsg" class="hidden" style="font-size:0.8rem; margin:0.5rem 0;"></div>
     <div class="profil-modal-footer" style="margin-top:1rem;">
@@ -747,7 +749,7 @@
 
 <!-- CORRECTION : Supabase chargé AVANT le script de la page -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/core/auth.js"></script>
+<script src="js/core/auth.js?v=2"></script>
 <script>
 
   // ========== GESTION PROFIL PERSISTANT ==========

@@ -23,11 +23,12 @@
   <meta name="apple-mobile-web-app-title" content="NutriDoc">
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96x96.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mentions Légales - NutriDoc</title>
   <meta name="description" content="Mentions légales de la plateforme NutriDoc par CaliDoc Santé — éditeur, hébergeur, propriété intellectuelle, RGPD."/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <script src="js/ui/nav.js" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=4"/>
+  <script src="js/ui/nav.js?v=2" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   </head>
@@ -155,9 +156,9 @@
 <footer style="background:var(--dark);padding:1.5rem 2rem;text-align:center;margin-top:3rem;">
   <p style="font-size:.78rem;color:rgba(255,255,255,.3);">NutriDoc by <strong>CaliDoc Santé</strong> · <a href="index.html" style="color:rgba(255,255,255,.4);">Accueil</a> · contact@calidoc-sante.fr</p>
 </footer>
-  <script src="js/error-handler.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/auto-save.js"></script>
+  <script src="js/utils/error-handler.js?v=2"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/auto-save.js?v=2"></script>
   <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
