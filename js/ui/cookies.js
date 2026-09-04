@@ -104,6 +104,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
   document.head.appendChild(style);
   document.body.appendChild(banner);
+
+  // Le bandeau est en position:fixed : sans compensation il recouvre le bas
+  // de la page. Sur le tunnel de bilan, il masquait le bouton « Continuer »,
+  // qui devenait inatteignable sans faire defiler. On reserve donc sa
+  // hauteur reelle en bas du document tant qu'il est affiche.
+  function reserverEspace() {
+    var b = document.getElementById('cookieBanner');
+    if (!b) {
+      document.body.style.paddingBottom = '';
+      document.documentElement.style.setProperty('--nd-banner-h', '0px');
+      return;
+    }
+    var h = Math.ceil(b.getBoundingClientRect().height);
+    document.body.style.paddingBottom = h + 'px';
+    // Publiee pour que les mises en page qui se calent sur la hauteur de la
+    // fenetre puissent en retrancher le bandeau (voir bilan.html).
+    document.documentElement.style.setProperty('--nd-banner-h', h + 'px');
+  }
+  requestAnimationFrame(reserverEspace);
+  window.addEventListener('resize', reserverEspace, { passive: true });
 });
 
 function cookieAccept() {
@@ -119,6 +139,8 @@ function cookieRefuse() {
 }
 
 function hideCookieBanner() {
+  document.body.style.paddingBottom = '';
+  document.documentElement.style.setProperty('--nd-banner-h', '0px');
   const b = document.getElementById('cookieBanner');
   if (b) {
     b.style.transform = 'translateY(100%)';

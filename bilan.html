@@ -51,7 +51,7 @@
   <!-- ==================== SCRIPTS EXTERNES ==================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="js/core/auth.js?v=2"></script>
-  <script defer src="js/ui/cookies.js?v=3"></script>
+  <script defer src="js/ui/cookies.js?v=5"></script>
   
   <!-- ==================== PERFORMANCE MONITORING ==================== -->
   <script defer src="js/utils/performance.js"></script>
@@ -582,6 +582,136 @@
       z-index: 200;
     }
     .scroll-top-btn.visible { opacity: 1; }
+  
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MISE EN PAGE COMPACTE DU TUNNEL
+       ───────────────────────────────────────────────────────────────────
+       Le formulaire s'etalait sur toute la largeur de la fenetre (1500px
+       et plus) : aucune contrainte de largeur n'etait posee sur le
+       conteneur. Dans le meme temps chaque etape empilait ses champs en
+       colonne unique, ce qui donnait 1141px de hauteur pour l'etape 4 et
+       1609px pour l'etape 5 — trois ecrans de defilement.
+       On fait l'inverse : largeur bornee et lisible, hauteur reduite en
+       exploitant l'espace horizontal. Chaque etape tient alors dans une
+       fenetre sans defilement.
+       Ce bloc est place en fin de feuille pour primer sur les regles
+       precedentes sans avoir a les reecrire une a une.
+       ═══════════════════════════════════════════════════════════════════ */
+
+    .bilan-container {
+      max-width: 920px;
+      margin: 0 auto;
+      /* 4.75rem degage l'en-tete fixe sans laisser de vide inutile */
+      padding: 4.75rem 1.25rem 1.5rem;
+    }
+
+    /* ── Fil d'etapes ─────────────────────────────────────────────── */
+    .progress-container { margin-bottom: 1rem; }
+    .progress-steps     { gap: .25rem; }
+    .progress-step      { font-size: .68rem; line-height: 1.3; }
+
+    /* ── Boutons de brouillon : discrets, ils ne sont pas l'action
+          principale de la page ─────────────────────────────────────── */
+    .draft-actions        { margin-bottom: .6rem; gap: 6px; }
+    .draft-actions button { font-size: .68rem !important; padding: 4px 10px !important; }
+
+    /* ── Carte d'etape ────────────────────────────────────────────── */
+    .step {
+      padding: 1.35rem 1.5rem;
+      border-radius: 18px;
+      margin-bottom: .5rem;
+    }
+    .step-header  { margin-bottom: .9rem; }
+    .step-header h2 { font-size: 1.15rem; }
+    .step-intro   { font-size: .76rem; margin-top: .15rem; }
+
+    /* ── Champs ───────────────────────────────────────────────────── */
+    .form-group { margin-bottom: .8rem; }
+    .form-group label { font-size: .76rem; margin-bottom: .25rem; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea { padding: .5rem .8rem; font-size: .85rem; border-radius: 10px; }
+    .form-group textarea { min-height: 58px; }
+    .field-hint { font-size: .66rem; margin-top: .15rem; }
+    .form-row   { gap: .75rem; }
+    .btn-row    { margin-top: .9rem; }
+
+    /* ── Etapes denses : deux colonnes plutot qu'une pile ─────────── */
+    .step[data-step="3"].active,
+    .step[data-step="4"].active,
+    .step[data-step="6"].active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1.25rem;
+      align-items: start;
+    }
+    .step[data-step="3"] .step-header, .step[data-step="3"] .btn-row,
+    .step[data-step="4"] .step-header, .step[data-step="4"] .btn-row,
+    .step[data-step="6"] .step-header, .step[data-step="6"] .btn-row,
+    .step[data-step="3"] .step-intro, .step[data-step="4"] .step-intro,
+    .step[data-step="6"] .step-intro { grid-column: 1 / -1; }
+
+    /* `display:contents` fait disparaitre le conteneur de la mise en page :
+       les deux champs d'une form-row deviennent des cases de la grille de
+       l'etape au lieu d'occuper une ligne entiere pour eux seuls. */
+    .step[data-step="3"].active .form-row,
+    .step[data-step="4"].active .form-row,
+    .step[data-step="6"].active .form-row { display: contents; }
+    .step .form-row { grid-column: 1 / -1; }
+
+    /* ── La page ne defile pas : c'est le contenu de l'etape qui defile ──
+       Les etapes 4 et 5 comptent 13 et 21 champs. Les faire tenir dans une
+       fenetre de 640px imposerait des cibles de clic sous le seuil
+       d'accessibilite — inacceptable sur une plateforme de sante.
+       On borne donc la hauteur de la carte a la fenetre : la page elle-meme
+       ne bouge plus, et seule la zone de champs defile si necessaire. Les
+       boutons de navigation restent colles en bas, toujours atteignables. */
+    .step.active {
+      /* On ne retranche pas le bandeau cookies : il est transitoire, et
+         dimensionner le formulaire autour le rendrait etrique pour toujours.
+         Le padding-bottom pose par cookies.js empeche deja qu'il recouvre
+         durablement le contenu. */
+      max-height: calc(100vh - 12rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .btn-row {
+      position: sticky;
+      bottom: -1px;
+      /* z-index explicite : un element sticky en z-index auto peut passer
+         sous les elements qui le suivent dans le flux. */
+      z-index: 2;
+      background: var(--bg-card,#fff);
+      padding: .7rem 0 .1rem;
+      margin-top: .5rem;
+      box-shadow: 0 -10px 12px -8px rgba(13,32,24,.10);
+    }
+
+    /* ── Situations de sante : 18 cases en grille, pas en colonne ─── */
+    .checkbox-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+      gap: .3rem .7rem;
+    }
+    .checkbox-option {
+      padding: .38rem .6rem;
+      font-size: .76rem;
+      gap: .5rem;
+      border-radius: 10px;
+    }
+    .checkbox-option input { width: 15px; height: 15px; flex-shrink: 0; }
+    .checkbox-none { grid-column: 1 / -1; }
+
+    /* ── Sous 760px on revient a une colonne : deux colonnes sur un
+          telephone rendraient les champs illisibles ────────────────── */
+    @media (max-width: 760px) {
+      .step[data-step="3"].active,
+      .step[data-step="4"].active,
+      .step[data-step="6"].active { display: block; }
+      .form-row { grid-template-columns: 1fr; }
+      .bilan-container { padding-top: 4.25rem; }
+    }
   </style>
   <script defer src="js/ui/mobile-nav.js?v=3"></script>
 </head>
