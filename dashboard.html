@@ -862,7 +862,7 @@
       <button class="chat-close" id="chatClose">✕</button>
     </div>
     <div class="chat-messages" id="chatMessages">
-      <div class="chat-msg diet">Bonjour ! Je suis Grégoire, votre diététicien. Posez-moi vos questions ici.</div>
+      <div class="chat-msg diet">Cette messagerie sera activée prochainement. En attendant, écrivez à <a href="mailto:contact@calidoc-sante.fr" style="color:#12795a;font-weight:600;">contact@calidoc-sante.fr</a> pour joindre votre diététicien.</div>
     </div>
     <div class="chat-input">
       <input type="text" id="chatInput" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendChatMessage()" aria-label="Votre message">
@@ -1086,23 +1086,35 @@ function initChat() {
 }
 
 function sendChatMessage() {
+  // ⚠ CE FIL N'EST PAS RACCORDE.
+  //
+  // Le code precedent affichait le message du patient, puis fabriquait une
+  // seconde apres une reponse attribuee au dieteticien : « Merci pour votre
+  // message. Je vous reponds dans les plus brefs delais. » Rien n'etait
+  // jamais transmis — aucun appel a Supabase, aucun email.
+  //
+  // Sur une plateforme de sante, c'est un risque reel : un patient peut
+  // signaler un symptome, lire cet accuse de reception et croire son
+  // message parvenu a un professionnel. On dit donc la verite tant que la
+  // messagerie n'est pas branchee.
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg) return;
+
   const container = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'chat-msg patient';
   div.textContent = msg;
   container.appendChild(div);
   input.value = '';
+
+  const avis = document.createElement('div');
+  avis.className = 'chat-msg diet';
+  avis.innerHTML = "Cette messagerie n'est pas encore active : votre message n'a pas ete transmis. " +
+    'Pour joindre votre dieteticien, ecrivez a ' +
+    '<a href="mailto:contact@calidoc-sante.fr" style="color:#12795a;font-weight:600;">contact@calidoc-sante.fr</a>.';
+  container.appendChild(avis);
   container.scrollTop = container.scrollHeight;
-  setTimeout(() => {
-    const reply = document.createElement('div');
-    reply.className = 'chat-msg diet';
-    reply.textContent = 'Merci pour votre message. Je vous réponds dans les plus brefs délais.';
-    container.appendChild(reply);
-    container.scrollTop = container.scrollHeight;
-  }, 1000);
 }
 
 // ===== QUIZ =====

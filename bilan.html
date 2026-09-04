@@ -613,8 +613,23 @@
 
     /* ── Boutons de brouillon : discrets, ils ne sont pas l'action
           principale de la page ─────────────────────────────────────── */
-    .draft-actions        { margin-bottom: .6rem; gap: 6px; }
-    .draft-actions button { font-size: .68rem !important; padding: 4px 10px !important; }
+    /* ── Brouillon : action secondaire, donc traitement discret ────
+          Trois pastilles pleines rouge/orange/vert pesaient plus lourd que
+          le bouton « Continuer », qui est l'action principale. */
+    .draft-actions { margin-bottom: .5rem; gap: .3rem; align-items: center; }
+    .draft-btn {
+      width: 30px; height: 30px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .82rem; line-height: 1; cursor: pointer;
+      background: var(--bg-card,#fff);
+      border: 1px solid var(--border-light,#eef4ee);
+      border-radius: 9px;
+      color: var(--text-secondary,#6b7b74);
+      transition: border-color .15s, background .15s;
+    }
+    .draft-btn:hover        { border-color: #12795a; background: #f2f8f5; }
+    .draft-btn:focus-visible{ outline: 2px solid #12795a; outline-offset: 2px; }
+    .draft-btn-danger:hover { border-color: #b3261e; background: #fdf3f2; }
 
     /* ── Carte d'etape ────────────────────────────────────────────── */
     .step {
@@ -773,15 +788,12 @@
     
     <!-- ==================== BOUTONS DE SAUVEGARDE AUTO ==================== -->
     <div class="draft-actions">
-      <button type="button" onclick="manualSave('bilanForm')" style="background: #1D9E75; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        💾 Sauvegarder maintenant
-      </button>
-      <button type="button" onclick="restoreLastDraft('bilanForm')" style="background: #f59e0b; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        🔄 Restaurer brouillon
-      </button>
-      <button type="button" onclick="clearCurrentDraft('bilanForm')" style="background: #ef4444; color: white; border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer;">
-        🗑️ Effacer brouillon
-      </button>
+      <button type="button" class="draft-btn" onclick="manualSave('bilanForm')"
+              title="Enregistrer le brouillon" aria-label="Enregistrer le brouillon">💾</button>
+      <button type="button" class="draft-btn" onclick="restoreLastDraft('bilanForm')"
+              title="Restaurer le dernier brouillon" aria-label="Restaurer le dernier brouillon">🔄</button>
+      <button type="button" class="draft-btn draft-btn-danger" onclick="clearCurrentDraft('bilanForm')"
+              title="Effacer le brouillon" aria-label="Effacer le brouillon">🗑️</button>
     </div>
 
     <!-- ÉTAPE 1 : Profil -->
@@ -1610,20 +1622,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initAutoSave();
   }
   
-  // Ajouter un bouton de restauration supplémentaire si besoin
-  const restoreBtn = document.createElement('button');
-  restoreBtn.textContent = '🔄 Restaurer brouillon';
-  restoreBtn.onclick = () => {
-    if (typeof restoreLastDraft === 'function') {
-      restoreLastDraft('bilanForm');
-    }
-  };
-  restoreBtn.style.cssText = 'margin-left: 10px; padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 999px; cursor: pointer;';
-  const btnRow = document.querySelector('.step[data-step="5"] .btn-row');
-  if (btnRow && !btnRow.querySelector('.restore-manual')) {
-    restoreBtn.classList.add('restore-manual');
-    btnRow.insertBefore(restoreBtn, btnRow.querySelector('.btn-submit'));
-  }
+  // Un troisieme bouton « Restaurer brouillon » etait injecte dans la barre
+  // de navigation de l'etape 5, en pastille orange pleine, a cote de
+  // « Continuer ». Il faisait doublon avec l'icone deja presente en haut du
+  // formulaire et detournait l'attention de l'action principale. Retire.
 });
 
 // Gestion des red flags

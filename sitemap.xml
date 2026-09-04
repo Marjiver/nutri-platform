@@ -135,6 +135,6 @@
        prescripteur-*.html, gestion-*.html
      - Pages admin : admin.html, statistiques-admin.html,
        api-documentation.html, backup-restore.html, webhooks.html
-     - Pages système : offline.html, chatbot.html, seo.html
+     - Pages système : offline.html, seo.html
      - Pages coming soon : partenaire-crm.html, compta-partenaire.html
      ═══════════════════════════════════════════════════════════ -->

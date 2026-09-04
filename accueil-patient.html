@@ -222,6 +222,24 @@
     .scroll-top-btn.visible{opacity:1;}
     [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
     [data-reveal].revealed{opacity:1;transform:translateY(0);}
+  
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION SOMBRE « VOTRE PARCOURS » — LISIBILITE
+       ───────────────────────────────────────────────────────────────────
+       Les blocs d'etapes heritaient des couleurs de texte prevues pour un
+       fond clair : le titre etait en var(--text-primary), soit #0d2018,
+       pose sur un fond #0d2018. Rapport de contraste 1,00:1 — le texte
+       etait litteralement invisible, et le paragraphe a 3,81:1 sous le
+       seuil AA. Les variantes claires existaient pour le titre de section
+       (.nd-title-l, .nd-sub-l) mais pas pour les etapes.
+       ═══════════════════════════════════════════════════════════════════ */
+    .nd-section-dark .etape        { border-bottom-color: rgba(255,255,255,.09); }
+    .nd-section-dark .etape h3     { color: #fff; }                    /* 16,98:1 */
+    .nd-section-dark .etape p      { color: rgba(255,255,255,.68); }   /*  8,42:1 */
+    .nd-section-dark .etape-badge  {
+      background: rgba(93,202,165,.14);
+      color: #5DCAA5;                                                  /*  8,45:1 */
+    }
   </style>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://nutridoc.calidoc-sante.fr/accueil-patient.html"/>
