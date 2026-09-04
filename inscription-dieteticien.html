@@ -622,6 +622,8 @@ async function lookupRpps() {
       show('rppsResult');
     } else if(v.statut==='profession_incorrecte'){
       showBlocage('⛔ Ce numéro RPPS n&apos;appartient pas à un diététicien ('+(v.profession||'profession inconnue')+'). Seuls les diététiciens certifiés peuvent s&apos;inscrire.');
+    } else if(v.statut==='inactif'){
+      showBlocage('⛔ Ce numéro RPPS correspond à un praticien qui n&apos;est plus en activité dans l&apos;annuaire officiel. Si c&apos;est une erreur de l&apos;annuaire, <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
     } else if(v.statut==='nom_different'){
       showBlocage('⛔ Le nom et prénom saisis ne correspondent pas au titulaire de ce numéro RPPS dans l&apos;annuaire officiel. Vérifiez votre saisie (étape 1). En cas d&apos;erreur de l&apos;annuaire, <a href="mailto:contact@calidoc-sante.fr" style="color:var(--green);">contactez-nous</a>.');
     } else if(v.statut==='introuvable'){

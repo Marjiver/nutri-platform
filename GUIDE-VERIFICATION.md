@@ -1,6 +1,6 @@
 # Guide — Vérification des comptes professionnels
 
-*NutriDoc · août 2026 · rédigé pour Marjiver (aucune compétence technique requise)*
+*NutriDoc · mis à jour le 4 septembre 2026 · rédigé pour Marjiver (aucune compétence technique requise)*
 
 > **État au 4 septembre 2026 — la vérification automatique n'est PAS active.**
 > La fonction est déployée et joignable, mais la clé `ESANTE_API_KEY` n'est pas
@@ -18,15 +18,26 @@
 
 **Argent (verrou Stripe, prêt à brancher).** Règle enregistrée : le nom du compte Stripe **et** du RIB doivent correspondre au nom officiel RPPS, sinon aucun versement. Le code est prêt (`supabase/functions/verifier-stripe-nom/`) et s'activera quand Stripe Connect sera branché. Stripe vérifie de son côté l'identité légale (pièce d'identité) de celui qui reçoit l'argent : un imposteur ne peut donc pas encaisser à la place d'un vrai diététicien.
 
-## Ce que TU dois faire (3 actions, ~30 min + délai ANS)
+## Ce que TU dois faire (une seule action, ~10 min)
 
-### Action 1 — Obtenir la clé API de l'Annuaire Santé (gratuit)
-1. Va sur **industriels.esante.gouv.fr** (portail développeurs de l'Agence du Numérique en Santé)
-2. Crée un compte au nom de CaliDoc Santé
-3. Demande l'accès à l'**API Annuaire Santé** (parfois nommée « Annuaire Santé en libre accès »)
-4. Récupère ta clé API (une longue suite de caractères)
+### Action 1 — Obtenir la clé API de l'Annuaire Santé (gratuit, immédiat)
+La souscription se fait sur le portail **Gravitee** de l'ANS, pas sur
+industriels.esante.gouv.fr comme indiqué dans une version précédente de ce
+guide. Il n'y a **aucun délai de validation** : la clé est délivrée dès la
+confirmation de l'adresse e-mail.
 
-> Sans cette clé, l'inscription diététicien affiche « service momentanément indisponible » et reste bloquée — c'est voulu : personne ne peut s'inscrire sans vérification.
+1. Va sur **https://portal.api.esante.gouv.fr**
+2. Crée un compte (nom, prénom, e-mail) au nom de CaliDoc Santé
+3. Confirme l'e-mail via le lien reçu
+4. Onglet **Applications** → « CRÉER UNE APP » → renseigne un nom et une description
+5. Cherche l'API **« Annuaire Santé en libre accès »** → « Souscrire »
+6. Onglet **Souscriptions** → clique sur l'API → ta clé s'affiche
+
+Gratuit, en lecture seule, limité à 17 appels par seconde — très au-dessus de
+ce dont le site a besoin (un appel par inscription).
+
+> Sans cette clé, l'inscription diététicien bascule en validation manuelle et le
+> compte reste bloqué — c'est voulu : personne ne s'inscrit sans vérification.
 
 ### Action 2 — Déployer la fonction de vérification — **déjà FAIT**
 `verifier-rpps` est déployée et répond en production. Rien à refaire.
@@ -36,6 +47,14 @@ Il ne reste qu'à y déposer la clé :
 2. Ajoute : Nom `ESANTE_API_KEY` · Valeur : ta clé de l'Action 1
 3. C'est tout — la vérification redevient automatique dès l'appel suivant,
    sans redéploiement ni modification du site.
+
+> **Note technique — version de l'API.** La fonction interroge désormais
+> `https://gateway.api.esante.gouv.fr/fhir/v2/`. La v1 est dépréciée par l'ANS
+> et ses dates d'arrêt annoncées (mars puis juillet 2026) sont passées. Le
+> passage en v2 n'est pas cosmétique : en v1 la profession était portée par
+> `PractitionerRole`, pas par `Practitioner`. Le code lisant
+> `practitioner.qualification`, il aurait refusé **tous** les diététiciens,
+> y compris les vrais.
 
 ### Action 3 — Mettre à jour la base de données (2 min)
 1. Supabase → menu gauche → **SQL Editor** → **New query**
