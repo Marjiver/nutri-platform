@@ -2,6 +2,14 @@
 
 *NutriDoc · août 2026 · rédigé pour Marjiver (aucune compétence technique requise)*
 
+> **État au 4 septembre 2026 — la vérification automatique n'est PAS active.**
+> La fonction est déployée et joignable, mais la clé `ESANTE_API_KEY` n'est pas
+> renseignée dans Supabase : l'Annuaire Santé n'est donc jamais interrogé et
+> **chaque inscription bascule en validation manuelle** (voir plus bas).
+> Testé en appelant la fonction en production :
+> `{"statut":"indisponible","raison":"Clé API ANS non configurée côté serveur."}`
+> Seule l'action 1 reste à faire pour l'activer.
+
 ## Ce qui a été mis en place
 
 **Diététicien (inscription bloquante).** Au moment de l'inscription, le site interroge l'Annuaire Santé officiel de l'État (ANS) et vérifie 3 choses : le numéro RPPS existe, la profession est bien « diététicien », et le nom/prénom saisis correspondent au titulaire officiel. Si l'un des trois échoue → **l'inscription est impossible** (message clair affiché). L'ancien « mode secours » qui laissait tout le monde passer a été supprimé.
@@ -20,13 +28,14 @@
 
 > Sans cette clé, l'inscription diététicien affiche « service momentanément indisponible » et reste bloquée — c'est voulu : personne ne peut s'inscrire sans vérification.
 
-### Action 2 — Déployer la fonction de vérification (10 min)
-1. Va sur **supabase.com** → ton projet NutriDoc
-2. Menu gauche → **Edge Functions** → **Deploy a new function** → nomme-la exactement `verifier-rpps`
-3. Efface le code d'exemple et colle le contenu du fichier `supabase/functions/verifier-rpps/index.ts` de ton dossier
-4. Clique **Deploy**
-5. Toujours dans Edge Functions → **Secrets** (ou Settings) → ajoute :
-   - Nom : `ESANTE_API_KEY` · Valeur : ta clé de l'Action 1
+### Action 2 — Déployer la fonction de vérification — **déjà FAIT**
+`verifier-rpps` est déployée et répond en production. Rien à refaire.
+
+Il ne reste qu'à y déposer la clé :
+1. Supabase → **Edge Functions** → **Secrets** (ou Settings)
+2. Ajoute : Nom `ESANTE_API_KEY` · Valeur : ta clé de l'Action 1
+3. C'est tout — la vérification redevient automatique dès l'appel suivant,
+   sans redéploiement ni modification du site.
 
 ### Action 3 — Mettre à jour la base de données (2 min)
 1. Supabase → menu gauche → **SQL Editor** → **New query**
